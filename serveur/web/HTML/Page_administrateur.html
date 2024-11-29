@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Well Tennis Club</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f5f0e8;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+<!-- Conteneur global -->
+<div class="w-full h-[calc(100vh-40px)] flex space-x-4 px-4 mt-5 mb-5">
+  <!-- Composant de gauche -->
+  <div class="bg-white rounded-lg shadow-md w-[30%] h-full p-[20px_30px] flex flex-col">
+    <!-- Onglets -->
+    <div class="flex items-center mb-4 relative">
+      <!-- Conteneur des onglets avec flex-grow pour occuper l'espace restant -->
+      <div class="flex space-x-6 flex-grow">
+        <button id="tab-data" class="text-[#528359] font-bold transition relative focus:outline-none w-full text-center flex items-center justify-center space-x-2">
+          <span class="material-symbols-outlined">database</span> <!-- Icône base de données -->
+          <span>Données</span>
+          <span id="underline-data" class="absolute left-0 bottom-[-2px] w-full h-[2px] bg-[#528359] hidden"></span>
+        </button>
+        <button id="tab-constraints" class="text-gray-500 font-bold transition relative focus:outline-none w-full text-center flex items-center justify-center space-x-2">
+          <span class="material-symbols-outlined">gavel</span> <!-- Icône marteau -->
+          <span>Contraintes</span>
+          <span id="underline-constraints" class="absolute left-0 bottom-[-2px] w-full h-[2px] bg-[#528359] hidden"></span>
+        </button>
+      </div>
+      <!-- Icône de téléchargement -->
+      <button class="flex items-center text-[#528359] hover:text-[#456c4c] focus:outline-none ml-4">
+        <span class="material-symbols-outlined">download</span>
+      </button>
+    </div>
+
+    <!-- Contenu -->
+    <div id="content-data" class="flex-1 overflow-auto">
+      <!-- Barre de recherche et icône de téléchargement -->
+      <div class="flex items-center border border-gray-300 rounded-lg px-4 py-2 focus-within:ring-2 focus-within:ring-[#528359] mb-6">
+        <!-- Icône de loupe -->
+        <span class="material-symbols-outlined text-gray-500 text-lg mr-2">search</span>
+        <!-- Champ de recherche -->
+        <input
+                type="text"
+                placeholder="Filtrer les données"
+                class="w-full text-sm focus:outline-none"
+        >
+      </div>
+
+      <div id="content-constraints" class="hidden flex-1 overflow-auto">
+        <!-- Contenu de l'onglet Contraintes -->
+        <h2 class="text-[#528359] font-bold text-lg mb-4">Contraintes</h2>
+        <p class="text-gray-600 text-sm">
+          Ajoutez ici vos contraintes spécifiques pour les terrains ou les entraîneurs.
+        </p>
+        <!-- Exemple de contenu -->
+        <ul class="list-disc pl-5 text-gray-700">
+          <li>Contraintes d'âge pour les joueurs</li>
+          <li>Plages horaires réservées</li>
+          <li>Autres règles spécifiques</li>
+        </ul>
+      </div>
+
+      <!-- Section des entraîneurs -->
+      <div class="mb-6">
+        <div class="flex justify-between items-center cursor-pointer" onclick="toggleAccordion('trainers')">
+          <div class="flex items-center">
+            <span id="icon-trainers" class="material-symbols-outlined text-[#528359] mr-2">expand_more</span>
+            <h3 class="text-[#528359] font-bold text-lg">Entraîneurs</h3>
+          </div>
+          <div class="flex items-center space-x-4">
+            <button class="text-[#528359]">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+            <button class="text-[#528359]">
+              <span class="material-symbols-outlined">person_add</span>
+            </button>
+          </div>
+        </div>
+        <hr class="border-t border-gray-300 mb-2">
+        <div id="trainers" class="hidden">
+          <!-- En-têtes -->
+          <div class="grid grid-cols-3 text-xs text-gray-400 font-semibold mb-2">
+            <div>Nom</div>
+            <div class="text-right">Niveau Min-Max</div>
+            <div class="text-right">Niveau</div>
+          </div>
+          <!-- Liste des entraîneurs -->
+          <div class="space-y-2">
+            <div class="grid grid-cols-3 items-center">
+              <span>Athena Garrett</span>
+              <span class="text-sm text-gray-500 text-right">0-17</span>
+              <span class="text-sm text-gray-500 text-right">17</span>
+            </div>
+            <div class="grid grid-cols-3 items-center">
+              <span>Billie Sharpe</span>
+              <span class="text-sm text-gray-500 text-right">12-16</span>
+              <span class="text-sm text-gray-500 text-right">18</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Section des joueurs -->
+      <div>
+        <div class="flex justify-between items-center cursor-pointer" onclick="toggleAccordion('players')">
+          <div class="flex items-center">
+            <span id="icon-players" class="material-symbols-outlined text-[#528359] mr-2">expand_more</span>
+            <h3 class="text-[#528359] font-bold text-lg">Joueurs</h3>
+          </div>
+          <div class="flex items-center space-x-4">
+            <button class="text-[#528359]">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+            <button class="text-[#528359]">
+              <span class="material-symbols-outlined">person_add</span>
+            </button>
+          </div>
+        </div>
+        <hr class="border-t border-gray-300 mb-2">
+        <div id="players" class="hidden">
+          <!-- En-têtes -->
+          <div class="grid grid-cols-3 text-xs text-gray-400 font-semibold mb-2">
+            <div>Nom</div>
+            <div class="text-right">Âge</div>
+            <div class="text-right">Niveau</div>
+          </div>
+          <!-- Liste des joueurs -->
+          <div class="space-y-2">
+            <div class="grid grid-cols-3 items-center">
+              <span>Callan McConnell</span>
+              <span class="text-sm text-gray-500 text-right">15ans</span>
+              <span class="text-sm text-gray-500 text-right">8</span>
+            </div>
+            <div class="grid grid-cols-3 items-center">
+              <span>Erica Scott</span>
+              <span class="text-sm text-gray-500 text-right">17ans</span>
+              <span class="text-sm text-gray-500 text-right">8</span>
+            </div>
+            <div class="grid grid-cols-3 items-center">
+              <span>Kayla Dotson</span>
+              <span class="text-sm text-gray-500 text-right">16ans</span>
+              <span class="text-sm text-gray-500 text-right">9</span>
+            </div>
+            <div class="grid grid-cols-3 items-center">
+              <span>Anais Ayala</span>
+              <span class="text-sm text-gray-500 text-right">17ans</span>
+              <span class="text-sm text-gray-500 text-right">9</span>
+            </div>
+            <div class="grid grid-cols-3 items-center">
+              <span>Alexandra Vance</span>
+              <span class="text-sm text-gray-500 text-right">15ans</span>
+              <span class="text-sm text-gray-500 text-right">10</span>
+            </div>
+            <div class="grid grid-cols-3 items-center">
+              <span>Safwan Lucero</span>
+              <span class="text-sm text-gray-500 text-right">18ans</span>
+              <span class="text-sm text-gray-500 text-right">10</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <script>
+      function toggleAccordion(sectionId) {
+        const section = document.getElementById(sectionId);
+        const icon = document.getElementById(`icon-${sectionId}`);
+        if (section.classList.contains('hidden')) {
+          section.classList.remove('hidden');
+          icon.textContent = 'expand_less'; // Change icon to "collapse"
+        } else {
+          section.classList.add('hidden');
+          icon.textContent = 'expand_more'; // Change icon to "expand"
+        }
+      }
+    </script>
+
+  </div>
+
+  <!-- Conteneur de droite -->
+  <div class="flex flex-col justify-between w-[70%] h-full space-y-4">
+    <!-- Onglets des terrains -->
+    <div class="bg-white rounded-lg shadow-md h-[95%] p-6 overflow-auto">
+      <div class="flex items-center justify-between mb-6 relative">
+        <!-- Boutons des terrains parfaitement centrés -->
+        <div class="absolute left-1/2 transform -translate-x-1/2 flex space-x-6">
+          <button id="tab-terrain1" class="text-[#528359] font-bold transition relative focus:outline-none">
+            Terrain 1
+            <span id="underline-terrain1" class="absolute left-0 bottom-[-2px] w-full h-[2px] bg-[#528359] hidden"></span>
+          </button>
+          <button id="tab-terrain2" class="text-gray-500 font-bold transition relative focus:outline-none">
+            Terrain 2
+            <span id="underline-terrain2" class="absolute left-0 bottom-[-2px] w-full h-[2px] bg-[#528359] hidden"></span>
+          </button>
+          <button id="tab-terrain3" class="text-gray-500 font-bold transition relative focus:outline-none">
+            Terrain 3
+            <span id="underline-terrain3" class="absolute left-0 bottom-[-2px] w-full h-[2px] bg-[#528359] hidden"></span>
+          </button>
+        </div>
+
+        <!-- Texte cliquable "Filtrer la recherche" aligné à droite -->
+        <div id="filter-action" class="absolute right-0 flex items-center space-x-1 text-[#528359] font-bold cursor-pointer hover:underline transition">
+          <span class="text-sm">Filtrer la recherche</span>
+          <span class="material-symbols-outlined text-lg">filter_list</span>
+        </div>
+      </div>
+
+
+
+
+      <!-- Ligne noire -->
+      <div class="border-t border-gray-300 mb-4"></div>
+      <!-- Contenu principal des séances -->
+      <div id="content-terrain1">
+        <h2 class="text-[#528359] text-xl font-bold mb-4">Lundi</h2>
+        <!-- Conteneur de la séance -->
+        <!-- Conteneur de la séance -->
+        <div class="space-y-4 mt-4">
+          <!-- Séance 1 -->
+          <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 flex items-center">
+            <!-- Heures -->
+            <div class="text-[#528359] font-bold text-sm w-[10%] text-center border-r border-gray-800 pr-4">
+              <p>17:00</p>
+              <p>18:30</p>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="flex-1 pl-4 flex items-center">
+              <!-- Entraîneur -->
+              <div class="w-[15%] pr-4 text-xs">
+                <div class="mb-1 flex items-center">
+                  <span class="material-symbols-outlined text-sm mr-1">person</span>
+                  <span>Billie Sharpe</span>
+                </div>
+                <div class="mb-1 flex items-center">
+                  <span class="material-symbols-outlined text-sm mr-1">cake</span>
+                  <span>15-18 ans</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="material-symbols-outlined text-sm mr-1">straighten</span>
+                  <span>8-10</span>
+                </div>
+              </div>
+
+              <!-- Long trait horizontal entre entraîneur et joueurs -->
+              <div class="flex items-center mx-2 flex-grow">
+                <div class="border-t border-gray-300 w-full"></div>
+              </div>
+
+              <!-- Liste des joueurs -->
+              <div class="w-[30%] flex justify-around text-xs text-[#1A4220]">
+                <!-- Colonne gauche -->
+                <div class="space-y-1 text-left">
+                  <div>Erica Scott</div>
+                  <div>Alexandra Vance</div>
+                  <div>Anais Ayala</div>
+                </div>
+                <!-- Colonne droite -->
+                <div class="space-y-1 text-left">
+                  <div>Safwan Lucero</div>
+                  <div>Callan McConnell</div>
+                  <div>Kayla Dotson</div>
+                </div>
+              </div>
+
+              <!-- Long trait horizontal entre joueurs et bouton -->
+              <div class="flex items-center mx-2 flex-grow">
+                <div class="border-t border-gray-300 w-full"></div>
+              </div>
+
+              <!-- Bouton Supprimer aligné au centre verticalement -->
+              <div class="text-right ml-auto flex items-center">
+                <button class="text-[#528359] flex items-center text-xs hover:underline">
+                  Supprimer
+                  <span class="material-symbols-outlined ml-1">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conteneur indiquant que le terrain est libre -->
+        <div class="space-y-4 mt-4">
+          <!-- Conteneur Libre -->
+          <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 flex items-center">
+            <!-- Temps -->
+            <div class="text-[#528359] font-bold text-sm w-[10%] text-center border-r border-gray-800 pr-4 mr-4">
+              <p>00:30</p>
+            </div>
+            <!-- Contenu principal -->
+            <div class="flex-1 flex items-center justify-center">
+              <!-- Trait horizontal avec "Libre" centré -->
+              <div class="relative flex-grow border-t border-gray-300">
+        <span class="absolute bg-gray-50 px-2 text-[#1A4220] font-semibold text-sm left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          Libre
+        </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Conteneur de la séance -->
+        <div class="space-y-4 mt-4">
+          <!-- Séance 1 -->
+          <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 flex items-center">
+            <!-- Heures -->
+            <div class="text-[#528359] font-bold text-sm w-[10%] text-center border-r border-gray-800 pr-4">
+              <p>17:00</p>
+              <p>18:30</p>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="flex-1 pl-4 flex items-center">
+              <!-- Entraîneur -->
+              <div class="w-[15%] pr-4 text-xs">
+                <div class="mb-1 flex items-center">
+                  <span class="material-symbols-outlined text-sm mr-1">person</span>
+                  <span>Billie Sharpe</span>
+                </div>
+                <div class="mb-1 flex items-center">
+                  <span class="material-symbols-outlined text-sm mr-1">cake</span>
+                  <span>15-18 ans</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="material-symbols-outlined text-sm mr-1">straighten</span>
+                  <span>8-10</span>
+                </div>
+              </div>
+
+              <!-- Long trait horizontal entre entraîneur et joueurs -->
+              <div class="flex items-center mx-2 flex-grow">
+                <div class="border-t border-gray-300 w-full"></div>
+              </div>
+
+              <!-- Liste des joueurs -->
+              <div class="w-[30%] flex justify-around text-xs text-[#1A4220]">
+                <!-- Colonne gauche -->
+                <div class="space-y-1 text-left">
+                  <div>Erica Scott</div>
+                  <div>Alexandra Vance</div>
+                  <div>Anais Ayala</div>
+                </div>
+                <!-- Colonne droite -->
+                <div class="space-y-1 text-left">
+                  <div>Safwan Lucero</div>
+                  <div>Callan McConnell</div>
+                  <div>Kayla Dotson</div>
+                </div>
+              </div>
+
+              <!-- Long trait horizontal entre joueurs et bouton -->
+              <div class="flex items-center mx-2 flex-grow">
+                <div class="border-t border-gray-300 w-full"></div>
+              </div>
+
+              <!-- Bouton Supprimer aligné au centre verticalement -->
+              <div class="text-right ml-auto flex items-center">
+                <button class="text-[#528359] flex items-center text-xs hover:underline">
+                  Supprimer
+                  <span class="material-symbols-outlined ml-1">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="text-[#528359] text-xl font-bold mt-4">Mardi</h2>
+
+        <!-- Conteneur de la séance -->
+        <div class="space-y-4 mt-4">
+          <!-- Séance 1 -->
+          <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 flex items-center">
+            <!-- Heures -->
+            <div class="text-[#528359] font-bold text-sm w-[10%] text-center border-r border-gray-800 pr-4">
+              <p>17:00</p>
+              <p>18:30</p>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="flex-1 pl-4 flex items-center">
+              <!-- Entraîneur -->
+              <div class="w-[15%] pr-4 text-xs">
+                <div class="mb-1 flex items-center">
+                  <span class="material-symbols-outlined text-sm mr-1">person</span>
+                  <span>Billie Sharpe</span>
+                </div>
+                <div class="mb-1 flex items-center">
+                  <span class="material-symbols-outlined text-sm mr-1">cake</span>
+                  <span>15-18 ans</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="material-symbols-outlined text-sm mr-1">straighten</span>
+                  <span>8-10</span>
+                </div>
+              </div>
+
+              <!-- Long trait horizontal entre entraîneur et joueurs -->
+              <div class="flex items-center mx-2 flex-grow">
+                <div class="border-t border-gray-300 w-full"></div>
+              </div>
+
+              <!-- Liste des joueurs -->
+              <div class="w-[30%] flex justify-around text-xs text-[#1A4220]">
+                <!-- Colonne gauche -->
+                <div class="space-y-1 text-left">
+                  <div>Erica Scott</div>
+                  <div>Alexandra Vance</div>
+                  <div>Anais Ayala</div>
+                </div>
+                <!-- Colonne droite -->
+                <div class="space-y-1 text-left">
+                  <div>Safwan Lucero</div>
+                  <div>Callan McConnell</div>
+                  <div>Kayla Dotson</div>
+                </div>
+              </div>
+
+              <!-- Long trait horizontal entre joueurs et bouton -->
+              <div class="flex items-center mx-2 flex-grow">
+                <div class="border-t border-gray-300 w-full"></div>
+              </div>
+
+              <!-- Bouton Supprimer aligné au centre verticalement -->
+              <div class="text-right ml-auto flex items-center">
+                <button class="text-[#528359] flex items-center text-xs hover:underline">
+                  Supprimer
+                  <span class="material-symbols-outlined ml-1">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fin des séances défilables -->
+      </div>
+      <div id="content-terrain2" class="hidden">
+        <h2 class="text-[#528359] text-xl font-bold mb-4">Séances - Terrain 2</h2>
+        <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 mb-2">
+          <p class="font-semibold text-[#528359]">Séance 1</p>
+          <p class="text-sm text-gray-600">Détails de la séance pour Terrain 2</p>
+        </div>
+      </div>
+      <div id="content-terrain3" class="hidden">
+        <h2 class="text-[#528359] text-xl font-bold mb-4">Séances - Terrain 3</h2>
+        <div class="bg-gray-50 border border-gray-300 rounded-lg p-4 mb-2">
+          <p class="font-semibold text-[#528359]">Séance 1</p>
+          <p class="text-sm text-gray-600">Détails de la séance pour Terrain 3</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Composant inférieur -->
+    <div class="bg-white rounded-lg shadow-md h-[8%] p-4 flex justify-between items-center">
+      <!-- Boutons alignés -->
+      <div class="flex space-x-4 items-center">
+        <!-- Bouton Lancer -->
+        <button class="bg-[#528359] text-white py-2 px-4 rounded-lg flex items-center hover:bg-[#456c4c] transition">
+          <span class="material-symbols-outlined mr-2">play_arrow</span>
+          Lancer
+        </button>
+        <!-- Bouton Envoyer les modifications -->
+        <button class="bg-white text-[#528359] py-2 px-4 rounded-lg flex items-center border border-[#528359] hover:bg-[#e6f4eb] transition">
+          <span class="material-symbols-outlined ml-1">event_repeat</span> <!-- Icône flèche -->
+          <span class="ml-2">Envoyer les modifications</span>
+        </button>
+        <!-- Champ de résultat avec icône -->
+        <div class="flex items-center text-[#d97706] pl-12">
+          <span class="material-symbols-outlined mr-2">warning</span>
+          <span class="text-sm">Placement réalisé à 98%</span>
+        </div>
+      </div>
+      <!-- Bouton Envoyer l'emploi du temps -->
+      <button class="bg-white text-[#528359] py-2 px-4 rounded-lg flex items-center border border-[#528359] hover:bg-[#e6f4eb] transition">
+        <span class="material-symbols-outlined mr-2">send</span>
+        Envoyer l'emploi du temps
+      </button>
+
+
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+  // Gestion des onglets "Données" et "Contraintes"
+  const tabData = document.getElementById('tab-data');
+  const tabConstraints = document.getElementById('tab-constraints');
+  const contentData = document.getElementById('content-data');
+  const contentConstraints = document.getElementById('content-constraints');
+  const underlineData = document.getElementById('underline-data');
+  const underlineConstraints = document.getElementById('underline-constraints');
+
+  tabData.addEventListener('click', () => {
+    tabData.classList.add('text-[#528359]');
+    tabData.classList.remove('text-gray-500');
+    tabConstraints.classList.remove('text-[#528359]');
+    tabConstraints.classList.add('text-gray-500');
+    contentData.classList.remove('hidden');
+    contentConstraints.classList.add('hidden');
+    underlineData.classList.remove('hidden');
+    underlineConstraints.classList.add('hidden');
+  });
+
+  tabConstraints.addEventListener('click', () => {
+    tabConstraints.classList.add('text-[#528359]');
+    tabConstraints.classList.remove('text-gray-500');
+    tabData.classList.remove('text-[#528359]');
+    tabData.classList.add('text-gray-500');
+    contentConstraints.classList.remove('hidden');
+    contentData.classList.add('hidden');
+    underlineConstraints.classList.remove('hidden');
+    underlineData.classList.add('hidden');
+  });
+
+  // Gestion des onglets "Terrains"
+  const terrains = [
+    { tab: 'tab-terrain1', content: 'content-terrain1', underline: 'underline-terrain1' },
+    { tab: 'tab-terrain2', content: 'content-terrain2', underline: 'underline-terrain2' },
+    { tab: 'tab-terrain3', content: 'content-terrain3', underline: 'underline-terrain3' },
+  ];
+
+  terrains.forEach(({ tab, content, underline }) => {
+    document.getElementById(tab).addEventListener('click', () => {
+      terrains.forEach(({ tab: otherTab, content: otherContent, underline: otherUnderline }) => {
+        document.getElementById(otherTab).classList.remove('text-[#528359]');
+        document.getElementById(otherTab).classList.add('text-gray-500');
+        document.getElementById(otherContent).classList.add('hidden');
+        document.getElementById(otherUnderline).classList.add('hidden');
+      });
+      document.getElementById(tab).classList.add('text-[#528359]');
+      document.getElementById(tab).classList.remove('text-gray-500');
+      document.getElementById(content).classList.remove('hidden');
+      document.getElementById(underline).classList.remove('hidden');
+    });
+  });
+
+  // Initialisation par défaut
+  underlineData.classList.remove('hidden');
+  underlineConstraints.classList.add('hidden');
+  document.getElementById('underline-terrain1').classList.remove('hidden');
+</script>
+</body>
+</html>
