@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-coach" author="Thomas">
+        <createTable tableName="coach">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="surname" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="levels" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ages" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createSequence cacheSize="10" cycle="false" incrementBy="1" maxValue="1000000000000" minValue="1" sequenceName="coach_seq" startValue="1"/>
+
+        <insert tableName='coach'>
+            <column name='id' valueSequenceNext='coach_seq'/>
+            <column name='name' value="Brandt"/>
+            <column name='surname' value="Pierre"/>
+            <column name='levels' value="14-19"/>
+            <column name='ages' value="1-99"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
