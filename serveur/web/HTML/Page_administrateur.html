@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Well Tennis Club</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" rel="stylesheet">
   <style>
     body {
@@ -17,9 +16,10 @@
 <body class="min-h-screen flex flex-col">
 
 <!-- Conteneur global -->
-<div class="w-full h-[calc(100vh-40px)] flex space-x-4 px-4 mt-5 mb-5">
+<div class="w-full h-[calc(100vh-40px)] flex flex-col lg:flex-row space-x-4 px-4 mt-5 mb-5">
+
   <!-- Composant de gauche -->
-  <div class="bg-white rounded-lg shadow-md w-[30%] h-full p-[20px_30px] flex flex-col">
+  <div class="bg-white rounded-lg shadow-md w-full sm:w-[40%] lg:w-[30%] h-full p-[20px_30px] flex flex-col mb-4 lg:mb-0">
     <!-- Onglets -->
     <div class="flex items-center mb-4 relative">
       <div class="flex space-x-6 flex-grow">
