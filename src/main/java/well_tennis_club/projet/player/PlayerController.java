@@ -25,7 +25,7 @@ public class PlayerController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
             @ApiResponse(responseCode = "500", description = "Internal server error - Players were not found")
     })
-    @GetMapping("/all")
+    @GetMapping()
     public List<PlayerDto> getAllPlayers(){
         List<PlayerDto> list = PlayerMapper.INSTANCE.mapToListDTO(playerService.getAllPlayers());
         if (list == null || list.size() == 0){
@@ -40,7 +40,7 @@ public class PlayerController {
     @CrossOrigin
     @Operation(summary = "Create player",description = "Create player with name, surname, age, level and courses")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
+            @ApiResponse(responseCode = "201", description = "Successfully created"),
             @ApiResponse(responseCode = "500", description = "Internal server error - Player was not create")
     })
     @PostMapping
@@ -51,12 +51,21 @@ public class PlayerController {
     @CrossOrigin
     @Operation(summary = "Update player",description = "Update player with id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
-            @ApiResponse(responseCode = "500", description = "Internal server error - Player was not update")
+            @ApiResponse(responseCode = "200", description = "Successfully patched"),
+            @ApiResponse(responseCode = "404", description = "Internal server error - Player was not update")
     })
-    @PutMapping
-    public PlayerDto updatePlayer(@RequestBody PlayerDto playerDto){
-        return PlayerMapper.INSTANCE.mapToDTO(playerService.updatePlayer(PlayerMapper.INSTANCE.mapToEntity(playerDto)));
+    @PatchMapping("/{id}")
+    public PlayerDto updatePlayer(@PathVariable Long id,@RequestBody PlayerDto playerDto){
+        PlayerDto player = PlayerMapper.INSTANCE.mapToDTO(playerService.getPlayerById(id));
+        if (player == null){
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Player not found"
+            );
+        }else{
+            PlayerDto modif = playerDto;
+            modif.setId(id);
+            return PlayerMapper.INSTANCE.mapToDTO(playerService.updatePlayer(PlayerMapper.INSTANCE.mapToEntity(modif)));
+        }
     }
 
     @CrossOrigin
@@ -70,5 +79,23 @@ public class PlayerController {
         PlayerEntity entity = new PlayerEntity();
         entity.setId(id);
         playerService.deletePlayer(entity);
+    }
+
+    @CrossOrigin
+    @Operation(summary = "Get one player",description = "Return player with id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",description = "Successfully retrieved"),
+            @ApiResponse(responseCode = "500", description = "Internal server error - Player was not found")
+    })
+    @GetMapping("/{id}")
+    public PlayerDto getPlayer(@PathVariable Long id){
+        PlayerDto player = PlayerMapper.INSTANCE.mapToDTO(playerService.getPlayerById(id));
+        if (player == null){
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,"Player not found"
+            );
+        }else {
+            return player;
+        }
     }
 }

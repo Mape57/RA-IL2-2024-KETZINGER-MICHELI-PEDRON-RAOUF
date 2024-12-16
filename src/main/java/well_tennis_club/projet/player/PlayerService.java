@@ -20,4 +20,6 @@ public class PlayerService {
     public PlayerEntity updatePlayer(PlayerEntity entity){return playerRepository.save(entity);}
 
     public void deletePlayer(PlayerEntity entity){playerRepository.delete(entity);}
+
+    public PlayerEntity getPlayerById(Long id){return playerRepository.findById(id).orElse(null);}
 }
