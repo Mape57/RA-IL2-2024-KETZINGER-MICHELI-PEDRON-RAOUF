@@ -17,7 +17,7 @@
       <div class="flex-1 text-gray-800">{{ player.name }}</div>
 
       <!-- Âge du joueur -->
-      <div class="flex-1 text-center text-gray-600">{{ player.age }} ans</div>
+      <div class="flex-1 text-center text-gray-600">{{ player.birthday }} </div>
 
       <!-- Niveau du joueur -->
       <div class="flex-1 text-right text-gray-600">{{ player.level }}</div>

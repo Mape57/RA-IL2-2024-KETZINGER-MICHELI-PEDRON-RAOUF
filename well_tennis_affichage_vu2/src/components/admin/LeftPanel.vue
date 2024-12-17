@@ -47,6 +47,8 @@
 import Accordion from '../shared/Accordion.vue';
 import Trainers from './Trainers.vue';
 import Players from './Players.vue';
+import trainersService from "../../services/trainersService.js";
+import playersService from "../../services/playersService.js";
 
 export default {
   name: "LeftPanel",
@@ -58,26 +60,39 @@ export default {
   data() {
     return {
       selectedTab: "data", // Onglet actif par défaut
-      trainers: [
-        { id: 1, name: "Athena Garrett" },
-        { id: 2, name: "Billie Sharpe" },
-      ],
-      players: [
-        { id: 1, name: "Erica Scott", age: 15, level: 8 },
-        { id: 2, name: "Callan McConnell", age: 17, level: 7 },
-        { id: 3, name: "Alexandra Vance", age: 16, level: 6 },
-      ],
+      trainers: [],        // Liste des entraîneurs
+      players: [],         // Liste des joueurs
     };
+  },
+  created() {
+    this.fetchTrainers();
+    this.fetchPlayers();
   },
   methods: {
     selectTab(tab) {
-      this.selectedTab = tab; // Met à jour l'onglet actif
+      this.selectedTab = tab; // Change l'onglet actif
     },
     deleteTrainer(trainerId) {
       this.trainers = this.trainers.filter((trainer) => trainer.id !== trainerId); // Supprime un entraîneur
     },
     deletePlayer(playerId) {
       this.players = this.players.filter((player) => player.id !== playerId); // Supprime un joueur
+    },
+    async fetchTrainers() {
+      try {
+        const response = await trainersService.getAllTrainers();
+        this.trainers = response.data; // Stocke les entraîneurs
+      } catch (error) {
+        console.error("Erreur lors de la récupération :", error);
+      }
+    },
+    async fetchPlayers() {
+      try {
+        const response = await playersService.getAllPlayers();
+        this.players = response.data; // Stocke les joueurs
+      } catch (error) {
+        console.error("Erreur lors de la récupération :", error);
+      }
     },
   },
 };
