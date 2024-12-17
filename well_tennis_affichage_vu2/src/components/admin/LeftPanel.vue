@@ -1,104 +1,149 @@
 <template>
-  <div class="left-panel bg-white rounded-lg shadow-md w-[30%] h-[85vh] p-6 mt-5 flex flex-col">
-    <!-- Onglets pour "Données" et "Contraintes" -->
-    <div class="tabs flex space-x-6 mb-4">
+  <div class="left-panel fixed top-5 left-5 bg-white rounded-lg shadow-md w-[30%] h-[97vh] p-6 flex flex-col z-20">
+    <div class="tabs flex items-center mb-4">
+
+      <div class="flex w-full">
+        <button
+            @click="selectTab('data')"
+            :class="{ active: selectedTab === 'data' }"
+            class="tab-button flex-grow flex items-center justify-center"
+        >
+          <span class="material-symbols-outlined mr-2">database</span>
+          <span>Données</span>
+        </button>
+        <button
+            @click="selectTab('constraints')"
+            :class="{ active: selectedTab === 'constraints' }"
+            class="tab-button flex-grow flex items-center justify-center"
+        >
+          <span class="material-symbols-outlined mr-2">gavel</span>
+          <span>Contraintes</span>
+        </button>
+      </div>
+
       <button
-          @click="selectTab('data')"
-          :class="{ active: selectedTab === 'data' }"
-          class="tab-button"
+          @click="downloadData"
+          class="ml-auto text-green-700 hover:text-green-900 transition"
+          title="Télécharger les données"
       >
-        <span class="material-symbols-outlined mr-2">database</span>Données
-      </button>
-      <button
-          @click="selectTab('constraints')"
-          :class="{ active: selectedTab === 'constraints' }"
-          class="tab-button"
-      >
-        <span class="material-symbols-outlined mr-2">gavel</span>Contraintes
+        <span class="material-symbols-outlined text-3xl">download</span>
       </button>
     </div>
 
-    <!-- Contenu dynamique basé sur l'onglet sélectionné -->
-    <div class="content flex-1 overflow-auto">
-      <!-- Contenu de l'onglet "Données" -->
-      <div v-if="selectedTab === 'data'">
-        <Accordion title="Entraîneurs">
-          <Trainers :trainers="trainers" @deleteTrainer="deleteTrainer" />
-        </Accordion>
-        <Accordion title="Joueurs">
-          <Players :players="players" @deletePlayer="deletePlayer" />
-        </Accordion>
-      </div>
+    <div v-if="selectedTab === 'data'" class="mb-4">
+      <input
+          type="text"
+          placeholder="Filtrer les données..."
+          v-model="searchQuery"
+          class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#528359] transition"
+      />
+    </div>
 
-      <!-- Contenu de l'onglet "Contraintes" -->
+    <!-- Contenu des onglets -->
+    <div class="content flex-1 overflow-auto">
+      <!-- Onglet Données -->
+      <div v-if="selectedTab === 'data'">
+        <Players :players="players" :searchQuery="searchQuery" />
+        <Trainers :trainers="trainers" />
+      </div>
+      <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
-        <Accordion title="Terrains">
-          <p class="text-gray-500 text-sm">Les contraintes liées aux terrains s'affichent ici.</p>
-        </Accordion>
-        <Accordion title="Séances">
-          <p class="text-gray-500 text-sm">Les contraintes liées aux séances s'affichent ici.</p>
-        </Accordion>
+        <Terrains :terrains="terrains" />
+        <Session :sessions="sessions" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Accordion from '../shared/Accordion.vue';
-import Trainers from './Trainers.vue';
-import Players from './Players.vue';
+import Players from "./Players.vue";
+import Trainers from "./Trainers.vue";
+import Terrains from "../terrains/Terrain.vue";
+import Session from "./Session.vue";
 
 export default {
   name: "LeftPanel",
-  components: {
-    Accordion,
-    Trainers,
-    Players,
-  },
+  components: { Players, Trainers, Terrains, Session },
   data() {
     return {
-      selectedTab: "data", // Onglet actif par défaut
-      trainers: [
-        { id: 1, name: "Athena Garrett" },
-        { id: 2, name: "Billie Sharpe" },
-      ],
+      selectedTab: "data",
+      searchQuery: "",
       players: [
-        { id: 1, name: "Erica Scott", age: 15, level: 8 },
-        { id: 2, name: "Callan McConnell", age: 17, level: 7 },
-        { id: 3, name: "Alexandra Vance", age: 16, level: 6 },
+        { id: 1, name: "Callan McConnell", age: 15, level: 8 },
+        { id: 2, name: "Erica Scott", age: 17, level: 8 },
+      ],
+      trainers: [
+        { id: 1, name: "Athena Garrett", level: "0•17", age: "6•12" },
+        { id: 2, name: "Billie Sharpe", level: "12•16", age: "16•18" },
+      ],
+      terrains: [
+        {
+          id: 1,
+          name: "Terrain 1",
+          schedule: [
+            { day: "Lundi", open: "17:00", close: "22:30" },
+            { day: "Mercredi", open: "13:00", close: "22:30" },
+          ],
+        },
+        { id: 2, name: "Terrain 2", schedule: [] },
+      ],
+      sessions: [
+        { title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, level: "0 - 7" },
+        { title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, level: "1 - 10" },
       ],
     };
   },
   methods: {
     selectTab(tab) {
-      this.selectedTab = tab; // Met à jour l'onglet actif
+      this.selectedTab = tab;
     },
-    deleteTrainer(trainerId) {
-      this.trainers = this.trainers.filter((trainer) => trainer.id !== trainerId); // Supprime un entraîneur
-    },
-    deletePlayer(playerId) {
-      this.players = this.players.filter((player) => player.id !== playerId); // Supprime un joueur
+    downloadData() {
+      const data = {
+        players: this.players,
+        trainers: this.trainers,
+        terrains: this.terrains,
+        sessions: this.sessions,
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "data.json";
+      a.click();
+      URL.revokeObjectURL(url);
     },
   },
 };
 </script>
 
 <style scoped>
-/* Style des onglets */
 .tab-button {
   color: gray;
   font-weight: bold;
   transition: all 0.3s ease-in-out;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
+  padding-bottom: 0.5rem;
+  position: relative;
 }
 
 .tab-button.active {
-  color: #528359;
-  border-bottom-color: #528359;
+  color: #2f855a;
+}
+
+.tab-button.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #2f855a;
+}
+
+.material-symbols-outlined {
+  transition: color 0.2s ease;
+}
+
+.material-symbols-outlined:hover {
+  color: #2f855a;
 }
 </style>

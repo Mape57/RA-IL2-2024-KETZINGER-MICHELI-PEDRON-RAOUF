@@ -1,9 +1,7 @@
 <template>
-  <div class="w-[70%] h-[85vh] space-y-4 bg-white rounded-lg shadow-md p-6 overflow-auto space-x-4 px-4 m-5">
-<!--    <div class="flex flex-col lg:flex-row w-[70%] h-[80vh] bg-white rounded-lg shadow-md p-6 overflow-auto space-y-4 lg:space-y-0 lg:space-x-4 px-4 mt-5 mb-5">-->
-
+  <div class="right-panel fixed top-5 right-10 bg-white rounded-lg shadow-md w-[67%] h-[88vh] p-5 left-[32%] z-10 flex flex-col">
     <!-- Onglets des terrains -->
-    <div class="tabs flex justify-center space-x-6">
+    <div class="tabs flex justify-center space-x-6 mb-4">
       <button
           v-for="terrain in terrains"
           :key="terrain.id"
@@ -15,6 +13,7 @@
       </button>
     </div>
 
+    <!-- Ligne de séparation -->
     <div class="border-t border-gray-700 mb-4"></div>
 
     <!-- Contenu du terrain sélectionné -->
@@ -83,7 +82,7 @@ export default {
               coach: "Billie Sharpe",
               ageGroup: "10-14 ans",
               skillLevel: "6-8",
-              players: ["John Doe", "Jane Doe"],
+              players: ["John Doe", "Jane Doe", "Jane Doe", "Jane Doe", "Jane Doe", "Jane Doe", "Jane Doe"],
               day: "Mercredi",
             },
             {
@@ -159,11 +158,10 @@ export default {
   },
   methods: {
     selectTerrain(id) {
-      this.selectedTerrain = id; // Change le terrain sélectionné
+      this.selectedTerrain = id;
     },
     editSession(sessionId) {
       console.log(`Modifier la séance ${sessionId}`);
-      // Logique pour modifier une séance
     },
     deleteSession(sessionId) {
       console.log(`Supprimer la séance ${sessionId}`);
@@ -177,7 +175,6 @@ export default {
 </script>
 
 <style scoped>
-/* Styles pour les onglets */
 .tab-button {
   color: gray;
   font-weight: bold;
@@ -192,7 +189,6 @@ export default {
   border-bottom-color: #528359;
 }
 
-/* Contenu du panneau droit */
 .right-panel {
   transition: all 0.3s ease-in-out;
 }

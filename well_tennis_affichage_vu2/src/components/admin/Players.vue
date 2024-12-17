@@ -1,26 +1,41 @@
 <template>
-  <div class="players-table">
-    <!-- En-tête du tableau -->
-    <div class="table-header flex justify-between border-b border-gray-300 pb-2">
-      <div class="flex-1 font-bold text-sm">Nom Prénom</div>
-      <div class="flex-1 text-center font-bold text-sm">Âge</div>
-      <div class="flex-1 text-right font-bold text-sm">Niveau</div>
+  <!-- Conteneur principal -->
+  <div>
+    <div
+        class="flex justify-between items-center cursor-pointer py-2 border-b"
+        @click="toggleAccordion"
+    >
+      <!-- Titre Joueurs -->
+      <div class="flex items-center">
+        <span
+            :class="{ 'rotate-180': isOpen }"
+            class="material-symbols-outlined transition-transform duration-300 mr-2"
+        >
+          expand_more
+        </span>
+        <h3 class="font-bold text-lg">Joueurs</h3>
+      </div>
+      <!-- Boutons d'action -->
+      <div class="flex space-x-2">
+        <span class="material-symbols-outlined small-icon cursor-pointer" title="Supprimer">delete</span>
+        <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter">person_add</span>
+      </div>
     </div>
 
-    <!-- Liste des joueurs -->
-    <div
-        v-for="player in players"
-        :key="player.id"
-        class="table-row flex items-center justify-between border-b border-gray-200 py-2"
-    >
-      <!-- Nom du joueur -->
-      <div class="flex-1 text-gray-800">{{ player.name }}</div>
+    <!-- Contenu déroulant -->
+    <div v-if="isOpen" class="mt-2">
+      <!-- En-têtes des colonnes -->
+      <div class="grid grid-cols-3 font-semibold text-gray-400 text-sm mb-2">
+        <div>Nom Prénom</div>
+        <div class="text-center">Âge</div>
+        <div class="text-right">Niveau</div>
+      </div>
 
-      <!-- Âge du joueur -->
-      <div class="flex-1 text-center text-gray-600">{{ player.age }} ans</div>
-
-      <!-- Niveau du joueur -->
-      <div class="flex-1 text-right text-gray-600">{{ player.level }}</div>
+      <div v-for="player in filteredPlayers" :key="player.id" class="grid grid-cols-3 items-center py-1">
+        <span>{{ player.name }}</span>
+        <span class="text-sm text-gray-600 text-center">{{ player.age }} ans</span>
+        <span class="text-sm text-gray-600 text-right">{{ player.level }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -30,27 +45,43 @@ export default {
   name: "Players",
   props: {
     players: Array,
+    searchQuery: String,
+  },
+  data() {
+    return {
+      isOpen: true,
+    };
+  },
+  computed: {
+    filteredPlayers() {
+      return this.players.filter(player =>
+          player.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+  },
+  methods: {
+    toggleAccordion() {
+      this.isOpen = !this.isOpen;
+    },
   },
 };
 </script>
 
 <style scoped>
-.players-table {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.875rem; /* Taille de police légèrement réduite */
+.grid {
+  grid-template-columns: 2fr 1fr 1fr;
 }
-
-.table-header {
-  font-weight: bold;
-  color: #4a5568; /* Couleur grise pour l'en-tête */
+.material-symbols-outlined {
+  cursor: pointer;
+  transition: transform 0.3s ease;
 }
-
-.table-row {
-  transition: background-color 0.2s ease-in-out;
+.small-icon {
+  font-size: 18px;
 }
-
-.table-row:hover {
-  background-color: #f7fafc; /* Couleur de fond au survol */
+.rotate-180 {
+  transform: rotate(180deg);
+}
+.border-b {
+  border-bottom: 1px solid #e2e8f0;
 }
 </style>

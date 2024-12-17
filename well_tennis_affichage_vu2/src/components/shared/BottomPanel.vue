@@ -1,41 +1,42 @@
 <template>
-  <div class=" w-[100%] h-[8vh] bg-white rounded-lg shadow-md p-4 flex justify-between items-center">
+  <div class="bottom-panel fixed bottom-3 right-10 bg-white rounded-lg shadow-md w-[67%] px-5 left-[32%] z-10">
+    <div class="p-4 flex justify-between items-center">
+      <!-- Boutons -->
+      <div class="flex space-x-4 items-center">
+        <!-- Bouton "Lancer" -->
+        <button
+            @click="launch"
+            class="bg-[#528359] text-white py-1.5 px-3 rounded-md flex items-center text-sm hover:bg-[#456c4c] transition"
+        >
+          <span class="material-symbols-outlined mr-1 text-base">play_arrow</span>
+          Lancer
+        </button>
 
-    <!-- Groupe de boutons à gauche -->
-    <div class="flex space-x-4 items-center">
-      <!-- Bouton "Lancer" -->
-      <button
-          @click="launch"
-          class="bg-[#528359] text-white py-2 px-4 rounded-lg flex items-center hover:bg-[#456c4c] transition"
-      >
-        <span class="material-symbols-outlined mr-2">play_arrow</span>
-        Lancer
-      </button>
+        <!-- Bouton "Envoyer les modifications" -->
+        <button
+            @click="submitChanges"
+            class="bg-white text-[#528359] py-1.5 px-3 rounded-md flex items-center border border-[#528359] text-sm hover:bg-[#e6f4eb] transition"
+        >
+          <span class="material-symbols-outlined mr-1 text-base">event_repeat</span>
+          Envoyer les modifications
+        </button>
 
-      <!-- Bouton "Envoyer les modifications" -->
-      <button
-          @click="submitChanges"
-          class="bg-white text-[#528359] py-2 px-4 rounded-lg flex items-center border border-[#528359] hover:bg-[#e6f4eb] transition"
-      >
-        <span class="material-symbols-outlined mr-2">event_repeat</span>
-        Envoyer les modifications
-      </button>
-
-      <!-- Statut ou alerte -->
-      <div class="flex items-center text-[#d97706] pl-12">
-        <span class="material-symbols-outlined mr-2">warning</span>
-        <span class="text-sm">{{ statusMessage }}</span>
+        <!-- Statut ou alerte -->
+        <div class="flex items-center text-[#d97706] pl-12">
+          <span class="material-symbols-outlined mr-1 text-sm">warning</span>
+          <span class="text-xs">{{ statusMessage }}</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Bouton "Envoyer l'emploi du temps" -->
-    <button
-        @click="sendSchedule"
-        class="bg-white text-[#528359] py-2 px-4 rounded-lg flex items-center border border-[#528359] hover:bg-[#e6f4eb] transition"
-    >
-      <span class="material-symbols-outlined mr-2">send</span>
-      Envoyer l'emploi du temps
-    </button>
+      <!-- Bouton "Envoyer l'emploi du temps" -->
+      <button
+          @click="sendSchedule"
+          class="bg-white text-[#528359] py-1.5 px-3 rounded-md flex items-center border border-[#528359] text-sm hover:bg-[#e6f4eb] transition"
+      >
+        <span class="material-symbols-outlined mr-1 text-base">send</span>
+        Envoyer l'emploi du temps
+      </button>
+    </div>
   </div>
 </template>
 
@@ -45,18 +46,18 @@ export default {
   props: {
     statusMessage: {
       type: String,
-      default: "Placement réalisé à 98%", // Message d'état ou de statut
+      default: "Placement réalisé à 98%",
     },
   },
   methods: {
     launch() {
-      this.$emit("launch"); // Émet un événement vers le parent pour lancer une action
+      this.$emit("launch");
     },
     submitChanges() {
-      this.$emit("submitChanges"); // Émet un événement pour soumettre des modifications
+      this.$emit("submitChanges");
     },
     sendSchedule() {
-      this.$emit("sendSchedule"); // Émet un événement pour envoyer l'emploi du temps
+      this.$emit("sendSchedule");
     },
   },
 };
