@@ -11,8 +11,4 @@ public class CourtDto {
     private Long id;
     @Schema(name = "name",example = "Philippe Chatrier")
     private String name;
-    @Schema(name = "start",example = "9:00")
-    private String start;
-    @Schema(name = "end",example = "21:00")
-    private String end;
 }
