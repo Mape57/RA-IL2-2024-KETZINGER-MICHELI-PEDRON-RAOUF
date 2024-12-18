@@ -4,9 +4,14 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import well_tennis_club.projet.disponibility.DisponibilityEntity;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -37,4 +42,16 @@ public class PlayerEntity implements Serializable{
 
     @Column(name = "level")
     private Long level;
+
+    @Column(name = "email")
+    private String email;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SELECT)
+    @JoinTable(
+            name = "disponibility_player",
+            joinColumns = @JoinColumn(name = "id_player",  referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "id_disponibility", referencedColumnName = "id")
+    )
+    private List<DisponibilityEntity> disponibitities = new ArrayList<>();
 }

@@ -51,7 +51,7 @@ public class DisponibilityController {
     @CrossOrigin
     @Operation(summary = "Update disponibility",description = "Update disponibility with id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully created"),
+            @ApiResponse(responseCode = "200", description = "Successfully updated"),
             @ApiResponse(responseCode = "404", description = "Internal server error - Disponibility was not update")
     })
     @PatchMapping("/{id}")
@@ -64,7 +64,8 @@ public class DisponibilityController {
         }else {
             DisponibilityDto modif = disponibilityDto;
             modif.setId(id);
-            return DisponibilityMapper.INSTANCE.mapToDTO(disponibilityService.updateDisponibility(DisponibilityMapper.INSTANCE.mapToEntity(modif)));
+            return DisponibilityMapper.INSTANCE.mapToDTO(disponibilityService.updateDisponibility(DisponibilityMapper.INSTANCE.
+                    mapToEntity(modif)));
         }
     }
 
