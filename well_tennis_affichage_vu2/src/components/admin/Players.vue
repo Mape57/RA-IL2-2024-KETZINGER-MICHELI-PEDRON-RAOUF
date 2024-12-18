@@ -1,11 +1,9 @@
 <template>
-  <!-- Conteneur principal -->
   <div>
     <div
         class="flex justify-between items-center cursor-pointer py-2 border-b"
         @click="toggleAccordion"
     >
-      <!-- Titre Joueurs -->
       <div class="flex items-center">
         <span
             :class="{ 'rotate-180': isOpen }"
@@ -15,56 +13,67 @@
         </span>
         <h3 class="font-bold text-lg">Joueurs</h3>
       </div>
-      <!-- Boutons d'action -->
-      <div class="flex space-x-2">
-        <span class="material-symbols-outlined small-icon cursor-pointer" title="Supprimer">delete</span>
-        <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter">person_add</span>
-      </div>
     </div>
 
-    <!-- Contenu déroulant -->
     <div v-if="isOpen" class="mt-2">
-      <!-- En-têtes des colonnes -->
-      <div class="grid grid-cols-3 font-semibold text-gray-400 text-sm mb-2">
-        <div>Nom</div>
-        <div class="text-center"> Prénom</div>
+      <div class="grid grid-cols-4 font-semibold text-gray-400 text-sm mb-2">
+        <div class="text-left">Nom</div>
+        <div class="text-center">Prénom</div>
         <div class="text-center">Âge</div>
         <div class="text-right">Niveau</div>
       </div>
 
-      <div v-for="player in filteredPlayers"
-           :key="player.id"
-           class="grid grid-cols-3 items-center py-1">
-        <!-- Nom du joueur -->
+      <div
+          v-for="player in filteredPlayers"
+          :key="player.id"
+          class="grid grid-cols-4 items-center py-1 cursor-pointer"
+          @click="showPlayerInfo(player)"
+      >
         <span>{{ player.name }}</span>
-        <!-- Prénom du joueur -->
         <span>{{ player.surname }}</span>
-        <!-- Âge du joueur -->
-        <span class="text-sm text-gray-600 text-center">{{  player.birthday || 'N/A' }} ans</span>
-        <!-- Niveau du joueur -->
-        <span class="text-sm text-gray-600 text-right">{{ player.level }}</span>
+        <span class="text-center">{{ computeAge(player.birthday) || "N/A" }} ans</span>
+        <span class="text-right">{{ player.level }}</span>
       </div>
+
+      <!-- Affichage de PlayerInfoView -->
+      <PlayerInfoView
+          v-if="selectedPlayer"
+          :player="selectedPlayer"
+          @close="selectedPlayer = null"
+      />
     </div>
   </div>
 </template>
 
 <script>
+import usePlayers from "../../useJs/usePlayers.js";
+import PlayerInfoView from "./PlayerInfoView.vue";
+
 export default {
   name: "Players",
+  components: { PlayerInfoView },
   props: {
     players: Array,
     searchQuery: String,
   },
+  setup() {
+    const { computeAge } = usePlayers();
+    return {
+      computeAge,
+    };
+  },
   data() {
     return {
       isOpen: true,
+      selectedPlayer: null, // Joueur sélectionné pour afficher les détails
     };
   },
   computed: {
     filteredPlayers() {
-      return this.players.filter(player =>
-          player.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-          player.surname.toLowerCase().includes(this.searchQuery.toLowerCase())
+      return this.players.filter(
+          (player) =>
+              player.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+              player.surname.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     },
   },
@@ -72,13 +81,18 @@ export default {
     toggleAccordion() {
       this.isOpen = !this.isOpen;
     },
+    showPlayerInfo(player) {
+      this.selectedPlayer = player; // Met à jour le joueur sélectionné
+    },
   },
 };
 </script>
 
 <style scoped>
 .grid {
-  grid-template-columns: 2fr 1fr 1fr;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 0.5rem;
 }
 
 .material-symbols-outlined {

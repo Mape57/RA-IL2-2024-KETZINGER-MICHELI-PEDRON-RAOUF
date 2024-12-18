@@ -25,25 +25,26 @@
     <!-- Contenu déroulant -->
     <div v-if="isOpen" class="mt-2">
       <!-- En-têtes des colonnes -->
-      <div class="grid grid-cols-3 font-semibold text-gray-400 text-sm mb-2">
-        <div>Nom Prénom</div>
+      <div class="grid grid-cols-4 font-semibold text-gray-400 text-sm mb-2">
+        <div class="text-left">Nom</div>
+        <div class="text-center">Prénom</div>
         <div class="text-center">Niveau Min•Max</div>
         <div class="text-right">Âge Min•Max</div>
-
+      </div>
 
         <!-- Liste des entraîneurs -->
         <div v-for="trainer in trainers"
              :key="trainer.id"
-             class="grid grid-cols-3 items-center py-1">
-          <!-- Nom de l'entraîneur -->
-          <span>{{ trainer.name }}</span>
-          <!-- Prénom de l'entraîneur -->
-          <span>{{ trainer.surname }}</span>
-          <!-- Niveau de l'entraîneur -->
-          <span class="text-sm text-gray-600 text-center">{{ trainer.levels }}</span>
-          <!-- Tranche d'âge -->
-          <span class="text-sm text-gray-600 text-right">{{ trainer.ages }}</span>
-        </div>
+             class="grid grid-cols-4 items-center py-1"
+             >
+        <!-- Nom de l'entraîneur -->
+        <span>{{ trainer.name }}</span>
+        <!-- Prénom de l'entraîneur -->
+        <span class="text-center">{{ trainer.surname }}</span>
+        <!-- Niveau de l'entraîneur -->
+        <span class="text-center">{{ trainer.levels }}</span>
+        <!-- Tranche d'âge -->
+        <span class="text-right">{{ trainer.ages }}</span>
       </div>
     </div>
   </div>
@@ -70,7 +71,9 @@ export default {
 
 <style scoped>
 .grid {
-  grid-template-columns: 2fr 1fr 1fr;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 0.5rem;
 }
 
 .material-symbols-outlined {

@@ -23,9 +23,33 @@ export default function usePlayers() {
 		}
 	};
 
+
+	// Calcul de l'âge
+	const computeAge = (birthday) => {
+		if (!birthday) return "N/A";
+
+		const birthDate = new Date(birthday);
+		const today = new Date();
+
+		let age = today.getFullYear() - birthDate.getFullYear();
+
+		const hasBirthdayPassed =
+			today.getMonth() > birthDate.getMonth() ||
+			(today.getMonth() === birthDate.getMonth() &&
+				today.getDate() >= birthDate.getDate());
+
+		if (!hasBirthdayPassed) {
+			age--;
+		}
+		return age;
+	};
+
+
+
 	return {
-		players,
-		fetchPlayers,
+		computeAge,
 		deletePlayer,
+		fetchPlayers,
+		players,
 	};
 }

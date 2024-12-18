@@ -26,8 +26,8 @@ export default {
 		return apiClient.post(url, data);
 	},
 
-	put(url, data) {
-		return apiClient.put(url, data);
+	patch(url, data) {
+		return apiClient.patch(url, data);
 	},
 
 	delete(url) {
