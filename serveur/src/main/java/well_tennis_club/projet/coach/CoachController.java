@@ -25,7 +25,7 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
             @ApiResponse(responseCode = "500", description = "Internal server error - Coachs were not found")
     })
-    @GetMapping("/all")
+    @GetMapping
     public List<CoachDto> getAllCoachs(){
         List<CoachDto> list = CoachMapper.INSTANCE.mapToListDTO(coachService.getAllCoachs());
         if (list == null || list.size() == 0){
@@ -40,7 +40,7 @@ public class CoachController {
     @CrossOrigin
     @Operation(summary = "Create coach", description = "Create coach with name, surname, levels and ages from the dto")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
+            @ApiResponse(responseCode = "201", description = "Successfully created"),
             @ApiResponse(responseCode = "500", description = "Internal server error - Coach was not create")
     })
     @PostMapping
@@ -51,18 +51,27 @@ public class CoachController {
     @CrossOrigin
     @Operation(summary = "Update coach",description = "Update coach with id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
-            @ApiResponse(responseCode = "500", description = "Internal server error - Coach was not update")
+            @ApiResponse(responseCode = "200", description = "Successfully patched"),
+            @ApiResponse(responseCode = "404", description = "Internal server error - Coach was not update")
     })
-    @PutMapping
-    public CoachDto updateCoach(@RequestBody CoachDto coachDto){
-        return CoachMapper.INSTANCE.mapToDTO(coachService.updateCoach(CoachMapper.INSTANCE.mapToEntity(coachDto)));
+    @PatchMapping("/{id}")
+    public CoachDto updateCoach(@PathVariable Long id,@RequestBody CoachDto coachDto){
+        CoachDto coach = CoachMapper.INSTANCE.mapToDTO(coachService.getCoachById(id));
+        if (coach == null){
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Coach not found"
+            );
+        }else{
+            CoachDto modif = coachDto;
+            modif.setId(coach.getId());
+            return CoachMapper.INSTANCE.mapToDTO(coachService.updateCoach(CoachMapper.INSTANCE.mapToEntity(modif)));
+        }
     }
 
     @CrossOrigin
     @Operation(summary = "Delete coach",description = "Delete coach with id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
+            @ApiResponse(responseCode = "204", description = "Successfully deleted"),
             @ApiResponse(responseCode = "500", description = "Internal server error - Coach was not delete")
     })
     @DeleteMapping("/{id}")
@@ -70,5 +79,23 @@ public class CoachController {
         CoachEntity coachEntity = new CoachEntity();
         coachEntity.setId(id);
         coachService.deleteCoach(coachEntity);
+    }
+
+    @CrossOrigin
+    @Operation(summary = "Get one coach", description = "Return coach with id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
+            @ApiResponse(responseCode = "500", description = "Internal server error - Coach was not found")
+    })
+    @GetMapping("/{id}")
+    public CoachDto getCoach(@PathVariable Long id){
+        CoachDto coach = CoachMapper.INSTANCE.mapToDTO(coachService.getCoachById(id));
+        if (coach == null){
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Coach not found"
+            );
+        }else {
+            return coach;
+        }
     }
 }

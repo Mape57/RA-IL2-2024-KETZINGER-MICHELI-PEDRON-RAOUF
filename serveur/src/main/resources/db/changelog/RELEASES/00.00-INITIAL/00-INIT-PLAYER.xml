@@ -25,16 +25,20 @@
             <column name="level" type="int">
                 <constraints nullable="false"/>
             </column>
+            <column name="email" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
         <createSequence cacheSize="10" cycle="false" incrementBy="1" maxValue="1000000000000" minValue="1" sequenceName="player_seq" startValue="1"/>
 
         <insert tableName='player'>
-            <column name='id' valueSequenceNext='player_seq'/>
+            <column name='id' value='1'/>
             <column name='name' value="Adjal"/>
             <column name='surname' value="Martin"/>
             <column name='birthday' value="2016-09-01"/>
             <column name='courses' value="1"/>
             <column name='level' value="6"/>
+            <column name="email" value="martin.adjal@gmail.com"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

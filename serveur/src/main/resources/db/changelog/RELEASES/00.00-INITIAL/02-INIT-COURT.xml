@@ -13,20 +13,12 @@
             <column name="name" type="varchar(200)">
                 <constraints nullable="false"/>
             </column>
-            <column name="start" type="varchar(200)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="end" type="varchar(200)">
-                <constraints nullable="false"/>
-            </column>
         </createTable>
         <createSequence cacheSize="10" cycle="false" incrementBy="1" maxValue="1000000000000" minValue="1" sequenceName="court_seq" startValue="1"/>
 
         <insert tableName='court'>
             <column name='id' valueSequenceNext='court_seq'/>
             <column name='name' value="Terrain 1"/>
-            <column name='start' value="9:00"/>
-            <column name='end' value="21:00"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

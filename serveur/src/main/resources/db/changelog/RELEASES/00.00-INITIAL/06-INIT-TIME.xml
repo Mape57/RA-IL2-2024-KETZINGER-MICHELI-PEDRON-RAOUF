@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-time" author="Thomas">
+        <createTable tableName="time">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="day" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="stop" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createSequence cacheSize="10" cycle="false" incrementBy="1" maxValue="1000000000000" minValue="1" sequenceName="time_seq" startValue="1"/>
+
+        <insert tableName='time'>
+            <column name='id' value='1'/>
+            <column name='day' value="Monday"/>
+            <column name='start' value="8:00"/>
+            <column name='stop' value="10:00"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

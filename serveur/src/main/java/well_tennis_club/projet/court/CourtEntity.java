@@ -25,10 +25,4 @@ public class CourtEntity implements Serializable {
 
     @Column(name = "name")
     private String name;
-
-    @Column(name = "start")
-    private String start;
-
-    @Column(name = "end")
-    private String end;
 }
