@@ -7,18 +7,21 @@ export default function useLeftPanel() {
 	// États
 	const { trainers, fetchTrainers, deleteTrainer } = useTrainers();
 	const { players, fetchPlayers, deletePlayer } = usePlayers();
-	const selectedTab = ref("data");
+	const selectedTab = ref("data");  // Manquait ici
 	const searchQuery = ref("");
 
+	// Fonction de sélection de l'onglet
 	const selectTab = (tab) => {
 		selectedTab.value = tab;
 	};
 
+	// Retour des états et actions
 	return {
 		trainers,
 		players,
-		selectTab,
+		selectedTab,
 		searchQuery,
+		selectTab,
 		fetchTrainers,
 		fetchPlayers,
 		deleteTrainer,

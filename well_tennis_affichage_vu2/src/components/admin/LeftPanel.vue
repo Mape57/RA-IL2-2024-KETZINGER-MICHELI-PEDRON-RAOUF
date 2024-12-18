@@ -74,7 +74,7 @@ export default {
   },
 
   setup() {
-    const { trainers, players, selectedTab, searchQuery,fetchTrainers, fetchPlayers, } = useLeftPanel();
+    const { trainers, players, searchQuery,selectedTab, fetchTrainers, fetchPlayers, selectTab } = useLeftPanel();
 
     onMounted(() => {
       fetchTrainers();
@@ -84,10 +84,11 @@ export default {
     return {
       trainers,
       players,
-      selectedTab,
       searchQuery,
+      selectedTab,
       fetchTrainers,
       fetchPlayers,
+      selectTab,
     };
   },
 
