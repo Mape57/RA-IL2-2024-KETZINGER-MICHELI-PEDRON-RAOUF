@@ -2,21 +2,24 @@
   <div class="w-full bg-white flex justify-center items-center shadow-md p-4 lg:p-0 lg:w-[760px] h-auto lg:h-[510px]">
     <div class="text-center w-full lg:w-auto">
       <h1 class="text-[#1A4220] text-xl lg:text-2xl font-bold mb-4 lg:mb-6">Well Tennis Club</h1>
+      <p class="text-gray-600 text-sm lg:text-base mb-4">
+        Entrez votre adresse e-mail pour recevoir un lien de réinitialisation de mot de passe.
+      </p>
       <form class="space-y-3" @submit.prevent="handleSubmit">
         <input
-            type="text"
-            placeholder="Identifiant ou Adresse e-mail"
-            class="w-full lg:w-[380px] h-[40px] border border-gray-300 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#528359] text-sm"
+            type="email"
+            placeholder="Adresse e-mail"
+            class="w-full lg:w-[380px] h-[50px] border border-gray-300 rounded-lg px-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#528359] text-sm"
             v-model="mailoruser"
+            required
         />
 
-        <router-link
+        <button
             type="submit"
-            class="w-full lg:w-[380px] h-[40px] bg-[#528359] text-white text-sm rounded-lg shadow-md py-2 hover:bg-[#456c4c] transition mx-auto"
-            to="/"
+            class="w-full lg:w-[380px] h-[50px] bg-[#528359] text-white text-base rounded-lg shadow-md py-3 hover:bg-[#456c4c] transition mx-auto"
         >
           Envoyer un mail de récupération
-        </router-link>
+        </button>
       </form>
     </div>
   </div>
@@ -24,11 +27,16 @@
 
 <script>
 export default {
-  name: 'LoginForm',
+  name: 'ForgotPasswordForm',
   data() {
     return {
       mailoruser: '',
     };
+  },
+  methods: {
+    handleSubmit() {
+      console.log(`Email for password recovery: ${this.mailoruser}`);
+    },
   },
 };
 </script>

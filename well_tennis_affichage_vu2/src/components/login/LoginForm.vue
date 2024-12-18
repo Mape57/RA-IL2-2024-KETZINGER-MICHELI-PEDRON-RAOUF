@@ -25,19 +25,17 @@
           </span>
         </div>
 
-
         <router-link
-            type = "submit"
+            type="submit"
             class="text-[#528359] text-sm underline block text-left w-full lg:w-[380px] mx-auto"
             to="/forgot-password"
         >
           Mot de passe oublié ?
         </router-link>
 
-
         <router-link
             type="submit"
-            class="w-full lg:w-[380px] h-[40px] bg-[#528359] text-white text-sm rounded-lg shadow-md py-2 hover:bg-[#456c4c] transition mx-auto"
+            class="w-full lg:w-[380px] h-[60px] bg-[#528359] text-white text-base rounded-lg shadow-md py-3 hover:bg-[#456c4c] transition mx-auto flex justify-center items-center"
             to="/admin"
         >
           Se connecter

@@ -22,11 +22,11 @@
       </div>
 
       <button
-          @click="downloadData"
-          class="ml-auto text-green-700 hover:text-green-900 transition"
-          title="Télécharger les données"
+          @click="selectTab('settings')"
+          :class="{ active: selectedTab === 'settings' }"
+          class="tab-button flex-grow flex items-center justify-center"
       >
-        <span class="material-symbols-outlined text-3xl">download</span>
+        <span class="material-symbols-outlined mr-2">settings</span>
       </button>
     </div>
 
@@ -44,13 +44,38 @@
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
         <Trainers :trainers="trainers" />
-        <!-- ici en plus d'affichier les joueurs on permet qu'il soit trier dans la recherche -->
         <Players :players="players" :searchQuery="searchQuery" />
       </div>
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
         <Terrains :terrains="terrains" />
         <Session :sessions="sessions" />
+      </div>
+      <!-- Onglet Paramètres -->
+      <div v-if="selectedTab === 'settings'" class="content-settings">
+        <div class="py-2 font-bold text-gray-700">Importer vos données</div>
+        <button class="menu-item" @click="importXLS">
+          📅 Planning - format XLS
+        </button>
+        <button class="menu-item" @click="importCSV">
+          📄 Données et contraintes - format CSV
+        </button>
+
+        <div class="py-2 font-bold text-gray-700">Télécharger vos données</div>
+        <button class="menu-item" @click="downloadXLS">
+          📅 Planning - format XLS
+        </button>
+        <button class="menu-item" @click="downloadCSV">
+          📄 Données et contraintes - format CSV
+        </button>
+
+        <div class="py-2 font-bold text-gray-700">Nouvelle année</div>
+        <button class="menu-item" @click="sendReinscriptionMail">
+          📧 Envoyer le mail de réinscription
+        </button>
+        <button class="menu-item" @click="deleteAllPlayers">
+          🗑️ Supprimer l'ensemble des joueurs
+        </button>
       </div>
     </div>
   </div>
@@ -116,21 +141,26 @@ export default {
     };
   },
 
-  methods: {
-    downloadData() {
-      const data = {
-        terrains: this.terrains,
-        sessions: this.sessions,
-      };
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "data.json";
-      a.click();
-      URL.revokeObjectURL(url);
+    methods: {
+      importXLS() {
+        alert("Import de planning XLS");
+      },
+      importCSV() {
+        alert("Import des données CSV");
+      },
+      downloadXLS() {
+        alert("Téléchargement de planning XLS");
+      },
+      downloadCSV() {
+        alert("Téléchargement des données CSV");
+      },
+      sendReinscriptionMail() {
+        alert("Mail de réinscription envoyé !");
+      },
+      deleteAllPlayers() {
+        alert("Suppression de tous les joueurs !");
+      },
     },
-  },
 };
 </script>
 
@@ -164,6 +194,29 @@ export default {
 .material-symbols-outlined:hover {
   color: #2f855a;
 }
+
+.content-settings {
+  padding: 1rem;
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  margin-bottom: 0.5rem;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  color: #2f855a;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.menu-item:hover {
+  background-color: #f0f4f3;
+}
+
 </style>
 
 
