@@ -1,28 +1,40 @@
 <template>
   <div class="right-panel fixed top-5 right-10 bg-white rounded-lg shadow-md w-[67%] h-[88vh] p-5 left-[32%] z-10 flex flex-col">
-    <!-- Onglets des terrains -->
-    <div class="tabs flex justify-center space-x-6 mb-4">
-      <button
-          v-for="terrain in terrains"
-          :key="terrain.id"
-          @click="selectTerrain(terrain.id)"
-          :class="{ active: selectedTerrain === terrain.id }"
-          class="tab-button"
-      >
-        {{ terrain.name }}
-      </button>
+    <!-- Onglets des terrains et bouton de filtrage -->
+    <div class="flex items-center relative">
+      <!-- Conteneur centré des boutons des terrains -->
+      <div class="absolute left-1/2 transform -translate-x-1/2 flex space-x-8">
+        <button
+            v-for="terrain in terrains"
+            :key="terrain.id"
+            @click="selectTerrain(terrain.id)"
+            :class="{ active: selectedTerrain === terrain.id }"
+            class="tab-button"
+        >
+          {{ terrain.name }}
+        </button>
+      </div>
+      <!-- Bouton Filtrer aligné à droite -->
+      <div class="ml-auto">
+        <button
+            @click="openFilter"
+            class="flex items-center space-x-1 text-sm text-black font-semibold hover:text-green-700 transition"
+            title="Filtrer la recherche"
+        >
+          <span>Filtrer la recherche</span>
+          <span class="material-symbols-outlined text-base">tune</span>
+        </button>
+      </div>
     </div>
 
     <!-- Ligne de séparation -->
-    <div class="border-t border-gray-700 mb-4"></div>
+    <div class="border-t border-gray-300 mb-4 mt-4"></div>
 
     <!-- Contenu du terrain sélectionné -->
     <div class="content flex-1 overflow-auto">
       <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6">
-        <!-- Affichage du jour -->
         <h2 class="text-[#528359] text-xl font-bold mb-4">{{ day }}</h2>
 
-        <!-- Affichage des séances pour le jour -->
         <SessionCard
             v-for="session in sessions"
             :key="session.id"
@@ -82,7 +94,7 @@ export default {
               coach: "Billie Sharpe",
               ageGroup: "10-14 ans",
               skillLevel: "6-8",
-              players: ["John Doe", "Jane Doe", "Jane Doe", "Jane Doe", "Jane Doe", "Jane Doe", "Jane Doe"],
+              players: ["John Doe", "Jane Doe", "Kayla Dotson", "Kayla Dotson", "Jane Doe", "Kayla Dotson", "Jane Doe" ],
               day: "Mercredi",
             },
             {
@@ -119,7 +131,7 @@ export default {
           sessions: [],
         },
       ],
-      selectedTerrain: 1, // Terrain sélectionné par défaut
+      selectedTerrain: 1,
     };
   },
   computed: {
@@ -141,12 +153,10 @@ export default {
 
       const groupedSessions = {};
 
-      // Initialisation des jours vides
       daysOfWeek.forEach((day) => {
         groupedSessions[day] = [];
       });
 
-      // Grouper les sessions par jour
       this.currentTerrain.sessions.forEach((session) => {
         if (session.day && groupedSessions[session.day]) {
           groupedSessions[session.day].push(session);
@@ -180,16 +190,17 @@ export default {
   font-weight: bold;
   transition: all 0.3s ease-in-out;
   padding: 0.5rem 1rem;
+  position: relative;
   border-bottom: 2px solid transparent;
   cursor: pointer;
+  white-space: nowrap;
+  z-index: 1;
 }
 
 .tab-button.active {
   color: #528359;
-  border-bottom-color: #528359;
-}
-
-.right-panel {
-  transition: all 0.3s ease-in-out;
+  border-bottom: 2px solid #528359;
+  z-index: 2;
 }
 </style>
+
