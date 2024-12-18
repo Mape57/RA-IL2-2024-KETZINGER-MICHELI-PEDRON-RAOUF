@@ -17,7 +17,7 @@ export default function useLeftPanel() {
 	return {
 		trainers,
 		players,
-		selectedTab,
+		selectTab,
 		searchQuery,
 		fetchTrainers,
 		fetchPlayers,
