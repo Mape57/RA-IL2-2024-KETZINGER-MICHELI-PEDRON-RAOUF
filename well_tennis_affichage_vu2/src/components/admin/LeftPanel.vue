@@ -28,6 +28,7 @@
       >
         <span class="material-symbols-outlined mr-2">settings</span>
       </button>
+
     </div>
 
     <div v-if="selectedTab === 'data'" class="mb-4">
@@ -53,30 +54,52 @@
       </div>
       <!-- Onglet Paramètres -->
       <div v-if="selectedTab === 'settings'" class="content-settings">
-        <div class="py-2 font-bold text-gray-700">Importer vos données</div>
+
+        <!-- Importer vos données -->
+        <div class="py-2 font-bold text-gray-700 flex items-center">
+          <span class="material-symbols-outlined mr-2">upload</span>
+          Importer vos données
+        </div>
         <button class="menu-item" @click="importXLS">
-          📅 Planning - format XLS
+          <span class="material-symbols-outlined mr-2">calendar_today</span>
+          Planning - format XLS
         </button>
         <button class="menu-item" @click="importCSV">
-          📄 Données et contraintes - format CSV
+          <span class="material-symbols-outlined mr-2">database</span>
+          Données et contraintes - format CSV
         </button>
 
-        <div class="py-2 font-bold text-gray-700">Télécharger vos données</div>
+        <!-- Télécharger vos données -->
+        <div class="py-2 font-bold text-gray-700 flex items-center">
+          <span class="material-symbols-outlined mr-2">download</span>
+          Télécharger vos données
+        </div>
         <button class="menu-item" @click="downloadXLS">
-          📅 Planning - format XLS
+          <span class="material-symbols-outlined mr-2">calendar_today</span>
+          Planning - format XLS
         </button>
         <button class="menu-item" @click="downloadCSV">
-          📄 Données et contraintes - format CSV
+          <span class="material-symbols-outlined mr-2">database</span>
+          Données et contraintes - format CSV
         </button>
 
-        <div class="py-2 font-bold text-gray-700">Nouvelle année</div>
+        <!-- Nouvelle année -->
+        <div class="py-2 font-bold text-gray-700 flex items-center">
+          <span class="material-symbols-outlined mr-2">event_repeat</span>
+          Nouvelle année
+        </div>
         <button class="menu-item" @click="sendReinscriptionMail">
-          📧 Envoyer le mail de réinscription
+          <span class="material-symbols-outlined mr-2">send</span>
+          Envoyer le mail de réinscription
         </button>
         <button class="menu-item" @click="deleteAllPlayers">
-          🗑️ Supprimer l'ensemble des joueurs
+          <span class="material-symbols-outlined mr-2">delete</span>
+          Supprimer l'ensemble des joueurs
         </button>
+
       </div>
+
+
     </div>
   </div>
 </template>
@@ -165,6 +188,13 @@ export default {
 </script>
 
 <style scoped>
+
+.tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .tab-button {
   color: gray;
   font-weight: bold;
@@ -188,7 +218,9 @@ export default {
 }
 
 .material-symbols-outlined {
-  transition: color 0.2s ease;
+  font-size: 1.3rem;
+  line-height: 1;
+  vertical-align: middle;
 }
 
 .material-symbols-outlined:hover {
