@@ -29,12 +29,21 @@
         <div>Nom Prénom</div>
         <div class="text-center">Niveau Min•Max</div>
         <div class="text-right">Âge Min•Max</div>
-      </div>
-      <!-- Liste des entraîneurs -->
-      <div v-for="trainer in trainers" :key="trainer.id" class="grid grid-cols-3 items-center py-1">
-        <span>{{ trainer.name }}</span>
-        <span class="text-sm text-gray-600 text-center">{{ trainer.level }}</span>
-        <span class="text-sm text-gray-600 text-right">{{ trainer.age }}</span>
+
+
+        <!-- Liste des entraîneurs -->
+        <div v-for="trainer in trainers"
+             :key="trainer.id"
+             class="grid grid-cols-3 items-center py-1">
+          <!-- Nom de l'entraîneur -->
+          <span>{{ trainer.name }}</span>
+          <!-- Prénom de l'entraîneur -->
+          <span>{{ trainer.surname }}</span>
+          <!-- Niveau de l'entraîneur -->
+          <span class="text-sm text-gray-600 text-center">{{ trainer.levels }}</span>
+          <!-- Tranche d'âge -->
+          <span class="text-sm text-gray-600 text-right">{{ trainer.ages }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -63,16 +72,20 @@ export default {
 .grid {
   grid-template-columns: 2fr 1fr 1fr;
 }
+
 .material-symbols-outlined {
   cursor: pointer;
   transition: transform 0.3s ease;
 }
+
 .small-icon {
   font-size: 18px;
 }
+
 .rotate-180 {
   transform: rotate(180deg);
 }
+
 .border-b {
   border-bottom: 1px solid #e2e8f0;
 }

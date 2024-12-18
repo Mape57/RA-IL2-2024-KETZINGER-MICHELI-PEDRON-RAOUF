@@ -43,8 +43,9 @@
     <div class="content flex-1 overflow-auto">
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
-        <Players :players="players" :searchQuery="searchQuery" />
         <Trainers :trainers="trainers" />
+        <!-- ici en plus d'affichier les joueurs on permet qu'il soit trier dans la recherche -->
+        <Players :players="players" :searchQuery="searchQuery" />
       </div>
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
@@ -60,47 +61,63 @@ import Players from "./Players.vue";
 import Trainers from "./Trainers.vue";
 import Terrains from "../terrains/Terrain.vue";
 import Session from "./Session.vue";
+import useLeftPanel from "../../useJs/useLeftPanel.js";
+import { onMounted } from "vue";
 
 export default {
   name: "LeftPanel",
-  components: { Players, Trainers, Terrains, Session },
+  components: {
+    Trainers,
+    Players,
+    Terrains,
+    Session,
+  },
+
+  setup() {
+    const { trainers, players, selectedTab, searchQuery,fetchTrainers, fetchPlayers, } = useLeftPanel();
+
+    onMounted(() => {
+      fetchTrainers();
+      fetchPlayers();
+    });
+
+    return {
+      trainers,
+      players,
+      selectedTab,
+      searchQuery,
+      fetchTrainers,
+      fetchPlayers,
+    };
+  },
+
   data() {
     return {
-      selectedTab: "data",
-      searchQuery: "",
-      players: [
-        { id: 1, name: "Callan McConnell", age: 15, level: 8 },
-        { id: 2, name: "Erica Scott", age: 17, level: 8 },
-      ],
-      trainers: [
-        { id: 1, name: "Athena Garrett", level: "0•17", age: "6•12" },
-        { id: 2, name: "Billie Sharpe", level: "12•16", age: "16•18" },
-      ],
       terrains: [
         {
           id: 1,
-          name: "Terrain 1",
+          court_name: "Terrain 1",
           schedule: [
             { day: "Lundi", open: "17:00", close: "22:30" },
             { day: "Mercredi", open: "13:00", close: "22:30" },
           ],
         },
-        { id: 2, name: "Terrain 2", schedule: [] },
+        {
+          id: 2,
+          court_name: "Terrain 2",
+          schedule: [],
+        },
       ],
       sessions: [
-        { title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, level: "0 - 7" },
-        { title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, level: "1 - 10" },
+        { title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, sessions_level: "0 - 7" },
+        { title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, sessions_level: "1 - 10" },
       ],
     };
   },
+
   methods: {
-    selectTab(tab) {
-      this.selectedTab = tab;
-    },
     downloadData() {
       const data = {
-        players: this.players,
-        trainers: this.trainers,
         terrains: this.terrains,
         sessions: this.sessions,
       };
@@ -147,3 +164,6 @@ export default {
   color: #2f855a;
 }
 </style>
+
+
+

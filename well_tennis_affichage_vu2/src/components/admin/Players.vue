@@ -26,14 +26,22 @@
     <div v-if="isOpen" class="mt-2">
       <!-- En-têtes des colonnes -->
       <div class="grid grid-cols-3 font-semibold text-gray-400 text-sm mb-2">
-        <div>Nom Prénom</div>
+        <div>Nom</div>
+        <div class="text-center"> Prénom</div>
         <div class="text-center">Âge</div>
         <div class="text-right">Niveau</div>
       </div>
 
-      <div v-for="player in filteredPlayers" :key="player.id" class="grid grid-cols-3 items-center py-1">
+      <div v-for="player in filteredPlayers"
+           :key="player.id"
+           class="grid grid-cols-3 items-center py-1">
+        <!-- Nom du joueur -->
         <span>{{ player.name }}</span>
-        <span class="text-sm text-gray-600 text-center">{{ player.age }} ans</span>
+        <!-- Prénom du joueur -->
+        <span>{{ player.surname }}</span>
+        <!-- Âge du joueur -->
+        <span class="text-sm text-gray-600 text-center">{{  player.birthday || 'N/A' }} ans</span>
+        <!-- Niveau du joueur -->
         <span class="text-sm text-gray-600 text-right">{{ player.level }}</span>
       </div>
     </div>
@@ -55,7 +63,8 @@ export default {
   computed: {
     filteredPlayers() {
       return this.players.filter(player =>
-          player.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+          player.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+          player.surname.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     },
   },
@@ -71,16 +80,20 @@ export default {
 .grid {
   grid-template-columns: 2fr 1fr 1fr;
 }
+
 .material-symbols-outlined {
   cursor: pointer;
   transition: transform 0.3s ease;
 }
+
 .small-icon {
   font-size: 18px;
 }
+
 .rotate-180 {
   transform: rotate(180deg);
 }
+
 .border-b {
   border-bottom: 1px solid #e2e8f0;
 }

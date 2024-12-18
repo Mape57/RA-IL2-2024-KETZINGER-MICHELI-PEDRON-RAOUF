@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from '../views/LoginPage.vue';
 import AdminPage from '../views/AdminPage.vue';
+import ForgotPassword from "../views/ForgotPassword.vue";
 
 const routes = [
 	{
@@ -13,6 +14,11 @@ const routes = [
 		name: 'Login',
 		component: LoginPage,
 	},
+	{
+		path: '/forgot-password', // Route pour la page de mot de passe oublié
+		name: 'ForgotPassword',
+		component: ForgotPassword,
+	}
 ];
 
 const router = createRouter({

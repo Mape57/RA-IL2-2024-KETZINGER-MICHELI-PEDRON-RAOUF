@@ -24,9 +24,17 @@
             {{ passwordVisible ? 'visibility_off' : 'visibility' }}
           </span>
         </div>
-        <a href="#" class="text-[#528359] text-sm underline block text-left w-full lg:w-[380px] mx-auto">
+
+
+        <router-link
+            type = "submit"
+            class="text-[#528359] text-sm underline block text-left w-full lg:w-[380px] mx-auto"
+            to="/forgot-password"
+        >
           Mot de passe oublié ?
-        </a>
+        </router-link>
+
+
         <router-link
             type="submit"
             class="w-full lg:w-[380px] h-[40px] bg-[#528359] text-white text-sm rounded-lg shadow-md py-2 hover:bg-[#456c4c] transition mx-auto"
