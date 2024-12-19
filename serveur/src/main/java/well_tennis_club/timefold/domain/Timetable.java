@@ -48,25 +48,11 @@ public class Timetable {
 	}
 
 	public Timetable(List<Player> players, List<Trainer> trainers, List<TennisCourt> tennisCourts) {
-		this.name = "Timetable - WTC";
+		this.name = "WTC";
 		this.trainers = trainers;
 		this.players = players;
-
-		this.sessions = new ArrayList<>();
-		for (TennisCourt tennisCourt : tennisCourts) {
-			for (Timeslot openingHour : tennisCourt.getOpeningHours()) {
-				for (int i = 0; i < openingHour.endTime().toSecondOfDay() - openingHour.startTime().toSecondOfDay(); i += MINIMUM_DURATION * 60) {
-					this.sessions.add(new Session(openingHour.day(), openingHour.startTime().plusSeconds(i), tennisCourt.getName()));
-				}
-			}
-		}
-
-		this.playerSessionLinks = new ArrayList<>();
-		for (Player player : players) {
-			for (int i = 0; i < player.getSessionPerWeek(); i++) {
-				this.playerSessionLinks.add(new PlayerSessionLink(player));
-			}
-		}
+		this.sessions = generateSessions(tennisCourts);
+		this.playerSessionLinks = generatePlayerSessionLinks(players);
 	}
 
 	public Timetable(String name, List<Session> sessions, List<Trainer> trainers, List<Player> players) {
@@ -74,13 +60,7 @@ public class Timetable {
 		this.trainers = trainers;
 		this.players = players;
 		this.sessions = sessions;
-
-		this.playerSessionLinks = new ArrayList<>();
-		for (Player player : players) {
-			for (int j = 0; j < player.getSessionPerWeek(); j++) {
-				this.playerSessionLinks.add(new PlayerSessionLink(player));
-			}
-		}
+		this.playerSessionLinks = generatePlayerSessionLinks(players);
 	}
 
 	public Timetable(String name, List<Session> sessions, List<Trainer> trainers, List<Player> players, List<PlayerSessionLink> playerSessionLinks) {
@@ -91,13 +71,41 @@ public class Timetable {
 		this.playerSessionLinks = playerSessionLinks;
 	}
 
+	// TODO tester la méthode
+	private List<Session> generateSessions(List<TennisCourt> tennisCourts) {
+		List<Session> sessions = new ArrayList<>();
+		for (TennisCourt tennisCourt : tennisCourts) {
+			for (Timeslot openingHour : tennisCourt.getOpeningHours()) {
+				for (int i = 0; i < openingHour.endTime().toSecondOfDay() - openingHour.startTime().toSecondOfDay(); i += MINIMUM_DURATION * 60) {
+					sessions.add(new Session(openingHour.day(), openingHour.startTime().plusSeconds(i), tennisCourt.getName()));
+				}
+			}
+		}
+		return sessions;
+	}
+
+	// TODO tester la méthode
+	private List<PlayerSessionLink> generatePlayerSessionLinks(List<Player> players) {
+		List<PlayerSessionLink> playerSessionLinks = new ArrayList<>();
+		for (Player player : players) {
+			for (int i = 0; i < player.getSessionPerWeek(); i++) {
+				playerSessionLinks.add(new PlayerSessionLink(player));
+			}
+		}
+		return playerSessionLinks;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Timetable ").append(name).append(" with score ").append(score).append("\n");
 		sb.append("Sessions:\n");
 		for (Session session : sessions) {
-			sb.append("\t").append(session).append(" -> ").append(session.getTrainer().getName()).append("\n");
+			if (session.getTrainer() == null) {
+				sb.append("\t").append(session).append("\n");
+			} else {
+				sb.append("\t").append(session).append(" -> ").append(session.getTrainer().getName()).append("\n");
+			}
 		}
 		sb.append("PlayerSessionLinks:\n");
 		for (PlayerSessionLink playerSessionLink : playerSessionLinks) {
@@ -109,6 +117,7 @@ public class Timetable {
 					.append(") -> ").append(playerSessionLink.getSession())
 					.append("\n");
 		}
+		sb.append("Score: ").append(score).append("\n");
 		return sb.toString();
 	}
 }

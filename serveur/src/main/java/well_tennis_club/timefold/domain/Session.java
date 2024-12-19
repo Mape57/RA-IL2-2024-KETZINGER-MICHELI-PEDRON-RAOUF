@@ -6,6 +6,8 @@ import lombok.Getter;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.util.Objects;
 
 @Getter
@@ -15,7 +17,7 @@ public class Session {
 	private DayOfWeek day;
 	private LocalTime startTime;
 
-	@PlanningVariable
+	@PlanningVariable(allowsUnassigned = true)
 	private Trainer trainer;
 
 	public Session() {
@@ -34,7 +36,7 @@ public class Session {
 
 	@Override
 	public String toString() {
-		return "[" + day + " at " + startTime + " on " + tennisCourt + "]";
+		return "[" + tennisCourt + " le " + getDayString() + " a " + startTime + "]";
 	}
 
 	@Override
@@ -42,5 +44,15 @@ public class Session {
 		if (o == null || getClass() != o.getClass()) return false;
 		Session session = (Session) o;
 		return Objects.equals(tennisCourt, session.tennisCourt) && day == session.day && Objects.equals(startTime, session.startTime) && Objects.equals(trainer, session.trainer);
+	}
+
+	/**
+	 * Transforme le jour en chaine de caractères en français
+	 *
+	 * @return le jour traduit en français
+	 */
+	public String getDayString() {
+		if (day == null) return "";
+		return day.getDisplayName(TextStyle.FULL, Locale.FRENCH);
 	}
 }
