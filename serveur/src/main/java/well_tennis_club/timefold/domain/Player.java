@@ -35,11 +35,11 @@ public class Player {
 	}
 
 	/**
-	 * <p>L'âge d'une personne est l'âge qu'il aura à la fin de l'année sportive (septembre à août)</p>
-	 * <ul><b>Exemple :</b> pour l'année sportive 2024-2025 d'une personne née en 2004
-	 * <li>si elle est née avant septembre, elle a 21 ans</li>
-	 * <li>si elle est née pendant ou après septembre, elle a 20 ans</li>
-	 * </ul>
+	 * L'âge d'une personne est l'âge qu'il aura à la fin de l'année sportive (septembre à août)<br>
+	 * Exemple : pour l'année sportive 2024-2025 d'une personne née en 2004<br>
+	 * - si elle est née avant septembre, elle a 21 ans<br>
+	 * - si elle est née pendant ou après septembre, elle a 20 ans
+	 *
 	 * @return l'âge sportif de la personne
 	 */
 	public int getSportsAge(LocalDate birthDate) {

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver xmlns="https://timefold.ai/xsd/solver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://timefold.ai/xsd/solver https://timefold.ai/xsd/solver/solver.xsd">
+    <solutionClass>well_tennis_club.timefold.domain.Timetable</solutionClass>
+    <entityClass>well_tennis_club.timefold.domain.Session</entityClass>
+    <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
+
+    <scoreDirectorFactory>
+        <constraintProviderClass>well_tennis_club.timefold.solver.TimetableConstraintProvider</constraintProviderClass>
+    </scoreDirectorFactory>
+
+    <termination>
+        <secondsSpentLimit>20</secondsSpentLimit>
+    </termination>
+
+    <!-- BRUTE_FORCE -->
+    <exhaustiveSearch>
+        <exhaustiveSearchType>BRUTE_FORCE</exhaustiveSearchType>
+        <entitySelector>
+            <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
+            <cacheType>PHASE</cacheType>
+        </entitySelector>
+    </exhaustiveSearch>
+</solver>

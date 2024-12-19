@@ -4,8 +4,8 @@ import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import lombok.Getter;
 
-@PlanningEntity
 @Getter
+@PlanningEntity
 public class PlayerSessionLink {
 	private Player player;
 	@PlanningVariable

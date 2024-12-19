@@ -1,9 +1,6 @@
 package well_tennis_club.data_structure;
 
-import well_tennis_club.timefold.domain.Player;
 import well_tennis_club.timefold.domain.Timetable;
-
-import java.util.List;
 
 /**
  * Représente les contraintes d'une session.
