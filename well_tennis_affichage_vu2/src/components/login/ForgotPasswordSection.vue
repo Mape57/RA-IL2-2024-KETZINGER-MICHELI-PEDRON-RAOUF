@@ -21,6 +21,12 @@
           Envoyer un mail de récupération
         </button>
       </form>
+      <router-link
+          to="/"
+          class="block mt-4 text-sm text-[#528359] hover:underline"
+      >
+        Retour à la page d'accueil
+      </router-link>
     </div>
   </div>
 </template>
@@ -35,7 +41,8 @@ export default {
   },
   methods: {
     handleSubmit() {
-      console.log(`Email for password recovery: ${this.mailoruser}`);
+      console.log(`Email: ${this.mailoruser}`);
+      this.$router.push('/');
     },
   },
 };
