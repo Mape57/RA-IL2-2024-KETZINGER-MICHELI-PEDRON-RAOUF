@@ -26,19 +26,26 @@
         </div>
 
         <router-link
-            type="submit"
             class="text-[#528359] text-sm underline block text-left w-full lg:w-[380px] mx-auto"
             to="/forgot-password"
         >
           Mot de passe oublié ?
         </router-link>
 
+        <!-- Bouton Se connecter -->
         <router-link
-            type="submit"
             class="w-full lg:w-[380px] h-[60px] bg-[#528359] text-white text-base rounded-lg shadow-md py-3 hover:bg-[#456c4c] transition mx-auto flex justify-center items-center"
             to="/admin"
         >
           Se connecter
+        </router-link>
+
+        <!-- Bouton S'inscrire -->
+        <router-link
+            class="w-full lg:w-[380px] h-[60px] bg-white text-[#528359] border border-[#528359] text-base rounded-lg shadow-md py-3 hover:bg-[#ebf5eb] transition mx-auto flex justify-center items-center"
+            to="/register"
+        >
+          S'inscrire
         </router-link>
       </form>
     </div>
