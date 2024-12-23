@@ -18,4 +18,6 @@ public class CoachService {
     public CoachEntity updateCoach(CoachEntity entity){return coachRepository.save(entity);}
 
     public void deleteCoach(CoachEntity entity){coachRepository.delete(entity);}
+
+    public CoachEntity getCoachById(Long id){return coachRepository.findById(id).orElse(null);}
 }

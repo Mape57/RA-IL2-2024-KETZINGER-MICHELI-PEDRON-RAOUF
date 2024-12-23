@@ -1,7 +1,7 @@
 # Read Me First
 The following was discovered as part of building this project:
 
-* The original package name 'well-tennis.java' is invalid and this project uses 'well_tennis_club.java' instead.
+* The original package name 'well-tennis.java' is invalid and this project uses 'well_tennis.java' instead.
 
 # Getting Started
 

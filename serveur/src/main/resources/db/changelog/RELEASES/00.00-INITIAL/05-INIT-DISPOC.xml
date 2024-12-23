@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-dispoC" author="Thomas">
+        <createTable tableName="disponibility_coach">
+            <column name="id_coach" type="int">
+                <constraints primaryKey="true" foreignKeyName="fk_coach" references="coach(id)"/>
+            </column>
+            <column name="id_disponibility" type="int">
+                <constraints primaryKey="true" foreignKeyName="fk_disponibility" references="disponibility(id)"/>
+            </column>
+        </createTable>
+        <insert tableName='disponibility_coach'>
+            <column name='id_coach' value="1"/>
+            <column name='id_disponibility' value="1"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

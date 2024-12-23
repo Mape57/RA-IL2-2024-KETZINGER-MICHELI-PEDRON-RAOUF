@@ -18,4 +18,6 @@ public class CourtService {
     public CourtEntity updateCourt(CourtEntity entity){return courtRepository.save(entity);}
 
     public void deleteCourt(CourtEntity entity){courtRepository.delete(entity);}
+
+    public CourtEntity getCourtById(Long id){return courtRepository.findById(id).orElse(null);}
 }

@@ -1,4 +1,4 @@
-package well_tennis_club.timefold.rest;
+package well_tennis_club.timefold.application;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
@@ -11,7 +11,7 @@ import well_tennis_club.timefold.domain.Timetable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static well_tennis_club.timefold.rest.TimetableController.getProblem;
+import static well_tennis_club.timefold.application.TimetableController.getProblem;
 
 public class BasicApp {
 	public static void main(String[] args) {

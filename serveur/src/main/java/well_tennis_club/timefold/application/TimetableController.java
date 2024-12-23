@@ -1,4 +1,4 @@
-package well_tennis_club.timefold.rest;
+package well_tennis_club.timefold.application;
 
 import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
