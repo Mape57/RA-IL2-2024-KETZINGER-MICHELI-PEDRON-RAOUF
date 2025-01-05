@@ -1,0 +1,18 @@
+Fonctionnalités développées:
+Ajout de l'onglet de connexion (statique)
+Ajout de l'onglet de réinitialisation du mot de passe (statique)
+Améliorations de (je sais plus achraf ecrit ce que tu as fait)
+Connexion entre l'api et l'interface pour lier les données des joueurs et entraineurs (possibilité de créer, modifier et supprimer)
+Implémentation logique du formulaire de modification des données pour joueurs, quand on clique sur le nom de ce joueur.
+
+
+
+
+
+Bilan de la version actuelle :
+● Bugs :
+Problème lors des ajout et modification des disponibilités des joueurs, en effet 
+● Validation :
+
+
+Conformité aux choix initiaux du projet :
