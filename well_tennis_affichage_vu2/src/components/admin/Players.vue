@@ -13,6 +13,10 @@
         </span>
         <h3 class="font-bold text-lg">Joueurs</h3>
       </div>
+      <div class="flex space-x-2">
+        <span class="material-symbols-outlined small-icon cursor-pointer" title="Supprimer">delete</span>
+        <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter">person_add</span>
+      </div>
     </div>
 
     <div v-if="isOpen" class="mt-2">
@@ -47,7 +51,7 @@
 
 <script>
 import usePlayers from "../../useJs/usePlayers.js";
-import PlayerInfoView from "./PlayerInfoView.vue";
+import PlayerInfoView from "../vueInformations/PlayerInfoView.vue";
 
 export default {
   name: "Players",
@@ -100,9 +104,6 @@ export default {
   transition: transform 0.3s ease;
 }
 
-.small-icon {
-  font-size: 18px;
-}
 
 .rotate-180 {
   transform: rotate(180deg);

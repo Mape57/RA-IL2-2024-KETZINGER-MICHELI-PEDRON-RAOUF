@@ -1,10 +1,9 @@
-// src/services/trainersService.js
+// src/services/PlayersService.js
 import apiService from './apiService';
 
 export default {
 	getAllPlayers() {
-		return apiService.getData('/players/all');
-		// A MODIFIER AVEC L'ITERATION 2 en /players/
+		return apiService.getData('/players');
 	},
 
 	getPlayerById(id) {

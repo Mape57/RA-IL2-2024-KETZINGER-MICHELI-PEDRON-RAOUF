@@ -44,14 +44,15 @@
     <div class="content flex-1 overflow-auto">
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
-        <Trainers :trainers="trainers" />
-        <Players :players="players" :searchQuery="searchQuery" />
+        <Trainers :trainers="trainers"/>
+        <Players :players="players" :searchQuery="searchQuery"/>
       </div>
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
-        <Terrains :terrains="terrains" />
-        <Session :sessions="sessions" />
+        <Terrains :terrains="terrains"/>
+        <Session :sessions="sessions"/>
       </div>
+
       <!-- Onglet Paramètres -->
       <div v-if="selectedTab === 'settings'" class="content-settings">
 
@@ -107,10 +108,10 @@
 <script>
 import Players from "./Players.vue";
 import Trainers from "./Trainers.vue";
-import Terrains from "../terrains/Terrain.vue";
+import Terrains from "./Terrain.vue";
 import Session from "./Session.vue";
 import useLeftPanel from "../../useJs/useLeftPanel.js";
-import { onMounted } from "vue";
+import {onMounted} from "vue";
 
 export default {
   name: "LeftPanel",
@@ -122,7 +123,7 @@ export default {
   },
 
   setup() {
-    const { trainers, players, searchQuery,selectedTab, fetchTrainers, fetchPlayers, selectTab } = useLeftPanel();
+    const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab} = useLeftPanel();
 
     onMounted(() => {
       fetchTrainers();
@@ -147,8 +148,8 @@ export default {
           id: 1,
           court_name: "Terrain 1",
           schedule: [
-            { day: "Lundi", open: "17:00", close: "22:30" },
-            { day: "Mercredi", open: "13:00", close: "22:30" },
+            {day: "Lundi", open: "17:00", close: "22:30"},
+            {day: "Mercredi", open: "13:00", close: "22:30"},
           ],
         },
         {
@@ -158,32 +159,32 @@ export default {
         },
       ],
       sessions: [
-        { title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, sessions_level: "0 - 7" },
-        { title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, sessions_level: "1 - 10" },
+        {title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, sessions_level: "0 - 7"},
+        {title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, sessions_level: "1 - 10"},
       ],
     };
   },
 
-    methods: {
-      importXLS() {
-        alert("Import de planning XLS");
-      },
-      importCSV() {
-        alert("Import des données CSV");
-      },
-      downloadXLS() {
-        alert("Téléchargement de planning XLS");
-      },
-      downloadCSV() {
-        alert("Téléchargement des données CSV");
-      },
-      sendReinscriptionMail() {
-        alert("Mail de réinscription envoyé !");
-      },
-      deleteAllPlayers() {
-        alert("Suppression de tous les joueurs !");
-      },
+  methods: {
+    importXLS() {
+      alert("Import de planning XLS");
     },
+    importCSV() {
+      alert("Import des données CSV");
+    },
+    downloadXLS() {
+      alert("Téléchargement de planning XLS");
+    },
+    downloadCSV() {
+      alert("Téléchargement des données CSV");
+    },
+    sendReinscriptionMail() {
+      alert("Mail de réinscription envoyé !");
+    },
+    deleteAllPlayers() {
+      alert("Suppression de tous les joueurs !");
+    },
+  },
 };
 </script>
 

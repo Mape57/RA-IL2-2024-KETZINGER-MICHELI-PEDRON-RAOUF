@@ -1,6 +1,6 @@
 // src/composables/usePlayers.js
 import { ref } from "vue";
-import playersService from "../services/playersService.js";
+import playersService from "../services/PlayersService.js";
 
 export default function usePlayers() {
 	const players = ref([]);
@@ -22,6 +22,23 @@ export default function usePlayers() {
 			console.error("Erreur lors de la suppression :", error);
 		}
 	};
+
+	// Mettre à jour un joueur existant
+	const updatePlayer = async (player) => {
+		try {
+			const response = await playersService.updatePlayer(player.id, player);
+			// Met à jour la liste des joueurs localement
+			const index = players.value.findIndex((p) => p.id === player.id);
+			if (index !== -1) {
+				players.value[index] = response.data;
+			}
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de la mise à jour :", error);
+			throw error; // Propage l'erreur pour la gestion dans le composant
+		}
+	};
+
 
 
 	// Calcul de l'âge
@@ -51,5 +68,6 @@ export default function usePlayers() {
 		deletePlayer,
 		fetchPlayers,
 		players,
+		updatePlayer,
 	};
 }
