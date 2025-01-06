@@ -71,7 +71,7 @@ public class CourtController {
     @Operation(summary = "Delete court",description = "Delete court with id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully deleted"),
-            @ApiResponse(responseCode = "500", description = "Internal server error - Court was not delete")
+            @ApiResponse(responseCode = "500", description = "Internal server error - Session was not delete")
     })
     @DeleteMapping("/{id}")
     public void deleteCourt(@PathVariable Long id){
