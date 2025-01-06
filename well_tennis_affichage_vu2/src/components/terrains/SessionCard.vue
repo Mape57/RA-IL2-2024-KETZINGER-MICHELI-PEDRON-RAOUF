@@ -25,28 +25,41 @@
     </div>
 
     <!-- Liste des joueurs -->
-    <div class="flex-1 pl-4">
+    <div class="flex-1 pl-2 ml-0">
       <span class="font-bold text-sm">Joueurs :</span>
-      <ul class="list-disc list-inside text-sm text-gray-700 mt-1">
-        <li v-for="player in players" :key="player">{{ player }}</li>
-      </ul>
+      <div class="flex mt-1">
+        <div class="pr-1">
+          <ul class="list-disc list-inside text-sm text-gray-700">
+            <li v-for="(player, index) in players.slice(0, 4)" :key="index">{{ player }}</li>
+          </ul>
+        </div>
+
+        <div class="w-1/2 pl-2">
+          <ul class="list-disc list-inside text-sm text-gray-700">
+            <li v-for="(player, index) in players.slice(4)" :key="index">{{ player }}</li>
+          </ul>
+        </div>
+
+      </div>
     </div>
 
-    <!-- Actions -->
-    <div class="ml-auto">
-      <button
-          @click="$emit('edit')"
-          class="text-blue-500 text-sm px-2 py-1 border border-blue-500 rounded hover:bg-blue-100 transition"
-      >
-        Modifier
-      </button>
-      <button
-          @click="$emit('delete')"
-          class="text-red-500 text-sm px-2 py-1 border border-red-500 rounded ml-2 hover:bg-red-100 transition"
-      >
-        Supprimer
-      </button>
+    <div class="ml-auto flex items-center">
+  <span
+      @click="$emit('delete')"
+      class="text-red-500 text-sm flex items-center cursor-pointer group"
+  >
+    <span class="hover:underline">Supprimer</span>
+    <span
+        class="material-symbols-outlined small-icon ml-1"
+        title="Supprimer"
+    >
+      delete
+    </span>
+  </span>
     </div>
+
+
+
   </div>
 </template>
 
@@ -90,4 +103,18 @@ export default {
   transform: translateY(-2px);
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.pl-2 {
+  padding-left: 0.5rem;
+}
+
+.small-icon {
+  font-size: 15px;
+}
+
 </style>
