@@ -17,7 +17,7 @@
         <createSequence cacheSize="10" cycle="false" incrementBy="1" maxValue="1000000000000" minValue="1" sequenceName="court_seq" startValue="1"/>
 
         <insert tableName='court'>
-            <column name='id' valueSequenceNext='court_seq'/>
+            <column name='id' value="1"/>
             <column name='name' value="Terrain 1"/>
         </insert>
     </changeSet>
