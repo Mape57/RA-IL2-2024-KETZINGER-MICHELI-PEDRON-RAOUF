@@ -1,3 +1,4 @@
+
 <template>
   <div class="left-panel fixed top-5 left-5 bg-white rounded-lg shadow-md w-[30%] h-[97vh] p-6 flex flex-col z-20">
     <div class="tabs flex items-center mb-4">
@@ -44,13 +45,13 @@
     <div class="content flex-1 overflow-auto">
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
-        <Trainers :trainers="trainers"/>
-        <Players :players="players" :searchQuery="searchQuery"/>
+        <Trainers :trainers="trainers" />
+        <Players :players="players" :searchQuery="searchQuery" />
       </div>
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
-        <Terrains :terrains="terrains"/>
-        <Session :sessions="sessions"/>
+        <Terrains :terrains="terrains" />
+        <Session :sessions="sessions" />
       </div>
 
       <!-- Onglet Paramètres -->
@@ -99,8 +100,6 @@
         </button>
 
       </div>
-
-
     </div>
   </div>
 </template>
@@ -111,7 +110,10 @@ import Trainers from "./Trainers.vue";
 import Terrains from "./Terrain.vue";
 import Session from "./Session.vue";
 import useLeftPanel from "../../useJs/useLeftPanel.js";
-import {onMounted} from "vue";
+import { onMounted } from "vue";
+import ExportService from "../../functionality/ExportService";
+
+
 
 export default {
   name: "LeftPanel",
@@ -123,7 +125,7 @@ export default {
   },
 
   setup() {
-    const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab} = useLeftPanel();
+    const { trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab } = useLeftPanel();
 
     onMounted(() => {
       fetchTrainers();
@@ -174,9 +176,6 @@ export default {
     },
     downloadXLS() {
       alert("Téléchargement de planning XLS");
-    },
-    downloadCSV() {
-      alert("Téléchargement des données CSV");
     },
     sendReinscriptionMail() {
       alert("Mail de réinscription envoyé !");
