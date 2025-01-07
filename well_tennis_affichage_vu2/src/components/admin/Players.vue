@@ -14,8 +14,10 @@
         <h3 class="font-bold text-lg">Joueurs</h3>
       </div>
       <div class="flex space-x-2">
-        <span class="material-symbols-outlined small-icon cursor-pointer" title="Supprimer">delete</span>
-        <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter">person_add</span>
+        <span class="material-symbols-outlined small-icon cursor-pointer"
+              title="Ajouter"
+              @click="addPlayer"
+        >person_add</span>
       </div>
     </div>
 
@@ -39,12 +41,16 @@
         <span class="text-right">{{ player.level }}</span>
       </div>
 
+
       <!-- Affichage de PlayerInfoView -->
       <PlayerInfoView
           v-if="selectedPlayer"
           :player="selectedPlayer"
           @close="selectedPlayer = null"
+          @delete="handlePlayerDeletion"
+          @save="handlePlayerSave"
       />
+
     </div>
   </div>
 </template>
@@ -55,13 +61,13 @@ import PlayerInfoView from "../vueInformations/PlayerInfoView.vue";
 
 export default {
   name: "Players",
-  components: { PlayerInfoView },
+  components: {PlayerInfoView},
   props: {
     players: Array,
     searchQuery: String,
   },
   setup() {
-    const { computeAge } = usePlayers();
+    const {computeAge} = usePlayers();
     return {
       computeAge,
     };
@@ -86,7 +92,49 @@ export default {
       this.isOpen = !this.isOpen;
     },
     showPlayerInfo(player) {
-      this.selectedPlayer = player; // Met à jour le joueur sélectionné
+      if (this.selectedPlayer && this.selectedPlayer.id === player.id) {
+        // Si le joueur sélectionné est cliqué à nouveau, on ferme l'onglet
+        this.selectedPlayer = null;
+      } else {
+        // Sinon, on met à jour le joueur sélectionné
+        this.selectedPlayer = player;
+      }
+    },
+    handlePlayerDeletion(deletedPlayerId) {
+      const updatedPlayers = this.players.filter(player => player.id !== deletedPlayerId);
+      this.$emit('update:players', updatedPlayers); // Émet la liste mise à jour au parent
+      this.selectedPlayer = null; // Ferme l'affichage des détails
+    },
+    handlePlayerSave(savedPlayer) {
+      if (!savedPlayer || typeof savedPlayer !== "object") {
+        console.error("Données invalides reçues dans handlePlayerSave :", savedPlayer);
+        return;
+      }
+      const index = this.players.findIndex(player => player.id === savedPlayer.id);
+      if (index !== -1) {
+        // Mise à jour d'un joueur existant
+        this.players.splice(index, 1, savedPlayer);
+      } else {
+        // Ajout d'un nouveau joueur
+        this.players.push(savedPlayer);
+      }
+
+      // Émet la liste mise à jour au parent
+      this.$emit("update:players", [...this.players]);
+    },
+
+    addPlayer() {
+      // Initialise un joueur vide
+      this.selectedPlayer = {
+        id: null, // Pas encore défini
+        name: "",
+        surname: "",
+        birthday: "",
+        courses: 1,
+        level: 1,
+        email: "",
+        disponibilities: [],
+      }; // Ouvre PlayerInfoView avec ce nouveau joueur
     },
   },
 };
@@ -112,4 +160,6 @@ export default {
 .border-b {
   border-bottom: 1px solid #e2e8f0;
 }
+
+
 </style>

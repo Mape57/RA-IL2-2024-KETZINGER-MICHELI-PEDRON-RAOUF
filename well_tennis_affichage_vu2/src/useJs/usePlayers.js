@@ -32,6 +32,7 @@ export default function usePlayers() {
 			if (index !== -1) {
 				players.value[index] = response.data;
 			}
+			console.log("Joueur mis à jour :", response.data);
 			return response.data;
 		} catch (error) {
 			console.error("Erreur lors de la mise à jour :", error);
@@ -39,6 +40,17 @@ export default function usePlayers() {
 		}
 	};
 
+	const createPlayer = async (player) => {
+		try {
+			const response = await playersService.createPlayer(player);
+			players.value.push(response.data);
+			console.log("Joueur créé :", response.data);
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de la création :", error);
+			throw error;
+		}
+	};
 
 
 	// Calcul de l'âge
@@ -65,6 +77,7 @@ export default function usePlayers() {
 
 	return {
 		computeAge,
+		createPlayer,
 		deletePlayer,
 		fetchPlayers,
 		players,

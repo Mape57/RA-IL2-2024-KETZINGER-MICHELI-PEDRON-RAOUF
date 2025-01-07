@@ -1,4 +1,3 @@
-
 <template>
   <div class="left-panel fixed top-5 left-5 bg-white rounded-lg shadow-md w-[30%] h-[97vh] p-6 flex flex-col z-20">
     <div class="tabs flex items-center mb-4">
@@ -47,6 +46,8 @@
       <div v-if="selectedTab === 'data'">
         <Trainers :trainers="trainers" />
         <Players :players="players" :searchQuery="searchQuery" />
+        <Trainers :trainers="trainers"/>
+        <Players :players="players" :searchQuery="searchQuery" @update:players="updatePlayers" />
       </div>
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
@@ -125,7 +126,7 @@ export default {
   },
 
   setup() {
-    const { trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab } = useLeftPanel();
+    const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers} = useLeftPanel();
 
     onMounted(() => {
       fetchTrainers();
@@ -140,6 +141,7 @@ export default {
       fetchTrainers,
       fetchPlayers,
       selectTab,
+      updatePlayers,
     };
   },
 
@@ -176,6 +178,9 @@ export default {
     },
     downloadXLS() {
       alert("Téléchargement de planning XLS");
+    },
+    downloadCSV() {
+      alert("Téléchargement des données CSV");
     },
     sendReinscriptionMail() {
       alert("Mail de réinscription envoyé !");

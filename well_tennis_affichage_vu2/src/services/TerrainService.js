@@ -2,23 +2,23 @@
 import apiService from './apiService';
 
 export default {
-	getAllPlayers() {
+	getAllTerrain() {
 		return apiService.getData('/court-controller');
 	},
 
-	getPlayerById(id) {
+	getTerrainById(id) {
 		return apiService.getData(`/court-controller/${id}`);
 	},
 
-	createPlayer(playerData) {
-		return apiService.post('/court-controller', playerData);
+	createTerrain(playerData) {
+		return apiService.post('/court-controller', TerrainData);
 	},
 
-	updatePlayer(id, playerData) {
-		return apiService.patch(`/court-controller/${id}`, playerData);
+	updateTerrain(id, playerData) {
+		return apiService.patch(`/court-controller/${id}`, TerrainData);
 	},
 
-	deletePlayer(id) {
+	deleteTerrain(id) {
 		return apiService.delete(`/court-controller/${id}`);
 	},
 };
