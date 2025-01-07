@@ -30,7 +30,7 @@ public class BasicApp {
 
 		List<String> brokenCosntraints = new ArrayList<>();
 
-		scoreAnalysis.constraintMap().forEach((_, constraintAnalysis) -> {
+		scoreAnalysis.constraintMap().forEach((x, constraintAnalysis) -> {
 			if (constraintAnalysis.matches() == null) return;
 			constraintAnalysis.matches().forEach(matchAnalysis -> {
 				Object justification = matchAnalysis.justification();

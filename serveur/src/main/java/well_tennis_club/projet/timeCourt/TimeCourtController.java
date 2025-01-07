@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("timeCourt")
@@ -55,7 +56,7 @@ public class TimeCourtController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Time was not delete")
     })
     @DeleteMapping("/{idCourt}/{idTime}")
-    public void deleteTimeCourt(@PathVariable Long idCourt, @PathVariable Long idTime){
+    public void deleteTimeCourt(@PathVariable UUID idCourt, @PathVariable UUID idTime){
         TimeCourtEntity entity = new TimeCourtEntity();
         TimeCourtKey key = new TimeCourtKey();
         key.setIdCourt(idCourt);
@@ -71,7 +72,7 @@ public class TimeCourtController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Times were not found")
     })
     @GetMapping("/{id}")
-    public List<TimeCourtDto> getTimeCourt(@PathVariable Long id){
+    public List<TimeCourtDto> getTimeCourt(@PathVariable UUID id){
         List<TimeCourtDto> dtos = TimeCourtMapper.INSTANCE.mapToListDTO(timeCourtService.getTimeCourtForCourt(id));
         if (dtos == null || dtos.size() == 0){
             throw new ResponseStatusException(

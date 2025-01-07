@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CourtService {
@@ -19,5 +20,5 @@ public class CourtService {
 
     public void deleteCourt(CourtEntity entity){courtRepository.delete(entity);}
 
-    public CourtEntity getCourtById(Long id){return courtRepository.findById(id).orElse(null);}
+    public CourtEntity getCourtById(UUID id){return courtRepository.findById(id).orElse(null);}
 }

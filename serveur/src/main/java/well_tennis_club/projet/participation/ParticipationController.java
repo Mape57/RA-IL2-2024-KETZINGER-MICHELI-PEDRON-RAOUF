@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("participations")
@@ -56,7 +57,7 @@ public class ParticipationController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Participation was not delete")
     })
     @DeleteMapping("/{idPlayer}/{idSession}")
-    public void deleteParticipation(@PathVariable Long idPlayer, @PathVariable Long idSession){
+    public void deleteParticipation(@PathVariable UUID idPlayer, @PathVariable UUID idSession){
         ParticipationEntity participationEntity = new ParticipationEntity();
         ParticipationKey key = new ParticipationKey();
         key.setIdPlayer(idPlayer);
@@ -72,7 +73,7 @@ public class ParticipationController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Participations were not found")
     })
     @GetMapping("/{id}")
-    public List<ParticipationDto> getParticipationPlayer(@PathVariable Long id){
+    public List<ParticipationDto> getParticipationPlayer(@PathVariable UUID id){
         List<ParticipationDto> dtos = ParticipationMapper.INSTANCE.mapToListDTO(participationService.getParticipationForPlayer(id));
         if (dtos == null || dtos.size() == 0){
             throw new ResponseStatusException(

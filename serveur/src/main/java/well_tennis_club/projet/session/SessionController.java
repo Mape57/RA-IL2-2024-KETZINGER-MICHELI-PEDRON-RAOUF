@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("sessions")
@@ -55,7 +56,7 @@ public class SessionController {
             @ApiResponse(responseCode = "404", description = "Internal server error - Session was not update")
     })
     @PatchMapping("/{id}")
-    public SessionDto updateSession(@PathVariable Long id, @RequestBody SessionDto sessionDto){
+    public SessionDto updateSession(@PathVariable UUID id, @RequestBody SessionDto sessionDto){
         SessionDto session = SessionMapper.INSTANCE.mapToDTO(sessionService.getSessionById(id));
         if (session == null){
             throw new ResponseStatusException(
@@ -75,7 +76,7 @@ public class SessionController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Court was not delete")
     })
     @DeleteMapping("/{id}")
-    public void deleteSession(@PathVariable Long id){
+    public void deleteSession(@PathVariable UUID id){
         SessionEntity entity = new SessionEntity();
         entity.setId(id);
         sessionService.deleteSession(entity);
@@ -88,7 +89,7 @@ public class SessionController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Session was not found")
     })
     @GetMapping("/{id}")
-    public SessionDto getSession(@PathVariable Long id){
+    public SessionDto getSession(@PathVariable UUID id){
         SessionDto modif = SessionMapper.INSTANCE.mapToDTO(sessionService.getSessionById(id));
         if (modif == null){
             throw new ResponseStatusException(

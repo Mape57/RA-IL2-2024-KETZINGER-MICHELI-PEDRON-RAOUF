@@ -5,13 +5,15 @@ import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Embeddable
 public class TimeCourtKey {
     @Column(name = "id_court")
-    private Long idCourt;
+    private UUID idCourt;
 
     @Column(name = "id_time")
-    private Long idTime;
+    private UUID idTime;
 }

@@ -4,8 +4,9 @@ import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface DisponibilityPlayerRepository extends ListCrudRepository<DisponibilityPlayerEntity, Long> {
-    List<DisponibilityPlayerEntity> findByDisponibilityPlayerKeyIdPlayer(Long idPlayer);
+public interface DisponibilityPlayerRepository extends ListCrudRepository<DisponibilityPlayerEntity, UUID> {
+    List<DisponibilityPlayerEntity> findByDisponibilityPlayerKeyIdPlayer(UUID idPlayer);
 }

@@ -7,17 +7,13 @@
 
     <changeSet id="create-participation" author="Thomas">
         <createTable tableName="participation">
-            <column name="id_player" type="int">
+            <column name="id_player" type="UUID">
                 <constraints primaryKey="true" foreignKeyName="fk_player_participation" references="player(id)"/>
             </column>
-            <column name="id_session" type="int">
+            <column name="id_session" type="UUID">
                 <constraints primaryKey="true" foreignKeyName="fk_session_participation" references="session(id)"/>
             </column>
         </createTable>
 
-        <insert tableName='participation'>
-            <column name='id_player' value='1'/>
-            <column name='id_session' value="1"/>
-        </insert>
     </changeSet>
 </databaseChangeLog>

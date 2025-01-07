@@ -7,8 +7,8 @@
 
     <changeSet id="create-player" author="Thomas">
         <createTable tableName="player">
-            <column name="id" type="int" autoIncrement="true">
-                <constraints primaryKey="true"/>
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(200)">
                 <constraints nullable="false"/>
@@ -29,10 +29,9 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <createSequence cacheSize="10" cycle="false" incrementBy="1" maxValue="1000000000000" minValue="1" sequenceName="player_seq" startValue="1"/>
+        <addDefaultValue tableName="player" columnName="id" defaultValueComputed="gen_random_uuid()"/>
 
         <insert tableName='player'>
-            <column name='id' value='1'/>
             <column name='name' value="Adjal"/>
             <column name='surname' value="Martin"/>
             <column name='birthday' value="2016-09-01"/>

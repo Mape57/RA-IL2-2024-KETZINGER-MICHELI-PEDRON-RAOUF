@@ -4,11 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 public class DisponibilityDto {
     @Schema(name = "id",example = "1")
-    private Long id;
+    private UUID id;
     @Schema(name = "day",example = "Monday")
     private String day;
     @Schema(name = "open",example = "8:00")

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class PlayerService {
@@ -21,5 +22,5 @@ public class PlayerService {
 
     public void deletePlayer(PlayerEntity entity){playerRepository.delete(entity);}
 
-    public PlayerEntity getPlayerById(Long id){return playerRepository.findById(id).orElse(null);}
+    public PlayerEntity getPlayerById(UUID id){return playerRepository.findById(id).orElse(null);}
 }

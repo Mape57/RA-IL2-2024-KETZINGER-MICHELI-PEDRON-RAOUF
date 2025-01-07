@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DisponibilityCoachService {
@@ -17,5 +18,5 @@ public class DisponibilityCoachService {
 
     public void deleteDisponibilityCoach(DisponibilityCoachEntity entity){disponibilityCoachRepository.delete(entity);}
 
-    public List<DisponibilityCoachEntity> getDisponibilityForCoach(Long id){return disponibilityCoachRepository.findByDisponibilityCoachKeyIdCoach(id);}
+    public List<DisponibilityCoachEntity> getDisponibilityForCoach(UUID id){return disponibilityCoachRepository.findByDisponibilityCoachKeyIdCoach(id);}
 }

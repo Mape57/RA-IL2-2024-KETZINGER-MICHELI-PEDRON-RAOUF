@@ -7,12 +7,13 @@ import well_tennis_club.projet.disponibility.DisponibilityDto;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 public class CoachDto implements Serializable {
     @Schema(name = "id",example = "1")
-    private Long id;
+    private UUID id;
     @Schema(name = "name",example = "Nadal")
     private String name;
     @Schema(name = "surname",example = "Toni")
