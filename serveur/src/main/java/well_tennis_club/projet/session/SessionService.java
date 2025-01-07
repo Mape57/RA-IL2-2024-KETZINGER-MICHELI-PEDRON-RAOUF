@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class SessionService {
@@ -15,5 +16,5 @@ public class SessionService {
     public SessionEntity createSession(SessionEntity entity){return sessionRepository.save(entity);}
     public SessionEntity updateSession(SessionEntity entity){return sessionRepository.save(entity);}
     public void deleteSession(SessionEntity entity){sessionRepository.delete(entity);}
-    public SessionEntity getSessionById(Long id){return sessionRepository.findById(id).orElse(null);}
+    public SessionEntity getSessionById(UUID id){return sessionRepository.findById(id).orElse(null);}
 }

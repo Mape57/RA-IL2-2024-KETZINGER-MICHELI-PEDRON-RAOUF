@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TimeCourtService {
@@ -15,5 +16,5 @@ public class TimeCourtService {
 
     public TimeCourtEntity createTimeCourt(TimeCourtEntity entity){return timeCourtRepository.save(entity);}
     public void deleteTimeCourt(TimeCourtEntity entity){timeCourtRepository.delete(entity);}
-    public List<TimeCourtEntity> getTimeCourtForCourt(Long id){return timeCourtRepository.findByTimeCourtKeyIdCourt(id);}
+    public List<TimeCourtEntity> getTimeCourtForCourt(UUID id){return timeCourtRepository.findByTimeCourtKeyIdCourt(id);}
 }

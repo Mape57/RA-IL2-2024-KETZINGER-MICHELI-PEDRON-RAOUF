@@ -7,8 +7,8 @@
 
     <changeSet id="create-coach" author="Thomas">
         <createTable tableName="coach">
-            <column name="id" type="int" autoIncrement="true">
-                <constraints primaryKey="true"/>
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(200)">
                 <constraints nullable="false"/>
@@ -32,10 +32,9 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <createSequence cacheSize="10" cycle="false" incrementBy="1" maxValue="1000000000000" minValue="1" sequenceName="coach_seq" startValue="1"/>
+        <addDefaultValue tableName="coach" columnName="id" defaultValueComputed="gen_random_uuid()"/>
 
         <insert tableName='coach'>
-            <column name='id' valueSequenceNext='coach_seq'/>
             <column name='name' value="Brandt"/>
             <column name='surname' value="Pierre"/>
             <column name='levels' value="14-19"/>

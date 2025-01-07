@@ -7,8 +7,8 @@
 
     <changeSet id="session-time" author="Thomas">
         <createTable tableName="session">
-            <column name="id" type="int" autoIncrement="true">
-                <constraints primaryKey="true"/>
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="day" type="varchar(200)">
                 <constraints nullable="false"/>
@@ -19,22 +19,13 @@
             <column name="stop" type="varchar(200)">
                 <constraints nullable="false"/>
             </column>
-            <column name="id_court" type="int">
+            <column name="id_court" type="UUID">
                 <constraints foreignKeyName="fk_court_session" references="court(id)"/>
             </column>
-            <column name="id_coach" type="int">
+            <column name="id_coach" type="UUID">
                 <constraints foreignKeyName="fk_coach_session" references="coach(id)"/>
             </column>
         </createTable>
-        <createSequence cacheSize="10" cycle="false" incrementBy="1" maxValue="1000000000000" minValue="1" sequenceName="session_seq" startValue="1"/>
-
-        <insert tableName='session'>
-            <column name='id' value='1'/>
-            <column name='day' value="Monday"/>
-            <column name='start' value="8:00"/>
-            <column name='stop' value="10:00"/>
-            <column name="id_court" value="1"/>
-            <column name="id_coach" value="1"/>
-        </insert>
+        <addDefaultValue tableName="session" columnName="id" defaultValueComputed="gen_random_uuid()"/>
     </changeSet>
 </databaseChangeLog>

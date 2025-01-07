@@ -5,13 +5,15 @@ import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Embeddable
 public class ParticipationKey {
     @Column(name = "id_player")
-    private Long idPlayer;
+    private UUID idPlayer;
 
     @Column(name = "id_session")
-    private Long idSession;
+    private UUID idSession;
 }

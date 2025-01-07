@@ -22,9 +22,9 @@ public class TimetableConstraintProvider implements ConstraintProvider {
 		return constraintFactory
 				.forEach(PlayerSessionLink.class)
 				.groupBy(PlayerSessionLink::getSession, CustomCollectors.ageOverflow())
-				.filter((_, ageOverflow) -> ageOverflow > 0)
-				.penalize(HardSoftScore.ONE_SOFT, (_, ageOverflow) -> ageOverflow)
-				.justifyWith((session, ageOverflow, _) -> new AgeOverflowJustification(session, ageOverflow))
+				.filter((x, ageOverflow) -> ageOverflow > 0)
+				.penalize(HardSoftScore.ONE_SOFT, (x, ageOverflow) -> ageOverflow)
+				.justifyWith((session, ageOverflow, x) -> new AgeOverflowJustification(session, ageOverflow))
 				.asConstraint("La différence d'âge maximum par groupe est dépassée");
 	}
 
@@ -32,9 +32,9 @@ public class TimetableConstraintProvider implements ConstraintProvider {
 		return constraintFactory
 				.forEach(PlayerSessionLink.class)
 				.groupBy(PlayerSessionLink::getSession, CustomCollectors.levelOverflow())
-				.filter((_, levelOverflow) -> levelOverflow > 0)
-				.penalize(HardSoftScore.ONE_SOFT, (_, levelOverflow) -> levelOverflow)
-				.justifyWith((session, levelOverflow, _) -> new LevelOverflowJustification(session, levelOverflow))
+				.filter((x, levelOverflow) -> levelOverflow > 0)
+				.penalize(HardSoftScore.ONE_SOFT, (x, levelOverflow) -> levelOverflow)
+				.justifyWith((session, levelOverflow, x) -> new LevelOverflowJustification(session, levelOverflow))
 				.asConstraint("La différence de niveau maximum par groupe est dépassée");
 	}
 
@@ -42,9 +42,9 @@ public class TimetableConstraintProvider implements ConstraintProvider {
 		return constraintFactory
 				.forEach(PlayerSessionLink.class)
 				.groupBy(PlayerSessionLink::getSession, CustomCollectors.groupSizeDifference())
-				.filter((_, groupSizeDifference) -> groupSizeDifference != 0)
-				.penalize(HardSoftScore.ONE_SOFT, (_, groupSizeDifference) -> Math.abs(groupSizeDifference))
-				.justifyWith((session, groupSizeDifference, _) -> new GroupSizeDifferenceJustification(session, groupSizeDifference))
+				.filter((x, groupSizeDifference) -> groupSizeDifference != 0)
+				.penalize(HardSoftScore.ONE_SOFT, (x, groupSizeDifference) -> Math.abs(groupSizeDifference))
+				.justifyWith((session, groupSizeDifference, x) -> new GroupSizeDifferenceJustification(session, groupSizeDifference))
 				.asConstraint("La taille du groupe n'est pas respectée");
 	}
 }

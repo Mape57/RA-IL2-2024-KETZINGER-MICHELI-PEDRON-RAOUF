@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("time")
@@ -55,7 +56,7 @@ public class TimeController {
             @ApiResponse(responseCode = "404", description = "Internal server error - Time was not update")
     })
     @PatchMapping("/{id}")
-    public TimeDto updateTime(@PathVariable Long id, @RequestBody TimeDto timeDto){
+    public TimeDto updateTime(@PathVariable UUID id, @RequestBody TimeDto timeDto){
         TimeDto dto = TimeMapper.INSTANCE.mapToDTO(timeService.getTimeById(id));
         if (dto == null){
             throw new ResponseStatusException(
@@ -75,7 +76,7 @@ public class TimeController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Time was not delete")
     })
     @DeleteMapping("/{id}")
-    public void deleteTime(@PathVariable Long id){
+    public void deleteTime(@PathVariable UUID id){
         TimeEntity entity = new TimeEntity();
         entity.setId(id);
         timeService.deleteTime(entity);
@@ -88,7 +89,7 @@ public class TimeController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Time was not found")
     })
     @GetMapping("/{id}")
-    public TimeDto getTime(@PathVariable Long id){
+    public TimeDto getTime(@PathVariable UUID id){
         TimeDto dto = TimeMapper.INSTANCE.mapToDTO(timeService.getTimeById(id));
         if (dto == null){
             throw new ResponseStatusException(
