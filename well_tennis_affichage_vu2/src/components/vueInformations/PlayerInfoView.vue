@@ -100,7 +100,14 @@
       </div>
 
       <!-- Bouton Enregistrer cloture -->
-      <button class="save-button" @click="savePlayer">Enregistrer</button>
+      <button class="save-button" type="submit">Enregistrer</button>
+
+      <!-- Bouton de supression du player -->
+      <button class="del-button" @click.prevent="deletePlayerHandler">Supprimer</button>
+<!--      <span class="material-symbols-outlined small-icon cursor-pointer" title="Supprimer">delete</span>
+c'est le symbole delete
+-->
+
     </form>
   </div>
 </template>
@@ -118,9 +125,24 @@ export default {
     },
   },
   setup(props, {emit}) {
-    const {computeAge, updatePlayer, createPlayer} = usePlayers();
+    const {computeAge, updatePlayer, createPlayer, deletePlayer} = usePlayers();
 
     const editablePlayer = ref({...props.player, disponibilities: [...(props.player.disponibilities || [])]});
+
+    const deletePlayerHandler = async () => {
+      const confirmDelete = confirm("Êtes-vous sûr de vouloir supprimer ce joueur ?");
+      if (!confirmDelete) return;
+
+      try {
+        await deletePlayer(editablePlayer.value.id); // Supprime le joueur via le service
+        alert("Le joueur a été supprimé avec succès !");
+        emit("delete", editablePlayer.value.id); // Informe le parent de la suppression
+      } catch (error) {
+        console.error("Erreur lors de la suppression :", error);
+        alert("Une erreur est survenue lors de la suppression.");
+      }
+    };
+
 
     watch(
         () => props.player,
@@ -143,44 +165,48 @@ export default {
     };
 
     const savePlayer = async () => {
-      let invalidTimes = false;
-
-      if (!validateForm()) {
-        alert("Veuillez remplir correctement tous les champs.");
-        return;
-      }
-
-      editablePlayer.value.disponibilities.forEach((slot) => {
-        if (!isValidTime(slot)) {
-          invalidTimes = true;
-        }
-      });
-
-      if (invalidTimes) {
-        alert("Assurez-vous que chaque créneau respecte les heures pleines ou demi-heures, et que l'heure de début est antérieure à l'heure de fin.");
-        return;
-      }
-
-      if (!validateUniqueDisponibilities()) {
-        alert("Il existe des disponibilités en double (jour, heure d'ouverture, heure de fermeture identiques).");
-        return;
-      }
-
       try {
-        if (editablePlayer.value.id) {
-          await updatePlayer(editablePlayer.value);
-          alert("Les modifications ont été enregistrées avec succès !");
-        } else {
-          await createPlayer(editablePlayer.value);
-          alert("Le joueur a été créé avec succès !");
+        // 1. Validation des champs obligatoires
+        if (!validateForm()) {
+          alert("Veuillez remplir correctement tous les champs."); // Alerte si des champs sont manquants
+          return;
         }
 
-        emit("save", editablePlayer.value);
+        // 2. Vérification des créneaux horaires
+        const invalidTimes = editablePlayer.value.disponibilities.some((slot) => !isValidTime(slot)); // Vérifie si un créneau est invalide
+        if (invalidTimes) {
+          alert("Veuillez corriger les erreurs dans les disponibilités avant de continuer.");
+          return;
+        }
+
+        // 3. Vérification des doublons dans les disponibilités
+        if (!validateUniqueDisponibilities()) {
+          alert("Il existe des doublons dans les disponibilités. Veuillez les corriger.");
+          return;
+        }
+
+        // 4. Différenciation entre création et mise à jour
+        let savedPlayer;
+        if (editablePlayer.value.id) {
+          // Mise à jour d'un joueur existant
+          savedPlayer = await updatePlayer(editablePlayer.value);
+          alert("Les modifications ont été enregistrées avec succès !");
+          emit("save", savedPlayer); // Passe le joueur mis à jour
+        } else {
+          // Création d'un nouveau joueur
+          savedPlayer = await createPlayer(editablePlayer.value); // L'API renvoie les données créées
+          editablePlayer.value = savedPlayer; // Synchronise les données locales avec celles renvoyées par l'API
+          alert("Le joueur a été créé avec succès !");
+          emit("save", savedPlayer); // Passe le joueur créé
+        }
+
+        // 5. Émission de l'événement au parent
       } catch (error) {
-        console.error("Erreur lors de la sauvegarde :", error);
-        alert("Une erreur est survenue lors de l'enregistrement des modifications.");
+        console.error("Erreur lors de la sauvegarde :", error); // Log pour le débogage
+        alert("Une erreur est survenue lors de l'enregistrement des modifications."); // Alerte utilisateur
       }
     };
+
 
     const validateForm = () => {
       return (
@@ -224,8 +250,11 @@ export default {
       return true;
     };
 
+
+
     return {
       computeAge,
+      deletePlayerHandler,
       editablePlayer,
       savePlayer,
       addAvailability,
@@ -309,6 +338,17 @@ export default {
 .save-button {
   margin-top: 1rem;
   background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.del-button {
+  margin-top: 1rem;
+  background-color: #c31d1d;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;

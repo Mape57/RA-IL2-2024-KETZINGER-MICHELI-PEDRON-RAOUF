@@ -45,7 +45,7 @@
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
         <Trainers :trainers="trainers"/>
-        <Players :players="players" :searchQuery="searchQuery"/>
+        <Players :players="players" :searchQuery="searchQuery" @update:players="updatePlayers" />
       </div>
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
@@ -123,7 +123,7 @@ export default {
   },
 
   setup() {
-    const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab} = useLeftPanel();
+    const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers} = useLeftPanel();
 
     onMounted(() => {
       fetchTrainers();
@@ -138,6 +138,7 @@ export default {
       fetchTrainers,
       fetchPlayers,
       selectTab,
+      updatePlayers,
     };
   },
 
