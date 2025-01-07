@@ -1,5 +1,6 @@
 package well_tennis_club.projet.coach;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -23,10 +25,9 @@ public class CoachEntity implements Serializable {
     private static final long serialVersionUID = 2405172041950251807L;
 
     @Id
-    @GeneratedValue(generator = "coach_seq_gen")
-    @SequenceGenerator(name = "coach_seq_gen",sequenceName = "coach_seq",allocationSize = 1)
-    @Column(name = "id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id",columnDefinition = "UUID")
+    private UUID id;
 
     @Column(name = "name")
     private String name;

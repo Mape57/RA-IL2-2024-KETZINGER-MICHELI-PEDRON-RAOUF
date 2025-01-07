@@ -2,6 +2,7 @@ package well_tennis_club.projet.player;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -12,7 +13,7 @@ import well_tennis_club.projet.disponibility.DisponibilityDto;
 @NoArgsConstructor
 public class PlayerDto implements Serializable{
     @Schema(name="id",example = "1")
-    private Long id;
+    private UUID id;
     @Schema(name = "name",example = "Nadal")
     private String name;
     @Schema(name = "surname",example = "Rafael")

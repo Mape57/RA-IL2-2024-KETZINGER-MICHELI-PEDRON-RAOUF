@@ -7,8 +7,8 @@
 
     <changeSet id="create-time" author="Thomas">
         <createTable tableName="time">
-            <column name="id" type="int" autoIncrement="true">
-                <constraints primaryKey="true"/>
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="day" type="varchar(200)">
                 <constraints nullable="false"/>
@@ -20,10 +20,9 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <createSequence cacheSize="10" cycle="false" incrementBy="1" maxValue="1000000000000" minValue="1" sequenceName="time_seq" startValue="1"/>
+        <addDefaultValue tableName="time" columnName="id" defaultValueComputed="gen_random_uuid()"/>
 
         <insert tableName='time'>
-            <column name='id' value='1'/>
             <column name='day' value="Monday"/>
             <column name='start' value="8:00"/>
             <column name='stop' value="10:00"/>

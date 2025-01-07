@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("disponibility")
@@ -55,7 +56,7 @@ public class DisponibilityController {
             @ApiResponse(responseCode = "404", description = "Internal server error - Disponibility was not update")
     })
     @PatchMapping("/{id}")
-    public DisponibilityDto updateDisponibility(@PathVariable Long id,@RequestBody DisponibilityDto disponibilityDto){
+    public DisponibilityDto updateDisponibility(@PathVariable UUID id, @RequestBody DisponibilityDto disponibilityDto){
         DisponibilityDto dto = DisponibilityMapper.INSTANCE.mapToDTO(disponibilityService.getDisponibilityById(id));
         if (dto == null){
             throw new ResponseStatusException(
@@ -76,7 +77,7 @@ public class DisponibilityController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Disponibility was not delete")
     })
     @DeleteMapping("/{id}")
-    public void deleteDisponibility(@PathVariable Long id){
+    public void deleteDisponibility(@PathVariable UUID id){
         DisponibilityEntity entity = new DisponibilityEntity();
         entity.setId(id);
         disponibilityService.deleteDisponibility(entity);
@@ -89,7 +90,7 @@ public class DisponibilityController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Disponibility was not found")
     })
     @GetMapping("/{id}")
-    public DisponibilityDto getDisponibility(@PathVariable Long id){
+    public DisponibilityDto getDisponibility(@PathVariable UUID id){
         DisponibilityDto modif = DisponibilityMapper.INSTANCE.mapToDTO(disponibilityService.getDisponibilityById(id));
         if (modif == null){
             throw new ResponseStatusException(

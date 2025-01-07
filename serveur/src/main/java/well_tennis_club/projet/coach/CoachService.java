@@ -2,8 +2,13 @@ package well_tennis_club.projet.coach;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import well_tennis_club.projet.disponibility.DisponibilityEntity;
+import well_tennis_club.projet.disponibility.DisponibilityRepository;
+import well_tennis_club.projet.disponibilityCoach.DisponibilityCoachEntity;
+import well_tennis_club.projet.disponibilityCoach.DisponibilityCoachRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CoachService {
@@ -19,5 +24,5 @@ public class CoachService {
 
     public void deleteCoach(CoachEntity entity){coachRepository.delete(entity);}
 
-    public CoachEntity getCoachById(Long id){return coachRepository.findById(id).orElse(null);}
+    public CoachEntity getCoachById(UUID id){return coachRepository.findById(id).orElse(null);}
 }

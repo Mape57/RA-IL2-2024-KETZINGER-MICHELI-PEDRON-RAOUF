@@ -7,17 +7,16 @@
 
     <changeSet id="create-court" author="Thomas">
         <createTable tableName="court">
-            <column name="id" type="int" autoIncrement="true">
-                <constraints primaryKey="true"/>
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(200)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <createSequence cacheSize="10" cycle="false" incrementBy="1" maxValue="1000000000000" minValue="1" sequenceName="court_seq" startValue="1"/>
+        <addDefaultValue tableName="court" columnName="id" defaultValueComputed="gen_random_uuid()"/>
 
         <insert tableName='court'>
-            <column name='id' valueSequenceNext='court_seq'/>
             <column name='name' value="Terrain 1"/>
         </insert>
     </changeSet>

@@ -7,16 +7,12 @@
 
     <changeSet id="create-dispoJ" author="Thomas">
         <createTable tableName="disponibility_player">
-            <column name="id_player" type="int">
+            <column name="id_player" type="UUID">
                 <constraints primaryKey="true" foreignKeyName="fk_player" references="player(id)"/>
             </column>
-            <column name="id_disponibility" type="int">
+            <column name="id_disponibility" type="UUID">
                 <constraints primaryKey="true" foreignKeyName="fk_disponibility" references="disponibility(id)"/>
             </column>
         </createTable>
-        <insert tableName='disponibility_player'>
-            <column name='id_player' value="1"/>
-            <column name='id_disponibility' value="1"/>
-        </insert>
     </changeSet>
 </databaseChangeLog>
