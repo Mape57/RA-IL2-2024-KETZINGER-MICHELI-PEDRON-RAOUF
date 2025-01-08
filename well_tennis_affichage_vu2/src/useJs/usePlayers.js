@@ -43,8 +43,12 @@ export default function usePlayers() {
 			console.log("Joueur mis à jour :", response.data);
 			return response.data;
 		} catch (error) {
-			console.error("Erreur lors de la mise à jour :", error);
-			throw error; // Propage l'erreur pour la gestion dans le composant
+			if (error.response) {
+				console.error("Erreur de réponse du backend :", error.response.data);
+			} else {
+				console.error("Erreur lors de la mise à jour :", error.message);
+			}
+			throw error;
 		}
 	};
 
@@ -69,6 +73,7 @@ export default function usePlayers() {
 	};
 
 
+	// Calcul de l'âge
 	const computeAge = (birthday) => {
 		if (!birthday) return "N/A";
 
@@ -86,6 +91,7 @@ export default function usePlayers() {
 
 		return sportsAge;
 	};
+
 
 
 	return {

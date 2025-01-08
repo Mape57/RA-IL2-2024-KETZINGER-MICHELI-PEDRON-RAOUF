@@ -54,6 +54,8 @@
 
 <script>
 import SessionCard from "./SessionCard.vue";
+import terrainService from "../../services/terrainService";
+import sessionsService from "../../services/sessionService";
 
 export default {
   name: "RightPanel",
@@ -62,84 +64,21 @@ export default {
   },
   data() {
     return {
-      terrains: [
-        {
-          id: 1,
-          name: "Terrain 1",
-          sessions: [
-            {
-              id: 1,
-              startTime: "17:00",
-              endTime: "18:30",
-              coach: "Billie Sharpe",
-              ageGroup: "15-18 ans",
-              skillLevel: "8-10",
-              players: ["Erica Scott", "Alexandra Vance", "Anais Ayala"],
-              day: "Lundi",
-            },
-            {
-              id: 2,
-              startTime: "19:00",
-              endTime: "20:30",
-              coach: "Athena Garrett",
-              ageGroup: "8-12 ans",
-              skillLevel: "5-7",
-              players: ["Callan McConnell", "Kayla Dotson"],
-              day: "Mardi",
-            },
-            {
-              id: 3,
-              startTime: "10:00",
-              endTime: "11:30",
-              coach: "Billie Sharpe",
-              ageGroup: "10-14 ans",
-              skillLevel: "6-8",
-              players: ["John Doe", "Jane Doe", "Kayla Dotson", "Kayla Dotson", "Jane Doe", "Kayla Dotson", "Jane Doe" ],
-              day: "Mercredi",
-            },
-            {
-              id: 4,
-              startTime: "10:00",
-              endTime: "11:30",
-              coach: "Billie Sharpe",
-              ageGroup: "10-14 ans",
-              skillLevel: "6-8",
-              players: ["John Doe", "Jane Doe"],
-              day: "Mercredi",
-            },
-          ],
-        },
-        {
-          id: 2,
-          name: "Terrain 2",
-          sessions: [
-            {
-              id: 4,
-              startTime: "14:00",
-              endTime: "15:30",
-              coach: "Athena Garrett",
-              ageGroup: "8-12 ans",
-              skillLevel: "5-7",
-              players: ["Alice", "Bob"],
-              day: "Jeudi",
-            },
-          ],
-        },
-        {
-          id: 3,
-          name: "Terrain 3",
-          sessions: [],
-        },
-      ],
-      selectedTerrain: 1,
+      terrains: [], // Liste des terrains
+      sessions: [], // Liste des séances
+      selectedTerrain: null, // ID du terrain sélectionné
     };
   },
   computed: {
-    currentTerrain() {
-      return this.terrains.find(
-          (terrain) => terrain.id === this.selectedTerrain
+    // Filtrer les séances pour le terrain sélectionné
+    currentTerrainSessions() {
+      if (!this.selectedTerrain) return [];
+
+      return this.sessions.filter(
+          (session) => session.idCourt.id === this.selectedTerrain
       );
     },
+    // Grouper les séances par jour
     sessionsByDay() {
       const daysOfWeek = [
         "Lundi",
@@ -157,16 +96,72 @@ export default {
         groupedSessions[day] = [];
       });
 
-      this.currentTerrain.sessions.forEach((session) => {
-        if (session.day && groupedSessions[session.day]) {
-          groupedSessions[session.day].push(session);
+      this.currentTerrainSessions.forEach((session) => {
+        // Mapping des jours de l'anglais au français
+        const dayMapping = {
+          Monday: "Lundi",
+          Tuesday: "Mardi",
+          Wednesday: "Mercredi",
+          Thursday: "Jeudi",
+          Friday: "Vendredi",
+          Saturday: "Samedi",
+          Sunday: "Dimanche",
+        };
+
+        const mappedDay = dayMapping[session.day] || session.day;
+
+        if (mappedDay && groupedSessions[mappedDay]) {
+          // Calcul des âges
+          const playerAges = session.players.map((player) => {
+            const birthday = new Date(player.birthday);
+            const age = new Date().getFullYear() - birthday.getFullYear();
+            const hasBirthdayPassed =
+                new Date().getMonth() > birthday.getMonth() ||
+                (new Date().getMonth() === birthday.getMonth() &&
+                    new Date().getDate() >= birthday.getDate());
+            return hasBirthdayPassed ? age : age - 1;
+          });
+
+          const minAge = Math.min(...playerAges);
+          const maxAge = Math.max(...playerAges);
+
+          // Calcul des niveaux
+          const playerLevels = session.players.map((player) => player.level);
+          const minLevel = Math.min(...playerLevels);
+          const maxLevel = Math.max(...playerLevels);
+
+          groupedSessions[mappedDay].push({
+            id: session.id,
+            startTime: session.start,
+            endTime: session.stop,
+            coach: `${session.idCoach.name} ${session.idCoach.surname}`,
+            ageGroup: `${minAge} - ${maxAge} ans`, // Affichage des âges minimum et maximum
+            skillLevel: `${minLevel} - ${maxLevel}`, // Affichage des niveaux minimum et maximum
+            players: session.players.map(
+                (player) => `${player.name} ${player.surname}`
+            ),
+          });
         }
       });
 
       return groupedSessions;
     },
+
   },
   methods: {
+    async loadTerrainsAndSessions() {
+      try {
+        const terrainResponse = await terrainService.getAllTerrain();
+        this.terrains = terrainResponse.data;
+
+        const sessionResponse = await sessionsService.getAllSessions();
+        this.sessions = sessionResponse.data;
+
+        this.selectedTerrain = this.terrains[0]?.id || null;
+      } catch (error) {
+        console.error("Erreur lors du chargement des données :", error);
+      }
+    },
     selectTerrain(id) {
       this.selectedTerrain = id;
     },
@@ -175,14 +170,15 @@ export default {
     },
     deleteSession(sessionId) {
       console.log(`Supprimer la séance ${sessionId}`);
-      const terrain = this.currentTerrain;
-      terrain.sessions = terrain.sessions.filter(
-          (session) => session.id !== sessionId
-      );
+      this.sessions = this.sessions.filter((session) => session.id !== sessionId);
     },
+  },
+  async mounted() {
+    await this.loadTerrainsAndSessions();
   },
 };
 </script>
+
 
 <style scoped>
 .tab-button {
