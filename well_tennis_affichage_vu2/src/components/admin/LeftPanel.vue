@@ -111,6 +111,7 @@ import Session from "./Session.vue";
 import useLeftPanel from "../../useJs/useLeftPanel.js";
 import { onMounted } from "vue";
 import ExportService from "../../functionality/ExportService";
+import useTerrain from "../../useJs/useTerrain.js";
 
 export default {
   name: "LeftPanel",
@@ -122,11 +123,14 @@ export default {
   },
 
   setup() {
-    const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers} = useLeftPanel();
+    const { trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers } =
+        useLeftPanel();
+    const { terrains, fetchTerrains } = useTerrain(); // Importer les terrains dynamiques
 
     onMounted(() => {
       fetchTrainers();
       fetchPlayers();
+      fetchTerrains(); // Charger les terrains dynamiques
     });
 
     return {
@@ -138,26 +142,12 @@ export default {
       fetchPlayers,
       selectTab,
       updatePlayers,
+      terrains, // Exposer les terrains dynamiques
     };
   },
 
   data() {
     return {
-      terrains: [
-        {
-          id: 1,
-          court_name: "Terrain 1",
-          schedule: [
-            {day: "Lundi", open: "17:00", close: "22:30"},
-            {day: "Mercredi", open: "13:00", close: "22:30"},
-          ],
-        },
-        {
-          id: 2,
-          court_name: "Terrain 2",
-          schedule: [],
-        },
-      ],
       sessions: [
         {title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, sessions_level: "0 - 7"},
         {title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, sessions_level: "1 - 10"},

@@ -90,14 +90,41 @@ class ExportService {
                 };
             });
 
+            const dayMapping1 = {
+                Monday: "Lundi",
+                Tuesday: "Mardi",
+                Wednesday: "Mercredi",
+                Thursday: "Jeudi",
+                Friday: "Vendredi",
+                Saturday: "Samedi",
+                Sunday: "Dimanche",
+            };
 
-            const formattedTerrains = terrains.map((terrain) => ({
-                Terrain: terrain.court_name || "N/A",
-                Horaire:
-                    terrain.schedule
-                        .map((schedule) => `${schedule.day}: ${schedule.open} - ${schedule.close}`)
-                        .join(" | ") || "N/A",
-            }));
+            const formattedTerrains = terrains.map((terrain) => {
+                // Initialisation des horaires par défaut pour chaque jour
+                const schedule = {
+                    Lundi: "",
+                    Mardi: "",
+                    Mercredi: "",
+                    Jeudi: "",
+                    Vendredi: "",
+                    Samedi: "",
+                    Dimanche: "",
+                };
+
+                terrain.times.forEach((time) => {
+                    const day = dayMapping1[time.day];
+                    if (day) {
+                        schedule[day] = `${time.start} - ${time.stop}`;
+                    }
+                });
+
+                return {
+                    Terrain: terrain.name || "N/A",
+                    ...schedule,
+                };
+            });
+
 
             const formattedSessions = sessions.map((session) => ({
                 Titre: session.title || "N/A",
