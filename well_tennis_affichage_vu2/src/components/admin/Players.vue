@@ -16,6 +16,7 @@
       <div class="flex space-x-2">
         <span class="material-symbols-outlined small-icon cursor-pointer"
               title="Ajouter"
+              ref="addPlayerButton"
               @click="addPlayer"
         >person_add</span>
       </div>
@@ -88,7 +89,15 @@ export default {
     },
   },
   methods: {
-    toggleAccordion() {
+    toggleAccordion(event) {
+      const addButton = this.$refs.addPlayerButton;
+
+      // Si le bouton "Ajouter" est cliqué et que le panneau est déjà ouvert, ne pas refermer
+      if (addButton && addButton.contains(event.target) && this.isOpen) {
+        return;
+      }
+
+      // Sinon, basculer l'état d'ouverture
       this.isOpen = !this.isOpen;
     },
     showPlayerInfo(player) {

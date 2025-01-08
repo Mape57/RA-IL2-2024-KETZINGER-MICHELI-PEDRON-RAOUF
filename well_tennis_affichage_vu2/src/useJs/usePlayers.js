@@ -1,5 +1,5 @@
 // src/composables/usePlayers.js
-import { ref } from "vue";
+import {ref} from "vue";
 import playersService from "../services/PlayersService.js";
 
 export default function usePlayers() {
@@ -26,6 +26,14 @@ export default function usePlayers() {
 	// Mettre à jour un joueur existant
 	const updatePlayer = async (player) => {
 		try {
+			// Nettoyage des disponibilités avant envoi
+			player.disponibilities = player.disponibilities.map(slot => ({
+				id: slot.id && typeof slot.id === "string" ? slot.id : undefined, // Conserver les IDs valides ou les exclure
+				day: slot.day,
+				open: slot.open,
+				close: slot.close,
+			}));
+
 			const response = await playersService.updatePlayer(player.id, player);
 			// Met à jour la liste des joueurs localement
 			const index = players.value.findIndex((p) => p.id === player.id);
@@ -42,6 +50,14 @@ export default function usePlayers() {
 
 	const createPlayer = async (player) => {
 		try {
+			// Nettoyage des disponibilités avant envoi
+			player.disponibilities = player.disponibilities.map(slot => ({
+				id: slot.id && typeof slot.id === "string" ? slot.id : undefined, // Conserver les IDs valides ou les exclure
+				day: slot.day,
+				open: slot.open,
+				close: slot.close,
+			}));
+
 			const response = await playersService.createPlayer(player);
 			players.value.push(response.data);
 			console.log("Joueur créé :", response.data);
@@ -53,26 +69,23 @@ export default function usePlayers() {
 	};
 
 
-	// Calcul de l'âge
 	const computeAge = (birthday) => {
 		if (!birthday) return "N/A";
 
 		const birthDate = new Date(birthday);
-		const today = new Date();
+		const currentDate = new Date();
+		let currentYear = currentDate.getFullYear();
+		if (currentDate.getMonth() < 9) currentYear--;
 
-		let age = today.getFullYear() - birthDate.getFullYear();
+		let sportsAge = currentYear - birthDate.getFullYear();
 
-		const hasBirthdayPassed =
-			today.getMonth() > birthDate.getMonth() ||
-			(today.getMonth() === birthDate.getMonth() &&
-				today.getDate() >= birthDate.getDate());
-
-		if (!hasBirthdayPassed) {
-			age--;
+		// Si la personne est née avant septembre, elle a un an de plus pour l'année sportive
+		if (birthDate.getMonth() < 9) { // Mois en JavaScript : 0 = janvier, 9 = septembre
+			sportsAge++;
 		}
-		return age;
-	};
 
+		return sportsAge;
+	};
 
 
 	return {

@@ -35,7 +35,7 @@
       </div>
 
       <div>
-        <label><strong>Âge :</strong></label>
+        <label><strong>Âge sportif :</strong></label>
         <span>{{ computeAge(editablePlayer.birthday) }} ans</span>
       </div>
 
@@ -71,9 +71,7 @@
               v-model="slot.open"
               class="time-input"
               required
-              step="60"
-              min="09:00"
-              max="21:00"
+              step="1800"
           />
           <input
               type="time"
@@ -181,56 +179,90 @@ export default {
 
         // 3. Vérification des doublons dans les disponibilités
         if (!validateUniqueDisponibilities()) {
-          alert("Il existe des doublons dans les disponibilités. Veuillez les corriger.");
+          alert("Des chevauchements existent dans les disponibilités. Veuillez les corriger.");
           return;
         }
 
-        // 4. Différenciation entre création et mise à jour
-        let savedPlayer;
-        if (editablePlayer.value.id) {
-          // Mise à jour d'un joueur existant
-          savedPlayer = await updatePlayer(editablePlayer.value);
-          alert("Les modifications ont été enregistrées avec succès !");
-          emit("save", savedPlayer); // Passe le joueur mis à jour
-        } else {
-          // Création d'un nouveau joueur
-          savedPlayer = await createPlayer(editablePlayer.value); // L'API renvoie les données créées
-          editablePlayer.value = savedPlayer; // Synchronise les données locales avec celles renvoyées par l'API
-          alert("Le joueur a été créé avec succès !");
-          emit("save", savedPlayer); // Passe le joueur créé
-        }
+        console.log("Données nettoyées prêtes à être envoyées :", JSON.stringify(editablePlayer.value, null, 2));
 
-        // 5. Émission de l'événement au parent
+        let savedPlayer;
+        if (!editablePlayer.value.id) {
+          // Création
+          savedPlayer = await createPlayer(editablePlayer.value);
+          alert("Joueur créé avec succès !");
+        } else {
+          // Mise à jour
+          savedPlayer = await updatePlayer(editablePlayer.value);
+          alert("Joueur mis à jour avec succès !");
+        }
+        emit("save", savedPlayer);
+        emit("close");
       } catch (error) {
-        console.error("Erreur lors de la sauvegarde :", error); // Log pour le débogage
-        alert("Une erreur est survenue lors de l'enregistrement des modifications."); // Alerte utilisateur
+        console.error("Erreur lors de la sauvegarde :", error);
+        alert("Une erreur est survenue.");
       }
     };
 
 
     const validateForm = () => {
+      const today = new Date();
+
+      // Vérifier la date de naissance
+      const birthDate = new Date(editablePlayer.value.birthday);
+      if (!editablePlayer.value.birthday || isNaN(birthDate.getTime()) || birthDate >= today) {
+        alert("La date de naissance est invalide");
+        return false;
+      }
+
+      // Vérifier l'âge calculé
+      const age = computeAge(editablePlayer.value.birthday);
+      if (age < 0 || age > 120) {
+        alert("L'âge calculé est invalide.");
+        return false;
+      }
       return (
           editablePlayer.value.level >= 1 && editablePlayer.value.level <= 20 &&
           editablePlayer.value.courses >= 1 && editablePlayer.value.courses <= 3
       );
     };
 
-    const validateUniqueDisponibilities = () => {
-      const seen = new Set();
-      let hasDuplicate = false;
 
-      editablePlayer.value.disponibilities.forEach((slot) => {
-        const key = `${slot.day}-${slot.open}-${slot.close}`;
-        if (seen.has(key)) {
-          slot.error = "Doublon détecté pour ce créneau.";
-          hasDuplicate = true;
-        } else {
-          slot.error = null;
-          seen.add(key);
+
+    const validateUniqueDisponibilities = () => {
+      const sortedDisponibilities = editablePlayer.value.disponibilities
+          .filter(slot => slot.day && slot.open && slot.close) // Exclure les créneaux incomplets
+          .sort((a, b) => (a.day === b.day ? a.open.localeCompare(b.open) : a.day.localeCompare(b.day))); // Trier par jour et heure de début
+
+      let hasOverlap = false;
+
+      for (let i = 0; i < sortedDisponibilities.length - 1; i++) {
+        const current = sortedDisponibilities[i];
+        const next = sortedDisponibilities[i + 1];
+
+        if (current.day === next.day) {
+          // Vérifier les chevauchements
+          if (current.close > next.open) {
+            current.error = "Ce créneau chevauche un autre.";
+            next.error = "Ce créneau chevauche un autre.";
+            hasOverlap = true;
+          }
+          // Vérifier les créneaux consécutifs sans intervalle
+          else if (current.close === next.open) {
+            current.error = "Deux créneaux consécutifs sans intervalle ne sont pas autorisés.";
+            next.error = "Deux créneaux consécutifs sans intervalle ne sont pas autorisés.";
+            hasOverlap = true;
+          } else {
+            current.error = null; // Pas d'erreur
+            next.error = null;
+          }
         }
-      });
-      return !hasDuplicate;
+      }
+
+      editablePlayer.value.disponibilities = sortedDisponibilities;
+      return !hasOverlap; // Retourne false si des chevauchements ou créneaux consécutifs sont détectés
     };
+
+
 
     const isTimeValid = (time) => {
       const [hours, minutes] = time.split(":").map(Number);
@@ -408,3 +440,6 @@ button:hover {
   background-color: #45a049;
 }
 </style>
+
+
+
