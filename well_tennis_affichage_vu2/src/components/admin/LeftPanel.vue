@@ -44,8 +44,6 @@
     <div class="content flex-1 overflow-auto">
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
-        <Trainers :trainers="trainers" />
-        <Players :players="players" :searchQuery="searchQuery" />
         <Trainers :trainers="trainers"/>
         <Players :players="players" :searchQuery="searchQuery" @update:players="updatePlayers" />
       </div>
@@ -114,8 +112,6 @@ import useLeftPanel from "../../useJs/useLeftPanel.js";
 import { onMounted } from "vue";
 import ExportService from "../../functionality/ExportService";
 
-
-
 export default {
   name: "LeftPanel",
   components: {
@@ -179,11 +175,11 @@ export default {
     downloadXLS() {
       alert("Téléchargement de planning XLS");
     },
-    downloadCSV() {
-      alert("Téléchargement des données CSV");
+    async downloadCSV() {
+      await ExportService.downloadCSV(this.players, this.trainers, this.terrains, this.sessions);
     },
     sendReinscriptionMail() {
-      alert("Mail de réinscription envoyé !");
+      alert("Envoi du mail de réinscription !");
     },
     deleteAllPlayers() {
       alert("Suppression de tous les joueurs !");

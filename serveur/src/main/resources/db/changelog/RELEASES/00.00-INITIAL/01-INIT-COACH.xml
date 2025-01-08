@@ -33,15 +33,5 @@
             </column>
         </createTable>
         <addDefaultValue tableName="coach" columnName="id" defaultValueComputed="gen_random_uuid()"/>
-
-        <insert tableName='coach'>
-            <column name='name' value="Brandt"/>
-            <column name='surname' value="Pierre"/>
-            <column name='levels' value="14-19"/>
-            <column name='ages' value="1-99"/>
-            <column name="email" value="pierre.brandt@gmail.com"/>
-            <column name="password" value="pierreBrandt"/>
-            <column name="status" value="Salarié"/>
-        </insert>
     </changeSet>
 </databaseChangeLog>

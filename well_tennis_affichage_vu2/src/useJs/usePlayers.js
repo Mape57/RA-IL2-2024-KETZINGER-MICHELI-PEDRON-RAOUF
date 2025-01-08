@@ -1,5 +1,5 @@
 // src/composables/usePlayers.js
-import { ref } from "vue";
+import {ref, toRaw} from "vue";
 import playersService from "../services/PlayersService.js";
 
 export default function usePlayers() {
@@ -26,8 +26,18 @@ export default function usePlayers() {
 	// Mettre à jour un joueur existant
 	const updatePlayer = async (player) => {
 		try {
-			const response = await playersService.updatePlayer(player.id, player);
-			// Met à jour la liste des joueurs localement
+			const rawPlayer = toRaw(player);
+
+			rawPlayer.disponibilities = rawPlayer.disponibilities.map((d) => ({
+				id: typeof d.id === "string" ? d.id : undefined, // Exclure les id non valides
+				day: d.day,
+				open: d.open,
+				close: d.close,
+			}));
+
+			console.log("Données envoyées au backend :", rawPlayer);
+
+			const response = await playersService.updatePlayer(rawPlayer.id, rawPlayer);
 			const index = players.value.findIndex((p) => p.id === player.id);
 			if (index !== -1) {
 				players.value[index] = response.data;
@@ -35,8 +45,12 @@ export default function usePlayers() {
 			console.log("Joueur mis à jour :", response.data);
 			return response.data;
 		} catch (error) {
-			console.error("Erreur lors de la mise à jour :", error);
-			throw error; // Propage l'erreur pour la gestion dans le composant
+			if (error.response) {
+				console.error("Erreur de réponse du backend :", error.response.data);
+			} else {
+				console.error("Erreur lors de la mise à jour :", error.message);
+			}
+			throw error;
 		}
 	};
 

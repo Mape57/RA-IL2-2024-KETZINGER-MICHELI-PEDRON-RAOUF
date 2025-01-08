@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-players" author="Thomas">
+        <insert tableName="player">
+            <column name="name" value="Adjal"/>
+            <column name="surname" value="Martin"/>
+            <column name="birthday" value="2016-09-01"/>
+            <column name="courses" value="1"/>
+            <column name="level" value="6"/>
+            <column name="email" value="martin.adjal@gmail.com"/>
+        </insert>
+        <insert tableName="player">
+            <column name="name" value="Nadal"/>
+            <column name="surname" value="Rafael"/>
+            <column name="birthday" value="1986-06-03"/>
+            <column name="courses" value="3"/>
+            <column name="level" value="19"/>
+            <column name="email" value="rafael.nadal@email.com"/>
+        </insert>
+        <insert tableName="player">
+            <column name="name" value="Federer"/>
+            <column name="surname" value="Roger"/>
+            <column name="birthday" value="1981-08-08"/>
+            <column name="courses" value="2"/>
+            <column name="level" value="20"/>
+            <column name="email" value="roger.federer@email.com"/>
+        </insert>
+        <insert tableName="player">
+            <column name="name" value="Djokovic"/>
+            <column name="surname" value="Novak"/>
+            <column name="birthday" value="1987-05-22"/>
+            <column name="courses" value="3"/>
+            <column name="level" value="21"/>
+            <column name="email" value="novak.djokovic@email.com"/>
+        </insert>
+        <insert tableName="player">
+            <column name="name" value="Murray"/>
+            <column name="surname" value="Andy"/>
+            <column name="birthday" value="1987-05-15"/>
+            <column name="courses" value="2"/>
+            <column name="level" value="18"/>
+            <column name="email" value="andy.murray@email.com"/>
+        </insert>
+        <insert tableName="player">
+            <column name="name" value="Williams"/>
+            <column name="surname" value="Serena"/>
+            <column name="birthday" value="1981-09-26"/>
+            <column name="courses" value="1"/>
+            <column name="level" value="22"/>
+            <column name="email" value="serena.williams@email.com"/>
+        </insert>
+        <insert tableName="player">
+            <column name="name" value="Osaka"/>
+            <column name="surname" value="Naomi"/>
+            <column name="birthday" value="1997-10-16"/>
+            <column name="courses" value="2"/>
+            <column name="level" value="15"/>
+            <column name="email" value="naomi.osaka@email.com"/>
+        </insert>
+        <insert tableName="player">
+            <column name="name" value="Thiem"/>
+            <column name="surname" value="Dominic"/>
+            <column name="birthday" value="1993-09-03"/>
+            <column name="courses" value="3"/>
+            <column name="level" value="18"/>
+            <column name="email" value="dominic.thiem@email.com"/>
+        </insert>
+        <insert tableName="player">
+            <column name="name" value="Zverev"/>
+            <column name="surname" value="Alexander"/>
+            <column name="birthday" value="1997-04-20"/>
+            <column name="courses" value="1"/>
+            <column name="level" value="16"/>
+            <column name="email" value="alexander.zverev@email.com"/>
+        </insert>
+        <insert tableName="player">
+            <column name="name" value="Raducanu"/>
+            <column name="surname" value="Emma"/>
+            <column name="birthday" value="2002-11-13"/>
+            <column name="courses" value="3"/>
+            <column name="level" value="10"/>
+            <column name="email" value="emma.raducanu@email.com"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
