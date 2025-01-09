@@ -16,7 +16,7 @@
 	<description>Combined project from two POM files</description>
 
 	<properties>
-		<java.version>23</java.version>
+		<java.version>21</java.version>
 		<version.ai.timefold.solver>1.16.0</version.ai.timefold.solver>
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
 	</properties>
@@ -101,6 +101,14 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>ai.timefold.solver</groupId>
+			<artifactId>timefold-solver-benchmark</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ai.timefold.solver</groupId>
+			<artifactId>timefold-solver-jackson</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
 		</dependency>
@@ -136,8 +144,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
+					<source>22</source>
+					<target>22</target>
 					<verbose>true</verbose>
 					<annotationProcessorPaths>
 						<path>

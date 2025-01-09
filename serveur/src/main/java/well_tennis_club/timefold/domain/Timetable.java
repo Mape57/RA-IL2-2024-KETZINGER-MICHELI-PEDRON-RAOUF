@@ -7,10 +7,9 @@ import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import lombok.Getter;
-import well_tennis_club.data_structure.Timeslot;
+import well_tennis_club.timefold.data_structure.Timeslot;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @PlanningSolution
@@ -74,10 +73,11 @@ public class Timetable {
 	// TODO tester la méthode
 	private List<Session> generateSessions(List<TennisCourt> tennisCourts) {
 		List<Session> sessions = new ArrayList<>();
+		int x = 0;
 		for (TennisCourt tennisCourt : tennisCourts) {
 			for (Timeslot openingHour : tennisCourt.getOpeningHours()) {
 				for (int i = 0; i < openingHour.endTime().toSecondOfDay() - openingHour.startTime().toSecondOfDay(); i += MINIMUM_DURATION * 60) {
-					sessions.add(new Session(openingHour.day(), openingHour.startTime().plusSeconds(i), tennisCourt.getName()));
+					sessions.add(new Session(UUID.randomUUID(), openingHour.day(), openingHour.startTime().plusSeconds(i), tennisCourt.getName()));
 				}
 			}
 		}
@@ -108,6 +108,7 @@ public class Timetable {
 			}
 		}
 		sb.append("PlayerSessionLinks:\n");
+		playerSessionLinks.sort(Comparator.comparing(o -> o.getPlayer().getName()));
 		for (PlayerSessionLink playerSessionLink : playerSessionLinks) {
 			Player player = playerSessionLink.getPlayer();
 			sb.append("\t")
@@ -117,7 +118,44 @@ public class Timetable {
 					.append(") -> ").append(playerSessionLink.getSession())
 					.append("\n");
 		}
-		sb.append("Score: ").append(score).append("\n");
+		sb.append("Score: ").append(score.toString()).append("\n");
 		return sb.toString();
+	}
+
+	/*
+	@Override
+	public String toString() {
+		players.sort(Comparator.comparing(Player::getName));
+		sessions.sort(Comparator.comparing(Session::getDay).thenComparing(Session::getStartTime));
+		playerSessionLinks.sort(Comparator.comparing(o -> o.getPlayer().getName()));
+
+		return name + '{' +
+				"trainers=" + trainers +
+				", players=" + players +
+				", sessions=" + sessions +
+				", playerSessionLinks=" + playerSessionLinks +
+				", score=" + score +
+				'}';
+	}
+	 */
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass()) return false;
+		Timetable timetable = (Timetable) o;
+
+		if (!Objects.equals(name, timetable.name)) return false;
+
+		if (trainers == null ^ timetable.trainers == null) return false;
+		if (players == null ^ timetable.players == null) return false;
+		if (sessions == null ^ timetable.sessions == null) return false;
+		if (playerSessionLinks == null ^ timetable.playerSessionLinks == null) return false;
+
+		if (trainers != null && !trainers.containsAll(timetable.trainers)) return false;
+		if (players != null && !players.containsAll(timetable.players)) return false;
+		if (sessions != null && !sessions.containsAll(timetable.sessions)) return false;
+		if (playerSessionLinks != null && !playerSessionLinks.containsAll(timetable.playerSessionLinks)) return false;
+
+		return Objects.equals(score, timetable.score);
 	}
 }

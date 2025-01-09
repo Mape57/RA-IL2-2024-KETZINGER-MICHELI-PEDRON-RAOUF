@@ -1,6 +1,8 @@
-package well_tennis_club.data_structure;
+package well_tennis_club.timefold.data_structure;
 
 import well_tennis_club.timefold.domain.Timetable;
+
+import java.util.Objects;
 
 /**
  * Représente les contraintes d'une session.
@@ -46,5 +48,12 @@ public record SessionConstraint(
 		else if (levelDifference < 0) levelDifference = 0;
 
 		if (duration == null || duration < Timetable.MINIMUM_DURATION) duration = Timetable.MINIMUM_DURATION;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass()) return false;
+		SessionConstraint that = (SessionConstraint) o;
+		return Objects.equals(ages, that.ages) && Objects.equals(duration, that.duration) && Objects.equals(levels, that.levels) && Objects.equals(groupSize, that.groupSize) && Objects.equals(ageDifference, that.ageDifference) && Objects.equals(levelDifference, that.levelDifference);
 	}
 }

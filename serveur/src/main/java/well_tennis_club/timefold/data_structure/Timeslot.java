@@ -1,6 +1,7 @@
-package well_tennis_club.data_structure;
+package well_tennis_club.timefold.data_structure;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalTime;
 
 /**
@@ -14,5 +15,13 @@ public record Timeslot(DayOfWeek day, LocalTime startTime, LocalTime endTime) {
 	@Override
 	public String toString() {
 		return day + ":" + startTime + "-" + endTime;
+	}
+
+	public boolean contains(LocalTime time) {
+		return startTime.isBefore(time) && time.isBefore(endTime);
+	}
+
+	public Duration duration() {
+		return Duration.between(startTime, endTime);
 	}
 }

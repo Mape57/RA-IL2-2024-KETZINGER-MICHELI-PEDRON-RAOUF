@@ -1,4 +1,4 @@
-package well_tennis_club.data_structure;
+package well_tennis_club.timefold.data_structure;
 
 import lombok.Getter;
 
@@ -109,5 +109,17 @@ public class ValueRange {
 	 */
 	public Integer size() {
 		return this.max - this.min + 1;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass()) return false;
+		ValueRange valueRange = (ValueRange) o;
+		return min.equals(valueRange.min) && max.equals(valueRange.max);
+	}
+
+	@Override
+	public String toString() {
+		return "[" + min + ", " + max + "]";
 	}
 }

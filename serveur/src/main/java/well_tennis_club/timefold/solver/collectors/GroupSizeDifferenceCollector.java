@@ -3,7 +3,7 @@ package well_tennis_club.timefold.solver.collectors;
 import ai.timefold.solver.core.api.score.stream.uni.UniConstraintCollector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import well_tennis_club.data_structure.ValueRange;
+import well_tennis_club.timefold.data_structure.ValueRange;
 import well_tennis_club.timefold.domain.Player;
 import well_tennis_club.timefold.domain.PlayerSessionLink;
 
@@ -20,8 +20,6 @@ import java.util.function.Supplier;
  * Soit : x si la taille réelle est supérieure à la taille maximum, x étant la différence
  */
 public class GroupSizeDifferenceCollector implements UniConstraintCollector<PlayerSessionLink, List<Player>, Integer> {
-	private ValueRange maxGroupSize;
-
 	@Override
 	public @NonNull Supplier<List<Player>> supplier() {
 		return ArrayList::new;
@@ -31,7 +29,6 @@ public class GroupSizeDifferenceCollector implements UniConstraintCollector<Play
 	public @NonNull BiFunction<List<Player>, PlayerSessionLink, Runnable> accumulator() {
 		return (players, playerSessionLink) -> {
 			Player player = playerSessionLink.getPlayer();
-			if (maxGroupSize == null) maxGroupSize = player.getSessionConstraint().groupSize();
 			players.add(player);
 			return () -> players.remove(player);
 		};
@@ -39,6 +36,9 @@ public class GroupSizeDifferenceCollector implements UniConstraintCollector<Play
 
 	@Override
 	public @Nullable Function<List<Player>, Integer> finisher() {
-		return players -> maxGroupSize.difference(players.size());
+		return players -> {
+			ValueRange maxGroupSize = players.getFirst().getSessionConstraint().groupSize();
+			return maxGroupSize.difference(players.size());
+		};
 	}
 }
