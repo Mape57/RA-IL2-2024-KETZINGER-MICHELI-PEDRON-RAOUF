@@ -1,4 +1,3 @@
-// src/services/terrainService.js
 import apiService from './apiService';
 
 export default {
@@ -10,12 +9,14 @@ export default {
 		return apiService.getData(`/courts/${id}`);
 	},
 
-	createTerrain(playerData) {
-		return apiService.post('/courts', TerrainData);
+	createTerrain(terrainData) {
+		// Utilisation de terrainData (et non TerrainData)
+		return apiService.post('/courts', terrainData);
 	},
 
-	updateTerrain(id, playerData) {
-		return apiService.patch(`/courts/${id}`, TerrainData);
+	updateTerrain(id, terrainData) {
+		// Utilisation de terrainData (et non TerrainData)
+		return apiService.patch(`/courts/${id}`, terrainData);
 	},
 
 	deleteTerrain(id) {
