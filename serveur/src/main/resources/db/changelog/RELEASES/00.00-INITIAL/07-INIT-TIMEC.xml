@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-time-court" author="Thomas">
+        <createTable tableName="time_court">
+            <column name="id_time" type="UUID">
+                <constraints primaryKey="true" foreignKeyName="fk_time" references="time(id)"/>
+            </column>
+            <column name="id_court" type="UUID">
+                <constraints primaryKey="true" foreignKeyName="fk_court" references="court(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

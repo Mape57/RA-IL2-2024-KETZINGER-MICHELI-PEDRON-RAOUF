@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DisponibilityService {
@@ -19,5 +20,5 @@ public class DisponibilityService {
 
     public void deleteDisponibility(DisponibilityEntity entity){disponibilityRepository.delete(entity);}
 
-    public DisponibilityEntity getDisponibilityById(Long id){return disponibilityRepository.findById(id).orElse(null);}
+    public DisponibilityEntity getDisponibilityById(UUID id){return disponibilityRepository.findById(id).orElse(null);}
 }

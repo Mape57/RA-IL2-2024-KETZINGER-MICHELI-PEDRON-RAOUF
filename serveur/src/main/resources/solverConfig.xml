@@ -1,81 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<solver xmlns="https://timefold.ai/xsd/solver">
+<solver xmlns="https://timefold.ai/xsd/solver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://timefold.ai/xsd/solver https://timefold.ai/xsd/solver/solver.xsd">
     <solutionClass>well_tennis_club.timefold.domain.Timetable</solutionClass>
-    <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
     <entityClass>well_tennis_club.timefold.domain.Session</entityClass>
+    <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
 
     <scoreDirectorFactory>
         <constraintProviderClass>well_tennis_club.timefold.solver.TimetableConstraintProvider</constraintProviderClass>
     </scoreDirectorFactory>
 
     <termination>
-        <unimprovedSecondsSpentLimit>300</unimprovedSecondsSpentLimit>
-        <bestScoreLimit>0hard/0soft</bestScoreLimit>
+        <secondsSpentLimit>20</secondsSpentLimit>
     </termination>
 
     <!-- BRUTE_FORCE -->
-    <!--
     <exhaustiveSearch>
-        <exhaustiveSearchType>BRANCH_AND_BOUND</exhaustiveSearchType>
+        <exhaustiveSearchType>BRUTE_FORCE</exhaustiveSearchType>
         <entitySelector>
             <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
             <cacheType>PHASE</cacheType>
         </entitySelector>
     </exhaustiveSearch>
-    -->
-    <constructionHeuristic>
-        <queuedEntityPlacer>
-            <entitySelector id="placerEntitySelector">
-                <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
-                <cacheType>PHASE</cacheType>
-            </entitySelector>
-            <changeMoveSelector>
-                <entitySelector mimicSelectorRef="placerEntitySelector"/>
-            </changeMoveSelector>
-        </queuedEntityPlacer>
-    </constructionHeuristic>
-    <constructionHeuristic>
-        <queuedEntityPlacer>
-            <entitySelector id="placerEntitySelector">
-                <entityClass>well_tennis_club.timefold.domain.Session</entityClass>
-                <cacheType>PHASE</cacheType>
-            </entitySelector>
-            <changeMoveSelector>
-                <entitySelector mimicSelectorRef="placerEntitySelector"/>
-            </changeMoveSelector>
-        </queuedEntityPlacer>
-    </constructionHeuristic>
-
-    <!-- STEP ONE - TABU SEARCH -->
-    <localSearch>
-        <termination>
-            <unimprovedSecondsSpentLimit>100</unimprovedSecondsSpentLimit>
-            <bestScoreLimit>0hard/0soft</bestScoreLimit>
-        </termination>
-        <acceptor>
-            <entityTabuRatio>0.00001</entityTabuRatio>
-        </acceptor>
-        <forager>
-            <acceptedCountLimit>500</acceptedCountLimit>
-            <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
-        </forager>
-    </localSearch>
-
-
-    <!-- STEP TWO - LATE ACCEPTANCE -->
-    <localSearch>
-        <termination>
-            <unimprovedSecondsSpentLimit>100</unimprovedSecondsSpentLimit>
-            <bestScoreLimit>0hard/0soft</bestScoreLimit>
-        </termination>
-        <acceptor>
-            <entityTabuRatio>0.001</entityTabuRatio>
-            <lateAcceptanceSize>200</lateAcceptanceSize>
-        </acceptor>
-        <forager>
-            <acceptedCountLimit>2</acceptedCountLimit>
-            <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
-        </forager>
-    </localSearch>
 </solver>

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("courts")
@@ -54,7 +55,7 @@ public class CourtController {
             @ApiResponse(responseCode = "404", description = "Internal server error - Court was not update")
     })
     @PatchMapping("/{id}")
-    public CourtDto updateCourt(@PathVariable Long id,@RequestBody CourtDto courtDto){
+    public CourtDto updateCourt(@PathVariable UUID id, @RequestBody CourtDto courtDto){
         CourtDto court = CourtMapper.INSTANCE.mapToDTO(courtService.getCourtById(id));
         if (court == null){
             throw new ResponseStatusException(
@@ -71,10 +72,10 @@ public class CourtController {
     @Operation(summary = "Delete court",description = "Delete court with id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Successfully deleted"),
-            @ApiResponse(responseCode = "500", description = "Internal server error - Court was not delete")
+            @ApiResponse(responseCode = "500", description = "Internal server error - Session was not delete")
     })
     @DeleteMapping("/{id}")
-    public void deleteCourt(@PathVariable Long id){
+    public void deleteCourt(@PathVariable UUID id){
         CourtEntity entity = new CourtEntity();
         entity.setId(id);
         courtService.deleteCourt(entity);
@@ -87,7 +88,7 @@ public class CourtController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Court was not found")
     })
     @GetMapping("/{id}")
-    public CourtDto getCourt(@PathVariable Long id){
+    public CourtDto getCourt(@PathVariable UUID id){
         CourtDto modif = CourtMapper.INSTANCE.mapToDTO(courtService.getCourtById(id));
         if (modif == null){
             throw new ResponseStatusException(

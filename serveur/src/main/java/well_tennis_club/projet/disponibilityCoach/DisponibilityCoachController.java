@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("disponibilityCoach")
@@ -55,7 +56,7 @@ public class DisponibilityCoachController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Disponibility was not delete")
     })
     @DeleteMapping("/{idCoach}/{idDisponibility}")
-    public void deleteDisponibilityCoach(@PathVariable Long idCoach,@PathVariable Long idDisponibility){
+    public void deleteDisponibilityCoach(@PathVariable UUID idCoach,@PathVariable UUID idDisponibility){
         DisponibilityCoachEntity entity = new DisponibilityCoachEntity();
         DisponibilityCoachKey key = new DisponibilityCoachKey();
         key.setIdCoach(idCoach);
@@ -71,7 +72,7 @@ public class DisponibilityCoachController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Disponibilities were not found")
     })
     @GetMapping("/{id}")
-    public List<DisponibilityCoachDto> getDisponibilitiesCoach(@PathVariable Long id){
+    public List<DisponibilityCoachDto> getDisponibilitiesCoach(@PathVariable UUID id){
         List<DisponibilityCoachDto> dtos = DisponibilityCoachMapper.INSTANCE.mapToListDTO(disponibilityCoachService.getDisponibilityForCoach(id));
         if (dtos == null || dtos.size() == 0){
             throw new ResponseStatusException(

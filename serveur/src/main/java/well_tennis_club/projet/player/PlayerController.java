@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("players")
@@ -55,7 +56,7 @@ public class PlayerController {
             @ApiResponse(responseCode = "404", description = "Internal server error - Player was not update")
     })
     @PatchMapping("/{id}")
-    public PlayerDto updatePlayer(@PathVariable Long id,@RequestBody PlayerDto playerDto){
+    public PlayerDto updatePlayer(@PathVariable UUID id, @RequestBody PlayerDto playerDto){
         PlayerDto player = PlayerMapper.INSTANCE.mapToDTO(playerService.getPlayerById(id));
         if (player == null){
             throw new ResponseStatusException(
@@ -75,7 +76,7 @@ public class PlayerController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Player was not delete")
     })
     @DeleteMapping("/{id}")
-    public void deletePlayer(@PathVariable Long id){
+    public void deletePlayer(@PathVariable UUID id){
         PlayerEntity entity = new PlayerEntity();
         entity.setId(id);
         playerService.deletePlayer(entity);
@@ -88,7 +89,7 @@ public class PlayerController {
             @ApiResponse(responseCode = "500", description = "Internal server error - Player was not found")
     })
     @GetMapping("/{id}")
-    public PlayerDto getPlayer(@PathVariable Long id){
+    public PlayerDto getPlayer(@PathVariable UUID id){
         PlayerDto player = PlayerMapper.INSTANCE.mapToDTO(playerService.getPlayerById(id));
         if (player == null){
             throw new ResponseStatusException(

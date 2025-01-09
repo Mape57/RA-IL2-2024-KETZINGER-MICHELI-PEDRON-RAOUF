@@ -12,6 +12,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -23,10 +24,9 @@ public class PlayerEntity implements Serializable{
     private static final long serialVersionUID = 2405172041950251807L;
 
     @Id
-    @GeneratedValue(generator = "player_seq_gen")
-    @SequenceGenerator(name = "player_seq_gen",sequenceName = "player_seq",allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
-    private Long id;
+    private UUID id;
 
     @Column(name = "name")
     private String name;

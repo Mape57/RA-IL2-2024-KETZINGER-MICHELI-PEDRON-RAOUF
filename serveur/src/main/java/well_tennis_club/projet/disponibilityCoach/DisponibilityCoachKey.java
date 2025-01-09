@@ -5,12 +5,14 @@ import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Embeddable
 public class DisponibilityCoachKey {
     @Column(name = "id_coach")
-    private Long idCoach;
+    private UUID idCoach;
     @Column(name = "id_disponibility")
-    private Long idDisponibility;
+    private UUID idDisponibility;
 }
