@@ -46,7 +46,9 @@ public class PlayerController {
     })
     @PostMapping
     public PlayerDto createPlayer(@RequestBody PlayerDto playerDto){
-        return PlayerMapper.INSTANCE.mapToDTO(playerService.createPlayer(PlayerMapper.INSTANCE.mapToEntity(playerDto)));
+        PlayerDto player = playerDto;
+        player.setId(UUID.randomUUID());
+        return PlayerMapper.INSTANCE.mapToDTO(playerService.createPlayer(PlayerMapper.INSTANCE.mapToEntity(player)));
     }
 
     @CrossOrigin

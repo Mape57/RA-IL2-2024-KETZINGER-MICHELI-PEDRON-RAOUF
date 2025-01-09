@@ -8,12 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import well_tennis_club.projet.disponibility.DisponibilityEntity;
-import well_tennis_club.projet.disponibility.DisponibilityMapper;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("coachs")
@@ -50,7 +47,9 @@ public class CoachController {
     })
     @PostMapping
     public CoachDto createCoach(@RequestBody CoachDto coachDto){
-        return CoachMapper.INSTANCE.mapToDTO(coachService.createCoach(CoachMapper.INSTANCE.mapToEntity(coachDto)));
+        CoachDto coach = coachDto;
+        coach.setId(UUID.randomUUID());
+        return CoachMapper.INSTANCE.mapToDTO(coachService.createCoach(CoachMapper.INSTANCE.mapToEntity(coach)));
     }
 
     @CrossOrigin
@@ -101,24 +100,6 @@ public class CoachController {
             );
         }else {
             return coach;
-        }
-    }
-
-    @CrossOrigin
-    @Operation(summary = "Get connection", description = "Return boolean who define the password is wrong or not")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
-            @ApiResponse(responseCode = "500", description = "Internal server error - Coach was not found")
-    })
-    @GetMapping("/connection/{id}")
-    public boolean getConnection(@PathVariable UUID id,@RequestBody String pw){
-        CoachDto coachDto = CoachMapper.INSTANCE.mapToDTO(coachService.getCoachById(id));
-        if (coachDto == null){
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Coach not found"
-            );
-        }else {
-            return coachDto.getPassword().equals(pw);
         }
     }
 }

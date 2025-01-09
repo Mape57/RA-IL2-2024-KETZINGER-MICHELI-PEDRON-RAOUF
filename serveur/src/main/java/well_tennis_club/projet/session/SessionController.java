@@ -46,7 +46,9 @@ public class SessionController {
     })
     @PostMapping
     public SessionDto createSession(@RequestBody SessionDto sessionDto){
-        return SessionMapper.INSTANCE.mapToDTO(sessionService.createSession(SessionMapper.INSTANCE.mapToEntity(sessionDto)));
+        SessionDto session = sessionDto;
+        session.setId(UUID.randomUUID());
+        return SessionMapper.INSTANCE.mapToDTO(sessionService.createSession(SessionMapper.INSTANCE.mapToEntity(session)));
     }
 
     @CrossOrigin

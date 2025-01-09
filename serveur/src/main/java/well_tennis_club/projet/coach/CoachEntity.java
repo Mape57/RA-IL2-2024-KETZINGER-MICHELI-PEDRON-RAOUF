@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.security.core.userdetails.UserDetails;
 import well_tennis_club.projet.disponibility.DisponibilityEntity;
 
 import java.io.Serial;
@@ -25,8 +26,7 @@ public class CoachEntity implements Serializable {
     private static final long serialVersionUID = 2405172041950251807L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id",columnDefinition = "UUID")
+    @Column(name = "id")
     private UUID id;
 
     @Column(name = "name")
@@ -49,6 +49,9 @@ public class CoachEntity implements Serializable {
 
     @Column(name = "status")
     private String status;
+
+    @Column(name = "admin")
+    private boolean admin;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Fetch(FetchMode.SELECT)

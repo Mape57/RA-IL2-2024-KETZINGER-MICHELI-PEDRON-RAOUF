@@ -14,10 +14,5 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addDefaultValue tableName="court" columnName="id" defaultValueComputed="gen_random_uuid()"/>
-
-        <insert tableName='court'>
-            <column name='name' value="Terrain 1"/>
-        </insert>
     </changeSet>
 </databaseChangeLog>

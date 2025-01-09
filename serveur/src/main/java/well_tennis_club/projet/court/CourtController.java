@@ -45,7 +45,9 @@ public class CourtController {
     })
     @PostMapping
     public CourtDto createCourt(@RequestBody CourtDto courtDto){
-        return CourtMapper.INSTANCE.mapToDTO(courtService.createCourt(CourtMapper.INSTANCE.mapToEntity(courtDto)));
+        CourtDto court = courtDto;
+        court.setId(UUID.randomUUID());
+        return CourtMapper.INSTANCE.mapToDTO(courtService.createCourt(CourtMapper.INSTANCE.mapToEntity(court)));
     }
 
     @CrossOrigin

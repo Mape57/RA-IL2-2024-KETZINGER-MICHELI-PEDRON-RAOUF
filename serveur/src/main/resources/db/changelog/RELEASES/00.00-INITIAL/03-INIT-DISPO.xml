@@ -20,12 +20,5 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addDefaultValue tableName="disponibility" columnName="id" defaultValueComputed="gen_random_uuid()"/>
-
-        <insert tableName='disponibility'>
-            <column name='day' value="Monday"/>
-            <column name='open' value="8:00"/>
-            <column name='close' value="10:00"/>
-        </insert>
     </changeSet>
 </databaseChangeLog>

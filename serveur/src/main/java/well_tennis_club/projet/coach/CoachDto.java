@@ -28,6 +28,8 @@ public class CoachDto implements Serializable {
     private String password;
     @Schema(name = "status",example = "employee")
     private String status;
+    @Schema(name = "admin",example = "true")
+    private boolean admin;
 
     private List<DisponibilityDto> disponibilities;
 }

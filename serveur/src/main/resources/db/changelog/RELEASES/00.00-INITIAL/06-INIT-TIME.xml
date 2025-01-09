@@ -20,12 +20,5 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addDefaultValue tableName="time" columnName="id" defaultValueComputed="gen_random_uuid()"/>
-
-        <insert tableName='time'>
-            <column name='day' value="Monday"/>
-            <column name='start' value="8:00"/>
-            <column name='stop' value="10:00"/>
-        </insert>
     </changeSet>
 </databaseChangeLog>
