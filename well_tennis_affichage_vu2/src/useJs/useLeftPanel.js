@@ -19,6 +19,15 @@ export default function useLeftPanel() {
 		players.value = updatedPlayers;
 	};
 
+	// Fonction pour mettre à jour la liste des joueurs
+	const updateTrainers = (updatedTrainers) => {
+		if (!Array.isArray(updatedTrainers)) {
+			console.error("updateTrainers : mauvaise donnée reçue", updatedTrainers);
+			return;
+		}
+		trainers.value = updatedTrainers;
+	};
+
 
 	// Fonction de sélection de l'onglet
 	const selectTab = (tab) => {
@@ -37,5 +46,6 @@ export default function useLeftPanel() {
 		deleteTrainer,
 		deletePlayer,
 		updatePlayers,
+		updateTrainers
 	};
 }

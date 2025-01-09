@@ -44,8 +44,8 @@
     <div class="content flex-1 overflow-auto">
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
-        <Trainers :trainers="trainers"/>
-        <Players :players="players" :searchQuery="searchQuery" @update:players="updatePlayers" />
+        <Trainers :trainers="trainers" @update:trainers="updateTrainers"/>
+        <Players :players="players" :searchQuery="searchQuery" @update:players="updatePlayers"/>
       </div>
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
@@ -122,7 +122,7 @@ export default {
   },
 
   setup() {
-    const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers} = useLeftPanel();
+    const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers, updateTrainers} = useLeftPanel();
 
     onMounted(() => {
       fetchTrainers();
@@ -138,6 +138,7 @@ export default {
       fetchPlayers,
       selectTab,
       updatePlayers,
+      updateTrainers
     };
   },
 

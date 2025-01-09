@@ -20,6 +20,7 @@ const apiClient = axios.create({
 // 	}
 // );
 
+
 // Gestion des erreurs de réponse
 apiClient.interceptors.response.use(
 	(response) => response,

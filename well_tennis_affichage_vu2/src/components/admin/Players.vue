@@ -13,6 +13,7 @@
         </span>
         <h3 class="font-bold text-lg">Joueurs</h3>
       </div>
+      <!-- Boutons d'action -->
       <div class="flex space-x-2">
         <span class="material-symbols-outlined small-icon cursor-pointer"
               title="Ajouter"
@@ -22,7 +23,9 @@
       </div>
     </div>
 
+    <!-- Contenu déroulant -->
     <div v-if="isOpen" class="mt-2">
+      <!-- En-têtes des colonnes -->
       <div class="grid grid-cols-4 font-semibold text-gray-400 text-sm mb-2">
         <div class="text-left">Nom</div>
         <div class="text-center">Prénom</div>
@@ -36,9 +39,13 @@
           class="grid grid-cols-4 items-center py-1 cursor-pointer"
           @click="showPlayerInfo(player)"
       >
+        <!-- Nom du joueur -->
         <span>{{ player.name }}</span>
-        <span>{{ player.surname }}</span>
+        <!-- Prénom du joueur -->
+        <span class="text-center">{{ player.surname }}</span>
+        <!-- Âge du joueur -->
         <span class="text-center">{{ computeAge(player.birthday) || "N/A" }} ans</span>
+        <!-- Niveau du joueur -->
         <span class="text-right">{{ player.level }}</span>
       </div>
 
