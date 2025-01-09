@@ -26,6 +26,5 @@
                 <constraints foreignKeyName="fk_coach_session" references="coach(id)"/>
             </column>
         </createTable>
-        <addDefaultValue tableName="session" columnName="id" defaultValueComputed="gen_random_uuid()"/>
     </changeSet>
 </databaseChangeLog>

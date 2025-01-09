@@ -25,4 +25,8 @@ public class CoachService {
     public void deleteCoach(CoachEntity entity){coachRepository.delete(entity);}
 
     public CoachEntity getCoachById(UUID id){return coachRepository.findById(id).orElse(null);}
+
+    public String getPassword(String email){CoachDto coachDto = CoachMapper.INSTANCE.mapToDTO(coachRepository.findByEmail(email));return coachDto != null ? coachDto.getPassword() : null;}
+
+    public CoachEntity getCoachByEmail(String email){return coachRepository.findByEmail(email);}
 }
