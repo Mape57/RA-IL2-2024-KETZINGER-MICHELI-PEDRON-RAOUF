@@ -183,7 +183,7 @@ export default {
           return;
         }
 
-        console.log("Données nettoyées prêtes à être envoyées :", JSON.stringify(editablePlayer.value, null, 2));
+        // console.log("Données nettoyées prêtes à être envoyées :", JSON.stringify(editablePlayer.value, null, 2));
 
         let savedPlayer;
         if (!editablePlayer.value.id) {
