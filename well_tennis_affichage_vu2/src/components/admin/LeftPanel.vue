@@ -65,10 +65,17 @@
           <span class="material-symbols-outlined mr-2">calendar_today</span>
           Planning - format XLS
         </button>
-        <button class="menu-item" @click="importCSV">
+
+        <label class="menu-item cursor-pointer">
           <span class="material-symbols-outlined mr-2">database</span>
-          Données et contraintes - format CSV
-        </button>
+          Importer Données et Contraintes - format CSV
+          <input
+              type="file"
+              accept=".xlsx, .xls"
+              @change="importCSV"
+              class="hidden"
+          />
+        </label>
 
         <!-- Télécharger vos données -->
         <div class="py-2 font-bold text-gray-700 flex items-center">
@@ -79,6 +86,7 @@
           <span class="material-symbols-outlined mr-2">calendar_today</span>
           Planning - format XLS
         </button>
+
         <button class="menu-item" @click="downloadCSV">
           <span class="material-symbols-outlined mr-2">database</span>
           Données et contraintes - format CSV
@@ -108,11 +116,11 @@ import Players from "./Players.vue";
 import Trainers from "./Trainers.vue";
 import Terrains from "./Terrain.vue";
 import Session from "./Session.vue";
+import useTerrain from "../../useJs/useTerrain.js";
 import useLeftPanel from "../../useJs/useLeftPanel.js";
 import { onMounted } from "vue";
 import ExportService from "../../functionality/ExportService";
-import useTerrain from "../../useJs/useTerrain.js";
-
+import ImportService from "../../functionality/ImportService";
 export default {
   name: "LeftPanel",
   components: {
@@ -159,9 +167,19 @@ export default {
     importXLS() {
       alert("Import de planning XLS");
     },
-    importCSV() {
-      alert("Import des données CSV");
-    },
+      async importCSV(event) {
+        const file = event.target.files[0];
+        if (!file) {
+          alert("Veuillez sélectionner un fichier.");
+          return;
+        }
+        try {
+          await ImportService.processImport(file);
+        } catch (error) {
+          console.error("Erreur lors de l'importation :", error);
+        }
+      },
+
     downloadXLS() {
       alert("Téléchargement de planning XLS");
     },

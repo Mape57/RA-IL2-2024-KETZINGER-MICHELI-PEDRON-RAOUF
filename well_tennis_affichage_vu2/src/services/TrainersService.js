@@ -11,8 +11,10 @@ export default {
 	},
 
 	createTrainer(trainerData) {
+		console.log("Données envoyées pour créer un entraîneur :", trainerData);
 		return apiService.post('/coachs', trainerData);
 	},
+
 
 	updateTrainer(id, trainerData) {
 		return apiService.patch(`/coachs/${id}`, trainerData);
