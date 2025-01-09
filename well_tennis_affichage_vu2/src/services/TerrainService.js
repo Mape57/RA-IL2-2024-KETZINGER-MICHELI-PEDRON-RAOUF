@@ -1,24 +1,25 @@
-// src/services/trainersService.js
 import apiService from './apiService';
 
 export default {
-	getAllPlayers() {
-		return apiService.getData('/court-controller');
+	getAllTerrain() {
+		return apiService.getData('/courts');
 	},
 
-	getPlayerById(id) {
-		return apiService.getData(`/court-controller/${id}`);
+	getTerrainById(id) {
+		return apiService.getData(`/courts/${id}`);
 	},
 
-	createPlayer(playerData) {
-		return apiService.post('/court-controller', playerData);
+	createTerrain(terrainData) {
+		// Utilisation de terrainData (et non TerrainData)
+		return apiService.post('/courts', terrainData);
 	},
 
-	updatePlayer(id, playerData) {
-		return apiService.patch(`/court-controller/${id}`, playerData);
+	updateTerrain(id, terrainData) {
+		// Utilisation de terrainData (et non TerrainData)
+		return apiService.patch(`/courts/${id}`, terrainData);
 	},
 
-	deletePlayer(id) {
-		return apiService.delete(`/court-controller/${id}`);
+	deleteTerrain(id) {
+		return apiService.delete(`/courts/${id}`);
 	},
 };

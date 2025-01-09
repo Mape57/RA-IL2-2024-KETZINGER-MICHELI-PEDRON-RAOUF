@@ -17,8 +17,11 @@
       </div>
       <!-- Boutons d'action -->
       <div class="flex space-x-2">
-        <span class="material-symbols-outlined small-icon cursor-pointer" title="Supprimer">delete</span>
-        <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter">person_add</span>
+        <span class="material-symbols-outlined small-icon cursor-pointer"
+              title="Ajouter"
+              ref="addPlayerButton"
+              @click="addTrainer"
+        >person_add</span>
       </div>
     </div>
 
@@ -36,7 +39,9 @@
         <div v-for="trainer in trainers"
              :key="trainer.id"
              class="grid grid-cols-4 items-center py-1"
-             >
+             @click="showTrainerInfo(trainer)"
+        >
+
         <!-- Nom de l'entraîneur -->
         <span>{{ trainer.name }}</span>
         <!-- Prénom de l'entraîneur -->
@@ -46,25 +51,98 @@
         <!-- Tranche d'âge -->
         <span class="text-right">{{ trainer.ages }}</span>
       </div>
+
+      <!-- Affichage de TrainerInfoView -->
+      <TrainerInfoView
+          v-if="selectedTrainer"
+          :trainer="selectedTrainer"
+          @close="selectedTrainer = null"
+          @delete="handleTrainerDeletion"
+          @save="handleTrainerSave"
+      />
+
     </div>
   </div>
 </template>
 
 <script>
+// import useTrainers from "../../useJs/useTrainers.js";
+import TrainerInfoView from "../vueInformations/TrainerInfoView.vue";
+
 export default {
   name: "Trainers",
+  components: {
+    TrainerInfoView,
+  },
   props: {
     trainers: Array,
   },
   data() {
     return {
       isOpen: true,
+      selectedTrainer: null, // Joueur sélectionné pour afficher les détails
     };
   },
   methods: {
-    toggleAccordion() {
+    toggleAccordion(event) {
+      const addButton = this.$refs.addTrainerButton;
+
+      // Si le bouton "Ajouter" est cliqué et que le panneau est déjà ouvert, ne pas refermer
+      if (addButton && addButton.contains(event.target) && this.isOpen) {
+        return;
+      }
+
+      // Sinon, basculer l'état d'ouverture
       this.isOpen = !this.isOpen;
     },
+    showTrainerInfo(trainer) {
+      if (this.selectedTrainer && this.selectedTrainer.id === trainer.id) {
+        // Si le trainer sélectionné est cliqué à nouveau, on ferme l'onglet
+        this.selectedTrainer = null;
+      } else {
+        // Sinon, on met à jour le trainer sélectionné
+        this.selectedTrainer = trainer;
+      }
+    },
+    handleTrainerDeletion(deletedTrainerId) {
+      const updatedTrainers = this.trainers.filter(trainer => trainer.id !== deletedTrainerId);
+      this.$emit('update:trainers', updatedTrainers); // Émet la liste mise à jour au parent
+      this.selectedTrainer = null; // Ferme l'affichage des détails
+    },
+    handleTrainerSave(savedTrainer) {
+      if (!savedTrainer || typeof savedTrainer !== "object") {
+        console.error("Données invalides reçues dans handleTrainerSave :", savedTrainer);
+        return;
+      }
+      const index = this.trainers.findIndex(trainers => trainers.id === savedTrainer.id);
+      if (index !== -1) {
+        // Mise à jour d'un joueur existant
+        this.trainers.splice(index, 1, savedTrainer);
+      } else {
+        // Ajout d'un nouveau joueur
+        this.trainers.push(savedTrainer);
+      }
+
+      // Émet la liste mise à jour au parent
+      this.$emit("update:trainers", [...this.trainers]);
+    },
+    addTrainer() {
+      // Initialise un trainer vide
+      this.selectedTrainer = {
+        id: null, // Pas encore défini
+        name: "",
+        surname: "",
+        levels: "",
+        ages: "",
+        email: "",
+        password: "",
+        status: "",
+        disponibilities: [],
+      }; // Ouvre TrainerInfoView avec ce nouveau joueur
+    },
+
+
+
   },
 };
 </script>

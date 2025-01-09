@@ -44,13 +44,13 @@
     <div class="content flex-1 overflow-auto">
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
-        <Trainers :trainers="trainers"/>
-        <Players :players="players" :searchQuery="searchQuery"/>
+        <Trainers :trainers="trainers" @update:trainers="updateTrainers"/>
+        <Players :players="players" :searchQuery="searchQuery" @update:players="updatePlayers"/>
       </div>
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
-        <Terrains :terrains="terrains"/>
-        <Session :sessions="sessions"/>
+        <Terrains :terrains="terrains" />
+        <Session :sessions="sessions" />
       </div>
 
       <!-- Onglet Paramètres -->
@@ -65,10 +65,17 @@
           <span class="material-symbols-outlined mr-2">calendar_today</span>
           Planning - format XLS
         </button>
-        <button class="menu-item" @click="importCSV">
+
+        <label class="menu-item cursor-pointer">
           <span class="material-symbols-outlined mr-2">database</span>
-          Données et contraintes - format CSV
-        </button>
+          Importer Données et Contraintes - format CSV
+          <input
+              type="file"
+              accept=".xlsx, .xls"
+              @change="importCSV"
+              class="hidden"
+          />
+        </label>
 
         <!-- Télécharger vos données -->
         <div class="py-2 font-bold text-gray-700 flex items-center">
@@ -79,6 +86,7 @@
           <span class="material-symbols-outlined mr-2">calendar_today</span>
           Planning - format XLS
         </button>
+
         <button class="menu-item" @click="downloadCSV">
           <span class="material-symbols-outlined mr-2">database</span>
           Données et contraintes - format CSV
@@ -99,8 +107,6 @@
         </button>
 
       </div>
-
-
     </div>
   </div>
 </template>
@@ -110,9 +116,11 @@ import Players from "./Players.vue";
 import Trainers from "./Trainers.vue";
 import Terrains from "./Terrain.vue";
 import Session from "./Session.vue";
+import useTerrain from "../../useJs/useTerrain.js";
 import useLeftPanel from "../../useJs/useLeftPanel.js";
-import {onMounted} from "vue";
-
+import { onMounted } from "vue";
+import ExportService from "../../functionality/ExportService";
+import ImportService from "../../functionality/ImportService";
 export default {
   name: "LeftPanel",
   components: {
@@ -123,11 +131,14 @@ export default {
   },
 
   setup() {
-    const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab} = useLeftPanel();
+
+    const { terrains, fetchTerrains } = useTerrain(); // Importer les terrains dynamiques
+    const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers, updateTrainers} = useLeftPanel();
 
     onMounted(() => {
       fetchTrainers();
       fetchPlayers();
+      fetchTerrains(); // Charger les terrains dynamiques
     });
 
     return {
@@ -138,26 +149,14 @@ export default {
       fetchTrainers,
       fetchPlayers,
       selectTab,
+      updatePlayers,
+      updateTrainers,
+      terrains, // Exposer les terrains dynamiques
     };
   },
 
   data() {
     return {
-      terrains: [
-        {
-          id: 1,
-          court_name: "Terrain 1",
-          schedule: [
-            {day: "Lundi", open: "17:00", close: "22:30"},
-            {day: "Mercredi", open: "13:00", close: "22:30"},
-          ],
-        },
-        {
-          id: 2,
-          court_name: "Terrain 2",
-          schedule: [],
-        },
-      ],
       sessions: [
         {title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, sessions_level: "0 - 7"},
         {title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, sessions_level: "1 - 10"},
@@ -169,17 +168,27 @@ export default {
     importXLS() {
       alert("Import de planning XLS");
     },
-    importCSV() {
-      alert("Import des données CSV");
-    },
+      async importCSV(event) {
+        const file = event.target.files[0];
+        if (!file) {
+          alert("Veuillez sélectionner un fichier.");
+          return;
+        }
+        try {
+          await ImportService.processImport(file);
+        } catch (error) {
+          console.error("Erreur lors de l'importation :", error);
+        }
+      },
+
     downloadXLS() {
       alert("Téléchargement de planning XLS");
     },
-    downloadCSV() {
-      alert("Téléchargement des données CSV");
+    async downloadCSV() {
+      await ExportService.downloadCSV(this.players, this.trainers, this.terrains, this.sessions);
     },
     sendReinscriptionMail() {
-      alert("Mail de réinscription envoyé !");
+      alert("Envoi du mail de réinscription !");
     },
     deleteAllPlayers() {
       alert("Suppression de tous les joueurs !");

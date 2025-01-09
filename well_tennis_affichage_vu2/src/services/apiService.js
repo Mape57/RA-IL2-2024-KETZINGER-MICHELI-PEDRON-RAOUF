@@ -2,13 +2,14 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-	baseURL: 'http://localhost:8080/',
+	baseURL: 'http://localhost:8080/', // L'URL de votre API
 	headers: {
-		'Content-Type': 'application/json',
+		'Content-Type': 'application/json'
 	},
 });
 
-// Gestion des erreurs globales
+
+// Gestion des erreurs de réponse
 apiClient.interceptors.response.use(
 	(response) => response,
 	(error) => {
@@ -16,6 +17,7 @@ apiClient.interceptors.response.use(
 		return Promise.reject(error);
 	}
 );
+
 
 export default {
 	getData(url = '') {

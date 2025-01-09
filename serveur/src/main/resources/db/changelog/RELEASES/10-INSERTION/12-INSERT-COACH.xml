@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-coaches" author="Thomas">
+        <insert tableName="coach">
+            <column name="name" value="Brandt"/>
+            <column name="surname" value="Pierre"/>
+            <column name="levels" value="14-19"/>
+            <column name="ages" value="1-99"/>
+            <column name="email" value="pierre.brandt@gmail.com"/>
+            <column name="password" value="pierreBrandt"/>
+            <column name="status" value="employee"/>
+        </insert>
+        <insert tableName="coach">
+            <column name="name" value="Nadal"/>
+            <column name="surname" value="Toni"/>
+            <column name="levels" value="17-19"/>
+            <column name="ages" value="15-40"/>
+            <column name="email" value="toni.nadal@email.com"/>
+            <column name="password" value="toniNadal"/>
+            <column name="status" value="employee"/>
+        </insert>
+        <insert tableName="coach">
+            <column name="name" value="Mouratoglou"/>
+            <column name="surname" value="Patrick"/>
+            <column name="levels" value="20-22"/>
+            <column name="ages" value="18-35"/>
+            <column name="email" value="patrick.mouratoglou@email.com"/>
+            <column name="password" value="patrickMouratoglou"/>
+            <column name="status" value="employee"/>
+        </insert>
+        <insert tableName="coach">
+            <column name="name" value="Williams"/>
+            <column name="surname" value="Richard"/>
+            <column name="levels" value="12-18"/>
+            <column name="ages" value="10-45"/>
+            <column name="email" value="richard.williams@email.com"/>
+            <column name="password" value="richardWilliams"/>
+            <column name="status" value="temporary"/>
+        </insert>
+        <insert tableName="coach">
+            <column name="name" value="Osaka"/>
+            <column name="surname" value="Leonard"/>
+            <column name="levels" value="10-15"/>
+            <column name="ages" value="8-25"/>
+            <column name="email" value="leonard.osaka@email.com"/>
+            <column name="password" value="leonardOsaka"/>
+            <column name="status" value="temporary"/>
+        </insert>
+        <insert tableName="coach">
+            <column name="name" value="Thiem"/>
+            <column name="surname" value="Dominic"/>
+            <column name="levels" value="18-22"/>
+            <column name="ages" value="16-30"/>
+            <column name="email" value="dominic.thiem@email.com"/>
+            <column name="password" value="dominicThiem"/>
+            <column name="status" value="employee"/>
+        </insert>
+        <insert tableName="coach">
+            <column name="name" value="Raducanu"/>
+            <column name="surname" value="Emma"/>
+            <column name="levels" value="12-18"/>
+            <column name="ages" value="10-20"/>
+            <column name="email" value="emma.raducanu@email.com"/>
+            <column name="password" value="emmaRaducanu"/>
+            <column name="status" value="employee"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
