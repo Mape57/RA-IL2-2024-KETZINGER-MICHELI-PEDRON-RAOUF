@@ -18,8 +18,8 @@
 
     <!-- Contenu déroulant -->
     <div v-if="isOpen" class="mt-2">
-      <div v-for="terrain in terrains" :key="terrain.id" class="mb-2">
-        <!-- Terrain principal -->
+      <div v-for="terrain in sortedTerrains" :key="terrain.id" class="mb-2">
+      <!-- Terrain principal -->
         <div
             class="flex justify-between items-center cursor-pointer py-1"
             @click="toggleTerrain(terrain.id)"
@@ -92,6 +92,16 @@ export default {
       openTerrains: [],
     };
   },
+  computed: {
+    // Trier les terrains par ordre croissant selon leur nom
+    sortedTerrains() {
+      return this.terrains.slice().sort((a, b) => {
+        const nameA = a.name.toUpperCase(); // Ignore la casse
+        const nameB = b.name.toUpperCase(); // Ignore la casse
+        return nameA.localeCompare(nameB, undefined, { numeric: true });
+      });
+    },
+  },
   methods: {
     toggleAccordion() {
       this.isOpen = !this.isOpen;
@@ -112,6 +122,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .material-symbols-outlined {

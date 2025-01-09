@@ -5,7 +5,7 @@
       <!-- Conteneur centré des boutons des terrains -->
       <div class="absolute left-1/2 transform -translate-x-1/2 flex space-x-8">
         <button
-            v-for="terrain in terrains"
+            v-for="terrain in sortedTerrains"
             :key="terrain.id"
             @click="selectTerrain(terrain.id)"
             :class="{ active: selectedTerrain === terrain.id }"
@@ -13,6 +13,7 @@
         >
           {{ terrain.name }}
         </button>
+
       </div>
       <!-- Bouton Filtrer aligné à droite -->
       <div class="ml-auto">
@@ -70,6 +71,13 @@ export default {
     };
   },
   computed: {
+    sortedTerrains() {
+      return this.terrains.slice().sort((a, b) => {
+        const nameA = a.name.toUpperCase(); // Ignore la casse
+        const nameB = b.name.toUpperCase(); // Ignore la casse
+        return nameA.localeCompare(nameB, undefined, { numeric: true });
+      });
+    },
     // Filtrer les séances pour le terrain sélectionné
     currentTerrainSessions() {
       if (!this.selectedTerrain) return [];
@@ -135,8 +143,8 @@ export default {
             startTime: session.start,
             endTime: session.stop,
             coach: `${session.idCoach.name} ${session.idCoach.surname}`,
-            ageGroup: `${minAge} - ${maxAge} ans`, // Affichage des âges minimum et maximum
-            skillLevel: `${minLevel} - ${maxLevel}`, // Affichage des niveaux minimum et maximum
+            ageGroup: `${minAge} - ${maxAge} ans`,
+            skillLevel: `${minLevel} - ${maxLevel}`,
             players: session.players.map(
                 (player) => `${player.name} ${player.surname}`
             ),
@@ -157,7 +165,7 @@ export default {
         const sessionResponse = await sessionsService.getAllSessions();
         this.sessions = sessionResponse.data;
 
-        this.selectedTerrain = this.terrains[0]?.id || null;
+        this.selectedTerrain = this.sortedTerrains[0]?.id || null;
       } catch (error) {
         console.error("Erreur lors du chargement des données :", error);
       }
