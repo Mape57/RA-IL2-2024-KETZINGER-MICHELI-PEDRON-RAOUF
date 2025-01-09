@@ -9,17 +9,6 @@ const apiClient = axios.create({
 	},
 });
 
-// // Ajouter un intercepteur pour inclure le token dans les requêtes
-// apiClient.interceptors.request.use(
-// 	(config) => {
-// 		config.headers['X-API-KEY'] = UNIQUE_TOKEN; // Ajout du token unique
-// 		return config;
-// 	},
-// 	(error) => {
-// 		return Promise.reject(error);
-// 	}
-// );
-
 
 // Gestion des erreurs de réponse
 apiClient.interceptors.response.use(
