@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import well_tennis_club.projet.coach.CoachEntity;
+import well_tennis_club.projet.trainer.TrainerEntity;
 import well_tennis_club.projet.court.CourtEntity;
 import well_tennis_club.projet.player.PlayerEntity;
 
@@ -26,7 +26,6 @@ public class SessionEntity implements Serializable {
     private static final long serialVersionUID = 2405172041950251807L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private UUID id;
 
@@ -44,8 +43,8 @@ public class SessionEntity implements Serializable {
     private CourtEntity idCourt;
 
     @ManyToOne
-    @JoinColumn(name = "id_coach", referencedColumnName = "id")
-    private CoachEntity idCoach;
+    @JoinColumn(name = "id_trainer", referencedColumnName = "id")
+    private TrainerEntity idTrainer;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Fetch(FetchMode.SELECT)

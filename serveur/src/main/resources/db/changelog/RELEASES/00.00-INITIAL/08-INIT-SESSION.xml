@@ -22,10 +22,9 @@
             <column name="id_court" type="UUID">
                 <constraints foreignKeyName="fk_court_session" references="court(id)"/>
             </column>
-            <column name="id_coach" type="UUID">
-                <constraints foreignKeyName="fk_coach_session" references="coach(id)"/>
+            <column name="id_trainer" type="UUID">
+                <constraints foreignKeyName="fk_trainer_session" references="trainer(id)"/>
             </column>
         </createTable>
-        <addDefaultValue tableName="session" columnName="id" defaultValueComputed="gen_random_uuid()"/>
     </changeSet>
 </databaseChangeLog>

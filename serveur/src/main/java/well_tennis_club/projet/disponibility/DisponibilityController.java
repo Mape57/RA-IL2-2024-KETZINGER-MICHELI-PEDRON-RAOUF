@@ -46,7 +46,9 @@ public class DisponibilityController {
     })
     @PostMapping
     public DisponibilityDto createDisponibility(@RequestBody DisponibilityDto disponibilityDto){
-        return DisponibilityMapper.INSTANCE.mapToDTO(disponibilityService.createDisponibility(DisponibilityMapper.INSTANCE.mapToEntity(disponibilityDto)));
+        DisponibilityDto disponibility = disponibilityDto;
+        disponibility.setId(UUID.randomUUID());
+        return DisponibilityMapper.INSTANCE.mapToDTO(disponibilityService.createDisponibility(DisponibilityMapper.INSTANCE.mapToEntity(disponibility)));
     }
 
     @CrossOrigin

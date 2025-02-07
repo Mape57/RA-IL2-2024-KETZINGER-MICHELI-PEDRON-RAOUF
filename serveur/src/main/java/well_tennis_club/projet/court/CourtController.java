@@ -45,7 +45,9 @@ public class CourtController {
     })
     @PostMapping
     public CourtDto createCourt(@RequestBody CourtDto courtDto){
-        return CourtMapper.INSTANCE.mapToDTO(courtService.createCourt(CourtMapper.INSTANCE.mapToEntity(courtDto)));
+        CourtDto court = courtDto;
+        court.setId(UUID.randomUUID());
+        return CourtMapper.INSTANCE.mapToDTO(courtService.createCourt(CourtMapper.INSTANCE.mapToEntity(court)));
     }
 
     @CrossOrigin
@@ -59,7 +61,7 @@ public class CourtController {
         CourtDto court = CourtMapper.INSTANCE.mapToDTO(courtService.getCourtById(id));
         if (court == null){
             throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Coach not found"
+                    HttpStatus.NOT_FOUND, "Trainer not found"
             );
         }else {
             CourtDto modif = courtDto;

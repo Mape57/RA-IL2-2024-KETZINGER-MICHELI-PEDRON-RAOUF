@@ -46,7 +46,9 @@ public class TimeController {
     })
     @PostMapping
     public TimeDto createTime(@RequestBody TimeDto timeDto){
-        return TimeMapper.INSTANCE.mapToDTO(timeService.createTime(TimeMapper.INSTANCE.mapToEntity(timeDto)));
+        TimeDto time = timeDto;
+        time.setId(UUID.randomUUID());
+        return TimeMapper.INSTANCE.mapToDTO(timeService.createTime(TimeMapper.INSTANCE.mapToEntity(time)));
     }
 
     @CrossOrigin

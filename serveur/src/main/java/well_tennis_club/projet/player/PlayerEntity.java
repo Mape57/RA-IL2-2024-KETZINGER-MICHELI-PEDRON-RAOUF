@@ -24,7 +24,6 @@ public class PlayerEntity implements Serializable{
     private static final long serialVersionUID = 2405172041950251807L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private UUID id;
 
@@ -53,5 +52,5 @@ public class PlayerEntity implements Serializable{
             joinColumns = @JoinColumn(name = "id_player",  referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "id_disponibility", referencedColumnName = "id")
     )
-    private List<DisponibilityEntity> disponibitities = new ArrayList<>();
+    private List<DisponibilityEntity> disponibilities = new ArrayList<>();
 }

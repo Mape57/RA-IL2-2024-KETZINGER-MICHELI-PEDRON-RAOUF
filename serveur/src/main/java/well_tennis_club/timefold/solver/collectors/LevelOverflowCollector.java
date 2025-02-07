@@ -3,7 +3,7 @@ package well_tennis_club.timefold.solver.collectors;
 import ai.timefold.solver.core.api.score.stream.uni.UniConstraintCollector;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import well_tennis_club.data_structure.ValueRange;
+import well_tennis_club.timefold.data_structure.ValueRange;
 import well_tennis_club.timefold.domain.Player;
 import well_tennis_club.timefold.domain.PlayerSessionLink;
 
@@ -17,29 +17,27 @@ import java.util.function.Supplier;
  * Collecteur retournant la différence entre la différence de niveau réelle et la différence de niveau maximale autorisée.</br>
  * Soit : (niveau max - niveau min) - (différence de niveau maximale autorisée)
  */
-public class LevelOverflowCollector implements UniConstraintCollector<PlayerSessionLink, List<Integer>, Integer> {
-	private int maxLevelDifference = -1;
-
+public class LevelOverflowCollector implements UniConstraintCollector<PlayerSessionLink, List<Player>, Integer> {
 	@Override
-	public @NonNull Supplier<List<Integer>> supplier() {
+	public @NonNull Supplier<List<Player>> supplier() {
 		return ArrayList::new;
 	}
 
 	@Override
-	public @NonNull BiFunction<List<Integer>, PlayerSessionLink, Runnable> accumulator() {
-		return (levels, playerSessionLink) -> {
+	public @NonNull BiFunction<List<Player>, PlayerSessionLink, Runnable> accumulator() {
+		return (players, playerSessionLink) -> {
 			Player player = playerSessionLink.getPlayer();
-			if (maxLevelDifference == -1) maxLevelDifference = player.getSessionConstraint().levelDifference();
-			Integer level = player.getLevel();
-			levels.add(level);
-			return () -> levels.remove(level);
+			players.add(player);
+			return () -> players.remove(player);
 		};
 	}
 
 	@Override
-	public @Nullable Function<List<Integer>, Integer> finisher() {
-		return ages -> {
-			ValueRange levelRange = new ValueRange(ages);
+	public @Nullable Function<List<Player>, Integer> finisher() {
+		return players -> {
+			List<Integer> levels = players.stream().map(Player::getLevel).toList();
+			ValueRange levelRange = new ValueRange(levels);
+			int maxLevelDifference = players.getFirst().getSessionConstraint().levelDifference();
 			return levelRange.size() - 1 - maxLevelDifference;
 		};
 	}

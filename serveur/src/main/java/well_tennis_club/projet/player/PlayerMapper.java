@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper(uses = DisponibilityMapper.class)
 public interface PlayerMapper {
     PlayerMapper INSTANCE = Mappers.getMapper(PlayerMapper.class);
-    @Mapping(target = "disponibilities", source = "disponibitities")
+    @Mapping(target = "disponibilities", source = "disponibilities")
     PlayerDto mapToDTO(PlayerEntity entity);
 
     @InheritInverseConfiguration

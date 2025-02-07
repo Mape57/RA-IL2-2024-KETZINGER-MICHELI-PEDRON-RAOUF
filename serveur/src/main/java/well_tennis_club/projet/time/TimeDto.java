@@ -11,8 +11,8 @@ import java.util.UUID;
 public class TimeDto {
     @Schema(name = "id",example = "1")
     private UUID id;
-    @Schema(name = "day",example = "Monday")
-    private String day;
+    @Schema(name = "dayWeek",example = "Monday")
+    private String dayWeek;
     @Schema(name = "start",example = "8:00")
     private String start;
     @Schema(name = "stop",example = "20:00")

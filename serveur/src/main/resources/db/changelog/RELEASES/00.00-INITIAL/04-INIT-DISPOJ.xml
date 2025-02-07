@@ -11,7 +11,7 @@
                 <constraints primaryKey="true" foreignKeyName="fk_player" references="player(id)"/>
             </column>
             <column name="id_disponibility" type="UUID">
-                <constraints primaryKey="true" foreignKeyName="fk_disponibility" references="disponibility(id)"/>
+                <constraints primaryKey="true" foreignKeyName="fk_disponibilityP" references="disponibility(id)"/>
             </column>
         </createTable>
     </changeSet>

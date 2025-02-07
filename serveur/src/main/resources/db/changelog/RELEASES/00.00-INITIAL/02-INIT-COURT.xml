@@ -14,7 +14,5 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addDefaultValue tableName="court" columnName="id" defaultValueComputed="gen_random_uuid()"/>
-
     </changeSet>
 </databaseChangeLog>

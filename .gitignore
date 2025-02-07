@@ -5,6 +5,7 @@ target/
 !**/src/main/**/out/
 !**/src/test/**/out/
 **.iml
+local/
 
 ### Eclipse ###
 .apt_generated

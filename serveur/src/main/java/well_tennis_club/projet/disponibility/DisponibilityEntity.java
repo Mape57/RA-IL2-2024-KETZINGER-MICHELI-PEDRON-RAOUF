@@ -19,12 +19,11 @@ public class DisponibilityEntity implements Serializable {
     private static final long serialVersionUID = 2405172041950251807L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "day")
-    private String day;
+    @Column(name = "day_week")
+    private String dayWeek;
 
     @Column(name = "open")
     private String open;

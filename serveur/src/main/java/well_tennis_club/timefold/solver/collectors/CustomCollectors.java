@@ -4,19 +4,10 @@ package well_tennis_club.timefold.solver.collectors;
  * Cette classe est une Factory de Collectors personnalisés.
  */
 public class CustomCollectors {
-	private static final AgeOverflowCollector AGE_OVERFLOW_COLLECTOR = new AgeOverflowCollector();
-	private static final LevelOverflowCollector LEVEL_OVERFLOW_COLLECTOR = new LevelOverflowCollector();
-	private static final GroupSizeDifferenceCollector GROUP_SIZE_DIFFERENCE = new GroupSizeDifferenceCollector();
-
-	public static AgeOverflowCollector ageOverflow() {
-		return AGE_OVERFLOW_COLLECTOR;
-	}
-
-	public static LevelOverflowCollector levelOverflow() {
-		return LEVEL_OVERFLOW_COLLECTOR;
-	}
-
-	public static GroupSizeDifferenceCollector groupSizeDifference() {
-		return GROUP_SIZE_DIFFERENCE;
-	}
+	public static final AgeOverflowCollector AGE_OVERFLOW = new AgeOverflowCollector();
+	public static final LevelOverflowCollector LEVEL_OVERFLOW = new LevelOverflowCollector();
+	public static final GroupSizeDifferenceCollector GROUP_SIZE_DIFFERENCE = new GroupSizeDifferenceCollector();
+	public static final DistinctSessionConstraintCollector DISTINCT_SESSION_CONSTRAINT = new DistinctSessionConstraintCollector();
+	public static final SessionOverlappingCollector SESSION_OVERLAPPING = new SessionOverlappingCollector();
+	public static final SessionPerDayCollector SINGLE_SESSION_PER_DAY = new SessionPerDayCollector();
 }

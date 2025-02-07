@@ -1,3 +1,4 @@
+// src/services/apiService.js
 import axios from 'axios';
 import UNIQUE_TOKEN from '../config/token.js'; // Import du token
 
@@ -18,6 +19,10 @@ apiClient.interceptors.request.use(
 		}
 		return config;
 	},
+
+// Gestion des erreurs de réponse
+apiClient.interceptors.response.use(
+	(response) => response,
 	(error) => {
 		console.error('Erreur dans l’intercepteur de requête :', error.message);
 		return Promise.reject(error);
