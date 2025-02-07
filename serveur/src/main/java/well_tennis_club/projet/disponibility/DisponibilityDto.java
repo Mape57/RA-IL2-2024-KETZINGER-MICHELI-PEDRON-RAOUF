@@ -11,8 +11,8 @@ import java.util.UUID;
 public class DisponibilityDto {
     @Schema(name = "id",example = "1")
     private UUID id;
-    @Schema(name = "day",example = "Monday")
-    private String day;
+    @Schema(name = "dayWeek",example = "Monday")
+    private String dayWeek;
     @Schema(name = "open",example = "8:00")
     private String open;
     @Schema(name = "close",example = "18:00")

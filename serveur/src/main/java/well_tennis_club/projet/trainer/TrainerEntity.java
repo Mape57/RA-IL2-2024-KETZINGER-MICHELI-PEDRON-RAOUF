@@ -1,4 +1,4 @@
-package well_tennis_club.projet.coach;
+package well_tennis_club.projet.trainer;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -20,8 +20,8 @@ import java.util.UUID;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(name = "coach")
-public class CoachEntity implements Serializable {
+@Table(name = "trainer")
+public class TrainerEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 2405172041950251807L;
 
@@ -56,8 +56,8 @@ public class CoachEntity implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Fetch(FetchMode.SELECT)
     @JoinTable(
-            name = "disponibility_coach",
-            joinColumns = @JoinColumn(name = "id_coach",  referencedColumnName = "id"),
+            name = "disponibility_trainer",
+            joinColumns = @JoinColumn(name = "id_trainer",  referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "id_disponibility", referencedColumnName = "id")
     )
     private List<DisponibilityEntity> disponibitities = new ArrayList<>();

@@ -1,4 +1,4 @@
-package well_tennis_club.projet.coach;
+package well_tennis_club.projet.trainer;
 
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -9,15 +9,15 @@ import well_tennis_club.projet.disponibility.DisponibilityMapper;
 import java.util.List;
 
 @Mapper(uses = DisponibilityMapper.class)
-public interface CoachMapper {
-    CoachMapper INSTANCE = Mappers.getMapper(CoachMapper.class);
+public interface TrainerMapper {
+    TrainerMapper INSTANCE = Mappers.getMapper(TrainerMapper.class);
     @Mapping(target = "disponibilities", source = "disponibitities")
-    CoachDto mapToDTO(CoachEntity entity);
+    TrainerDto mapToDTO(TrainerEntity entity);
 
     @InheritInverseConfiguration
-    CoachEntity mapToEntity(CoachDto dto);
+    TrainerEntity mapToEntity(TrainerDto dto);
 
-    List<CoachDto> mapToListDTO(List<CoachEntity> entities);
+    List<TrainerDto> mapToListDTO(List<TrainerEntity> entities);
 
-    List<CoachEntity> mapToListEntity(List<CoachDto> dtos);
+    List<TrainerEntity> mapToListEntity(List<TrainerDto> dtos);
 }

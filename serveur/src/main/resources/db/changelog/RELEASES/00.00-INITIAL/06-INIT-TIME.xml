@@ -10,7 +10,7 @@
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="day" type="varchar(200)">
+            <column name="day_week" type="varchar(200)">
                 <constraints nullable="false"/>
             </column>
             <column name="start" type="varchar(200)">

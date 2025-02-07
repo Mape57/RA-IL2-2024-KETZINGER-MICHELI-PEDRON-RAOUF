@@ -35,9 +35,9 @@ public class AuthController {
                 authData.put("type","Bearer");
                 return ResponseEntity.ok(authData);
             }
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error");
         }catch (AuthenticationException e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error");
         }
     }
 }

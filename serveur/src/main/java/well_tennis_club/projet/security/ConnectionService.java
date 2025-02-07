@@ -7,31 +7,31 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import well_tennis_club.projet.coach.CoachDto;
-import well_tennis_club.projet.coach.CoachMapper;
-import well_tennis_club.projet.coach.CoachService;
+import well_tennis_club.projet.trainer.TrainerDto;
+import well_tennis_club.projet.trainer.TrainerMapper;
+import well_tennis_club.projet.trainer.TrainerService;
 
 import java.util.Collections;
 
 
 @Service
 public class ConnectionService implements UserDetailsService {
-    private final CoachService coachService;
+    private final TrainerService trainerService;
     @Autowired
-    public ConnectionService(CoachService coachService){this.coachService = coachService;}
+    public ConnectionService(TrainerService trainerService){this.trainerService = trainerService;}
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        CoachDto coachDto = CoachMapper.INSTANCE.mapToDTO(coachService.getCoachByEmail(email));
-        if (coachDto == null){
-            throw new UsernameNotFoundException("User not found with email : " + email);
+        TrainerDto trainerDto = TrainerMapper.INSTANCE.mapToDTO(trainerService.getTrainerByEmail(email));
+        if (trainerDto == null){
+            throw new UsernameNotFoundException("Error");
         }
         String role;
-        if(coachDto.isAdmin()){
+        if(trainerDto.isAdmin()){
             role = "ADMIN";
         }else{
-            role = "COACH";
+            role = "TRAINER";
         }
-        return new User(coachDto.getEmail(),coachDto.getPassword(), Collections.singletonList(new SimpleGrantedAuthority(role)));
+        return new User(trainerDto.getEmail(),trainerDto.getPassword(), Collections.singletonList(new SimpleGrantedAuthority(role)));
     }
 }

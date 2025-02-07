@@ -3,8 +3,7 @@ package well_tennis_club.projet.session;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import well_tennis_club.projet.coach.CoachDto;
+import well_tennis_club.projet.trainer.TrainerDto;
 import well_tennis_club.projet.court.CourtDto;
 import well_tennis_club.projet.player.PlayerDto;
 
@@ -25,7 +24,7 @@ public class SessionDto {
 
     private CourtDto idCourt;
 
-    private CoachDto idCoach;
+    private TrainerDto idTrainer;
 
     private List<PlayerDto> players;
 }

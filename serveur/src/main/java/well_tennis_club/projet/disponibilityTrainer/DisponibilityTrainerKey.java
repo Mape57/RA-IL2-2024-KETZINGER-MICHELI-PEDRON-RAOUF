@@ -1,4 +1,4 @@
-package well_tennis_club.projet.disponibilityCoach;
+package well_tennis_club.projet.disponibilityTrainer;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -10,9 +10,9 @@ import java.util.UUID;
 @Getter
 @Setter
 @Embeddable
-public class DisponibilityCoachKey {
-    @Column(name = "id_coach")
-    private UUID idCoach;
+public class DisponibilityTrainerKey {
+    @Column(name = "id_trainer")
+    private UUID idTrainer;
     @Column(name = "id_disponibility")
     private UUID idDisponibility;
 }

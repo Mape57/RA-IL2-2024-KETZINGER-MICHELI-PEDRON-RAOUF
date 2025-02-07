@@ -22,8 +22,8 @@ public class TimeEntity implements Serializable {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "day")
-    private String day;
+    @Column(name = "day_week")
+    private String dayWeek;
 
     @Column(name = "start")
     private String start;

@@ -61,7 +61,7 @@ public class CourtController {
         CourtDto court = CourtMapper.INSTANCE.mapToDTO(courtService.getCourtById(id));
         if (court == null){
             throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "Coach not found"
+                    HttpStatus.NOT_FOUND, "Trainer not found"
             );
         }else {
             CourtDto modif = courtDto;

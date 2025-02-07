@@ -5,8 +5,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="create-coach" author="Thomas">
-        <createTable tableName="coach">
+    <changeSet id="create-trainer" author="Thomas">
+        <createTable tableName="trainer">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -36,7 +36,7 @@
             </column>
         </createTable>
 
-        <insert tableName='coach'>
+        <insert tableName='trainer'>
             <column name="id" value="7526371a-70c0-4245-bdf8-77b5b4950d53"/>
             <column name='name' value="Brandt"/>
             <column name='surname' value="Pierre"/>

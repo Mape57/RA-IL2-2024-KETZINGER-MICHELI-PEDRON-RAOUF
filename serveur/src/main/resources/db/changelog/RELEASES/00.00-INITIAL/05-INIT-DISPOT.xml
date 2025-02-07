@@ -5,13 +5,13 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="create-dispoC" author="Thomas">
-        <createTable tableName="disponibility_coach">
-            <column name="id_coach" type="UUID">
-                <constraints primaryKey="true" foreignKeyName="fk_coach" references="coach(id)"/>
+    <changeSet id="create-dispoT" author="Thomas">
+        <createTable tableName="disponibility_trainer">
+            <column name="id_trainer" type="UUID">
+                <constraints primaryKey="true" foreignKeyName="fk_trainer" references="trainer(id)"/>
             </column>
             <column name="id_disponibility" type="UUID">
-                <constraints primaryKey="true" foreignKeyName="fk_disponibility" references="disponibility(id)"/>
+                <constraints primaryKey="true" foreignKeyName="fk_disponibilityT" references="disponibility(id)"/>
             </column>
         </createTable>
     </changeSet>

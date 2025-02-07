@@ -39,7 +39,7 @@ public class SessionController {
     }
 
     @CrossOrigin
-    @Operation(summary = "Create session",description = "Create session with day, start, stop, idCoach and idCourt")
+    @Operation(summary = "Create session",description = "Create session with day, start, stop, idTrainer and idCourt")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Successfully created"),
             @ApiResponse(responseCode = "404", description = "Internal server error - Session was not create")

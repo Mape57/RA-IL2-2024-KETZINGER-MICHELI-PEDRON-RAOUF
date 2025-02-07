@@ -1,4 +1,4 @@
-package well_tennis_club.projet.coach;
+package well_tennis_club.projet.trainer;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Data
 @NoArgsConstructor
-public class CoachDto implements Serializable {
+public class TrainerDto implements Serializable {
     @Schema(name = "id",example = "1")
     private UUID id;
     @Schema(name = "name",example = "Nadal")
