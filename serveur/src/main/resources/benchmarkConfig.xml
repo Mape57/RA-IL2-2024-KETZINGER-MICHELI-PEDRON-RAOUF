@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<plannerBenchmark xmlns="https://timefold.ai/xsd/benchmark" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="https://timefold.ai/xsd/benchmark https://timefold.ai/xsd/benchmark/benchmark.xsd">
+    <benchmarkDirectory>local/benchmarkReport/</benchmarkDirectory>
+    <inheritedSolverBenchmark>
+        <solver>
+            <solutionClass>well_tennis_club.timefold.domain.Timetable</solutionClass>
+            <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
+            <entityClass>well_tennis_club.timefold.domain.Session</entityClass>
+
+            <scoreDirectorFactory>
+                <constraintProviderClass>well_tennis_club.timefold.solver.TimetableConstraintProvider</constraintProviderClass>
+            </scoreDirectorFactory>
+
+            <termination>
+                <unimprovedSecondsSpentLimit>30</unimprovedSecondsSpentLimit>
+                <bestScoreLimit>0hard/0soft</bestScoreLimit>
+            </termination>
+
+            <!-- BRUTE_FORCE -->
+            <!--
+            <exhaustiveSearch>
+                <exhaustiveSearchType>BRANCH_AND_BOUND</exhaustiveSearchType>
+                <entitySelector>
+                    <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
+                    <cacheType>PHASE</cacheType>
+                </entitySelector>
+            </exhaustiveSearch>
+            -->
+            <constructionHeuristic>
+                <queuedEntityPlacer>
+                    <entitySelector id="placerEntitySelector">
+                        <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
+                        <cacheType>PHASE</cacheType>
+                    </entitySelector>
+                    <changeMoveSelector>
+                        <entitySelector mimicSelectorRef="placerEntitySelector"/>
+                    </changeMoveSelector>
+                </queuedEntityPlacer>
+            </constructionHeuristic>
+            <constructionHeuristic>
+                <queuedEntityPlacer>
+                    <entitySelector id="placerEntitySelector">
+                        <entityClass>well_tennis_club.timefold.domain.Session</entityClass>
+                        <cacheType>PHASE</cacheType>
+                    </entitySelector>
+                    <changeMoveSelector>
+                        <entitySelector mimicSelectorRef="placerEntitySelector"/>
+                    </changeMoveSelector>
+                </queuedEntityPlacer>
+            </constructionHeuristic>
+        </solver>
+        <problemBenchmarks>
+            <solutionFileIOClass>well_tennis_club.timefold.tools.TimetableSolutionFileIO</solutionFileIOClass>
+            <inputSolutionFile>src/main/resources/dataset/dataset.json</inputSolutionFile>
+        </problemBenchmarks>
+    </inheritedSolverBenchmark>
+
+<solverBenchmark>
+    <name>Tabu Search - 0.3 - 5000</name>
+    <solver>
+        <localSearch>
+            <acceptor>
+                <entityTabuRatio>0.3</entityTabuRatio>
+            </acceptor>
+            <forager>
+                <acceptedCountLimit>5000</acceptedCountLimit>
+                <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+            </forager>
+        </localSearch>
+    </solver>
+</solverBenchmark>
+<solverBenchmark>
+    <name>Tabu Search - 0.3 - 10000</name>
+    <solver>
+        <localSearch>
+            <acceptor>
+                <entityTabuRatio>0.3</entityTabuRatio>
+            </acceptor>
+            <forager>
+                <acceptedCountLimit>10000</acceptedCountLimit>
+                <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+            </forager>
+        </localSearch>
+    </solver>
+</solverBenchmark>
+<solverBenchmark>
+    <name>Tabu Search - 0.3 - 50000</name>
+    <solver>
+        <localSearch>
+            <acceptor>
+                <entityTabuRatio>0.3</entityTabuRatio>
+            </acceptor>
+            <forager>
+                <acceptedCountLimit>50000</acceptedCountLimit>
+                <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+            </forager>
+        </localSearch>
+    </solver>
+</solverBenchmark>
+<solverBenchmark>
+    <name>Tabu Search - 0.1 - 1000</name>
+    <solver>
+        <localSearch>
+            <acceptor>
+                <entityTabuRatio>0.1</entityTabuRatio>
+            </acceptor>
+            <forager>
+                <acceptedCountLimit>1000</acceptedCountLimit>
+                <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+            </forager>
+        </localSearch>
+    </solver>
+</solverBenchmark>
+<solverBenchmark>
+    <name>Tabu Search - 0.1 - 10000</name>
+    <solver>
+        <localSearch>
+            <acceptor>
+                <entityTabuRatio>0.1</entityTabuRatio>
+            </acceptor>
+            <forager>
+                <acceptedCountLimit>10000</acceptedCountLimit>
+                <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+            </forager>
+        </localSearch>
+    </solver>
+</solverBenchmark>
+<solverBenchmark>
+    <name>Tabu Search - 0.99 - 10000</name>
+    <solver>
+        <localSearch>
+            <acceptor>
+                <entityTabuRatio>0.99</entityTabuRatio>
+            </acceptor>
+            <forager>
+                <acceptedCountLimit>10000</acceptedCountLimit>
+                <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+            </forager>
+        </localSearch>
+    </solver>
+</solverBenchmark>
+<solverBenchmark>
+    <name>Tabu Search - 0.99 - 5000</name>
+    <solver>
+        <localSearch>
+            <acceptor>
+                <entityTabuRatio>0.99</entityTabuRatio>
+            </acceptor>
+            <forager>
+                <acceptedCountLimit>5000</acceptedCountLimit>
+                <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+            </forager>
+        </localSearch>
+    </solver>
+</solverBenchmark>
+<solverBenchmark>
+    <name>Tabu Search - 0.2 - 1000</name>
+    <solver>
+        <localSearch>
+            <acceptor>
+                <entityTabuRatio>0.2</entityTabuRatio>
+            </acceptor>
+            <forager>
+                <acceptedCountLimit>1000</acceptedCountLimit>
+                <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+            </forager>
+        </localSearch>
+    </solver>
+</solverBenchmark>
+</plannerBenchmark>

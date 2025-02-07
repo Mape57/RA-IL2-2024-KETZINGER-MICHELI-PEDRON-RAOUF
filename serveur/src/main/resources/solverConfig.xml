@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver xmlns="https://timefold.ai/xsd/solver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://timefold.ai/xsd/solver https://timefold.ai/xsd/solver/solver.xsd">
+    <solutionClass>well_tennis_club.timefold.domain.Timetable</solutionClass>
+    <entityClass>well_tennis_club.timefold.domain.Session</entityClass>
+    <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
+
+    <scoreDirectorFactory>
+        <constraintProviderClass>well_tennis_club.timefold.solver.TimetableConstraintProvider</constraintProviderClass>
+    </scoreDirectorFactory>
+
+    <termination>
+        <secondsSpentLimit>300</secondsSpentLimit>
+        <bestScoreLimit>0hard/0soft</bestScoreLimit>
+    </termination>
+
+    <!-- BRUTE_FORCE -->
+    <!--
+    <exhaustiveSearch>
+        <exhaustiveSearchType>BRUTE_FORCE</exhaustiveSearchType>
+        <entitySelector>
+            <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
+            <cacheType>PHASE</cacheType>
+        </entitySelector>
+    </exhaustiveSearch>
+    -->
+    <constructionHeuristic>
+        <queuedEntityPlacer>
+            <entitySelector id="placerEntitySelector">
+                <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
+                <cacheType>PHASE</cacheType>
+            </entitySelector>
+            <changeMoveSelector>
+                <entitySelector mimicSelectorRef="placerEntitySelector"/>
+            </changeMoveSelector>
+        </queuedEntityPlacer>
+    </constructionHeuristic>
+    <constructionHeuristic>
+        <queuedEntityPlacer>
+            <entitySelector id="placerEntitySelector">
+                <entityClass>well_tennis_club.timefold.domain.Session</entityClass>
+                <cacheType>PHASE</cacheType>
+            </entitySelector>
+            <changeMoveSelector>
+                <entitySelector mimicSelectorRef="placerEntitySelector"/>
+            </changeMoveSelector>
+        </queuedEntityPlacer>
+    </constructionHeuristic>
+
+    <localSearch>
+        <termination>
+            <secondsSpentLimit>200</secondsSpentLimit>
+            <bestScoreLimit>0hard/0soft</bestScoreLimit>
+        </termination>
+        <acceptor>
+            <entityTabuRatio>0.001</entityTabuRatio>
+        </acceptor>
+        <forager>
+            <acceptedCountLimit>500</acceptedCountLimit>
+            <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+        </forager>
+    </localSearch>
+
+    <localSearch>
+        <acceptor>
+            <entityTabuRatio>0.001</entityTabuRatio>
+            <lateAcceptanceSize>200</lateAcceptanceSize>
+        </acceptor>
+        <forager>
+            <acceptedCountLimit>2</acceptedCountLimit>
+            <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+        </forager>
+    </localSearch>
+
+</solver>

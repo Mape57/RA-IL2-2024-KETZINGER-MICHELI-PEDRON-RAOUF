@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-dispoJ" author="Thomas">
+        <createTable tableName="disponibility_player">
+            <column name="id_player" type="UUID">
+                <constraints primaryKey="true" foreignKeyName="fk_player" references="player(id)"/>
+            </column>
+            <column name="id_disponibility" type="UUID">
+                <constraints primaryKey="true" foreignKeyName="fk_disponibilityP" references="disponibility(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

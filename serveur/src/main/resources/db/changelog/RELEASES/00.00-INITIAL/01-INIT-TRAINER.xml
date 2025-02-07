@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-trainer" author="Thomas">
+        <createTable tableName="trainer">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="surname" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="levels" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ages" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="admin" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <insert tableName='trainer'>
+            <column name="id" value="7526371a-70c0-4245-bdf8-77b5b4950d53"/>
+            <column name='name' value="Brandt"/>
+            <column name='surname' value="Pierre"/>
+            <column name='levels' value="14-19"/>
+            <column name='ages' value="1-99"/>
+            <column name="email" value="pierre.brandt@gmail.com"/>
+            <column name="password" value="$2a$10$iWQP3yZ6DcYpU3k4xz378e6fM0WuqBs1X5OXPyWuSpYY.W8pBHDXy"/>
+            <column name="status" value="Salarié"/>
+            <column name="admin" value="true"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

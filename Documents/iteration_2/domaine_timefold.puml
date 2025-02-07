@@ -1,0 +1,57 @@
+@startuml
+top to bottom direction
+skinparam linetype ortho
+
+class Player {
+  - name: String
+  - age: int
+  - level: int
+  - sessionPerWeek: int
+  - availability: List<Timeslot>
+  - sessionConstraint: SessionConstraint
+  + Player(String, int, int, int, List<Timeslot>, SessionConstraint)
+  + Player(String, LocalDate, int, int, List<Timeslot>, SessionConstraint)
+}
+class PlayerSessionLink <PlanningEntity> {
+  + PlayerSessionLink()
+  + PlayerSessionLink(Player)
+  + PlayerSessionLink(Player, Session)
+}
+class Session <PlanningEntity> {
+  - tennisCourt: String
+  - day: DayOfWeek
+  - startTime: LocalTime
+  + Session():
+  + Session(DayOfWeek, LocalTime, String, Trainer)
+  + Session(DayOfWeek, LocalTime, String)
+}
+class Timetable <PlanningSolution> {
+  - name: String
+  - score: HardSoftScore
+  + Timetable()
+  + Timetable(String, List<Session>, List<Trainer>, List<Player>)
+  + Timetable(String, HardSoftScore)
+  + Timetable(List<Player>, List<Trainer>, List<TennisCourt>)
+  + Timetable(String, List<Session>, List<Trainer>, List<Player>, List<PlayerSessionLink>)
+  + MINIMUM_DURATION: int
+}
+class Trainer {
+  - name: String
+  - levelPreference: ValueRange
+  - agePreference: ValueRange
+  - isPartTime: boolean
+  - availability: List<Timeslot>
+  + Trainer()
+  + Trainer(String, ValueRange, ValueRange, List<Timeslot>, boolean)
+}
+
+PlayerSessionLink "*" -[#orange]-> "1" Session : session
+PlayerSessionLink "*" --> "1" Player : player
+Session "*" -[#orange]-> "1" Trainer : trainer
+
+Timetable -[#blue]-> "*" Player
+Timetable -[#blue]-> "*" Trainer
+Timetable -[#red]-> "*" Session
+Timetable -[#red]-> "*" PlayerSessionLink
+
+@enduml
