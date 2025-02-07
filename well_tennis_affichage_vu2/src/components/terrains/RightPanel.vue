@@ -83,7 +83,7 @@ export default {
       if (!this.selectedTerrain) return [];
 
       return this.sessions.filter(
-          (session) => session.idCourt.id === this.selectedTerrain
+          (session) => session.idCourt && session.idCourt.id === this.selectedTerrain
       );
     },
     // Grouper les séances par jour

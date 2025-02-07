@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-page min-h-screen flex flex-col bg-[#f5f0e8] w-full">
+  <div class="admin-page min-h-screen flex flex-col bg-[#fefdf8] w-full">
     <!-- Conteneur principal -->
     <div class="flex flex-grow">
       <!-- Panneau gauche -->

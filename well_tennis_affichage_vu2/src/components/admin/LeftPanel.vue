@@ -175,7 +175,7 @@ export default {
           return;
         }
         try {
-          await ImportService.processImport(file);
+          await ImportService.importExcel(file);
         } catch (error) {
           console.error("Erreur lors de l'importation :", error);
         }
