@@ -7,6 +7,7 @@ import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import lombok.Getter;
+import lombok.Setter;
 import well_tennis_club.timefold.data_structure.Timeslot;
 
 import java.util.*;
@@ -35,6 +36,7 @@ public class Timetable {
 	private List<PlayerSessionLink> playerSessionLinks;
 
 	// ===== PLANNING SCORE ===== //
+	@Setter
 	@PlanningScore
 	private HardSoftScore score;
 
@@ -73,7 +75,6 @@ public class Timetable {
 	// TODO tester la méthode
 	private List<Session> generateSessions(List<TennisCourt> tennisCourts) {
 		List<Session> sessions = new ArrayList<>();
-		int x = 0;
 		for (TennisCourt tennisCourt : tennisCourts) {
 			for (Timeslot openingHour : tennisCourt.getOpeningHours()) {
 				for (int i = 0; i < openingHour.endTime().toSecondOfDay() - openingHour.startTime().toSecondOfDay(); i += MINIMUM_DURATION * 60) {

@@ -1,6 +1,7 @@
 package well_tennis_club.timefold.domain;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,6 +22,7 @@ import java.util.UUID;
 @PlanningEntity(difficultyComparatorClass = SessionDifficultyComparator.class)
 @JsonIdentityInfo(scope = Session.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Session implements Comparable<Session> {
+	@PlanningId
 	private UUID id;
 
 	private String tennisCourt;

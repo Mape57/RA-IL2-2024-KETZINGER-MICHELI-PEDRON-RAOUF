@@ -9,15 +9,10 @@
         <constraintProviderClass>well_tennis_club.timefold.solver.TimetableConstraintProvider</constraintProviderClass>
     </scoreDirectorFactory>
 
-    <termination>
-        <secondsSpentLimit>300</secondsSpentLimit>
-        <bestScoreLimit>0hard/0soft</bestScoreLimit>
-    </termination>
-
     <!-- BRUTE_FORCE -->
     <!--
     <exhaustiveSearch>
-        <exhaustiveSearchType>BRUTE_FORCE</exhaustiveSearchType>
+        <exhaustiveSearchType>BRANCH_AND_BOUND</exhaustiveSearchType>
         <entitySelector>
             <entityClass>well_tennis_club.timefold.domain.PlayerSessionLink</entityClass>
             <cacheType>PHASE</cacheType>
@@ -49,7 +44,7 @@
 
     <localSearch>
         <termination>
-            <secondsSpentLimit>200</secondsSpentLimit>
+            <unimprovedSecondsSpentLimit>250</unimprovedSecondsSpentLimit>
             <bestScoreLimit>0hard/0soft</bestScoreLimit>
         </termination>
         <acceptor>
@@ -57,18 +52,22 @@
         </acceptor>
         <forager>
             <acceptedCountLimit>500</acceptedCountLimit>
-            <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+            <finalistPodiumType>STRATEGIC_OSCILLATION_BY_LEVEL_ON_BEST_SCORE</finalistPodiumType>
         </forager>
     </localSearch>
 
     <localSearch>
+        <termination>
+            <unimprovedSecondsSpentLimit>60</unimprovedSecondsSpentLimit>
+            <bestScoreLimit>0hard/0soft</bestScoreLimit>
+        </termination>
         <acceptor>
             <entityTabuRatio>0.001</entityTabuRatio>
-            <lateAcceptanceSize>200</lateAcceptanceSize>
+            <lateAcceptanceSize>20</lateAcceptanceSize>
         </acceptor>
         <forager>
             <acceptedCountLimit>2</acceptedCountLimit>
-            <finalistPodiumType>STRATEGIC_OSCILLATION</finalistPodiumType>
+            <finalistPodiumType>STRATEGIC_OSCILLATION_BY_LEVEL_ON_BEST_SCORE</finalistPodiumType>
         </forager>
     </localSearch>
 
