@@ -5,8 +5,7 @@ import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
 import well_tennis_club.timefold.domain.Session;
 
 /**
- * Justification d'une contrainte de chevauchement de session.</br>
- * Sous le format : "La session du terrain {session} est en chevauchement avec {sessionOverlapping} autres sessions : {score}"
+ * Justification d'une contrainte de chevauchement de session.
  */
 public record SessionOverlapJustification(Session session, Integer sessionOverlapping, HardSoftScore score,
 										  String description) implements ConstraintJustification {
@@ -15,8 +14,8 @@ public record SessionOverlapJustification(Session session, Integer sessionOverla
 	}
 
 	private static String getDescription(Session session, Integer sessionOverlapping, HardSoftScore score) {
-		return String.format("La session du terrain %s est en chevauchement avec %d autres sessions : %s",
-				session, sessionOverlapping, score.toString());
+		return String.format("Chevauchement de %d session(s) pour %s : %s",
+				sessionOverlapping, session, score.toString());
 	}
 
 	@Override
