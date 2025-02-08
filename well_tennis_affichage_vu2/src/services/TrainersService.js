@@ -3,24 +3,24 @@ import apiService from './apiService';
 
 export default {
 	getAllTrainers() {
-		return apiService.getData('/coachs');
+		return apiService.getData('/trainers');
 	},
 
 	getTrainerById(id) {
-		return apiService.getData(`/coachs/${id}`);
+		return apiService.getData(`/trainers/${id}`);
 	},
 
 	createTrainer(trainerData) {
 		console.log("Données envoyées pour créer un entraîneur :", trainerData);
-		return apiService.post('/coachs', trainerData);
+		return apiService.post('/trainers', trainerData);
 	},
 
 
 	updateTrainer(id, trainerData) {
-		return apiService.patch(`/coachs/${id}`, trainerData);
+		return apiService.patch(`/trainers/${id}`, trainerData);
 	},
 
 	deleteTrainer(id) {
-		return apiService.delete(`/coachs/${id}`);
+		return apiService.delete(`/trainers/${id}`);
 	},
 };

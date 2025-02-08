@@ -1,52 +1,46 @@
-import axios from 'axios';
+// src/services/apiService.js
+import { accountService } from './authService';
+import axios from "axios";
 
-// Récupération de l'URL de l'API depuis les variables d'environnement
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
-
-// Création du client Axios
 const apiClient = axios.create({
-	baseURL: BASE_URL,
+	baseURL: 'http://localhost:8080', // L'URL de votre API
 	headers: {
-		'Content-Type': 'application/json',
+		'Content-Type': 'application/json'
 	},
-	timeout: 10000, // Timeout de 10 secondes
 });
 
-// Ajouter un intercepteur pour inclure le token dans les requêtes
+
+// Ajouter le token JWT à toutes les requêtes
 apiClient.interceptors.request.use(
 	(config) => {
-		const token = localStorage.getItem('authToken');
+		const token = accountService.getToken();
 		if (token) {
-			config.headers['Authorization'] = `Bearer ${token}`;
+			config.url = config.baseURL + config.url;
+			config.headers.Authorization = `Bearer ${token}`;
+			console.log("confirmation du token");
+			console.log(token);
 		}
+		console.log("🟢 Tentative de requête API avec Axios :", config.url, config);
+		console.log("🔎 Requête envoyée avec ce header :", config.headers);
 		return config;
 	},
-	(error) => {
-		console.error('Erreur dans l’intercepteur de requête :', error.message);
-		return Promise.reject(error);
-	}
+	(error) => Promise.reject(error)
 );
 
-// Gestion des erreurs API
+
+// Gestion des erreurs de réponse
 apiClient.interceptors.response.use(
 	(response) => response,
 	(error) => {
-		if (error.response) {
-			console.error(
-				`Erreur API (${error.response.status}): ${error.response.data?.message || 'Problème inconnu'}`
-			);
-		} else if (error.request) {
-			console.error('Aucune réponse du serveur. Vérifiez votre connexion.');
-		} else {
-			console.error('Erreur Axios:', error.message);
-		}
+		console.error('Erreur API :', error.response?.data || error.message);
 		return Promise.reject(error);
 	}
 );
 
-// Exportation correcte du service avec `getData`
-const apiService = {
-	getData(url) {
+
+export default {
+	apiClient,
+	getData(url = '') {
 		return apiClient.get(url);
 	},
 
@@ -62,5 +56,3 @@ const apiService = {
 		return apiClient.delete(url);
 	},
 };
-
-export default apiService;

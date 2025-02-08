@@ -9,6 +9,9 @@ const routes = [
 		path: '/admin', // Route pour la page administrateur
 		name: 'Admin',
 		component: AdminPage,
+		meta: {
+			requiresAuth: true,
+		},
 	},
 	{
 		path: '/', // Route pour la page de connexion
@@ -19,6 +22,7 @@ const routes = [
 		path: '/forgot-password', // Route pour la page de mot de passe oublié
 		name: 'ForgotPassword',
 		component: ForgotPassword,
+
 	},
 	{
 		path: '/register', // Route pour la page d'inscription
@@ -30,6 +34,17 @@ const routes = [
 const router = createRouter({
 	history: createWebHistory(),
 	routes,
+});
+
+router.beforeEach((to, from, next) => {
+	const token = sessionStorage.getItem("token");
+
+	if (to.meta.requiresAuth && !token) {
+		next("/"); // Redirige vers la page de connexion si non authentifié
+	} else {
+		next(); // Continue la navigation
+		console.log("on a bien une autorisation");
+	}
 });
 
 export default router;

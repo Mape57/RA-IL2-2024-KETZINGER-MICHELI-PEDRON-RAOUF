@@ -20,5 +20,36 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+
+        <insert tableName="disponibility">
+            <column name="id" value="d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1"/>
+            <column name="day_week" value="Lundi"/>
+            <column name="open" value="08:00"/>
+            <column name="close" value="20:00"/>
+        </insert>
+
+
+        <insert tableName="disponibility">
+            <column name="id" value="d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2"/>
+            <column name="day_week" value="Mardi"/>
+            <column name="open" value="08:00"/>
+            <column name="close" value="20:00"/>
+
+        </insert>
+
+        <insert tableName="disponibility">
+            <column name="id" value="d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3"/>
+            <column name="day_week" value="Mercredi"/>
+            <column name="open" value="08:00"/>
+            <column name="close" value="20:00"/>
+        </insert>
+
+        <insert tableName="disponibility">
+            <column name="id" value="d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4"/>
+            <column name="day_week" value="Lundi"/>
+            <column name="open" value="08:00"/>
+            <column name="close" value="09:00"/>
+        </insert>
+
     </changeSet>
 </databaseChangeLog>
