@@ -1,12 +1,31 @@
 // src/services/apiService.js
-import axios from 'axios';
+import { accountService } from './authService';
+import axios from "axios";
 
 const apiClient = axios.create({
-	baseURL: 'http://localhost:8080/', // L'URL de votre API
+	baseURL: 'http://localhost:8080', // L'URL de votre API
 	headers: {
 		'Content-Type': 'application/json'
 	},
 });
+
+
+// Ajouter le token JWT à toutes les requêtes
+apiClient.interceptors.request.use(
+	(config) => {
+		const token = accountService.getToken();
+		if (token) {
+			config.url = config.baseURL + config.url;
+			config.headers.Authorization = `Bearer ${token}`;
+			console.log("confirmation du token");
+			console.log(token);
+		}
+		console.log("🟢 Tentative de requête API avec Axios :", config.url, config);
+		console.log("🔎 Requête envoyée avec ce header :", config.headers);
+		return config;
+	},
+	(error) => Promise.reject(error)
+);
 
 
 // Gestion des erreurs de réponse
@@ -20,6 +39,7 @@ apiClient.interceptors.response.use(
 
 
 export default {
+	apiClient,
 	getData(url = '') {
 		return apiClient.get(url);
 	},

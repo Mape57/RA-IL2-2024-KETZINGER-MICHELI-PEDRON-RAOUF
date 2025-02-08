@@ -8,6 +8,7 @@ export default function usePlayers() {
 	const fetchPlayers = async () => {
 		try {
 			const response = await playersService.getAllPlayers();
+			console.log("donnée recupe", response.data);
 			players.value = response.data;
 		} catch (error) {
 			console.error("Erreur lors de la récupération des joueurs :", error);

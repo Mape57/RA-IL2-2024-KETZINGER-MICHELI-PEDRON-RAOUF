@@ -29,5 +29,15 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+
+        <insert tableName="player">
+            <column name="id" value="35da0040-52f0-4341-bf66-883e5faad39c"/>
+            <column name="name" value="Djokovic"/>
+            <column name="surname" value="Novak"/>
+            <column name="birthday" value="1987-05-22"/>
+            <column name="courses" value="0"/>
+            <column name="level" value="19"/>
+            <column name="email" value="novak.djokovic@gmail.com"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

@@ -41,7 +41,7 @@
             :key="session.id"
             :startTime="session.startTime"
             :endTime="session.endTime"
-            :coach="session.coach"
+            :trainer="session.trainer"
             :ageGroup="session.ageGroup"
             :skillLevel="session.skillLevel"
             :players="session.players"
@@ -142,7 +142,7 @@ export default {
             id: session.id,
             startTime: session.start,
             endTime: session.stop,
-            coach: `${session.idCoach.name} ${session.idCoach.surname}`,
+            trainer: `${session.idTrainer.name} ${session.idTrainer.surname}`,
             ageGroup: `${minAge} - ${maxAge} ans`,
             skillLevel: `${minLevel} - ${maxLevel}`,
             players: session.players.map(

@@ -39,7 +39,6 @@
             <li v-for="(player, index) in players.slice(4)" :key="index">{{ player }}</li>
           </ul>
         </div>
-
       </div>
     </div>
 
@@ -75,7 +74,7 @@ export default {
       type: String,
       required: true,
     },
-    coach: {
+    trainer: {
       type: String,
       required: true,
     },
