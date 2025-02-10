@@ -29,7 +29,7 @@ public class DisponibilityController {
     @GetMapping
     public List<DisponibilityDto> getAllDisponibilities(){
         List<DisponibilityDto> list = DisponibilityMapper.INSTANCE.mapToListDTO(disponibilityService.getAllDisponibilities());
-        if (list == null || list.size() == 0){
+        if (list == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Disponibilities not found"
             );

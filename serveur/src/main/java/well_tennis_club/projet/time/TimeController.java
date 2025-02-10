@@ -29,7 +29,7 @@ public class TimeController {
     @GetMapping
     public List<TimeDto> getAllTime(){
         List<TimeDto> list = TimeMapper.INSTANCE.mapToListDTO(timeService.getAllTimes());
-        if (list == null || list.size() == 0) {
+        if (list == null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Times not found"
             );

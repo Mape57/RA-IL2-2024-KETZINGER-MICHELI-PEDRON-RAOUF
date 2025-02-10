@@ -23,4 +23,6 @@ public class PlayerService {
     public void deletePlayer(PlayerEntity entity){playerRepository.delete(entity);}
 
     public PlayerEntity getPlayerById(UUID id){return playerRepository.findById(id).orElse(null);}
+
+    public List<PlayerEntity> getPlayerValidate(boolean validate){return playerRepository.findByValidate(validate);}
 }

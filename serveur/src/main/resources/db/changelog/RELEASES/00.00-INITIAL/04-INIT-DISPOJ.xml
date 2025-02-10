@@ -14,12 +14,5 @@
                 <constraints primaryKey="true" foreignKeyName="fk_disponibilityP" references="disponibility(id)"/>
             </column>
         </createTable>
-
-
-        <insert tableName="disponibility_player">
-            <column name="id_player" value="35da0040-52f0-4341-bf66-883e5faad39c"/>
-            <column name="id_disponibility" value="d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4"/>
-        </insert>
-
     </changeSet>
 </databaseChangeLog>
