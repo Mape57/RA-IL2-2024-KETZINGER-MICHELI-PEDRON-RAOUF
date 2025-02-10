@@ -45,7 +45,7 @@ public class PlayerEntity implements Serializable{
     @Column(name = "email")
     private String email;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     @JoinTable(
             name = "disponibility_player",

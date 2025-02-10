@@ -8,7 +8,6 @@ export default function usePlayers() {
 	const fetchPlayers = async () => {
 		try {
 			const response = await playersService.getAllPlayers();
-			console.log("donnée recupe", response.data);
 			players.value = response.data;
 		} catch (error) {
 			console.error("Erreur lors de la récupération des joueurs :", error);
@@ -27,21 +26,16 @@ export default function usePlayers() {
 	// Mettre à jour un joueur existant
 	const updatePlayer = async (player) => {
 		try {
-			// Nettoyage des disponibilités avant envoi
-			player.disponibilities = player.disponibilities.map(slot => ({
-				id: slot.id && typeof slot.id === "string" ? slot.id : undefined, // Conserver les IDs valides ou les exclure
-				day: slot.day,
-				open: slot.open,
-				close: slot.close,
-			}));
 
 			const response = await playersService.updatePlayer(player.id, player);
+
 			// Met à jour la liste des joueurs localement
 			const index = players.value.findIndex((p) => p.id === player.id);
 			if (index !== -1) {
 				players.value[index] = response.data;
 			}
 			console.log("Joueur mis à jour :", response.data);
+
 			return response.data;
 		} catch (error) {
 			if (error.response) {
@@ -55,13 +49,6 @@ export default function usePlayers() {
 
 	const createPlayer = async (player) => {
 		try {
-			// Nettoyage des disponibilités avant envoi
-			player.disponibilities = player.disponibilities.map(slot => ({
-				id: slot.id && typeof slot.id === "string" ? slot.id : undefined, // Conserver les IDs valides ou les exclure
-				day: slot.day,
-				open: slot.open,
-				close: slot.close,
-			}));
 
 			const response = await playersService.createPlayer(player);
 			players.value.push(response.data);
