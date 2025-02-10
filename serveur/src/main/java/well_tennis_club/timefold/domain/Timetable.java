@@ -78,7 +78,7 @@ public class Timetable {
 		for (TennisCourt tennisCourt : tennisCourts) {
 			for (Timeslot openingHour : tennisCourt.getOpeningHours()) {
 				for (int i = 0; i < openingHour.endTime().toSecondOfDay() - openingHour.startTime().toSecondOfDay(); i += MINIMUM_DURATION * 60) {
-					sessions.add(new Session(UUID.randomUUID(), openingHour.day(), openingHour.startTime().plusSeconds(i), tennisCourt.getName()));
+					sessions.add(new Session(UUID.randomUUID(), openingHour.day(), openingHour.startTime().plusSeconds(i), tennisCourt.getId()));
 				}
 			}
 		}
@@ -105,15 +105,15 @@ public class Timetable {
 			if (session.getTrainer() == null) {
 				sb.append("\t").append(session).append("\n");
 			} else {
-				sb.append("\t").append(session).append(" -> ").append(session.getTrainer().getName()).append("\n");
+				sb.append("\t").append(session).append(" -> ").append(session.getTrainer().getId()).append("\n");
 			}
 		}
 		sb.append("PlayerSessionLinks:\n");
-		playerSessionLinks.sort(Comparator.comparing(o -> o.getPlayer().getName()));
+		playerSessionLinks.sort(Comparator.comparing(o -> o.getPlayer().getId()));
 		for (PlayerSessionLink playerSessionLink : playerSessionLinks) {
 			Player player = playerSessionLink.getPlayer();
 			sb.append("\t")
-					.append(player.getName())
+					.append(player.getId())
 					.append("(").append(player.getAge())
 					.append(", ").append(player.getLevel())
 					.append(") -> ").append(playerSessionLink.getSession())

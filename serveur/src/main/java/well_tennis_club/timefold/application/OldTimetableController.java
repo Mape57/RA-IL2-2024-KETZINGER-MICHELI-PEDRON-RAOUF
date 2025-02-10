@@ -16,8 +16,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping("/timetable")
-public class TimetableController {
+@RequestMapping("/old-timetable")
+public class OldTimetableController {
 	@Autowired
 	private SolverManager<Timetable, UUID> solverManager;
 
