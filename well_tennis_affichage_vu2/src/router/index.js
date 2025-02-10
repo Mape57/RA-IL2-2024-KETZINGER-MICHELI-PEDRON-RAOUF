@@ -3,6 +3,7 @@ import LoginPage from '../views/LoginPage.vue';
 import AdminPage from '../views/AdminPage.vue';
 import ForgotPassword from "../views/ForgotPassword.vue";
 import Register from "../views/Register.vue";
+import {accountService as authService} from "../services/authService.js";
 
 const routes = [
 	{
@@ -37,9 +38,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-	const token = sessionStorage.getItem("token");
+	const isAuthenticated = authService.isLogged();
 
-	if (to.meta.requiresAuth && !token) {
+	if (to.meta.requiresAuth && !isAuthenticated) {
 		next("/"); // Redirige vers la page de connexion si non authentifié
 	} else {
 		next(); // Continue la navigation
