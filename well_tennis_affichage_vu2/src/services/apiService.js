@@ -29,6 +29,15 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
 	(response) => response,
 	(error) => {
+
+		// Si le token est expiré (Erreur 401)
+		if (error.response && error.response.status === 401) {
+			console.warn("🔴 Token expiré, déconnexion et redirection vers /login");
+			accountService.logout();
+			router.push("/").catch(() => {}); // Redirection vers la page de connexion
+		}
+
+
 		console.error('Erreur API :', error.response?.data || error.message);
 		return Promise.reject(error);
 	}

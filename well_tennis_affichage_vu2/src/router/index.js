@@ -37,9 +37,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-	const token = sessionStorage.getItem("token");
+	const isAuthenticated = accountService.isLogged();
 
-	if (to.meta.requiresAuth && !token) {
+	if (to.meta.requiresAuth && !isAuthenticated) {
 		next("/"); // Redirige vers la page de connexion si non authentifié
 	} else {
 		next(); // Continue la navigation
