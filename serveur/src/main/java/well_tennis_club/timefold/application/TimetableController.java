@@ -65,7 +65,7 @@ public class TimetableController {
 	}
 
 	public static Timetable getProblem() {
-		return new Timetable(SampleData.players.real(), SampleData.trainers.small(), SampleData.tennisCourts.real());
+		return new Timetable(SampleData.players.real_3_4, SampleData.trainers.real(), SampleData.tennisCourts.real);
 	}
 
 

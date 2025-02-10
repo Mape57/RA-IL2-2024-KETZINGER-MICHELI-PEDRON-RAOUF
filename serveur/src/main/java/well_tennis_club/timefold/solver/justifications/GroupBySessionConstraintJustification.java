@@ -5,8 +5,7 @@ import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
 import well_tennis_club.timefold.domain.Session;
 
 /**
- * Justification du regroupement par joueur de même contrainte de session.</br>
- * Sous le format : "La session du terrain {session} possède des joueurs n'ayant pas les mêmes contraintes de session ({distinctSessionConstraint} distinctes) : {score}"
+ * Justification du regroupement par joueur de même contrainte de session.
  */
 public record GroupBySessionConstraintJustification(Session session, Integer distinctSessionConstraint,
 													HardSoftScore score,
@@ -16,8 +15,8 @@ public record GroupBySessionConstraintJustification(Session session, Integer dis
 	}
 
 	private static String getDescription(Session session, Integer distinctSessionConstraint, HardSoftScore score) {
-		return String.format("La session du terrain %s possède des joueurs n'ayant pas les mêmes contraintes de session (%d distinctes) : %s",
-				session, distinctSessionConstraint, score.toString());
+		return String.format("Trop de type de contrainte de session (%d) pour %s : %s",
+				distinctSessionConstraint, session, score.toString());
 	}
 
 	@Override

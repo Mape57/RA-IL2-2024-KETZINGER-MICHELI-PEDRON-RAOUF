@@ -5,8 +5,7 @@ import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
 import well_tennis_club.timefold.domain.Session;
 
 /**
- * Justification d'une contrainte de session sans joueur.</br>
- * Sous le format : "L'entraîneur de la session du terrain {session} n'a pas de joueur. : {score}"
+ * Justification d'une contrainte de session sans joueur.
  */
 public record SessionTrainerWithoutPlayersJustification(Session session, HardSoftScore score,
 														String description) implements ConstraintJustification {
@@ -15,7 +14,7 @@ public record SessionTrainerWithoutPlayersJustification(Session session, HardSof
 	}
 
 	private static String getDescription(Session session, HardSoftScore score) {
-		return String.format("L'entraîneur de la session du terrain %s n'a pas de joueur. : %s",
+		return String.format("Entraîneur sans joueur pour %s : %s",
 				session, score.toString());
 	}
 

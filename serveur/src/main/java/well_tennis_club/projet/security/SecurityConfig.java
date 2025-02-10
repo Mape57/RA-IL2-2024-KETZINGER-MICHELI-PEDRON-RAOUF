@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 🔥 Autorise toutes les requêtes OPTIONS
+                        auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers("/openapi/v3/api-docs/**", "/openapi/swagger-ui/**","/ws/**","/auth/*").permitAll()
                                 .anyRequest().authenticated())
                 .cors(cors -> {})
