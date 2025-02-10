@@ -43,7 +43,6 @@ router.beforeEach((to, from, next) => {
 		next("/"); // Redirige vers la page de connexion si non authentifié
 	} else {
 		next(); // Continue la navigation
-		console.log("on a bien une autorisation");
 	}
 });
 

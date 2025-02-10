@@ -17,11 +17,8 @@ apiClient.interceptors.request.use(
 		if (token) {
 			config.url = config.baseURL + config.url;
 			config.headers.Authorization = `Bearer ${token}`;
-			console.log("confirmation du token");
 			console.log(token);
 		}
-		console.log("🟢 Tentative de requête API avec Axios :", config.url, config);
-		console.log("🔎 Requête envoyée avec ce header :", config.headers);
 		return config;
 	},
 	(error) => Promise.reject(error)
@@ -46,6 +43,7 @@ export default {
 
 	post(url, data) {
 		return apiClient.post(url, data);
+
 	},
 
 	patch(url, data) {
