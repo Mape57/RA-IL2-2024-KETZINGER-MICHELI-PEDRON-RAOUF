@@ -18,16 +18,24 @@ public class TrainerDto implements Serializable {
     private String name;
     @Schema(name = "surname",example = "Toni")
     private String surname;
-    @Schema(name = "levels",example = "17-19")
-    private String levels;
-    @Schema(name = "ages",example = "15-40")
-    private String ages;
+    @Schema(name = "supLevel",example = "5")
+    private int supLevel;
+    @Schema(name = "infLevel",example = "3")
+    private int infLevel;
+    @Schema(name = "supAge",example = "50")
+    private int supAge;
+    @Schema(name = "infAge",example = "30")
+    private int infAge;
+    @Schema(name = "supWeeklyMinutes",example = "120")
+    private int supWeeklyMinutes;
+    @Schema(name = "infWeeklyMinutes",example = "60")
+    private int infWeeklyMinutes;
     @Schema(name = "email",example = "test@email.fr")
     private String email;
     @Schema(name = "password",example = "password")
     private String password;
-    @Schema(name = "status",example = "employee")
-    private String status;
+    @Schema(name = "partTime",example = "false")
+    private boolean partTime;
     @Schema(name = "admin",example = "true")
     private boolean admin;
 

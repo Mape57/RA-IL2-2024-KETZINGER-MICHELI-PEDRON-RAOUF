@@ -23,7 +23,7 @@ public class DisponibilityEntity implements Serializable {
     private UUID id;
 
     @Column(name = "day_week")
-    private String dayWeek;
+    private int dayWeek;
 
     @Column(name = "open")
     private String open;
