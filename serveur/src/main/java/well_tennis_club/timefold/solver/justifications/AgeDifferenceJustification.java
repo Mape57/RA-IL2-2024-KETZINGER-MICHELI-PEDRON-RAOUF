@@ -5,8 +5,7 @@ import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
 import well_tennis_club.timefold.domain.Session;
 
 /**
- * Justification d'une contrainte de différence d'âge dépassée.</br>
- * Sous le format : "La différence d'âge pour la session du terrain {session} n'est pas respecté (dépasse de {ageOverflow} ans) : {score}"
+ * Justification d'une contrainte de différence d'âge dépassée.
  */
 public record AgeDifferenceJustification(Session session, Integer ageOverflow, HardSoftScore score,
 										 String description) implements ConstraintJustification {
@@ -15,8 +14,8 @@ public record AgeDifferenceJustification(Session session, Integer ageOverflow, H
 	}
 
 	private static String getDescription(Session session, Integer ageOverflow, HardSoftScore score) {
-		return String.format("La différence d'âge pour la session du terrain %s n'est pas respecté (dépasse de %d ans) : %s",
-				session, ageOverflow, score.toString());
+		return String.format("Depassement age de %dans pour %s : %s",
+				ageOverflow, session, score.toString());
 	}
 
 	@Override

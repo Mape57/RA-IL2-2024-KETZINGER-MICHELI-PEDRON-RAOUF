@@ -6,8 +6,7 @@ import well_tennis_club.timefold.domain.PlayerSessionLink;
 import well_tennis_club.timefold.domain.Session;
 
 /**
- * Justification d'une contrainte de disponibilité de joueur non respectée.</br>
- * Sous le format : "Le joueur {nom joueur} n'est pas disponible pour la session du terrain {session} : {score}"
+ * Justification d'une contrainte de disponibilité de joueur non respectée.
  */
 public record PlayerAvailabilityJustification(PlayerSessionLink playerSessionLink, HardSoftScore score, String description) implements ConstraintJustification {
 	public PlayerAvailabilityJustification(PlayerSessionLink playerSessionLink, HardSoftScore score) {
@@ -16,7 +15,7 @@ public record PlayerAvailabilityJustification(PlayerSessionLink playerSessionLin
 
 	private static String getDescription(PlayerSessionLink playerSessionLink, HardSoftScore score) {
 		Session session = playerSessionLink.getSession();
-		return String.format("Le joueur %s n'est pas disponible pour la session du terrain %s : %s",
+		return String.format("Joueur %s indisponible pour %s : %s",
 				playerSessionLink.getPlayer().getName(), session, score.toString());
 		}
 
