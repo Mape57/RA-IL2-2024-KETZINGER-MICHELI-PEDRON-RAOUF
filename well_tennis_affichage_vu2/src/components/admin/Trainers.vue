@@ -17,11 +17,14 @@
       </div>
       <!-- Boutons d'action -->
       <div class="flex space-x-2">
-        <span class="material-symbols-outlined small-icon cursor-pointer"
-              title="Ajouter"
-              ref="addPlayerButton"
-              @click="addTrainer"
-        >person_add</span>
+       <span class="material-symbols-outlined small-icon cursor-pointer"
+             title="Ajouter"
+             ref="addTrainerButton"
+             @click="!isMobile && addTrainer"
+       >
+  person_add
+</span>
+
       </div>
     </div>
 
@@ -36,13 +39,14 @@
       </div>
 
         <!-- Liste des entraîneurs -->
-        <div v-for="trainer in trainers"
-             :key="trainer.id"
-             class="grid grid-cols-4 items-center py-1"
-             @click="showTrainerInfo(trainer)"
-        >
+      <div v-for="trainer in trainers"
+           :key="trainer.id"
+           class="grid grid-cols-4 items-center py-1"
+           :class="{ 'cursor-pointer': !isMobile }"
+           @click="!isMobile && showTrainerInfo(trainer)"
+      >
 
-        <!-- Nom de l'entraîneur -->
+      <!-- Nom de l'entraîneur -->
         <span>{{ trainer.name }}</span>
         <!-- Prénom de l'entraîneur -->
         <span class="text-center">{{ trainer.surname }}</span>
@@ -54,7 +58,7 @@
 
       <!-- Affichage de TrainerInfoView -->
       <TrainerInfoView
-          v-if="selectedTrainer"
+          v-if="selectedTrainer && !isMobile"
           :trainer="selectedTrainer"
           @close="selectedTrainer = null"
           @delete="handleTrainerDeletion"
@@ -80,10 +84,21 @@ export default {
   data() {
     return {
       isOpen: true,
-      selectedTrainer: null, // Joueur sélectionné pour afficher les détails
+      selectedTrainer: null,
+      isMobile: window.innerWidth < 768, // Détection de la largeur de l'écran
     };
   },
+  mounted() {
+    window.addEventListener("resize", this.updateIsMobile);
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.updateIsMobile);
+  },
+
   methods: {
+    updateIsMobile() {
+      this.isMobile = window.innerWidth < 768;
+    },
     toggleAccordion(event) {
       const addButton = this.$refs.addTrainerButton;
 
@@ -96,17 +111,12 @@ export default {
       this.isOpen = !this.isOpen;
     },
     showTrainerInfo(trainer) {
-      if (this.selectedTrainer && this.selectedTrainer.id === trainer.id) {
-        // Si le trainer sélectionné est cliqué à nouveau, on ferme l'onglet
-        this.selectedTrainer = null;
-      } else {
-        // Sinon, on met à jour le trainer sélectionné
-        this.selectedTrainer = trainer;
-      }
+      if (this.isMobile) return;
+      this.selectedTrainer = this.selectedTrainer?.id === trainer.id ? null : trainer;
     },
     handleTrainerDeletion(deletedTrainerId) {
       const updatedTrainers = this.trainers.filter(trainer => trainer.id !== deletedTrainerId);
-      this.$emit('update:trainers', updatedTrainers); // Émet la liste mise à jour au parent
+      this.$emit('update:trainers', updatedTrainers);
       this.selectedTrainer = null; // Ferme l'affichage des détails
     },
     handleTrainerSave(savedTrainer) {
@@ -127,9 +137,9 @@ export default {
       this.$emit("update:trainers", [...this.trainers]);
     },
     addTrainer() {
-      // Initialise un trainer vide
+      if (this.isMobile) return; // Désactiver sur mobile
       this.selectedTrainer = {
-        id: null, // Pas encore défini
+        id: null,
         name: "",
         surname: "",
         levels: "",
@@ -138,11 +148,8 @@ export default {
         password: "",
         status: "",
         disponibilities: [],
-      }; // Ouvre TrainerInfoView avec ce nouveau joueur
-    },
-
-
-
+      };
+  },
   },
 };
 </script>

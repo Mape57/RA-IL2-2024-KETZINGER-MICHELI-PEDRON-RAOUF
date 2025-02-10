@@ -1,48 +1,88 @@
 <template>
-  <div
-      class="right-panel relative lg:fixed top-0 bg-white z-10 flex flex-col p-5 sm:w-[90%] lg:w-[67%] sm:rounded-lg sm:shadow-md"
-  >
+  <div class="right-panel rounded-lg shadow-md ">
     <!-- Mode Mobile -->
-    <div v-if="isMobile" class="flex flex-col h-full">
+    <div v-if="isMobile" class="flex flex-col h-full w-full overflow-x-hidden">
       <!-- Barre du haut pour le mobile -->
-      <div class="flex items-center justify-between p-4 bg-[#fefdf8] border-b border-gray-300">
+      <div class="relative flex items-center p-4 bg-[white] border-b border-gray-300 w-full overflow-x-hidden">
+        <!-- Sélection du terrain -->
+        <select
+            v-model="selectedTerrain"
+            class="absolute left-1/2 transform -translate-x-1/2 text-lg font-bold text-[#528359] bg-transparent border-none focus:outline-none w-auto text-center"
+        >
+          <option v-for="terrain in sortedTerrains" :key="terrain.id" :value="terrain.id">
+            {{ terrain.name }}
+          </option>
+        </select>
+
+        <!-- Bouton "Filtrer" -->
         <button
             @click="openFilter"
-            class="flex items-center text-sm text-black font-semibold hover:text-green-700 transition"
+            class="ml-auto flex items-center text-sm text-black font-semibold hover:text-green-700 transition"
         >
           <span class="material-symbols-outlined text-base mr-1">tune</span>
-          <span>Filtrer</span>
         </button>
-        <div class="text-center text-lg font-bold text-[#528359]">
-          {{ selectedTerrainName }}
-        </div>
-        <div class="w-8"></div>
       </div>
 
       <!-- Contenu pour mobile -->
-      <div class="content flex-1 overflow-auto p-4">
+      <div class="content flex-1 overflow-auto p-4 w-full overflow-x-hidden">
         <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6">
           <h2 class="text-[#528359] text-xl font-bold mb-4">{{ day }}</h2>
           <SessionCard
               v-for="session in sessions"
               :key="session.id"
-              :startTime="session.startTime"
-              :endTime="session.endTime"
-              :coach="session.coach"
-              :ageGroup="session.ageGroup"
-              :skillLevel="session.skillLevel"
-              :players="session.players"
+              :startTime="session.start"
+              :endTime="session.stop"
+              :coach="`${session.idTrainer.name} ${session.idTrainer.surname}`"
+              :ageGroup="session.idTrainer.ages"
+              :skillLevel="session.idTrainer.levels"
+              :players="session.players.map(player => `${player.name} ${player.surname}`)"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Mode Tablette -->
+    <div v-else-if="isTablet" class="flex flex-col h-full w-full overflow-x-hidden">
+      <div class="relative flex items-center p-4 bg-white border-b border-gray-300 w-full">
+        <select
+            v-model="selectedTerrain"
+            class="absolute left-1/2 transform -translate-x-1/2 text-lg font-bold text-[#528359] bg-transparent border-none focus:outline-none w-auto text-center"
+        >
+          <option v-for="terrain in sortedTerrains" :key="terrain.id" :value="terrain.id">
+            {{ terrain.name }}
+          </option>
+        </select>
+
+        <button
+            @click="openFilter"
+            class="ml-auto flex items-center text-sm text-black font-semibold hover:text-green-700 transition"
+        >
+          <span class="material-symbols-outlined text-base mr-1">tune</span>
+        </button>
+      </div>
+
+      <!-- Contenu principal tablette -->
+      <div class="content flex-1 overflow-auto p-4 w-full">
+        <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6">
+          <h2 class="text-[#528359] text-xl font-bold mb-4">{{ day }}</h2>
+          <SessionCard
+              v-for="session in sessions"
+              :key="session.id"
+              :startTime="session.start"
+              :endTime="session.stop"
+              :coach="`${session.idTrainer.name} ${session.idTrainer.surname}`"
+              :ageGroup="session.idTrainer.ages"
+              :skillLevel="session.idTrainer.levels"
+              :players="session.players.map(player => `${player.name} ${player.surname}`)"
           />
         </div>
       </div>
     </div>
 
     <!-- Mode Bureau -->
-    <div v-else class="flex flex-col flex-1 w-full h-full">
-      <!-- Barre supérieure avec les onglets des terrains et le bouton "Filtrer" -->
-      <div class="flex items-center justify-center p-4 bg-[#fefdf8] border-b border-gray-300">
-        <!-- Onglets des terrains -->
-        <div class="flex justify-center space-x-8">
+    <div v-else class="flex flex-col flex-1 w-full h-full overflow-x-hidden">
+      <div class="flex items-center justify-center p-2 bg-white border-b border-gray-300 w-full overflow-x-hidden">
+        <div class="flex justify-center space-x-4">
           <button
               v-for="terrain in sortedTerrains"
               :key="terrain.id"
@@ -54,7 +94,6 @@
           </button>
         </div>
 
-        <!-- Bouton "Filtrer" aligné à droite -->
         <div class="absolute right-5">
           <button
               @click="openFilter"
@@ -66,27 +105,27 @@
         </div>
       </div>
 
-      <!-- Contenu principal pour bureau -->
-      <div class="content flex-1 overflow-auto p-4">
+      <!-- Contenu principal -->
+      <div class="content flex-1 overflow-auto p-4 w-full overflow-x-hidden">
         <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6">
           <h2 class="text-[#528359] text-xl font-bold mb-4">{{ day }}</h2>
           <SessionCard
               v-for="session in sessions"
               :key="session.id"
-              :startTime="session.startTime"
-              :endTime="session.endTime"
-              :coach="session.coach"
-              :ageGroup="session.ageGroup"
-              :skillLevel="session.skillLevel"
-              :players="session.players"
+              :startTime="session.start"
+              :endTime="session.stop"
+              :coach="`${session.idTrainer.name} ${session.idTrainer.surname}`"
+              :ageGroup="session.idTrainer.ages"
+              :skillLevel="session.idTrainer.levels"
+              :players="session.players.map(player => `${player.name} ${player.surname}`)"
           />
         </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import SessionCard from "./SessionCard.vue";
 import terrainService from "../../services/terrainService";
 import sessionsService from "../../services/sessionService";
@@ -96,69 +135,81 @@ export default {
   components: {
     SessionCard,
   },
-  data() {
-    return {
-      terrains: [],
-      sessions: [],
-      selectedTerrain: null,
-      isMobile: false,
-    };
-  },
-  computed: {
-    sortedTerrains() {
-      return this.terrains.slice().sort((a, b) => {
-        const nameA = a.name.toUpperCase();
-        const nameB = b.name.toUpperCase();
-        return nameA.localeCompare(nameB, undefined, { numeric: true });
-      });
-    },
-    selectedTerrainName() {
-      const terrain = this.terrains.find((t) => t.id === this.selectedTerrain);
-      return terrain ? terrain.name : "Terrain non sélectionné";
-    },
-    sessionsByDay() {
+  setup() {
+    const terrains = ref([]);
+    const sessions = ref([]);
+    const selectedTerrain = ref(null);
+    const windowWidth = ref(window.innerWidth);
+
+    // Détection du mode mobile
+    const isMobile = computed(() => windowWidth.value < 768);
+    const isTablet = computed(() => windowWidth.value >= 768 && windowWidth.value < 1024);
+
+    // Trie les terrains par ordre alphabétique
+    const sortedTerrains = computed(() => {
+      return terrains.value.slice().sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+    });
+
+    // Sessions groupées par jour
+    const sessionsByDay = computed(() => {
       const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
-      const groupedSessions = {};
-      daysOfWeek.forEach((day) => {
-        groupedSessions[day] = [];
-      });
-      this.sessions
-          .filter((session) => session.idCourt?.id === this.selectedTerrain)
+      const groupedSessions = Object.fromEntries(daysOfWeek.map((day) => [day, []]));
+
+      if (!selectedTerrain.value) return groupedSessions;
+
+      sessions.value
+          .filter((session) => session.idCourt?.id === selectedTerrain.value)
           .forEach((session) => {
-            const day = session.day;
-            groupedSessions[day]?.push(session);
+            groupedSessions[session.day]?.push(session);
           });
+
       return groupedSessions;
-    },
-  },
-  methods: {
-    async loadTerrainsAndSessions() {
+    });
+
+    // Récupération des terrains et sessions depuis l'API
+    const loadTerrainsAndSessions = async () => {
       try {
-        const terrainResponse = await terrainService.getAllTerrain();
-        this.terrains = terrainResponse.data;
-
-        const sessionResponse = await sessionsService.getAllSessions();
-        this.sessions = sessionResponse.data;
-
-        this.selectedTerrain = this.sortedTerrains[0]?.id || null;
+        const [terrainResponse, sessionResponse] = await Promise.all([
+          terrainService.getAllTerrain(),
+          sessionsService.getAllSessions(),
+        ]);
+        terrains.value = terrainResponse.data;
+        sessions.value = sessionResponse.data;
+        selectedTerrain.value = sortedTerrains.value[0]?.id || null;
       } catch (error) {
         console.error("Erreur lors du chargement des données :", error);
       }
-    },
-    openFilter() {
-      console.log("Ouverture du filtre");
-    },
-    checkScreenSize() {
-      this.isMobile = window.innerWidth < 1024;
-    },
-  },
-  mounted() {
-    this.loadTerrainsAndSessions();
-    this.checkScreenSize();
-    window.addEventListener("resize", this.checkScreenSize);
-  },
-  beforeDestroy() {
-    window.removeEventListener("resize", this.checkScreenSize);
+    };
+
+    // Sélectionne un terrain
+    const selectTerrain = (id) => {
+      selectedTerrain.value = id;
+    };
+
+    // Met à jour la taille de l'écran
+    const updateWindowSize = () => {
+      windowWidth.value = window.innerWidth;
+    };
+
+    onMounted(() => {
+      loadTerrainsAndSessions();
+      window.addEventListener("resize", updateWindowSize);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("resize", updateWindowSize);
+    });
+
+    return {
+      terrains,
+      sessions,
+      selectedTerrain,
+      sortedTerrains,
+      sessionsByDay,
+      isMobile,
+      isTablet,
+      selectTerrain,
+    };
   },
 };
 </script>
@@ -166,29 +217,18 @@ export default {
 <style scoped>
 .right-panel {
   background-color: white;
-  height: calc(100vh - 6.8rem);
   overflow-y: auto;
   margin-top: 1.2rem;
-  margin-right: 0.9rem;
-}
-
-@media (min-width: 1024px) {
-  .right-panel {
-    width: 67%;
-    position: relative;
-    top: 0;
-    right: 0;
-    margin-left: auto;
-  }
+  margin-right: 1.37rem;
 }
 
 .tab-button {
   color: gray;
   font-weight: bold;
-  transition: all 0.3s ease-in-out;
   padding: 0.5rem 1rem;
   border-bottom: 2px solid transparent;
   cursor: pointer;
+  transition: all 0.3s ease-in-out;
 }
 
 .tab-button.active {
@@ -198,8 +238,104 @@ export default {
 
 button:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #528359;
+  box-shadow: none;
 }
-</style>
 
+select {
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #528359;
+}
+
+select:focus {
+  outline: none;
+}
+
+body {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  .right-panel {
+    padding: 1rem;
+    width: 100%;
+  }
+
+  .tab-button {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  select {
+    font-size: 1rem;
+  }
+
+  .material-symbols-outlined {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .right-panel {
+    width: 54%;
+    height: 80vh;
+    margin-left: auto;
+    margin-right: 2%;
+    margin-top: 17px;
+
+  }
+
+  .content {
+    padding: 1.5rem;
+  }
+
+  .tab-button {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 800px) and (max-width: 809px) {
+  .right-panel {
+    width: 54%;
+    height: 83vh;
+    margin-left: auto;
+    margin-right: 2%;
+    margin-top: 17px;
+  }
+
+  .content {
+    padding: 1.5rem;
+  }
+
+  .tab-button {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+}
+
+
+@media (min-width: 1024px) {
+  .right-panel {
+    width: 67%;
+    height: 91vh;
+    position: relative;
+    top: 0;
+    right: 0;
+    margin-left: auto;
+  }
+}
+
+</style>
 

@@ -1,4 +1,6 @@
 import PlayersService from "../services/PlayersService.js";
+import AvailabilitiesService from "../services/DisponibilityService.js";
+import DisponibilityPlayerService from "../services/DisponibilityPlayerService.js";
 import * as XLSX from "xlsx";
 
 class ImportService {
@@ -11,6 +13,11 @@ class ImportService {
                     const binaryStr = event.target.result;
                     const workbook = XLSX.read(binaryStr, { type: "binary" });
                     const players = ImportService.parsePlayers(workbook);
+
+                    if (players.length === 0) {
+                        return reject(new Error("Aucun joueur valide trouvé dans le fichier."));
+                    }
+
                     await ImportService.savePlayersToAPI(players);
                     resolve(players);
                 } catch (error) {
@@ -37,14 +44,14 @@ class ImportService {
         const dataRows = rawData.slice(2);
 
         return dataRows
-            .filter(row => row[0] && row[1])
+            .filter(row => row[headers.indexOf("Nom")] && row[headers.indexOf("Prénom")])
             .map((row) => ({
                 name: row[headers.indexOf("Nom")] || "Inconnu",
                 surname: row[headers.indexOf("Prénom")] || "Inconnu",
                 birthday: ImportService.formatDate(row[headers.indexOf("Date de naissance")]) || "0000-00-00",
-                email: row[headers.indexOf("Email")] || `default_${row[0] || "unknown"}@example.com`,
-                level: row[headers.indexOf("Niveau")] || "0",
-                courses: row[headers.indexOf("Cours par semaine")] || "0",
+                email: ImportService.validateEmail(row[headers.indexOf("Email")]) ? row[headers.indexOf("Email")] : `default_${row[0] || "unknown"}@example.com`,
+                level: parseInt(row[headers.indexOf("Niveau")] || "0", 10),
+                courses: parseInt(row[headers.indexOf("Cours par semaine")] || "0", 10),
                 disponibilities: ImportService.parseDisponibilities(row, headers),
             }))
             .filter(player => player.name !== "Inconnu" && player.surname !== "Inconnu");
@@ -58,20 +65,18 @@ class ImportService {
             "Jeudi": "Jeudi",
             "Vendredi": "Vendredi",
             "Samedi": "Samedi",
+            "Dimanche": "Dimanche"
         };
 
         return Object.keys(dayMapping).flatMap((day) => {
             const dayIndex = headers.indexOf(day);
-
             if (dayIndex !== -1 && row[dayIndex]) {
                 return row[dayIndex].split(",").map((timeRange) => {
                     let [open, close] = timeRange.trim().split("-");
-
                     open = ImportService.formatHour(open);
                     close = ImportService.formatHour(close);
-
                     return {
-                        day: dayMapping[day],
+                        dayWeek: dayMapping[day],
                         open,
                         close,
                     };
@@ -80,6 +85,7 @@ class ImportService {
             return [];
         });
     }
+
 
     static formatHour(hour) {
         if (!hour) return "00:00";
@@ -105,14 +111,48 @@ class ImportService {
         return match ? `${match[3]}-${match[2]}-${match[1]}` : null;
     }
 
+    static validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
     static async savePlayersToAPI(players) {
         if (players.length === 0) return;
 
         for (const player of players) {
             try {
-                await PlayersService.createPlayer(player);
+                // Étape 1 : Créer les disponibilités
+                const disponibilitiesResponses = await Promise.all(
+                    player.disponibilities.map(availability => AvailabilitiesService.createAvailability(availability))
+                );
+                // Récupérer les IDs des disponibilités créées
+                const disponibilitiesIds = disponibilitiesResponses.map(response => response.data.id);
+                // Étape 2 : Créer le joueur (sans disponibilités)
+                const response = await PlayersService.createPlayer({
+                    name: player.name,
+                    surname: player.surname,
+                    email: player.email,
+                    birthday: player.birthday,
+                    level: player.level,
+                    courses: player.courses
+                });
+                const playerId = response.data.id;
+
+                // Étape 3 : Associer les disponibilités au joueur après création
+                await Promise.all(
+                    disponibilitiesIds.map(idDisponibility =>
+                        DisponibilityPlayerService.createDisponibilityPlayer({
+                            idPlayer: playerId,
+                            idDisponibility,
+                        })
+                    )
+                );
             } catch (error) {
-                console.error(`Erreur lors de l'envoi du joueur ${player.name} ${player.surname} :`, error.response?.data || error.message);
+                if (error.response?.status === 409) {
+                    console.warn(`Joueur déjà existant : ${player.email}`);
+                } else {
+                    console.error(`Erreur lors de l'envoi du joueur ${player.name} ${player.surname} :`, error.response?.data || error.message);
+                }
             }
         }
     }

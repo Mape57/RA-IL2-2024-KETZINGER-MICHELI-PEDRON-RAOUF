@@ -56,7 +56,7 @@
             class="availability-row"
         >
           <!-- Sélecteur de jour -->
-          <select v-model="slot.day" class="day-select" required>
+          <select v-model="slot.dayWeek" class="day-select" required>
             <option value="Lundi">Lundi</option>
             <option value="Mardi">Mardi</option>
             <option value="Mercredi">Mercredi</option>
@@ -113,6 +113,7 @@ c'est le symbole delete
 <script>
 import {ref, watch} from "vue";
 import usePlayers from "../../useJs/usePlayers.js";
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
   name: "PlayerInfoView",
@@ -151,11 +152,13 @@ export default {
 
     const addAvailability = () => {
       editablePlayer.value.disponibilities.push({
-        id: Date.now(),
-        day: "",
+        id: uuidv4(),  // ✅ Génère un UUID
+        dayWeek: "",
         open: "",
         close: "",
       });
+
+      console.log("📌 Disponibilités après ajout :", editablePlayer.value.disponibilities);
     };
 
     const removeAvailability = (index) => {
@@ -164,44 +167,35 @@ export default {
 
     const savePlayer = async () => {
       try {
-        // 1. Validation des champs obligatoires
-        if (!validateForm()) {
-          alert("Veuillez remplir correctement tous les champs."); // Alerte si des champs sont manquants
-          return;
-        }
+        // Vérifier et ajouter `dayWeek` si manquant
+        editablePlayer.value.disponibilities = editablePlayer.value.disponibilities.map(slot => ({
+          id: slot.id && typeof slot.id === "string" ? slot.id : uuidv4(),  // Générer un UUID si nécessaire
+          dayWeek: slot.dayWeek || slot.day || "Lundi",  // 🔹 Ajouter `dayWeek` si absent
+          open: slot.open,
+          close: slot.close,
+        }));
 
-        // 2. Vérification des créneaux horaires
-        const invalidTimes = editablePlayer.value.disponibilities.some((slot) => !isValidTime(slot)); // Vérifie si un créneau est invalide
-        if (invalidTimes) {
-          alert("Veuillez corriger les erreurs dans les disponibilités avant de continuer.");
-          return;
-        }
-
-        // 3. Vérification des doublons dans les disponibilités
-        if (!validateUniqueDisponibilities()) {
-          alert("Des chevauchements existent dans les disponibilités. Veuillez les corriger.");
-          return;
-        }
-
-        // console.log("Données nettoyées prêtes à être envoyées :", JSON.stringify(editablePlayer.value, null, 2));
+        console.log("📦 Données envoyées au backend après correction :", JSON.stringify(editablePlayer.value, null, 2));
 
         let savedPlayer;
         if (!editablePlayer.value.id) {
-          // Création
           savedPlayer = await createPlayer(editablePlayer.value);
           alert("Joueur créé avec succès !");
         } else {
-          // Mise à jour
           savedPlayer = await updatePlayer(editablePlayer.value);
           alert("Joueur mis à jour avec succès !");
         }
+
         emit("save", savedPlayer);
         emit("close");
       } catch (error) {
-        console.error("Erreur lors de la sauvegarde :", error);
+        console.error("❌ Erreur lors de la sauvegarde :", error);
         alert("Une erreur est survenue.");
       }
     };
+
+
+
 
 
     const validateForm = () => {
@@ -334,7 +328,7 @@ export default {
   padding: 0.5rem 0;
 }
 
-.day {
+.dayWeek {
   flex: 1;
   color: #2f4f4f;
   font-weight: 500;

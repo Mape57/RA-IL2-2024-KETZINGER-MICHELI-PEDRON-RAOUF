@@ -24,13 +24,14 @@ export default function usePlayers() {
 		}
 	};
 
+
 	// Mettre à jour un joueur existant
 	const updatePlayer = async (player) => {
 		try {
 			// Nettoyage des disponibilités avant envoi
 			player.disponibilities = player.disponibilities.map(slot => ({
 				id: slot.id && typeof slot.id === "string" ? slot.id : undefined, // Conserver les IDs valides ou les exclure
-				day: slot.day,
+				dayWeek: slot.dayWeek,
 				open: slot.open,
 				close: slot.close,
 			}));
@@ -57,8 +58,8 @@ export default function usePlayers() {
 		try {
 			// Nettoyage des disponibilités avant envoi
 			player.disponibilities = player.disponibilities.map(slot => ({
-				id: slot.id && typeof slot.id === "string" ? slot.id : undefined, // Conserver les IDs valides ou les exclure
-				day: slot.day,
+				id: slot.id && typeof slot.id === "string" ? slot.id : undefined,
+				dayWeek: slot.dayWeek,
 				open: slot.open,
 				close: slot.close,
 			}));
@@ -85,8 +86,7 @@ export default function usePlayers() {
 
 		let sportsAge = currentYear - birthDate.getFullYear();
 
-		// Si la personne est née avant septembre, elle a un an de plus pour l'année sportive
-		if (birthDate.getMonth() < 9) { // Mois en JavaScript : 0 = janvier, 9 = septembre
+		if (birthDate.getMonth() < 9) {
 			sportsAge++;
 		}
 

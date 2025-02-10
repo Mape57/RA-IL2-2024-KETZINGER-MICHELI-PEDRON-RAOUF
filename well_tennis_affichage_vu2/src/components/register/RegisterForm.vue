@@ -135,6 +135,8 @@
 </template>
 
 <script>
+import usePlayers from "../../useJs/usePlayers.js";
+
 export default {
   name: "RegisterForm",
   data() {
@@ -153,6 +155,10 @@ export default {
         fin: "",
       },
     };
+  },
+  setup() {
+    const { createPlayer } = usePlayers();
+    return { createPlayer };
   },
   methods: {
     addDisponibilite() {
@@ -178,7 +184,7 @@ export default {
     removeDisponibilite(index) {
       this.form.disponibilites.splice(index, 1);
     },
-    validateAndRedirect() {
+    async validateAndRedirect() {
       if (
           !this.form.nom ||
           !this.form.prenom ||
@@ -190,8 +196,14 @@ export default {
         alert("Veuillez remplir tous les champs correctement !");
         return;
       }
-      alert("Inscription réussie !");
-      this.$router.push("/");
+      try {
+        await this.createPlayer(this.form);
+        alert("Inscription réussie !");
+        this.$router.push("/");
+      } catch (error) {
+        alert("Erreur lors de l'inscription !");
+        console.error(error);
+      }
     },
   },
 };

@@ -1,7 +1,14 @@
 <template>
-  <div class="left-panel fixed top-5 left-5 bg-white rounded-lg shadow-md w-[30%] h-[97vh] p-6 flex flex-col z-20">
-    <div class="tabs flex items-center mb-4">
+  <div
+      :class="['left-panel', isMobile ? 'w-[55%]' : isTablet ? 'w-[40%]' : 'w-[30%]']"
+      class="fixed z-[10] top-5 left-5 bg-white rounded-lg shadow-md h-[97vh] p-6 flex flex-col ">
+    <!-- Bouton de fermeture -->
+    <button v-if="isMobile" @click="$emit('close')" class="close-button">
+      <span class="material-symbols-outlined">close</span>
+    </button>
 
+    <!-- Onglets -->
+    <div class="tabs flex items-center mb-4">
       <div class="flex w-full">
         <button
             @click="selectTab('data')"
@@ -9,7 +16,7 @@
             class="tab-button flex-grow flex items-center justify-center"
         >
           <span class="material-symbols-outlined mr-2">database</span>
-          <span>Données</span>
+          <span v-if="!isMobile">Données</span>
         </button>
         <button
             @click="selectTab('constraints')"
@@ -17,18 +24,18 @@
             class="tab-button flex-grow flex items-center justify-center"
         >
           <span class="material-symbols-outlined mr-2">gavel</span>
-          <span>Contraintes</span>
+          <span v-if="!isMobile">Contraintes</span>
         </button>
       </div>
 
       <button
+          v-if="!isMobile"
           @click="selectTab('settings')"
           :class="{ active: selectedTab === 'settings' }"
           class="tab-button flex-grow flex items-center justify-center"
       >
         <span class="material-symbols-outlined mr-2">settings</span>
       </button>
-
     </div>
 
     <div v-if="selectedTab === 'data'" class="mb-4">
@@ -47,37 +54,30 @@
         <Trainers :trainers="trainers" @update:trainers="updateTrainers"/>
         <Players :players="players" :searchQuery="searchQuery" @update:players="updatePlayers"/>
       </div>
+
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
         <Terrains :terrains="terrains" />
         <Session :sessions="sessions" />
       </div>
 
-      <!-- Onglet Paramètres -->
-      <div v-if="selectedTab === 'settings'" class="content-settings">
-
-        <!-- Importer vos données -->
+      <!-- Onglet Paramètres (masqué en mode mobile) -->
+      <div v-if="selectedTab === 'settings' && !isMobile" class="content-settings">
         <div class="py-2 font-bold text-gray-700 flex items-center">
           <span class="material-symbols-outlined mr-2">upload</span>
           Importer vos données
         </div>
         <button class="menu-item" @click="importXLS">
           <span class="material-symbols-outlined mr-2">calendar_today</span>
-          Planning - format XLS
+          Consulter les inscrits
         </button>
 
         <label class="menu-item cursor-pointer">
           <span class="material-symbols-outlined mr-2">database</span>
           Importer Données et Contraintes - format CSV
-          <input
-              type="file"
-              accept=".xlsx, .xls"
-              @change="importCSV"
-              class="hidden"
-          />
+          <input type="file" accept=".xlsx, .xls" @change="importCSV" class="hidden" />
         </label>
 
-        <!-- Télécharger vos données -->
         <div class="py-2 font-bold text-gray-700 flex items-center">
           <span class="material-symbols-outlined mr-2">download</span>
           Télécharger vos données
@@ -92,7 +92,6 @@
           Données et contraintes - format CSV
         </button>
 
-        <!-- Nouvelle année -->
         <div class="py-2 font-bold text-gray-700 flex items-center">
           <span class="material-symbols-outlined mr-2">event_repeat</span>
           Nouvelle année
@@ -105,11 +104,11 @@
           <span class="material-symbols-outlined mr-2">delete</span>
           Supprimer l'ensemble des joueurs
         </button>
-
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import Players from "./Players.vue";
@@ -129,16 +128,19 @@ export default {
     Terrains,
     Session,
   },
+  props: {
+    isMobile: Boolean,
 
+  },
   setup() {
 
-    const { terrains, fetchTerrains } = useTerrain(); // Importer les terrains dynamiques
+    const { terrains, fetchTerrains } = useTerrain();
     const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers, updateTrainers} = useLeftPanel();
 
     onMounted(() => {
       fetchTrainers();
       fetchPlayers();
-      fetchTerrains(); // Charger les terrains dynamiques
+      fetchTerrains();
     });
 
     return {
@@ -151,12 +153,13 @@ export default {
       selectTab,
       updatePlayers,
       updateTrainers,
-      terrains, // Exposer les terrains dynamiques
+      terrains,
     };
   },
 
   data() {
     return {
+      isTablet: false,
       sessions: [
         {title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, sessions_level: "0 - 7"},
         {title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, sessions_level: "1 - 10"},
@@ -168,18 +171,18 @@ export default {
     importXLS() {
       alert("Import de planning XLS");
     },
-      async importCSV(event) {
-        const file = event.target.files[0];
-        if (!file) {
-          alert("Veuillez sélectionner un fichier.");
-          return;
-        }
-        try {
-          await ImportService.importExcel(file);
-        } catch (error) {
-          console.error("Erreur lors de l'importation :", error);
-        }
-      },
+    async importCSV(event) {
+      const file = event.target.files[0];
+      if (!file) {
+        alert("Veuillez sélectionner un fichier.");
+        return;
+      }
+      try {
+        await ImportService.importExcel(file);
+      } catch (error) {
+        console.error("Erreur lors de l'importation :", error);
+      }
+    },
 
     downloadXLS() {
       alert("Téléchargement de planning XLS");
@@ -193,6 +196,20 @@ export default {
     deleteAllPlayers() {
       alert("Suppression de tous les joueurs !");
     },
+    checkScreenSize() {
+      clearTimeout(this.resizeTimeout);
+      this.resizeTimeout = setTimeout(() => {
+        this.isMobile = window.innerWidth < 768;
+        this.isTablet = window.innerWidth >= 768 && window.innerWidth < 1024; // Détection de la tablette
+      }, 200);
+    },
+  },
+  mounted() {
+    this.checkScreenSize();
+    window.addEventListener("resize", this.checkScreenSize);
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.checkScreenSize);
   },
 };
 </script>
@@ -258,6 +275,72 @@ export default {
 .menu-item:hover {
   background-color: #f0f4f3;
 }
+
+.left-panel {
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #528359;
+}
+
+.close-button:hover {
+  color: #3a6242;
+}
+
+.tab-button span {
+  display: inline;
+}
+
+
+.left-panel {
+  position: relative;
+}
+
+.left-panel {
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #528359;
+}
+
+.close-button:hover {
+  color: #3a6242;
+}
+
+@media (max-width: 768px) {
+  .left-panel {
+    width: 55%;
+    left: 7.5%;
+  }
+  .tab-button span:nth-child(2) {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .left-panel {
+    width: 40%;
+    left: 2%;
+  }
+}
+
+
 
 </style>
 
