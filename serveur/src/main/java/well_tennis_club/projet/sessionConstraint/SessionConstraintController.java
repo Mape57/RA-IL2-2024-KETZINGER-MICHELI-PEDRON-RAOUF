@@ -32,7 +32,7 @@ public class SessionConstraintController {
     @GetMapping
     public List<SessionConstraintDto> getAllConstraints(){
         List<SessionConstraintDto> list = SessionConstraintMapper.INSTANCE.mapToListDTO(sessionConstraintService.getAllConstraints());
-        if (list == null || list.size() == 0){
+        if (list == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Constraints not found"
             );

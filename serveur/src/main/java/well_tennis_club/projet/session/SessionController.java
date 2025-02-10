@@ -29,7 +29,7 @@ public class SessionController {
     @GetMapping
     public List<SessionDto> getAllSessions(){
         List<SessionDto> list = SessionMapper.INSTANCE.mapToListDTO(sessionService.getAllSessions());
-        if (list == null || list.size() == 0){
+        if (list == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Sessions not found"
             );

@@ -45,6 +45,9 @@ public class PlayerEntity implements Serializable{
     @Column(name = "email")
     private String email;
 
+    @Column(name = "validate")
+    private Boolean validate;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @Fetch(FetchMode.SELECT)
     @JoinTable(

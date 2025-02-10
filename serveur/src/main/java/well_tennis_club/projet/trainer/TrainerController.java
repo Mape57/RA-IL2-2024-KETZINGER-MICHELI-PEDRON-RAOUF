@@ -29,7 +29,7 @@ public class TrainerController {
     @GetMapping
     public List<TrainerDto> getAllTrainers(){
         List<TrainerDto> list = TrainerMapper.INSTANCE.mapToListDTO(trainerService.getAllTrainers());
-        if (list == null || list.size() == 0){
+        if (list == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Trainers not found"
             );

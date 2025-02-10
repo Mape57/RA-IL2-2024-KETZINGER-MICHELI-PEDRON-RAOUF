@@ -35,11 +35,23 @@ public class TrainerEntity implements Serializable {
     @Column(name = "surname")
     private String surname;
 
-    @Column(name = "levels")
-    private String levels;
+    @Column(name = "sup_level")
+    private int supLevel;
 
-    @Column(name = "ages")
-    private String ages;
+    @Column(name = "inf_level")
+    private int infLevel;
+
+    @Column(name = "sup_age")
+    private int supAge;
+
+    @Column(name = "inf_age")
+    private int infAge;
+
+    @Column(name = "sup_weekly_minutes")
+    private int supWeeklyMinutes;
+
+    @Column(name = "inf_weekly_minutes")
+    private int infWeeklyMinutes;
 
     @Column(name = "email")
     private String email;
@@ -47,8 +59,8 @@ public class TrainerEntity implements Serializable {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "status")
-    private String status;
+    @Column(name = "part_time")
+    private boolean partTime;
 
     @Column(name = "admin")
     private boolean admin;

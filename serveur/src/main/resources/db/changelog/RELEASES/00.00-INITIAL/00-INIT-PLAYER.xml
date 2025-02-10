@@ -28,6 +28,9 @@
             <column name="email" type="varchar(200)">
                 <constraints nullable="false"/>
             </column>
+            <column name="validate" type="boolean">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <insert tableName="player">
@@ -38,6 +41,7 @@
             <column name="courses" value="0"/>
             <column name="level" value="19"/>
             <column name="email" value="novak.djokovic@gmail.com"/>
+            <column name="validate" value="true"/>
         </insert>
     </changeSet>
 </databaseChangeLog>
