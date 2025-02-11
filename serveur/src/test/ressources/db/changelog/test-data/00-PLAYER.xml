@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="test-player" author="Thomas">
+        <insert tableName="player">
+            <column name="id" value="dd0c3930-3e0e-4f74-bd84-e2591ea4e52c"/>
+            <column name="name" value="Djokovic"/>
+            <column name="surname" value="Novak"/>
+            <column name="birthday" value="1987-05-22"/>
+            <column name="courses" value="0"/>
+            <column name="level" value="19"/>
+            <column name="email" value="novak.djokovic@gmail.com"/>
+            <column name="validate" value="false"/>
+        </insert>
+        
+        <insert tableName="player">
+            <column name="id" value="ba85219f-ea0e-4140-996d-c9b82c5bd1f2"/>
+            <column name="name" value="Nadal"/>
+            <column name="surname" value="Rafael"/>
+            <column name="birthday" value="1986-06-03"/>
+            <column name="courses" value="0"/>
+            <column name="level" value="19"/>
+            <column name="email" value="rafael.nadal@gmail.com"/>
+            <column name="validate" value="true"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

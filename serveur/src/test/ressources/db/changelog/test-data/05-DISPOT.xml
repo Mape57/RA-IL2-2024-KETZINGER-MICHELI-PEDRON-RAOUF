@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="test-dispoT" author="Thomas">
+        <insert tableName="disponibility_trainer">
+            <column name="id_trainer" value="4d970d71-4ff9-4435-8860-435c12434137"/>
+            <column name="id_disponibility" value="36697925-5b75-4601-a88c-24e68b248d86"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
