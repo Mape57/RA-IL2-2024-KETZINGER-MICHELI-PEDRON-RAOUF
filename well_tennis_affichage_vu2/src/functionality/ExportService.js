@@ -33,7 +33,7 @@ class ExportService {
                 if (player.disponibilities && player.disponibilities.length > 0) {
 
                     player.disponibilities.forEach((d) => {
-                        const day = dayMapping[d.day.toLowerCase()];
+                        const day = dayMapping[d.dayWeek.toLowerCase()];
                         if (day && availability[day] !== undefined) {
                             availability[day] += availability[day]
                                 ? `, ${d.open} - ${d.close}`

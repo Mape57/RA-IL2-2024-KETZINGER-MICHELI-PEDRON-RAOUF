@@ -17,6 +17,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
+// TODO verifier que les terrains soit OK avec random
 @SpringBootTest
 public class ConstraintsTest {
 	@Autowired
@@ -57,9 +58,9 @@ public class ConstraintsTest {
 			@DisplayName("Les joueurs ont une différence d'âge correspondant au maximum")
 			void OK_maximum_difference() {
 				List<Player> players = List.of(
-						new Player(null, 10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
-						new Player(null, 12, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
-						new Player(null, 11, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
+						new Player(10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
+						new Player(12, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
+						new Player(11, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
 				);
 
 				List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -73,9 +74,9 @@ public class ConstraintsTest {
 			@DisplayName("Les joueurs ont une différence d'âge de zéro")
 			void OK_no_difference() {
 				List<Player> players = List.of(
-						new Player(null, 10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
-						new Player(null, 10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
-						new Player(null, 10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
+						new Player(10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
+						new Player(10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
+						new Player(10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
 				);
 
 				List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -89,9 +90,9 @@ public class ConstraintsTest {
 			@DisplayName("Les joueurs ont une différence d'âge supérieure au maximum")
 			void KO_max_difference_plus_1() {
 				List<Player> players = List.of(
-						new Player(null, 10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
-						new Player(null, 14, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
-						new Player(null, 11, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
+						new Player(10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
+						new Player(14, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
+						new Player(11, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
 				);
 
 				List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -109,12 +110,12 @@ public class ConstraintsTest {
 			@DisplayName("Deux groupes respectant la contrainte")
 			void OK_two_groups() {
 				List<Player> players_group_1 = List.of(
-						new Player(null, 10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
-						new Player(null, 12, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
+						new Player(10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
+						new Player(12, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
 				);
 				List<Player> players_group_2 = List.of(
-						new Player(null, 11, 0, 0, null, SESSION_CONSTRAINT_age_diff_1),
-						new Player(null, 12, 0, 0, null, SESSION_CONSTRAINT_age_diff_1)
+						new Player(11, 0, 0, null, SESSION_CONSTRAINT_age_diff_1),
+						new Player(12, 0, 0, null, SESSION_CONSTRAINT_age_diff_1)
 				);
 
 				List<PlayerSessionLink> psls_1 = pslsWithBlankSession(players_group_1);
@@ -129,12 +130,12 @@ public class ConstraintsTest {
 			@DisplayName("Deux groupes dont un respecte la contrainte")
 			void KO_one_group() {
 				List<Player> players_group_1 = List.of(
-						new Player(null, 10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
-						new Player(null, 12, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
+						new Player(10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
+						new Player(12, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
 				);
 				List<Player> players_group_2 = List.of(
-						new Player(null, 10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
-						new Player(null, 13, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
+						new Player(10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
+						new Player(13, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
 				);
 
 				List<PlayerSessionLink> psls_1 = pslsWithBlankSession(players_group_1);
@@ -149,12 +150,12 @@ public class ConstraintsTest {
 			@DisplayName("Deux groupes ne respectant pas la contrainte")
 			void KO_two_groups() {
 				List<Player> players_group_1 = List.of(
-						new Player(null, 10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
-						new Player(null, 13, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
+						new Player(10, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
+						new Player(13, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
 				);
 				List<Player> players_group_2 = List.of(
-						new Player(null, 9, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
-						new Player(null, 15, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
+						new Player(9, 0, 0, null, SESSION_CONSTRAINT_age_diff_2),
+						new Player(15, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
 				);
 
 				List<PlayerSessionLink> psls_1 = pslsWithBlankSession(players_group_1);
@@ -177,9 +178,9 @@ public class ConstraintsTest {
 			@DisplayName("Les joueurs ont une différence de niveau correspondant au maximum")
 			void OK_maximum_difference() {
 				List<Player> players = List.of(
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 2, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1)
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 2, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1)
 				);
 
 				List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -193,9 +194,9 @@ public class ConstraintsTest {
 			@DisplayName("Les joueurs ont une différence de niveau de zéro")
 			void OK_no_difference() {
 				List<Player> players = List.of(
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1)
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1)
 				);
 
 				List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -209,9 +210,9 @@ public class ConstraintsTest {
 			@DisplayName("Les joueurs ont une différence de niveau supérieure au maximum")
 			void KO_max_difference_plus_1() {
 				List<Player> players = List.of(
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 3, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1)
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 3, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1)
 				);
 
 				List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -229,12 +230,12 @@ public class ConstraintsTest {
 			@DisplayName("Deux groupes respectant la contrainte")
 			void OK_two_groups() {
 				List<Player> players_group_1 = List.of(
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 2, 0, null, SESSION_CONSTRAINT_level_diff_1)
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 2, 0, null, SESSION_CONSTRAINT_level_diff_1)
 				);
 				List<Player> players_group_2 = List.of(
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 2, 0, null, SESSION_CONSTRAINT_level_diff_1)
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 2, 0, null, SESSION_CONSTRAINT_level_diff_1)
 				);
 
 				List<PlayerSessionLink> psls_1 = pslsWithBlankSession(players_group_1);
@@ -249,12 +250,12 @@ public class ConstraintsTest {
 			@DisplayName("Deux groupes dont un respecte la contrainte")
 			void KO_one_group() {
 				List<Player> players_group_1 = List.of(
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 2, 0, null, SESSION_CONSTRAINT_level_diff_1)
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 2, 0, null, SESSION_CONSTRAINT_level_diff_1)
 				);
 				List<Player> players_group_2 = List.of(
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 3, 0, null, SESSION_CONSTRAINT_level_diff_1)
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 3, 0, null, SESSION_CONSTRAINT_level_diff_1)
 				);
 
 				List<PlayerSessionLink> psls_1 = pslsWithBlankSession(players_group_1);
@@ -269,12 +270,12 @@ public class ConstraintsTest {
 			@DisplayName("Deux groupes ne respectant pas la contrainte")
 			void KO_two_groups() {
 				List<Player> players_group_1 = List.of(
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 3, 0, null, SESSION_CONSTRAINT_level_diff_1)
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 3, 0, null, SESSION_CONSTRAINT_level_diff_1)
 				);
 				List<Player> players_group_2 = List.of(
-						new Player(null, 0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
-						new Player(null, 0, 4, 0, null, SESSION_CONSTRAINT_level_diff_1)
+						new Player(0, 1, 0, null, SESSION_CONSTRAINT_level_diff_1),
+						new Player(0, 4, 0, null, SESSION_CONSTRAINT_level_diff_1)
 				);
 
 				List<PlayerSessionLink> psls_1 = pslsWithBlankSession(players_group_1);
@@ -297,8 +298,8 @@ public class ConstraintsTest {
 			@DisplayName("La taille du groupe est égal à la taille minimum")
 			void OK_min_group_size() {
 				List<Player> players = List.of(
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
 				);
 
 				List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -312,9 +313,9 @@ public class ConstraintsTest {
 			@DisplayName("La taille du groupe est égal à la taille maximum")
 			void OK_max_group_size() {
 				List<Player> players = List.of(
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
 				);
 
 				List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -328,7 +329,7 @@ public class ConstraintsTest {
 			@DisplayName("La taille du groupe est inférieure à la taille minimum")
 			void KO_min_group_size_minus_1() {
 				List<Player> players = List.of(
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
 				);
 
 				List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -342,10 +343,10 @@ public class ConstraintsTest {
 			@DisplayName("La taille du groupe est supérieure à la taille maximum")
 			void KO_max_group_size_plus_1() {
 				List<Player> players = List.of(
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
 				);
 
 				List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -363,12 +364,12 @@ public class ConstraintsTest {
 			@DisplayName("Deux groupes respectant la contrainte")
 			void OK_two_groups() {
 				List<Player> players_group_1 = List.of(
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
 				);
 				List<Player> players_group_2 = List.of(
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
 				);
 
 				List<PlayerSessionLink> psls_1 = pslsWithBlankSession(players_group_1);
@@ -383,11 +384,11 @@ public class ConstraintsTest {
 			@DisplayName("Deux groupes dont un respecte la contrainte")
 			void KO_one_group() {
 				List<Player> players_group_1 = List.of(
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
 				);
 				List<Player> players_group_2 = List.of(
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
 				);
 
 				List<PlayerSessionLink> psls_1 = pslsWithBlankSession(players_group_1);
@@ -402,13 +403,13 @@ public class ConstraintsTest {
 			@DisplayName("Deux groupes ne respectant pas la contrainte")
 			void KO_two_groups() {
 				List<Player> players_group_1 = List.of(
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
 				);
 				List<Player> players_group_2 = List.of(
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
-						new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3),
+						new Player(0, 0, 0, null, SESSION_CONSTRAINT_group_size_2_3)
 				);
 
 				List<PlayerSessionLink> psls_1 = pslsWithBlankSession(players_group_1);
@@ -428,9 +429,9 @@ public class ConstraintsTest {
 		@DisplayName("Les joueurs ont la même SessionConstraint")
 		void OK_same_session_constraint() {
 			List<Player> players = List.of(
-					new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_COMPLEX_1),
-					new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_COMPLEX_2),
-					new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_COMPLEX_1)
+					new Player(0, 0, 0, null, SESSION_CONSTRAINT_COMPLEX_1),
+					new Player(0, 0, 0, null, SESSION_CONSTRAINT_COMPLEX_2),
+					new Player(0, 0, 0, null, SESSION_CONSTRAINT_COMPLEX_1)
 			);
 
 			List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -444,9 +445,9 @@ public class ConstraintsTest {
 		@DisplayName("Un joueur n'a pas la même SessionConstraint")
 		void KO_one_player() {
 			List<Player> players = List.of(
-					new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_COMPLEX_1),
-					new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_COMPLEX_1),
-					new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_level_diff_1)
+					new Player(0, 0, 0, null, SESSION_CONSTRAINT_COMPLEX_1),
+					new Player(0, 0, 0, null, SESSION_CONSTRAINT_COMPLEX_1),
+					new Player(0, 0, 0, null, SESSION_CONSTRAINT_level_diff_1)
 			);
 
 			List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -460,9 +461,9 @@ public class ConstraintsTest {
 		@DisplayName("Deux joueurs n'ont pas la même SessionConstraint")
 		void KO_two_players() {
 			List<Player> players = List.of(
-					new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_NONE),
-					new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_level_diff_1),
-					new Player(null, 0, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
+					new Player(0, 0, 0, null, SESSION_CONSTRAINT_NONE),
+					new Player(0, 0, 0, null, SESSION_CONSTRAINT_level_diff_1),
+					new Player(0, 0, 0, null, SESSION_CONSTRAINT_age_diff_2)
 			);
 
 			List<PlayerSessionLink> psls = pslsWithBlankSession(players);
@@ -539,16 +540,16 @@ public class ConstraintsTest {
 		@BeforeEach
 		void setUp() {
 			sc = new SessionConstraint(new ValueRange(8, 17), new ValueRange(0, 7), new ValueRange(1, 3), 2, 1, 90);
-			p1 = new Player("P1", 8, 5, 1, null, sc);
-			p2 = new Player("P2", 9, 6, 1, null, sc);
-			p3 = new Player("P3", 10, 5, 1, null, sc);
+			p1 = new Player(8, 5, 1, null, sc);
+			p2 = new Player(9, 6, 1, null, sc);
+			p3 = new Player(10, 5, 1, null, sc);
 		}
 
 		@Test
 		@DisplayName("Les sessions ne sont pas sur le même terrain")
 		void OK_no_overlap_tennisCourt() {
-			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
-			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T2");
+			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
+			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
 
 			PlayerSessionLink psl_1 = new PlayerSessionLink(p1, session_1);
 			PlayerSessionLink psl_2 = new PlayerSessionLink(p2, session_2);
@@ -561,8 +562,8 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("Les sessions ne sont pas le même jour")
 		void OK_no_overlap_day() {
-			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
-			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.TUESDAY, LocalTime.of(8, 0), "T1");
+			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
+			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.TUESDAY, LocalTime.of(8, 0), UUID.randomUUID());
 
 			PlayerSessionLink psl_1 = new PlayerSessionLink(p1, session_1);
 			PlayerSessionLink psl_2 = new PlayerSessionLink(p2, session_2);
@@ -575,8 +576,8 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("Les sessions ne sont pas à la même heure")
 		void OK_no_overlap_time() {
-			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
-			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(10, 0), "T1");
+			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
+			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(10, 0), UUID.randomUUID());
 
 			PlayerSessionLink psl_1 = new PlayerSessionLink(p1, session_1);
 			PlayerSessionLink psl_2 = new PlayerSessionLink(p2, session_2);
@@ -589,8 +590,8 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("Les sessions se suivent")
 		void OK_following_sessions() {
-			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
-			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 30), "T1");
+			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
+			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 30), UUID.randomUUID());
 
 			PlayerSessionLink psl_1 = new PlayerSessionLink(p1, session_1);
 			PlayerSessionLink psl_2 = new PlayerSessionLink(p2, session_2);
@@ -603,7 +604,7 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("Les joueurs sont dans la même session")
 		void OK_same_session() {
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
 
 			PlayerSessionLink psl_1 = new PlayerSessionLink(p1, session);
 			PlayerSessionLink psl_2 = new PlayerSessionLink(p2, session);
@@ -616,8 +617,8 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("Les sessions se chevauchent (30min d'écart)")
 		void KO_overlapping_sessions_30mn() {
-			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
-			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 30), "T1");
+			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
+			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 30), UUID.randomUUID());
 
 			PlayerSessionLink psl_1 = new PlayerSessionLink(p1, session_1);
 			PlayerSessionLink psl_2 = new PlayerSessionLink(p2, session_2);
@@ -630,8 +631,8 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("Les sessions se chevauchent (1H d'écart)")
 		void KO_overlapping_sessions_1H() {
-			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
-			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), "T1");
+			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
+			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), UUID.randomUUID());
 
 			PlayerSessionLink psl_1 = new PlayerSessionLink(p1, session_1);
 			PlayerSessionLink psl_2 = new PlayerSessionLink(p2, session_2);
@@ -644,9 +645,9 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("Trois sessions se chevauchent")
 		void KO_overlapping_sessions_3() {
-			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
-			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 30), "T1");
-			Session session_3 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), "T1");
+			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
+			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 30), UUID.randomUUID());
+			Session session_3 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), UUID.randomUUID());
 
 			PlayerSessionLink psl_1 = new PlayerSessionLink(p1, session_1);
 			PlayerSessionLink psl_2 = new PlayerSessionLink(p2, session_2);
@@ -665,14 +666,14 @@ public class ConstraintsTest {
 		@DisplayName("Les joueurs sont disponibles")
 		void OK_players_available() {
 			SessionConstraint sc = new SessionConstraint(new ValueRange(8, 17), new ValueRange(0, 7), new ValueRange(1, 3), 2, 1, 90);
-			Player p1 = new Player("P1", 9, 5, 1, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
-			Player p2 = new Player("P2", 9, 5, 1, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
-			Player p3 = new Player("P3", 9, 5, 1, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
+			Player p1 = new Player(9, 5, 1, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
+			Player p2 = new Player(9, 5, 1, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
+			Player p3 = new Player(9, 5, 1, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
 
 			List<PlayerSessionLink> psls = List.of(
-					new PlayerSessionLink(p1, new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1")),
-					new PlayerSessionLink(p2, new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1")),
-					new PlayerSessionLink(p3, new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1"))
+					new PlayerSessionLink(p1, new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID())),
+					new PlayerSessionLink(p2, new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID())),
+					new PlayerSessionLink(p3, new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID()))
 			);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::playerAvailability)
@@ -684,11 +685,11 @@ public class ConstraintsTest {
 		@DisplayName("Un joueur n'est pas disponible")
 		void KO_one_player_absent() {
 			SessionConstraint sc = new SessionConstraint(new ValueRange(8, 17), new ValueRange(0, 7), new ValueRange(1, 3), 2, 1, 90);
-			Player p1 = new Player("P1", 9, 5, 1, List.of(new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
-			Player p2 = new Player("P2", 9, 5, 1, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
-			Player p3 = new Player("P3", 9, 5, 1, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
+			Player p1 = new Player(9, 5, 1, List.of(new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
+			Player p2 = new Player(9, 5, 1, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
+			Player p3 = new Player(9, 5, 1, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), sc);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
 			List<PlayerSessionLink> psls = List.of(
 					new PlayerSessionLink(p1, session),
 					new PlayerSessionLink(p2, session),
@@ -708,12 +709,12 @@ public class ConstraintsTest {
 		@DisplayName("Un joueur a une session par jour")
 		void OK_one_session() {
 			SessionConstraint sc = new SessionConstraint(new ValueRange(8, 17), new ValueRange(0, 7), new ValueRange(1, 3), 2, 1, 90);
-			Player p1 = new Player("P1", 9, 5, 1, null, sc);
-			Player p2 = new Player("P2", 9, 5, 1, null, sc);
+			Player p1 = new Player(9, 5, 1, null, sc);
+			Player p2 = new Player(9, 5, 1, null, sc);
 
-			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
-			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.TUESDAY, LocalTime.of(8, 0), "T1");
-			Session session_3 = new Session(UUID.randomUUID(), DayOfWeek.WEDNESDAY, LocalTime.of(8, 0), "T1");
+			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
+			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.TUESDAY, LocalTime.of(8, 0), UUID.randomUUID());
+			Session session_3 = new Session(UUID.randomUUID(), DayOfWeek.WEDNESDAY, LocalTime.of(8, 0), UUID.randomUUID());
 
 			List<PlayerSessionLink> psls = List.of(
 					new PlayerSessionLink(p1, session_1),
@@ -730,12 +731,12 @@ public class ConstraintsTest {
 		@DisplayName("Un joueur a deux sessions le même jour")
 		void KO_two_sessions() {
 			SessionConstraint sc = new SessionConstraint(new ValueRange(8, 17), new ValueRange(0, 7), new ValueRange(1, 3), 2, 1, 90);
-			Player p1 = new Player("P1", 9, 5, 1, null, sc);
-			Player p2 = new Player("P2", 9, 5, 1, null, sc);
+			Player p1 = new Player(9, 5, 1, null, sc);
+			Player p2 = new Player(9, 5, 1, null, sc);
 
-			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
-			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(10, 0), "T1");
-			Session session_3 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(15, 0), "T1");
+			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
+			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(10, 0), UUID.randomUUID());
+			Session session_3 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(15, 0), UUID.randomUUID());
 
 			List<PlayerSessionLink> psls = List.of(
 					new PlayerSessionLink(p1, session_1),
@@ -755,12 +756,12 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("L'entraîneur est disponible")
 		void OK_trainer_available() {
-			Trainer trainer = new Trainer("T1", null, null, null, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), null, null, null, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), false);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
 
 			SessionConstraint sc = new SessionConstraint(new ValueRange(8, 17), new ValueRange(0, 7), new ValueRange(1, 3), 2, 1, 90);
-			Player p1 = new Player("P1", 9, 5, 1, null, sc);
+			Player p1 = new Player(9, 5, 1, null, sc);
 			PlayerSessionLink psl = new PlayerSessionLink(p1, session);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerAvailability)
@@ -771,21 +772,21 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("L'entraîneur n'est pas disponible le jour de la session")
 		void KO_trainer_not_available_day() {
-			Trainer trainer = new Trainer("Tr1", null, null, null, List.of(new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), null, null, null, List.of(new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(8, 0), LocalTime.of(10, 0))), false);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
-			Session session2 = new Session(UUID.randomUUID(), DayOfWeek.FRIDAY, LocalTime.of(8, 0), "T1", trainer);
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
+			Session session2 = new Session(UUID.randomUUID(), DayOfWeek.FRIDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
 
 
 			SessionConstraint sc = new SessionConstraint(new ValueRange(8, 17), new ValueRange(0, 7), new ValueRange(1, 3), 2, 1, 90);
-			Player p1 = new Player("P1", 9, 5, 1, null, sc);
+			Player p1 = new Player(9, 5, 1, null, sc);
 			PlayerSessionLink psl = new PlayerSessionLink(p1, session);
-			Player p2 = new Player("P2", 9, 5, 1, null, sc);
+			Player p2 = new Player(9, 5, 1, null, sc);
 			PlayerSessionLink psl2 = new PlayerSessionLink(p2, session);
 
-			Player p3 = new Player("P3", 9, 5, 1, null, sc);
+			Player p3 = new Player(9, 5, 1, null, sc);
 			PlayerSessionLink psl3 = new PlayerSessionLink(p3, session2);
-			Player p4 = new Player("P4", 9, 5, 1, null, sc);
+			Player p4 = new Player(9, 5, 1, null, sc);
 			PlayerSessionLink psl4 = new PlayerSessionLink(p4, session2);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerAvailability)
@@ -796,12 +797,12 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("L'entraîneur n'est pas disponible au début de la session")
 		void KO_trainer_not_available_session_start() {
-			Trainer trainer = new Trainer("T1", null, null, null, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(10, 0))), false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), null, null, null, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 30), LocalTime.of(10, 0))), false);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
 
 			SessionConstraint sc = new SessionConstraint(new ValueRange(8, 17), new ValueRange(0, 7), new ValueRange(1, 3), 2, 1, 90);
-			Player p1 = new Player("P1", 9, 5, 1, null, sc);
+			Player p1 = new Player(9, 5, 1, null, sc);
 			PlayerSessionLink psl = new PlayerSessionLink(p1, session);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerAvailability)
@@ -812,12 +813,12 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("L'entraîneur n'est pas disponible à la fin de la session")
 		void KO_trainer_not_available_session_end() {
-			Trainer trainer = new Trainer("T1", null, null, null, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(9, 30))), false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), null, null, null, List.of(new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(9, 30))), false);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), "T1", trainer);
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), UUID.randomUUID(), trainer);
 
 			SessionConstraint sc = new SessionConstraint(new ValueRange(8, 17), new ValueRange(0, 7), new ValueRange(1, 3), 2, 1, 90);
-			Player p1 = new Player("P1", 9, 5, 1, null, sc);
+			Player p1 = new Player(9, 5, 1, null, sc);
 			PlayerSessionLink psl = new PlayerSessionLink(p1, session);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerAvailability)
@@ -833,11 +834,11 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("L'entraîneur n'a pas de préférence d'âge")
 		void OK_no_prefered_age() {
-			Trainer trainer = new Trainer("T1", new ValueRange(0, 99), null, null, null, false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), new ValueRange(0, 99), null, null, null, false);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
 
-			Player p1 = new Player("P1", 9, 5, 1, null, SESSION_CONSTRAINT_age_diff_2);
+			Player p1 = new Player(9, 5, 1, null, SESSION_CONSTRAINT_age_diff_2);
 			PlayerSessionLink psl = new PlayerSessionLink(p1, session);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerPreferedAge)
@@ -848,11 +849,11 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("L'entraîneur a une préférence d'âge qui ne correspond pas à celle du joueur")
 		void KO_prefered_age() {
-			Trainer trainer = new Trainer("T1", new ValueRange(8, 10), null, null, null, false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), new ValueRange(8, 10), null, null, null, false);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
 
-			Player p1 = new Player("P1", 13, 5, 1, null, SESSION_CONSTRAINT_age_diff_2);
+			Player p1 = new Player(13, 5, 1, null, SESSION_CONSTRAINT_age_diff_2);
 			PlayerSessionLink psl = new PlayerSessionLink(p1, session);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerPreferedAge)
@@ -867,11 +868,11 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("L'entraîneur n'a pas de préférence de niveau")
 		void OK_no_prefered_level() {
-			Trainer trainer = new Trainer("T1", null, new ValueRange(0, 19), null, null, false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), null, new ValueRange(0, 19), null, null, false);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
 
-			Player p1 = new Player("P1", 9, 5, 1, null, SESSION_CONSTRAINT_level_diff_1);
+			Player p1 = new Player(9, 5, 1, null, SESSION_CONSTRAINT_level_diff_1);
 			PlayerSessionLink psl = new PlayerSessionLink(p1, session);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerPreferedLevel)
@@ -882,11 +883,11 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("L'entraîneur a une préférence de niveau qui ne correspond pas à celle du joueur")
 		void KO_prefered_level() {
-			Trainer trainer = new Trainer("T1", null, new ValueRange(1, 3), null, null, false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), null, new ValueRange(1, 3), null, null, false);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
 
-			Player p1 = new Player("P1", 9, 5, 1, null, SESSION_CONSTRAINT_level_diff_1);
+			Player p1 = new Player(9, 5, 1, null, SESSION_CONSTRAINT_level_diff_1);
 			PlayerSessionLink psl = new PlayerSessionLink(p1, session);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerPreferedLevel)
@@ -901,14 +902,14 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("L'entraîneur a un nombre d'heures de travail respectant la contrainte")
 		void OK_no_constraint() {
-			Trainer trainer = new Trainer("T1", null, null, new ValueRange(0, 2400), null, false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), null, null, new ValueRange(0, 2400), null, false);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
 
-			Player p1 = new Player("P1", 9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
+			Player p1 = new Player(9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
 			PlayerSessionLink psl = new PlayerSessionLink(p1, session);
 
-			Player p2 = new Player("P2", 9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
+			Player p2 = new Player(9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
 			PlayerSessionLink psl2 = new PlayerSessionLink(p2, session);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerweeklyMinutes)
@@ -919,15 +920,15 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("L'entraîneur a un nombre d'heures de travail dépassant la contrainte")
 		void KO_constraint() {
-			Trainer trainer = new Trainer("T1", null, null, new ValueRange(0, 60), null, false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), null, null, new ValueRange(0, 60), null, false);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
-			Session session2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), "T1", trainer);
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
+			Session session2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), UUID.randomUUID(), trainer);
 
-			Player p1 = new Player("P1", 9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
+			Player p1 = new Player(9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
 			PlayerSessionLink psl = new PlayerSessionLink(p1, session);
 
-			Player p2 = new Player("P2", 9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
+			Player p2 = new Player(9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
 			PlayerSessionLink psl2 = new PlayerSessionLink(p2, session2);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerweeklyMinutes)
@@ -938,15 +939,15 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("L'entraîneur a un nombre d'heures de travail inférieur à la contrainte")
 		void KO_constraint_2() {
-			Trainer trainer = new Trainer("T1", null, null, new ValueRange(180, 200), null, false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), null, null, new ValueRange(180, 200), null, false);
 
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
-			Session session2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), "T1", trainer);
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
+			Session session2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), UUID.randomUUID(), trainer);
 
-			Player p1 = new Player("P1", 9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
+			Player p1 = new Player(9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
 			PlayerSessionLink psl = new PlayerSessionLink(p1, session);
 
-			Player p2 = new Player("P2", 9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
+			Player p2 = new Player(9, 5, 1, null, SESSION_CONSTRAINT_COMPLEX_1);
 			PlayerSessionLink psl2 = new PlayerSessionLink(p2, session2);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerweeklyMinutes)
@@ -961,10 +962,10 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("Les sessions de l'entraîneur ne se chevauchent pas")
 		void OK_no_overlap() {
-			Trainer trainer = new Trainer("T1", null, null, null, null, false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), null, null, null, null, false);
 
-			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
-			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), "T1", trainer);
+			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
+			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(9, 0), UUID.randomUUID(), trainer);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerSessionOverlapping)
 					.given(session_1, session_2)
@@ -974,10 +975,10 @@ public class ConstraintsTest {
 		@Test
 		@DisplayName("Les sessions de l'entraîneur se chevauchent")
 		void KO_overlap() {
-			Trainer trainer = new Trainer("T1", null, null, null, null, false);
+			Trainer trainer = new Trainer(UUID.randomUUID(), null, null, null, null, false);
 
-			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1", trainer);
-			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T2", trainer);
+			Session session_1 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
+			Session session_2 = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID(), trainer);
 
 			constraintVerifier.verifyThat(TimetableConstraintProvider::trainerSessionOverlapping)
 					.given(session_1, session_2)

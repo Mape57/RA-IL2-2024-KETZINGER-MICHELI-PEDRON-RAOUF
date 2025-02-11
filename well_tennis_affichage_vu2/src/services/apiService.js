@@ -52,7 +52,6 @@ export default {
 
 	post(url, data) {
 		return apiClient.post(url, data);
-
 	},
 
 	patch(url, data) {

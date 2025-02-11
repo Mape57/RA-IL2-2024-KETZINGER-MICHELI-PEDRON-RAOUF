@@ -58,7 +58,7 @@
             </thead>
             <tbody>
             <tr v-for="time in terrain.times" :key="time.id">
-              <td>{{ time.day }}</td>
+              <td>{{ convertDay(time.dayWeek)}}</td>
               <td class="text-center">{{ time.start }}</td>
               <td class="text-center">{{ time.stop }}</td>
               <td class="text-center">
@@ -90,14 +90,14 @@ export default {
     return {
       isOpen: true,
       openTerrains: [],
+      daysOfWeek: ["", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
     };
   },
   computed: {
-    // Trier les terrains par ordre croissant selon leur nom
     sortedTerrains() {
       return this.terrains.slice().sort((a, b) => {
-        const nameA = a.name.toUpperCase(); // Ignore la casse
-        const nameB = b.name.toUpperCase(); // Ignore la casse
+        const nameA = a.name.toUpperCase();
+        const nameB = b.name.toUpperCase();
         return nameA.localeCompare(nameB, undefined, { numeric: true });
       });
     },
@@ -118,6 +118,9 @@ export default {
     },
     deleteSchedule(timeId) {
       console.log(`Supprimer l'horaire avec l'id: ${timeId}`);
+    },
+    convertDay(dayNumber) {
+      return this.daysOfWeek[dayNumber] || "Jour inconnu";
     },
   },
 };

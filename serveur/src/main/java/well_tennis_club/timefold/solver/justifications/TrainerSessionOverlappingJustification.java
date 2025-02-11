@@ -14,7 +14,7 @@ public record TrainerSessionOverlappingJustification(Session sessionA, Session s
 
 	private static String getDescription(Session sessionA, Session sessionB, HardSoftScore score) {
 		return String.format("Entrainer %s a deux sessions qui se chevauchent : %s et %s : %s",
-				sessionA.getTrainer().getName(), sessionA, sessionB, score.toString());
+				sessionA.getTrainer().getId(), sessionA, sessionB, score.toString());
 	}
 
 	@Override

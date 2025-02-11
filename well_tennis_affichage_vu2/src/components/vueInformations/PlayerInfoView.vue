@@ -394,7 +394,7 @@ export default {
   padding: 0.5rem 0;
 }
 
-.day {
+.dayWeek {
   flex: 1;
   color: #2f4f4f;
   font-weight: 500;

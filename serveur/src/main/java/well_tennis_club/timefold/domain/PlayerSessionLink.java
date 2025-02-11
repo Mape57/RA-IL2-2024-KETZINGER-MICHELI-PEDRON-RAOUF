@@ -49,9 +49,9 @@ public class PlayerSessionLink {
 	@Override
 	public String toString() {
 		String res = "{";
-		if (player != null) res += player.getName();
+		if (player != null) res += player.getId();
 		res += " - ";
-		if (session != null) res += ", " + session.getTennisCourt() + ": " + session.getDay() + "-" + session.getStartTime();
+		if (session != null) res += session.getTennisCourt() + ": " + session.getDay() + "-" + session.getStartTime();
 		return res + "}";
 	}
 }

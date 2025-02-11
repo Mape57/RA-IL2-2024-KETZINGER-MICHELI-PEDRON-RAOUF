@@ -14,7 +14,7 @@ public record TrainerAvailabilityJustification(Session session, Integer sessionD
 
 	private static String getDescription(Session session, Integer sessionDuration, HardSoftScore score) {
 		return String.format("Entraineur %s indisponible pour %s : %s",
-				session.getTrainer().getName(), session, score.toString());
+				session.getTrainer().getId(), session, score.toString());
 		}
 
 	@Override
