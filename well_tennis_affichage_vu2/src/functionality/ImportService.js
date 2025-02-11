@@ -59,14 +59,15 @@ class ImportService {
 
     static parseDisponibilities(row, headers) {
         const dayMapping = {
-            "Lundi": "Lundi",
-            "Mardi": "Mardi",
-            "Mercredi": "Mercredi",
-            "Jeudi": "Jeudi",
-            "Vendredi": "Vendredi",
-            "Samedi": "Samedi",
-            "Dimanche": "Dimanche"
+            "Lundi": 1,
+            "Mardi": 2,
+            "Mercredi": 3,
+            "Jeudi": 4,
+            "Vendredi": 5,
+            "Samedi": 6,
+            "Dimanche": 7
         };
+
 
         return Object.keys(dayMapping).flatMap((day) => {
             const dayIndex = headers.indexOf(day);
@@ -84,6 +85,7 @@ class ImportService {
             }
             return [];
         });
+
     }
 
 
@@ -121,41 +123,55 @@ class ImportService {
 
         for (const player of players) {
             try {
+
                 // Étape 1 : Créer les disponibilités
                 const disponibilitiesResponses = await Promise.all(
-                    player.disponibilities.map(availability => AvailabilitiesService.createAvailability(availability))
+                    player.disponibilities.map(async availability => {
+                        return await AvailabilitiesService.createAvailability(availability);
+                    })
                 );
-                // Récupérer les IDs des disponibilités créées
+
                 const disponibilitiesIds = disponibilitiesResponses.map(response => response.data.id);
-                // Étape 2 : Créer le joueur (sans disponibilités)
+
+                // Étape 2 : Créer le joueur avec validate: true
+
                 const response = await PlayersService.createPlayer({
                     name: player.name,
                     surname: player.surname,
                     email: player.email,
                     birthday: player.birthday,
                     level: player.level,
-                    courses: player.courses
+                    courses: player.courses,
+                    validate: true
                 });
+
                 const playerId = response.data.id;
 
-                // Étape 3 : Associer les disponibilités au joueur après création
+                // Étape 3 : Associer les disponibilités au joueur
                 await Promise.all(
-                    disponibilitiesIds.map(idDisponibility =>
-                        DisponibilityPlayerService.createDisponibilityPlayer({
+                    disponibilitiesIds.map(async idDisponibility => {
+                        console.log("📤 Association joueur-disponibilité :", JSON.stringify({
+                            idPlayer: playerId,
+                            idDisponibility
+                        }, null, 2));
+                        return await DisponibilityPlayerService.createDisponibilityPlayer({
                             idPlayer: playerId,
                             idDisponibility,
-                        })
-                    )
+                        });
+                    })
                 );
             } catch (error) {
                 if (error.response?.status === 409) {
-                    console.warn(`Joueur déjà existant : ${player.email}`);
+                    console.error(`Le joueur ${player.name} existe déjà.`);
+                } else if (error.response?.status === 403) {
+                    console.error(`Erreur 403 : Accès refusé pour ${player.name}. Vérifiez les permissions.`);
                 } else {
-                    console.error(`Erreur lors de l'envoi du joueur ${player.name} ${player.surname} :`, error.response?.data || error.message);
+                    console.error(`Erreur lors de l'envoi du joueur ${player.name} :`, error.response?.data || error.message);
                 }
             }
         }
     }
+
 }
 
 export default ImportService;

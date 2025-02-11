@@ -33,7 +33,7 @@
 
           <div class="w-1/2 pl-2">
             <ul class="list-disc list-inside text-sm text-gray-700">
-              <li v-for="(player, index) in players.slice(4)" :key="index">{{ player }}</li>
+              <li v-for="(player, index) in players.slice(4, 8)" :key="index">{{ player }}</li>
             </ul>
           </div>
         </div>
@@ -64,7 +64,7 @@
 
       <div class="grid no-gap-grid">
         <span
-            v-for="(player, index) in players"
+            v-for="(player, index) in players.slice(0, 8)"
             :key="index"
             class="text-sm text-gray-700"
         >
@@ -134,56 +134,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.session-card {
-  transition: transform 0.2s ease-in-out;
-}
-.session-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.text-gray-700 {
-  margin: 0;
-  padding: 0;
-  text-align: left;
-}
-
-.no-gap-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  column-gap: 0;
-  row-gap: 0;
-}
-
-.text-sm {
-  margin: 0;
-  padding: 0;
-  text-align: left;
-}
-
-@media (max-width: 1024px) {
-  .session-card {
-    flex-direction: column;
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .small-icon {
-    font-size: 0.875rem;
-  }
-
-  .session-card {
-    padding: 0.8rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .session-card {
-    padding: 1rem;
-  }
-}
-
-</style>

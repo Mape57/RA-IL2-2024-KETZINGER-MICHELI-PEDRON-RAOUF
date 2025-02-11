@@ -1,6 +1,7 @@
 // src/composables/usePlayers.js
 import {ref} from "vue";
 import playersService from "../services/PlayersService.js";
+import PlayersService from "../services/PlayersService.js";
 
 export default function usePlayers() {
 	const players = ref([]);
@@ -74,7 +75,6 @@ export default function usePlayers() {
 		}
 	};
 
-
 	// Calcul de l'âge
 	const computeAge = (birthday) => {
 		if (!birthday) return "N/A";
@@ -93,6 +93,18 @@ export default function usePlayers() {
 		return sportsAge;
 	};
 
+	const pendingPlayers = ref([]);
+
+	// Récupérer les joueurs qui ne sont pas encore validés
+	const fetchPendingPlayers = async () => {
+		try {
+			const response = await PlayersService.getAllPlayers();
+			pendingPlayers.value = response.data.filter(player => !player.validate);
+			console.log("Joueurs en attente récupérés :", pendingPlayers.value);
+		} catch (error) {
+			console.error("Erreur lors de la récupération des joueurs en attente :", error);
+		}
+	};
 
 
 	return {
@@ -102,5 +114,7 @@ export default function usePlayers() {
 		fetchPlayers,
 		players,
 		updatePlayer,
+		pendingPlayers,
+		fetchPendingPlayers,
 	};
 }

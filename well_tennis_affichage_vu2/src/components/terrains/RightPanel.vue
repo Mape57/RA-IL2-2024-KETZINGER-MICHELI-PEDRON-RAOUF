@@ -32,9 +32,9 @@
               :key="session.id"
               :startTime="session.start"
               :endTime="session.stop"
-              :coach="`${session.idTrainer.name} ${session.idTrainer.surname}`"
-              :ageGroup="session.idTrainer.ages"
-              :skillLevel="session.idTrainer.levels"
+              :coach="session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : 'Aucun entraîneur'"
+              :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge} ` : 'N/A'"
+              :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
               :players="session.players.map(player => `${player.name} ${player.surname}`)"
           />
         </div>
@@ -70,9 +70,9 @@
               :key="session.id"
               :startTime="session.start"
               :endTime="session.stop"
-              :coach="`${session.idTrainer.name} ${session.idTrainer.surname}`"
-              :ageGroup="session.idTrainer.ages"
-              :skillLevel="session.idTrainer.levels"
+              :coach="session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : 'Aucun entraîneur'"
+              :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge}` : 'N/A'"
+              :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
               :players="session.players.map(player => `${player.name} ${player.surname}`)"
           />
         </div>
@@ -114,9 +114,9 @@
               :key="session.id"
               :startTime="session.start"
               :endTime="session.stop"
-              :coach="`${session.idTrainer.name} ${session.idTrainer.surname}`"
-              :ageGroup="session.idTrainer.ages"
-              :skillLevel="session.idTrainer.levels"
+              :coach="session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : 'Aucun entraîneur'"
+              :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge}` : 'N/A'"
+              :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
               :players="session.players.map(player => `${player.name} ${player.surname}`)"
           />
         </div>
@@ -160,7 +160,10 @@ export default {
       sessions.value
           .filter((session) => session.idCourt?.id === selectedTerrain.value)
           .forEach((session) => {
-            groupedSessions[session.day]?.push(session);
+            const dayIndex = session.dayWeek - 1; // Convertit 1-7 en index 0-6
+            if (daysOfWeek[dayIndex]) {
+              groupedSessions[daysOfWeek[dayIndex]].push(session);
+            }
           });
 
       return groupedSessions;
@@ -173,13 +176,17 @@ export default {
           terrainService.getAllTerrain(),
           sessionsService.getAllSessions(),
         ]);
+
         terrains.value = terrainResponse.data;
         sessions.value = sessionResponse.data;
+
+
         selectedTerrain.value = sortedTerrains.value[0]?.id || null;
       } catch (error) {
         console.error("Erreur lors du chargement des données :", error);
       }
     };
+
 
     // Sélectionne un terrain
     const selectTerrain = (id) => {

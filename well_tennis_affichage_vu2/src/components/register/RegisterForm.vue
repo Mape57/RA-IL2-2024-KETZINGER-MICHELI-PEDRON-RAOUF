@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col justify-center items-center w-full p-6 lg:w-2/3 bg-white">
     <h2 class="text-2xl font-semibold text-gray-700 mb-4">Inscription</h2>
-    <form @submit.prevent="validateAndRedirect" class="w-full max-w-md space-y-4">
+    <form @submit.prevent="validateAndSubmit" class="w-full max-w-md space-y-4">
       <!-- Champ Nom -->
       <div>
         <label for="nom" class="block text-sm font-medium text-gray-600">Nom</label>
@@ -28,18 +28,16 @@
         />
       </div>
 
-      <!-- Champ Âge -->
+      <!-- Champ Date de naissance -->
       <div>
-        <label for="age" class="block text-sm font-medium text-gray-600">Âge</label>
+        <label for="age" class="block text-sm font-medium text-gray-600">Date de naissance</label>
         <input
             v-model="form.age"
             id="age"
-            type="number"
+            type="date"
             required
-            min="1"
-            max="120"
             class="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Entrez votre âge"
+            placeholder="Entrez votre date de naissance"
         />
       </div>
 
@@ -97,7 +95,7 @@
           </button>
           <ul class="mt-2">
             <li v-for="(dispo, index) in form.disponibilites" :key="index" class="flex justify-between items-center">
-              <span>{{ dispo.jour }}: {{ dispo.debut }} - {{ dispo.fin }}</span>
+              <span>{{ getJourLabel(dispo.dayWeek) }}: {{ dispo.open }} - {{ dispo.close }}</span>
               <button
                   type="button"
                   @click="removeDisponibilite(index)"
@@ -135,76 +133,109 @@
 </template>
 
 <script>
-import usePlayers from "../../useJs/usePlayers.js";
+import { ref } from "vue";
+import useInscription from "../../useJs/useInscription";
 
 export default {
   name: "RegisterForm",
-  data() {
-    return {
-      form: {
-        nom: "",
-        prenom: "",
-        age: "",
-        cours: "",
-        disponibilites: [],
-        email: "",
-      },
-      newDisponibilite: {
-        jour: "",
-        debut: "",
-        fin: "",
-      },
-    };
-  },
   setup() {
-    const { createPlayer } = usePlayers();
-    return { createPlayer };
-  },
-  methods: {
-    addDisponibilite() {
-      const { jour, debut, fin } = this.newDisponibilite;
-      if (jour && debut && fin) {
-        if (debut >= fin) {
-          alert("L'heure de début doit être inférieure à l'heure de fin.");
-          return;
+
+
+    const { createInscription } = useInscription();
+
+    const form = ref({
+      nom: "",
+      prenom: "",
+      age: "",
+      cours: "",
+      disponibilites: [],
+      email: "",
+    });
+
+    const newDisponibilite = ref({
+      jour: "",
+      debut: "",
+      fin: "",
+    });
+
+    const dayMapping = {
+      "Lundi": 1,
+      "Mardi": 2,
+      "Mercredi": 3,
+      "Jeudi": 4,
+      "Vendredi": 5,
+      "Samedi": 6,
+      "Dimanche": 7,
+    };
+
+    const addDisponibilite = () => {
+      const { jour, debut, fin } = newDisponibilite.value;
+      if (!jour || !debut || !fin) return alert("Remplissez tous les champs !");
+      if (debut >= fin) return alert("L'heure de début doit être avant l'heure de fin.");
+
+      form.value.disponibilites = [
+        ...form.value.disponibilites,
+        {
+          dayWeek: dayMapping[jour],
+          open: debut,
+          close: fin,
         }
-        const exists = this.form.disponibilites.some(
-            (dispo) => dispo.jour === jour && dispo.debut === debut && dispo.fin === fin
-        );
-        if (exists) {
-          alert("Cette disponibilité existe déjà.");
-          return;
-        }
-        this.form.disponibilites.push({ jour, debut, fin });
-        this.newDisponibilite = { jour: "", debut: "", fin: "" };
-      } else {
-        alert("Veuillez remplir tous les champs de disponibilité avant d'ajouter.");
+      ];
+
+      newDisponibilite.value = { jour: "", debut: "", fin: "" };
+    };
+
+    const getJourLabel = (dayWeek) => {
+      const jourInverse = Object.entries(dayMapping).find(([key, value]) => value === dayWeek);
+      return jourInverse ? jourInverse[0] : "Inconnu";
+    };
+
+    const removeDisponibilite = (index) => {
+      form.value.disponibilites.splice(index, 1);
+    };
+
+    const validateAndSubmit = async () => {
+      if (!form.value.nom || !form.value.prenom || !form.value.age || !form.value.email || form.value.disponibilites.length === 0) {
+        return alert("Veuillez remplir tous les champs !");
       }
-    },
-    removeDisponibilite(index) {
-      this.form.disponibilites.splice(index, 1);
-    },
-    async validateAndRedirect() {
-      if (
-          !this.form.nom ||
-          !this.form.prenom ||
-          !this.form.age ||
-          !this.form.cours ||
-          this.form.disponibilites.length === 0 ||
-          !this.form.email
-      ) {
-        alert("Veuillez remplir tous les champs correctement !");
-        return;
-      }
+
+      const inscriptionData = {
+        name: form.value.nom,
+        surname: form.value.prenom,
+        birthday: form.value.age,
+        courses: parseInt(form.value.cours),
+        level: 0,
+        email: form.value.email,
+        validate: false,
+        disponibilities: form.value.disponibilites
+            .filter(d => d.dayWeek && d.open && d.close)
+            .map(d => ({
+              dayWeek: d.dayWeek,
+              open: d.open,
+              close: d.close,
+            })),
+      };
+
       try {
-        await this.createPlayer(this.form);
+        await createInscription(inscriptionData);
         alert("Inscription réussie !");
-        this.$router.push("/");
       } catch (error) {
         alert("Erreur lors de l'inscription !");
         console.error(error);
       }
-    },
+    };
+
+    return {
+      form,
+      newDisponibilite,
+      dayMapping,
+      addDisponibilite,
+      removeDisponibilite,
+      validateAndSubmit,
+      getJourLabel,
+    };
   },
 };
 </script>
+
+
