@@ -1,5 +1,5 @@
 <template>
-  <div class="bottom-panel fixed bottom-3 right-10 bg-white rounded-lg shadow-md w-[67%] px-5 left-[32%] z-10">
+  <div class="bottom-panel fixed bottom-[1vh] bg-white rounded-lg shadow-md w-[67%] left-[auto] right-[1.37rem] z-10">
     <div class="p-4 flex items-center justify-between w-full h-full tablet:flex-col-reverse tablet:gap-2">
 
       <!-- Groupe de Boutons Gauche -->
@@ -45,7 +45,6 @@
   </div>
 </template>
 
-
 <script>
 export default {
   name: "BottomPanel",
@@ -70,20 +69,34 @@ export default {
 </script>
 
 <style scoped>
+.bottom-panel {
+  right: 1.37rem; /* Alignement avec le RightPanel */
+  width: 67%; /* Même largeur que le RightPanel */
+  height: 7vh; /* Hauteur ajustée */
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+}
+
 @media (min-width: 1024px) {
   .bottom-panel {
     width: 67%;
-    left: 56.1vh;
-    bottom: 1.3vh;
-    height: 5vh;
+    right: 1.37rem;
+    left: auto;
+    height: 6vh;
   }
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
   .bottom-panel {
     width: 54%;
-    left: 44.1%;
-    bottom: 1.4%;
+    left: auto;
+    right: 2%;
     height: auto;
     padding: 1rem;
   }
@@ -101,31 +114,23 @@ export default {
   }
 
   .bottom-panel button {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     padding: 0.5rem 1rem;
   }
 
   .bottom-panel .material-symbols-outlined {
     font-size: 1rem;
   }
+}
 
-  @media (min-width: 810px) and (max-width: 900px) {
-    .bottom-panel {
-      width: 54%;
-      left: 44.1%;
-      bottom: 1.4%;
-      height: auto;
-      padding: 1rem;
-    }
-
-    .bottom-panel button {
-      font-size: 0.8rem;
-      padding: 0.5rem 1rem;
-    }
-
-    .bottom-panel .material-symbols-outlined {
-      font-size: 1rem;
-    }
+@media (max-width: 768px) {
+  .bottom-panel {
+    width: 100%;
+    height: 9vh;
+    left: 0;
+    right: 0;
+    padding: 0.75rem;
+    border-radius: 0;
   }
 }
 </style>

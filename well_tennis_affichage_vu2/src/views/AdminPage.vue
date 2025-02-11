@@ -1,14 +1,9 @@
 <template>
   <div class="admin-page min-h-screen flex flex-col w-full">
-    <!-- Autres éléments -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-    <!-- Bouton Menu en mode mobile -->
     <button v-if="isMobile && !showLeftPanel" @click="toggleMenu" class="menu-button">
       <span class="material-symbols-outlined">menu</span>
     </button>
-
-    <!-- Menu contextuel -->
     <div v-if="showMenu" class="menu-contextual">
       <button @click="handleLogout">
         <span class="material-icons">exit_to_app</span> Déconnexion
@@ -17,32 +12,17 @@
         <span class="material-icons">storage</span> Donnée
       </button>
     </div>
-
-    <!-- Mode Mobile : Affichage uniquement du RightPanel ou LeftPanel -->
     <div v-if="isMobile" class="mobile-container">
       <transition name="slide-fade">
-        <LeftPanel
-            v-if="showLeftPanel"
-            class="mobile-left-panel"
-            :isMobile="true"
-            @close="toggleLeftPanel"
-        />
+        <LeftPanel v-if="showLeftPanel" class="mobile-left-panel" :isMobile="true" @close="toggleLeftPanel" />
       </transition>
       <RightPanel class="mobile-right-panel" />
     </div>
-
-    <!-- Mode Desktop : Affichage normal avec LeftPanel + RightPanel -->
-    <div v-else class="flex w-full h-full">
+    <div v-else class="flex w-full h-full flex-1">
       <LeftPanel class="desktop-left-panel" :isMobile="false" />
       <RightPanel class="desktop-right-panel" />
     </div>
-
-    <!-- Panneau inférieur (Visible uniquement sur Desktop) -->
-    <BottomPanel
-        v-if="!isMobile" :statusMessage="statusMessage"
-        @launch="handleLaunch"
-        @submitChanges="handleSubmitChanges"
-        @sendSchedule="handleSendSchedule" />
+    <BottomPanel v-if="!isMobile" :statusMessage="statusMessage" @launch="handleLaunch" @submitChanges="handleSubmitChanges" @sendSchedule="handleSendSchedule" class="aligned-bottom-panel" />
   </div>
 </template>
 
@@ -75,15 +55,14 @@ export default {
     },
     toggleLeftPanel() {
       this.showLeftPanel = !this.showLeftPanel;
-      this.showMenu = false;  // Fermez le menu contextuel
+      this.showMenu = false;
     },
     toggleMenu() {
       this.showMenu = !this.showMenu;
     },
     handleLogout() {
-      // Ajoutez ici la logique de déconnexion
       console.log("Déconnexion");
-      this.showMenu = false;  // Fermez le menu contextuel
+      this.showMenu = false;
     },
   },
   mounted() {
@@ -96,7 +75,6 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .admin-page {
   background: #f5f5f5;
@@ -104,20 +82,17 @@ export default {
 .menu-button:hover .material-symbols-outlined {
   color: #3a6242;
 }
-
 .menu-button .material-symbols-outlined {
   font-size: 32px;
   color: #528359;
   transition: color 0.3s ease-in-out;
 }
-
 .mobile-container {
   position: relative;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
 }
-
 .mobile-right-panel {
   width: 100%;
   height: 100%;
@@ -126,7 +101,6 @@ export default {
   overflow-x: hidden;
   box-sizing: border-box;
 }
-
 .mobile-left-panel {
   width: 100vw;
   height: 100vh;
@@ -137,7 +111,6 @@ export default {
   z-index: 50;
   overflow-y: auto;
 }
-
 .menu-button {
   position: fixed;
   top: 15px;
@@ -148,7 +121,6 @@ export default {
   border: none;
   cursor: pointer;
 }
-
 .menu-contextual {
   position: fixed;
   top: 50px;
@@ -161,37 +133,14 @@ export default {
   overflow: hidden;
 }
 
-.menu-contextual button {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: none;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  font-size: 16px;
-  color: #333;
-  transition: background 0.3s, color 0.3s;
+@media (min-width: 768px) and (max-width: 1024px) {
+  .aligned-bottom-panel {
+    width: 54%;
+    left: 44.1%;
+    bottom: 1.4%;
+    height: auto;
+    padding: 1rem;
+  }
 }
 
-.menu-contextual button:hover {
-  background: #f0f0f0;
-  color: #007BFF;
-}
-
-.menu-contextual button + button {
-  border-top: 1px solid #ddd;
-}
-
-.menu-contextual .material-icons {
-  margin-right: 8px;
-  font-size: 20px;
-  color: #333;
-}
 </style>
-
-
-
-
-

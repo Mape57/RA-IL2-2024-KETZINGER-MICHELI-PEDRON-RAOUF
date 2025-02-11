@@ -227,7 +227,11 @@ export default {
   overflow-y: auto;
   margin-top: 1.2rem;
   margin-right: 1.37rem;
+  width: 67%;
+  height: 83vh;
+  margin-bottom: 7vh;
 }
+
 
 .tab-button {
   color: gray;
@@ -336,7 +340,7 @@ body {
 @media (min-width: 1024px) {
   .right-panel {
     width: 67%;
-    height: 91vh;
+    height: 90vh;
     position: relative;
     top: 0;
     right: 0;
