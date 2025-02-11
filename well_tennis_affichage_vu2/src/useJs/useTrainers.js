@@ -27,13 +27,6 @@ export default function useTrainers() {
 	// Mettre à jour un joueur existant
 	const updateTrainer = async (trainer) => {
 		try {
-			// Nettoyage des disponibilités avant envoi
-			trainer.disponibilities = trainer.disponibilities.map(slot => ({
-				id: slot.id && typeof slot.id === "string" ? slot.id : undefined, // Conserver les IDs valides ou les exclure
-				day: slot.day,
-				open: slot.open,
-				close: slot.close,
-			}));
 
 			const response = await trainersService.updateTrainer(trainer.id, trainer);
 			// Met à jour la liste des joueurs localement
@@ -55,13 +48,6 @@ export default function useTrainers() {
 
 	const createTrainer = async (trainer) => {
 		try {
-			// Nettoyage des disponibilités avant envoi
-			trainer.disponibilities = trainer.disponibilities.map(slot => ({
-				id: slot.id && typeof slot.id === "string" ? slot.id : undefined, // Conserver les IDs valides ou les exclure
-				day: slot.day,
-				open: slot.open,
-				close: slot.close,
-			}));
 
 			const response = await trainersService.createTrainer(trainer);
 			trainers.value.push(response.data);

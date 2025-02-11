@@ -19,7 +19,7 @@
       <div class="flex space-x-2">
         <span class="material-symbols-outlined small-icon cursor-pointer"
               title="Ajouter"
-              ref="addPlayerButton"
+              ref="addTrainerButton"
               @click="addTrainer"
         >person_add</span>
       </div>
