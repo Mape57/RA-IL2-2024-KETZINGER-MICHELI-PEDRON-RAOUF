@@ -166,12 +166,9 @@ export default {
           close: "",
         };
 
+
         const response = await DisponibilityService.createDisponibility(disponibilityData);
         const newDisponibilityId = response.data.id;
-
-        console.log(editablePlayer.value.disponibilities);
-        console.log(response.data);
-
 
         editablePlayer.value.disponibilities.push(response.data);
 
@@ -208,7 +205,6 @@ export default {
 
     const savePlayer = async () => {
       try {
-
 
 
         // 1. Validation des champs obligatoires

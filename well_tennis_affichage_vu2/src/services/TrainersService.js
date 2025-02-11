@@ -11,7 +11,6 @@ export default {
 	},
 
 	createTrainer(trainerData) {
-		console.log("Données envoyées pour créer un entraîneur :", trainerData);
 		return apiService.post('/trainers', trainerData);
 	},
 

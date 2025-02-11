@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-time-court" author="Thomas">
+        <insert tableName="time_court">
+            <column name="id_time" value="b8b5a1c5-0020-4cd1-bed6-bd07a7623cdd"/>
+            <column name="id_court" value="4f8535fd-9b6c-4bb7-b0c7-e988cf039d83"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
