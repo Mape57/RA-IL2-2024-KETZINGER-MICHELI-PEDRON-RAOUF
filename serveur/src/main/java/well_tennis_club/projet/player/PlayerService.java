@@ -20,7 +20,11 @@ public class PlayerService {
 
     public PlayerEntity updatePlayer(PlayerEntity entity){return playerRepository.save(entity);}
 
-    public void deletePlayer(PlayerEntity entity){playerRepository.delete(entity);}
+    public void deletePlayer(PlayerEntity entity)
+    {
+        entity.getDisponibilities().clear();
+        playerRepository.delete(entity);
+    }
 
     public PlayerEntity getPlayerById(UUID id){return playerRepository.findById(id).orElse(null);}
 

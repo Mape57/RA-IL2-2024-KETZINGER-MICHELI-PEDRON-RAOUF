@@ -113,7 +113,8 @@ c'est le symbole delete
 <script>
 import {ref, watch} from "vue";
 import usePlayers from "../../useJs/usePlayers.js";
-import { v4 as uuidv4 } from 'uuid';
+import DisponibilityService from "../../services/DisponibilityService.js";
+import DisponibilityPlayerService from "../../services/DisponibilityPlayerService.js";
 
 export default {
   name: "PlayerInfoView",
@@ -150,52 +151,111 @@ export default {
         }
     );
 
-    const addAvailability = () => {
-      editablePlayer.value.disponibilities.push({
-        id: uuidv4(),  // ✅ Génère un UUID
-        dayWeek: "",
-        open: "",
-        close: "",
-      });
 
-      console.log("📌 Disponibilités après ajout :", editablePlayer.value.disponibilities);
-    };
 
-    const removeAvailability = (index) => {
-      editablePlayer.value.disponibilities.splice(index, 1);
-    };
-
-    const savePlayer = async () => {
+    const addAvailability = async () => {
       try {
-        // Vérifier et ajouter `dayWeek` si manquant
-        editablePlayer.value.disponibilities = editablePlayer.value.disponibilities.map(slot => ({
-          id: slot.id && typeof slot.id === "string" ? slot.id : uuidv4(),  // Générer un UUID si nécessaire
-          dayWeek: slot.dayWeek || slot.day || "Lundi",  // 🔹 Ajouter `dayWeek` si absent
-          open: slot.open,
-          close: slot.close,
-        }));
-
-        console.log("📦 Données envoyées au backend après correction :", JSON.stringify(editablePlayer.value, null, 2));
-
-        let savedPlayer;
         if (!editablePlayer.value.id) {
-          savedPlayer = await createPlayer(editablePlayer.value);
-          alert("Joueur créé avec succès !");
-        } else {
-          savedPlayer = await updatePlayer(editablePlayer.value);
-          alert("Joueur mis à jour avec succès !");
+          alert("Veuillez enregistrer le joueur avant d'ajouter une disponibilité.");
+          return;
         }
 
-        emit("save", savedPlayer);
-        emit("close");
+        const disponibilityData = {
+          dayWeek: "",
+          open: "",
+          close: "",
+        };
+
+        const response = await DisponibilityService.createDisponibility(disponibilityData);
+        const newDisponibilityId = response.data.id;
+
+        console.log(editablePlayer.value.disponibilities);
+        console.log(response.data);
+
+
+        editablePlayer.value.disponibilities.push(response.data);
+
+        await DisponibilityPlayerService.createDisponibilityPlayer({
+          idPlayer: editablePlayer.value.id,
+          idDisponibility: newDisponibilityId
+        });
+
+
       } catch (error) {
-        console.error("❌ Erreur lors de la sauvegarde :", error);
-        alert("Une erreur est survenue.");
+        console.error("Erreur lors de la création de la disponibilité :", error);
+        alert("Impossible d'ajouter la disponibilité.");
       }
     };
 
 
+    const removeAvailability = async (index) => {
+      try {
+        const slot = editablePlayer.value.disponibilities[index];
 
+        if (!slot.id) {
+          editablePlayer.value.disponibilities.splice(index, 1);
+          return;
+        }
+        await DisponibilityPlayerService.deleteDisponibilityPlayer(editablePlayer.value.id, slot.id);
+
+        await DisponibilityService.deleteDisponibility(slot.id);
+
+        editablePlayer.value.disponibilities.splice(index, 1);
+      } catch (error) {
+        console.error("Erreur lors de la suppression de la disponibilité :", error);
+      }
+    };
+
+    const savePlayer = async () => {
+      try {
+
+
+
+        // 1. Validation des champs obligatoires
+        if (!validateForm()) {
+          alert("Veuillez remplir correctement tous les champs."); // Alerte si des champs sont manquants
+          return;
+        }
+
+
+
+        // 2. Vérification des créneaux horaires
+        const invalidTimes = editablePlayer.value.disponibilities.some((slot) => !isValidTime(slot)); // Vérifie si un créneau est invalide
+        if (invalidTimes) {
+          alert("Veuillez corriger les erreurs dans les disponibilités avant de continuer.");
+          return;
+        }
+
+
+
+        // 3. Vérification des doublons dans les disponibilités
+        if (!validateUniqueDisponibilities()) {
+          alert("Des chevauchements existent dans les disponibilités. Veuillez les corriger.");
+          return;
+        }
+
+
+
+
+        const playerData = { ...editablePlayer.value };
+
+        let savedPlayer;
+        if (!editablePlayer.value.id) {
+          savedPlayer = await createPlayer(playerData);
+          alert("Joueur créé avec succès !");
+        } else {
+          savedPlayer = await updatePlayer(playerData);
+          alert("Joueur mis à jour avec succès !");
+        }
+
+
+        emit("save", savedPlayer);
+        emit("close");
+      } catch (error) {
+        console.error("Erreur lors de la sauvegarde :", error.response?.data || error.message);
+        alert("Une erreur est survenue.");
+      }
+    };
 
 
     const validateForm = () => {
@@ -223,38 +283,48 @@ export default {
 
 
     const validateUniqueDisponibilities = () => {
+      //Filtrer les créneaux valides (on exclut les créneaux incomplets)
       const sortedDisponibilities = editablePlayer.value.disponibilities
-          .filter(slot => slot.day && slot.open && slot.close) // Exclure les créneaux incomplets
-          .sort((a, b) => (a.day === b.day ? a.open.localeCompare(b.open) : a.day.localeCompare(b.day))); // Trier par jour et heure de début
+          .filter(slot => slot.day && slot.open && slot.close) // Garde uniquement les créneaux ayant un jour, une heure d'ouverture et une heure de fermeture
+          .sort((a, b) =>
+              (a.day === b.day ? a.open.localeCompare(b.open) : a.day.localeCompare(b.day))
+          ); // Trie par jour, puis par heure d'ouverture
 
-      let hasOverlap = false;
+      let hasOverlap = false; // Variable pour détecter les conflits de créneaux horaires
 
+      //Vérifier les conflits entre créneaux du même jour
       for (let i = 0; i < sortedDisponibilities.length - 1; i++) {
-        const current = sortedDisponibilities[i];
-        const next = sortedDisponibilities[i + 1];
+        const current = sortedDisponibilities[i];  // Créneau actuel
+        const next = sortedDisponibilities[i + 1]; // Créneau suivant
 
-        if (current.day === next.day) {
-          // Vérifier les chevauchements
+        if (current.day === next.day) { // Comparaison uniquement si les créneaux concernent le même jour
+          // Vérifier s'il y a un chevauchement entre deux créneaux
           if (current.close > next.open) {
-            current.error = "Ce créneau chevauche un autre.";
+            current.error = "Ce créneau chevauche un autre."; // Ajout d'une erreur dans l'objet du créneau
             next.error = "Ce créneau chevauche un autre.";
             hasOverlap = true;
           }
-          // Vérifier les créneaux consécutifs sans intervalle
+          // Vérifier si deux créneaux se suivent sans intervalle
           else if (current.close === next.open) {
             current.error = "Deux créneaux consécutifs sans intervalle ne sont pas autorisés.";
             next.error = "Deux créneaux consécutifs sans intervalle ne sont pas autorisés.";
             hasOverlap = true;
-          } else {
-            current.error = null; // Pas d'erreur
+          }
+          //Pas d'erreur => Supprimer les erreurs enregistrées
+          else {
+            current.error = null;
             next.error = null;
           }
         }
       }
-
-      editablePlayer.value.disponibilities = sortedDisponibilities;
-      return !hasOverlap; // Retourne false si des chevauchements ou créneaux consécutifs sont détectés
+      //Mise à jour des disponibilités (évite de les écraser si elles sont toutes invalides)
+      if (sortedDisponibilities.length > 0) {
+        editablePlayer.value.disponibilities = sortedDisponibilities; // Mise à jour uniquement si la liste n'est pas vide
+      }
+      //Retourner `false` si des chevauchements ont été détectés
+      return !hasOverlap;
     };
+
 
 
 

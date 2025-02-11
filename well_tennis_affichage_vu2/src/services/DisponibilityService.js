@@ -2,23 +2,24 @@
 import apiService from './apiService';
 
 export default {
-    getAllAvailabilities() {
-        return apiService.getData('/disponibility');
-    },
+	getAllDisponibility() {
+		return apiService.getData('/disponibility');
+	},
 
-    getAvailabilityById(id) {
-        return apiService.getData(`/disponibility/${id}`);
-    },
+	getDisponibilityById(id) {
+		return apiService.getData(`/disponibility/${id}`);
+	},
 
-    createAvailability(availabilityData) {
-        return apiService.post('/disponibility', availabilityData);
-    },
+	 createDisponibility(disponibilityData) {
+		return apiService.post("/disponibility", disponibilityData);
+	},
 
-    updateAvailability(id, availabilityData) {
-        return apiService.patch(`/disponibility/${id}`, availabilityData);
-    },
+	updateDisponibility(id, DisponibilityData) {
+		return apiService.patch(`/disponibility/${id}`, DisponibilityData);
+	},
 
-    deleteAvailability(id) {
-        return apiService.delete(`/disponibility/${id}`);
-    },
+	deleteDisponibility(id) {
+		return apiService.delete(`/disponibility/${id}`);
+	},
 };
+

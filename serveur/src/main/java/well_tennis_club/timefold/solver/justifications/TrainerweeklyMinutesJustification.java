@@ -14,7 +14,7 @@ public record TrainerweeklyMinutesJustification(Trainer trainer, Integer weeklyM
 
 	private static String getDescription(Trainer trainer, Integer weeklyMinutes, HardSoftScore score) {
 		return String.format("Entraîneur %s n'a pas le bon nombre d'heure (total : %d) : %s",
-				trainer.getName(), weeklyMinutes, score.toString());
+				trainer.getId(), weeklyMinutes, score.toString());
 	}
 
 	@Override

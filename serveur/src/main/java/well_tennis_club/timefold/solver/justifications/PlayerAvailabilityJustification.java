@@ -16,7 +16,7 @@ public record PlayerAvailabilityJustification(PlayerSessionLink playerSessionLin
 	private static String getDescription(PlayerSessionLink playerSessionLink, HardSoftScore score) {
 		Session session = playerSessionLink.getSession();
 		return String.format("Joueur %s indisponible pour %s : %s",
-				playerSessionLink.getPlayer().getName(), session, score.toString());
+				playerSessionLink.getPlayer().getId(), session, score.toString());
 		}
 
 	@Override

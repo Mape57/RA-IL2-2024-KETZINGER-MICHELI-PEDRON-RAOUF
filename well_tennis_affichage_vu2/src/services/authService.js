@@ -5,7 +5,9 @@ let login =(email, password) => {
 }
 
 let logout = () => {
+	console.warn("Déconnexion automatique...");
 	sessionStorage.removeItem('token');
+	window.location.href = "/";
 }
 
 let saveToken = (token) => {

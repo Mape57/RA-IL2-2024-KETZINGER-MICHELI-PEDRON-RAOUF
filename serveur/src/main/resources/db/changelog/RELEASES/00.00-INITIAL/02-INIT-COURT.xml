@@ -14,21 +14,5 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-
-        <insert tableName="court">
-            <column name="id" value="b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1"/>
-            <column name="name" value="Terrain 1"/>
-        </insert>
-
-        <insert tableName="court">
-            <column name="id" value="b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2"/>
-            <column name="name" value="Terrain 2"/>
-        </insert>
-
-        <insert tableName="court">
-            <column name="id" value="b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3"/>
-            <column name="name" value="Terrain 3"/>
-        </insert>
-
     </changeSet>
 </databaseChangeLog>

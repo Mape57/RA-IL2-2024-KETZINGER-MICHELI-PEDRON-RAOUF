@@ -53,50 +53,50 @@ class PlayerTest {
 		@Test
 		@DisplayName("Disponible")
 		void OK_available() {
-			Player player = new Player("P1", 10, 1, 1, List.of(
+			Player player = new Player(10, 1, 1, List.of(
 					new Timeslot(DayOfWeek.MONDAY, LocalTime.of(10, 0), LocalTime.of(12, 0))
 			), new SessionConstraint(null, null, null, 1, 1, 60));
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(10, 0), "T1");
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(10, 0), UUID.randomUUID());
 			assertTrue(player.isAvailable(session));
 		}
 
 		@Test
 		@DisplayName("Non disponible le jour entier")
 		void KO_not_available_day() {
-			Player player = new Player("P1", 10, 1, 1, List.of(
+			Player player = new Player(10, 1, 1, List.of(
 					new Timeslot(DayOfWeek.MONDAY, LocalTime.of(10, 0), LocalTime.of(12, 0))
 			), new SessionConstraint(null, null, null, 1, 1, 60));
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.THURSDAY, LocalTime.of(9, 0), "T1");
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.THURSDAY, LocalTime.of(9, 0), UUID.randomUUID());
 			assertFalse(player.isAvailable(session));
 		}
 
 		@Test
 		@DisplayName("Non disponible à l'heure de début")
 		void KO_not_available_start() {
-			Player player = new Player("P1", 10, 1, 1, List.of(
+			Player player = new Player(10, 1, 1, List.of(
 					new Timeslot(DayOfWeek.MONDAY, LocalTime.of(10, 30), LocalTime.of(12, 0))
 			), new SessionConstraint(null, null, null, 1, 1, 60));
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(10, 0), "T1");
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(10, 0), UUID.randomUUID());
 			assertFalse(player.isAvailable(session));
 		}
 
 		@Test
 		@DisplayName("Non disponible à l'heure de fin")
 		void KO_not_available_end() {
-			Player player = new Player("P1", 10, 1, 1, List.of(
+			Player player = new Player(10, 1, 1, List.of(
 					new Timeslot(DayOfWeek.MONDAY, LocalTime.of(10, 0), LocalTime.of(11, 30))
 			), new SessionConstraint(null, null, null, 1, 1, 60));
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(11, 0), "T1");
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(11, 0), UUID.randomUUID());
 			assertFalse(player.isAvailable(session));
 		}
 
 		@Test
 		@DisplayName("Non disponible à l'heure de début et de fin")
 		void KO_not_available_start_end() {
-			Player player = new Player("P1", 10, 1, 1, List.of(
+			Player player = new Player(10, 1, 1, List.of(
 					new Timeslot(DayOfWeek.MONDAY, LocalTime.of(10, 30), LocalTime.of(11, 30))
 			), new SessionConstraint(null, null, null, 1, 1, 60));
-			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), "T1");
+			Session session = new Session(UUID.randomUUID(), DayOfWeek.MONDAY, LocalTime.of(8, 0), UUID.randomUUID());
 			assertFalse(player.isAvailable(session));
 		}
 	}
