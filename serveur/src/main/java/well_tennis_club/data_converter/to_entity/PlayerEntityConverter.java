@@ -19,6 +19,7 @@ public class PlayerEntityConverter {
 		playerEntity.setCourses((long) weeklySession);
 		playerEntity.setLevel((long) level);
 		playerEntity.setEmail("");
+		playerEntity.setValidate(true);
 		if (availability == null) availability = List.of();
 		playerEntity.setDisponibilities(availability.stream().map(DisponibilityEntityConverter::from).toList());
 		return playerEntity;
