@@ -56,7 +56,7 @@
             class="availability-row"
         >
           <!-- Sélecteur de jour -->
-          <select v-model="slot.day" class="day-select" required>
+          <select v-model="slot.dayWeek" class="day-select" required>
             <option value="Lundi">Lundi</option>
             <option value="Mardi">Mardi</option>
             <option value="Mercredi">Mercredi</option>
@@ -110,6 +110,9 @@
 <script>
 import {ref, watch} from "vue";
 import useTrainers from "../../useJs/useTrainers.js";
+import DisponibilityService from "../../services/DisponibilityService.js";
+import DisponibilityTrainerService from "../../services/DisponibilityTrainerService.js";
+import disponibilityTrainerService from "../../services/DisponibilityTrainerService.js";
 
 export default {
   name: "TrainerInfoView",
@@ -146,17 +149,56 @@ export default {
         }
     );
 
-    const addAvailability = () => {
-      editableTrainer.value.disponibilities.push({
-        id: Date.now(),
-        day: "",
-        open: "",
-        close: "",
-      });
+    const addAvailability = async () => {
+      try {
+
+
+        if (!editableTrainer.value.id) {
+          alert("Veuillez enregistrer le joueur avant d'ajouter une disponibilité.");
+          return;
+        }
+
+        const disponibilityData = {
+          dayWeek: "",
+          open: "",
+          close: "",
+        };
+
+
+
+        const response = await DisponibilityService.createDisponibility(disponibilityData);
+        const newDisponibilityId = response.data.id;
+
+        editableTrainer.value.disponibilities.push(response.data);
+
+        await DisponibilityTrainerService.createDisponibilityTrainer({
+          idTrainer: editableTrainer.value.id,
+          idDisponibility: newDisponibilityId
+        });
+
+
+      } catch (error) {
+        console.error("Erreur lors de l'ajout de disponibilité :", error);
+        alert("Une erreur est survenue lors de l'ajout de disponibilité.");
+      }
     };
 
-    const removeAvailability = (index) => {
-      editableTrainer.value.disponibilities.splice(index, 1);
+    const removeAvailability = async (index) => {
+      try {
+        const slot = editableTrainer.value.disponibilities[index];
+
+        if (!slot.id) {
+          editableTrainer.value.disponibilities.splice(index, 1);
+          return;
+        }
+        await disponibilityTrainerService.deleteDisponibilityTrainer(editableTrainer.value.id, slot.id);
+
+        await DisponibilityService.deleteDisponibility(slot.id);
+
+        editableTrainer.value.disponibilities.splice(index, 1);
+      } catch (error) {
+        console.error("Erreur lors de la suppression de la disponibilité :", error);
+      }
     };
 
     const saveTrainer = async () => {
@@ -180,22 +222,24 @@ export default {
           return;
         }
 
-        console.log("Données nettoyées prêtes à être envoyées :", JSON.stringify(editableTrainer.value, null, 2));
+
+        const TrainerData = { ...editableTrainer.value };
+
 
         let savedTrainer;
         if (!editableTrainer.value.id) {
           // Création
-          savedTrainer = await createTrainer(editableTrainer.value);
+          savedTrainer = await createTrainer(TrainerData);
           alert("Coach créé avec succès !");
         } else {
           // Mise à jour
-          savedTrainer = await updateTrainer(editableTrainer.value);
+          savedTrainer = await updateTrainer(TrainerData);
           alert("Coach mis à jour avec succès !");
         }
         emit("save", savedTrainer);
         emit("close");
       } catch (error) {
-        console.error("Erreur lors de la sauvegarde :", error);
+        console.error("Erreur lors de la sauvegarde :", error.response?.data || error.message);
         alert("Une erreur est survenue.");
       }
     };
@@ -240,10 +284,12 @@ export default {
         }
       }
 
-      editableTrainer.value.disponibilities = sortedDisponibilities;
+      //Mise à jour des disponibilités (évite de les écraser si elles sont toutes invalides)
+      if (sortedDisponibilities.length > 0) {
+        editableTrainer.value.disponibilities = sortedDisponibilities; // Mise à jour uniquement si la liste n'est pas vide
+      }
       return !hasOverlap; // Retourne false si des chevauchements ou créneaux consécutifs sont détectés
     };
-
 
 
     const isTimeValid = (time) => {
@@ -263,7 +309,6 @@ export default {
       slot.error = null;
       return true;
     };
-
 
 
     return {

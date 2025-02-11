@@ -17,11 +17,8 @@ apiClient.interceptors.request.use(
 		if (token) {
 			config.url = config.baseURL + config.url;
 			config.headers.Authorization = `Bearer ${token}`;
-			console.log("confirmation du token");
 			console.log(token);
 		}
-		console.log("🟢 Tentative de requête API avec Axios :", config.url, config);
-		console.log("🔎 Requête envoyée avec ce header :", config.headers);
 		return config;
 	},
 	(error) => Promise.reject(error)
@@ -32,6 +29,15 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
 	(response) => response,
 	(error) => {
+
+		// Si le token est expiré (Erreur 401)
+		if (error.response && error.response.status === 401) {
+			console.warn("🔴 Token expiré, déconnexion et redirection vers /login");
+			accountService.logout();
+			router.push("/").catch(() => {}); // Redirection vers la page de connexion
+		}
+
+
 		console.error('Erreur API :', error.response?.data || error.message);
 		return Promise.reject(error);
 	}
@@ -46,6 +52,7 @@ export default {
 
 	post(url, data) {
 		return apiClient.post(url, data);
+
 	},
 
 	patch(url, data) {

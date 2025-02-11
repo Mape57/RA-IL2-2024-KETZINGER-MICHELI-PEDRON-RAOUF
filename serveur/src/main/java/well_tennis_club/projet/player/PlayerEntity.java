@@ -49,6 +49,7 @@ public class PlayerEntity implements Serializable{
     private Boolean validate;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @Fetch(FetchMode.SELECT)
     @JoinTable(
             name = "disponibility_player",
