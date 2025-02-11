@@ -1,0 +1,28 @@
+server:
+    port: 8080
+    error:
+        include-stacktrace: "always"
+
+spring:
+    datasource:
+        url: "jdbc:postgresql://db:5432/wtc"
+        username: "postgres"
+        password: "pwd"
+        driver-class-name: "org.postgresql.Driver"
+    jpa:
+        properties: 
+            hibernate:
+                dialect: "org.hibernate.dialect.PostgreSQLDialect"
+                format_sql: "true"
+        show-sql: "false"
+
+management:
+    endpoint:
+        health:
+            show-details: "always"
+
+logging:
+    level:
+        eu: 
+            edda:
+                shoppinglist: "DEBUG"
