@@ -69,14 +69,15 @@ export default {
 </script>
 
 <style scoped>
+
 .bottom-panel {
+  z-index: 10;
   right: 1.37rem; /* Alignement avec le RightPanel */
   width: 67%; /* Même largeur que le RightPanel */
   height: 7vh; /* Hauteur ajustée */
   background-color: white;
   border-radius: 0.5rem;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;

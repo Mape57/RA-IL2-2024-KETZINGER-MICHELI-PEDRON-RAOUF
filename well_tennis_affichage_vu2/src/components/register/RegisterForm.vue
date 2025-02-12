@@ -5,104 +5,44 @@
       <!-- Champ Nom -->
       <div>
         <label for="nom" class="block text-sm font-medium text-gray-600">Nom</label>
-        <input
-            v-model="form.nom"
-            id="nom"
-            type="text"
-            required
-            class="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Entrez votre nom"
-        />
+        <input v-model="form.nom" id="nom" type="text" required class="input-field" placeholder="Entrez votre nom" />
       </div>
 
       <!-- Champ Prénom -->
       <div>
         <label for="prenom" class="block text-sm font-medium text-gray-600">Prénom</label>
-        <input
-            v-model="form.prenom"
-            id="prenom"
-            type="text"
-            required
-            class="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Entrez votre prénom"
-        />
+        <input v-model="form.prenom" id="prenom" type="text" required class="input-field" placeholder="Entrez votre prénom" />
       </div>
 
       <!-- Champ Date de naissance -->
       <div>
         <label for="age" class="block text-sm font-medium text-gray-600">Date de naissance</label>
-        <input
-            v-model="form.age"
-            id="age"
-            type="date"
-            required
-            class="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Entrez votre date de naissance"
-        />
+        <input v-model="form.age" id="age" type="date" required class="input-field" />
       </div>
 
       <!-- Champ Nombre de cours -->
       <div>
         <label for="cours" class="block text-sm font-medium text-gray-600">Nombre de cours (max 3)</label>
-        <input
-            v-model="form.cours"
-            id="cours"
-            type="number"
-            required
-            min="1"
-            max="3"
-            class="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Entrez le nombre de cours"
-        />
+        <input v-model="form.cours" id="cours" type="number" required min="1" max="3" class="input-field" />
       </div>
 
       <!-- Champ Disponibilité -->
       <div>
         <label for="disponibilite" class="block text-sm font-medium text-gray-600">Disponibilité</label>
-        <div class="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <div class="availability-box">
           <div class="flex space-x-2 mb-2">
-            <select
-                v-model="newDisponibilite.jour"
-                class="w-1/2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
+            <select v-model="newDisponibilite.jour" class="availability-input">
               <option disabled value="">Choisissez un jour</option>
-              <option value="Lundi">Lundi</option>
-              <option value="Mardi">Mardi</option>
-              <option value="Mercredi">Mercredi</option>
-              <option value="Jeudi">Jeudi</option>
-              <option value="Vendredi">Vendredi</option>
-              <option value="Samedi">Samedi</option>
+              <option v-for="(num, jour) in dayMapping" :key="num" :value="jour">{{ jour }}</option>
             </select>
-            <input
-                type="time"
-                v-model="newDisponibilite.debut"
-                class="w-1/4 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Début"
-            />
-            <input
-                type="time"
-                v-model="newDisponibilite.fin"
-                class="w-1/4 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Fin"
-            />
+            <input type="time" v-model="newDisponibilite.debut" class="availability-input" />
+            <input type="time" v-model="newDisponibilite.fin" class="availability-input" />
           </div>
-          <button
-              type="button"
-              @click="addDisponibilite"
-              class="bg-[#528359] text-white font-semibold py-1 px-2 rounded-lg hover:bg-green-600 transition-colors"
-          >
-            Ajouter
-          </button>
+          <button type="button" @click="addDisponibilite" class="add-button">Ajouter</button>
           <ul class="mt-2">
-            <li v-for="(dispo, index) in form.disponibilites" :key="index" class="flex justify-between items-center">
-              <span>{{ getJourLabel(dispo.dayWeek) }}: {{ dispo.open }} - {{ dispo.close }}</span>
-              <button
-                  type="button"
-                  @click="removeDisponibilite(index)"
-                  class="text-red-500 hover:text-red-700"
-              >
-                Supprimer
-              </button>
+            <li v-for="(dispo, index) in form.disponibilites" :key="index" class="dispo-item">
+              <span>{{ dispo.jour }}: {{ dispo.open }} - {{ dispo.close }}</span>
+              <button type="button" @click="removeDisponibilite(index)" class="delete-button">Supprimer</button>
             </li>
           </ul>
         </div>
@@ -111,23 +51,11 @@
       <!-- Champ Email -->
       <div>
         <label for="email" class="block text-sm font-medium text-gray-600">Email</label>
-        <input
-            v-model="form.email"
-            id="email"
-            type="email"
-            required
-            class="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Entrez votre email"
-        />
+        <input v-model="form.email" id="email" type="email" required class="input-field" placeholder="Entrez votre email" />
       </div>
 
       <!-- Bouton Inscription -->
-      <button
-          type="submit"
-          class="w-full bg-[#528359] text-white font-semibold py-2 rounded-lg hover:bg-green-600 transition-colors"
-      >
-        S'inscrire
-      </button>
+      <button type="submit" class="submit-button">S'inscrire</button>
     </form>
   </div>
 </template>
@@ -139,8 +67,6 @@ import useInscription from "../../useJs/useInscription";
 export default {
   name: "RegisterForm",
   setup() {
-
-
     const { createInscription } = useInscription();
 
     const form = ref({
@@ -165,29 +91,60 @@ export default {
       "Jeudi": 4,
       "Vendredi": 5,
       "Samedi": 6,
-      "Dimanche": 7,
+    };
+
+    const isValidTimeFormat = (time) => {
+      const [hours, minutes] = time.split(":").map(Number);
+      return minutes === 0 || minutes === 30;
     };
 
     const addDisponibilite = () => {
       const { jour, debut, fin } = newDisponibilite.value;
-      if (!jour || !debut || !fin) return alert("Remplissez tous les champs !");
-      if (debut >= fin) return alert("L'heure de début doit être avant l'heure de fin.");
 
-      form.value.disponibilites = [
-        ...form.value.disponibilites,
-        {
-          dayWeek: dayMapping[jour],
-          open: debut,
-          close: fin,
+      if (!jour || !debut || !fin) {
+        return alert("Remplissez tous les champs !");
+      }
+
+      if (debut >= fin) {
+        return alert("L'heure de début doit être avant l'heure de fin.");
+      }
+
+      if (debut < "08:00" || fin > "23:30") {
+        return alert("Les disponibilités doivent être comprises entre 08:00 et 23:30.");
+      }
+
+      if (!isValidTimeFormat(debut) || !isValidTimeFormat(fin)) {
+        return alert("Les heures doivent être sous le format HH:00 ou HH:30.");
+      }
+
+      const debutMinutes = parseInt(debut.split(":")[0]) * 60 + parseInt(debut.split(":")[1]);
+      const finMinutes = parseInt(fin.split(":")[0]) * 60 + parseInt(fin.split(":")[1]);
+
+      if (finMinutes - debutMinutes < 30) {
+        return alert("Les disponibilités doivent être d'au moins 30 minutes.");
+      }
+
+      const isOverlap = form.value.disponibilites.some((dispo) => {
+        if (dispo.jour === jour) {
+          const dispoDebutMinutes = parseInt(dispo.open.split(":")[0]) * 60 + parseInt(dispo.open.split(":")[1]);
+          const dispoFinMinutes = parseInt(dispo.close.split(":")[0]) * 60 + parseInt(dispo.close.split(":")[1]);
+          return !(finMinutes <= dispoDebutMinutes || debutMinutes >= dispoFinMinutes);
         }
-      ];
+        return false;
+      });
+
+      if (isOverlap) {
+        return alert("Les créneaux ne doivent pas se chevaucher.");
+      }
+
+      form.value.disponibilites.push({
+        jour,
+        dayWeek: dayMapping[jour],
+        open: debut,
+        close: fin,
+      });
 
       newDisponibilite.value = { jour: "", debut: "", fin: "" };
-    };
-
-    const getJourLabel = (dayWeek) => {
-      const jourInverse = Object.entries(dayMapping).find(([key, value]) => value === dayWeek);
-      return jourInverse ? jourInverse[0] : "Inconnu";
     };
 
     const removeDisponibilite = (index) => {
@@ -199,6 +156,12 @@ export default {
         return alert("Veuillez remplir tous les champs !");
       }
 
+      const birthYear = new Date(form.value.age).getFullYear();
+      const currentYear = new Date().getFullYear();
+      if (birthYear < 1900 || birthYear > currentYear) {
+        return alert("L'année de naissance doit être comprise entre 1900 et " + currentYear + ".");
+      }
+
       const inscriptionData = {
         name: form.value.nom,
         surname: form.value.prenom,
@@ -207,13 +170,11 @@ export default {
         level: 0,
         email: form.value.email,
         validate: false,
-        disponibilities: form.value.disponibilites
-            .filter(d => d.dayWeek && d.open && d.close)
-            .map(d => ({
-              dayWeek: d.dayWeek,
-              open: d.open,
-              close: d.close,
-            })),
+        disponibilities: form.value.disponibilites.map(d => ({
+          dayWeek: d.dayWeek,
+          open: d.open,
+          close: d.close,
+        })),
       };
 
       try {
@@ -232,10 +193,74 @@ export default {
       addDisponibilite,
       removeDisponibilite,
       validateAndSubmit,
-      getJourLabel,
     };
   },
 };
 </script>
 
 
+
+<style scoped>
+.input-field {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 4px;
+  focus:outline-none;
+  focus:ring-2;
+  focus:ring-blue-500;
+}
+
+.availability-box {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
+.availability-input {
+  width: 30%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.add-button {
+  background-color: #528359;
+  color: white;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.add-button:hover {
+  background-color: #3b6345;
+}
+
+.delete-button {
+  color: red;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.delete-button:hover {
+  color: darkred;
+}
+
+.submit-button {
+  width: 100%;
+  background-color: #528359;
+  color: white;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #3b6345;
+}
+</style>

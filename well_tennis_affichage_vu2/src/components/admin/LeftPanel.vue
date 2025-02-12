@@ -1,7 +1,7 @@
 <template>
   <div
       :class="['left-panel', isMobile ? 'w-[55%]' : isTablet ? 'w-[40%]' : 'w-[30%]']"
-      class="fixed z-[10] top-5 left-5 bg-white rounded-lg shadow-md h-[97vh] p-6 flex flex-col ">
+      class="fixed top-5 left-5 bg-white rounded-lg shadow-md h-[97vh] p-6 flex flex-col ">
     <!-- Bouton de fermeture -->
     <button v-if="isMobile" @click="$emit('close')" class="close-button">
       <span class="material-symbols-outlined">close</span>
@@ -106,58 +106,7 @@
         </button>
 
         <!-- Liste des inscrits en attente -->
-        <div v-if="showPendingPlayers" class="mt-4 border-t pt-4">
-          <h3 class="text-lg font-semibold text-gray-700 mb-4">Inscriptions en attente</h3>
-          <div class="space-y-3">
-            <div
-                v-for="player in pendingPlayers"
-                :key="player.id"
-                class="flex items-center p-3 border border-gray-300 rounded-lg bg-gray-50 shadow-sm cursor-pointer hover:bg-gray-100"
-                @click="showPlayerDetails(player)"
-            >
-              <div class="flex items-center space-x-3 flex-grow">
-                <span class="material-symbols-outlined text-green-600 text-xl">person</span>
-                <div>
-                  <p class="text-sm font-semibold text-gray-800">{{ player.name }} {{ player.surname }}</p>
-                  <p class="text-xs text-gray-500">{{ player.email }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Modale d'affichage des détails d'un joueur -->
-        <!-- Modale d'affichage des détails d'un joueur -->
-        <transition name="fade">
-          <div v-if="selectedPlayer" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center p-6">
-            <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
-              <h3 class="text-2xl font-bold text-gray-700 mb-4">Détails de l'inscription</h3>
-              <div class="space-y-4 text-lg">
-                <p><strong>Nom :</strong> {{ selectedPlayer.name }} {{ selectedPlayer.surname }}</p>
-                <p><strong>Email :</strong> {{ selectedPlayer.email }}</p>
-                <p><strong>Date de naissance :</strong> {{ selectedPlayer.birthday }}</p>
-                <p><strong>Nombre de cours :</strong> {{ selectedPlayer.courses }}</p>
-                <p><strong>Niveau :</strong> {{ selectedPlayer.level }}</p>
-                <div>
-                  <p><strong>Disponibilités :</strong></p>
-                  <ul class="list-disc ml-6 text-base">
-                    <li v-for="dispo in selectedPlayer.disponibilities" :key="dispo.id">
-                      <span class="font-semibold">Jour {{ dispo.dayWeek }}</span> : {{ dispo.open }} - {{ dispo.close }}
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="mt-6 flex justify-end space-x-4">
-                <button @click="selectedPlayer = null" class="bg-gray-300 hover:bg-gray-400 px-5 py-2 rounded-lg text-lg">
-                  Fermer
-                </button>
-                <button @click="validatePlayer(selectedPlayer.id)" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg text-lg">
-                  Valider
-                </button>
-              </div>
-            </div>
-          </div>
-        </transition>
+        <PlayerNot v-if="showPendingPlayers" :pendingPlayers="pendingPlayers" @update:pendingPlayers="updatePendingPlayers" />
 
 
       </div>
@@ -178,10 +127,12 @@ import {onMounted, ref} from "vue";
 import ExportService from "../../functionality/ExportService";
 import ImportService from "../../functionality/ImportService";
 import PlayersService from "../../services/PlayersService.js";
+import PlayerNot from "../vueInformations/PlayerNot.vue";
 
 export default {
   name: "LeftPanel",
   components: {
+    PlayerNot,
     Trainers,
     Players,
     Terrains,
@@ -192,6 +143,25 @@ export default {
 
   },
   setup() {
+
+    const updatePendingPlayers = (updatedList) => {
+      pendingPlayers.value = updatedList;
+    };
+
+
+    const getJourLabel = (dayWeek) => {
+      const jours = {
+        1: "Lundi",
+        2: "Mardi",
+        3: "Mercredi",
+        4: "Jeudi",
+        5: "Vendredi",
+        6: "Samedi",
+        7: "Dimanche",
+      };
+      return jours[dayWeek] || "Jour inconnu";
+    };
+
 
     const { terrains, fetchTerrains } = useTerrain();
     const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers, updateTrainers} = useLeftPanel();
@@ -238,10 +208,12 @@ export default {
       updateTrainers,
       togglePendingPlayers,
       validatePlayer,
+      updatePendingPlayers,
       pendingPlayers,
       showPendingPlayers,
       terrains,
       selectedPlayer,
+      getJourLabel,
     };
   },
 
@@ -424,8 +396,6 @@ export default {
     left: 2%;
   }
 }
-
-
 
 </style>
 
