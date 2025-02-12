@@ -11,10 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import well_tennis_club.projet.court.CourtEntity;
 import well_tennis_club.projet.court.CourtService;
 import well_tennis_club.projet.player.PlayerEntity;
@@ -37,6 +34,7 @@ import java.util.*;
 @NoArgsConstructor
 @RestController
 @RequestMapping("solver")
+@CrossOrigin
 public class SolverController {
 	private TimetableFactory timetableFactory;
 	private TimetableService timetableService;
@@ -69,7 +67,7 @@ public class SolverController {
 			@ApiResponse(responseCode = "409", description = "Conflict - Timetable solver was already started"),
 			@ApiResponse(responseCode = "500", description = "Internal server error - Timetable solver was not started")
 	})
-	@PostMapping("/start")
+	@GetMapping("/start")
 	public ResponseEntity<String> startSolver() {
 		if (problemId != null) {
 			return ResponseEntity.status(409).body("Timetable solver was already started");
@@ -79,25 +77,11 @@ public class SolverController {
 
 		this.problemId = UUID.randomUUID();
 		solverManager.solveAndListen(this.problemId, this.timetable, (bestTimetable) -> {
+			System.out.println("New best solution found with score: " + bestTimetable.getScore().toString());
 			this.timetable = bestTimetable;
 		});
 
 		return ResponseEntity.ok("Solver started");
-	}
-
-	@Operation(summary = "Retrieve the timetable", description = "Retrieve the timetable")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),
-			@ApiResponse(responseCode = "404", description = "Not found - Timetable was not found, try starting the solver first"),
-			@ApiResponse(responseCode = "500", description = "Internal server error - Timetable was not retrieved")
-	})
-	@GetMapping("")
-	public ResponseEntity<Timetable> retrieveTimetable() {
-		if (problemId == null) {
-			return ResponseEntity.status(404).body(null);
-		}
-
-		return ResponseEntity.ok(this.timetable);
 	}
 
 	@GetMapping("/status")
@@ -106,12 +90,12 @@ public class SolverController {
 			return ResponseEntity.ok("Solver not started");
 		}
 
-		return ResponseEntity.ok("Solver started");
+		return ResponseEntity.ok(timetable.getScore().toString());
 	}
 
-	@PostMapping("/save")
+	@GetMapping("/save")
 	public ResponseEntity<String> saveTimetable() {
-		if (problemId == null) {
+		if (problemId == null || this.timetable == null) {
 			return ResponseEntity.status(404).body("Solver not started");
 		}
 
@@ -134,7 +118,7 @@ public class SolverController {
 		return ResponseEntity.ok("Timetable saved");
 	}
 
-	@PostMapping("/stop")
+	@GetMapping("/stop")
 	public ResponseEntity<String> stopSolver() {
 		if (problemId == null) {
 			return ResponseEntity.status(404).body("Solver not started");
@@ -148,7 +132,7 @@ public class SolverController {
 
 	@GetMapping("/insertData")
 	public ResponseEntity<String> insertData() {
-		List<PlayerEntity> players = DataInsertion.players.real();
+		List<PlayerEntity> players = DataInsertion.players.real_adult;
 		List<TrainerEntity> trainers = DataInsertion.trainers.real();
 		List<CourtEntity> courts = DataInsertion.tennisCourts.real;
 		List<SessionConstraintEntity> sessionConstraints = DataInsertion.sessionConstraints.real;

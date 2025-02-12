@@ -33,7 +33,7 @@ public class BasicApp {
 
 		});
 
-		Timetable problem = new Timetable(SampleData.players.real(), SampleData.trainers.real(), SampleData.tennisCourts.real);
+		Timetable problem = new Timetable(SampleData.players.real_adult, SampleData.trainers.real_adult, SampleData.tennisCourts.real);
 
 		Timetable solution = solver.solve(problem);
 
