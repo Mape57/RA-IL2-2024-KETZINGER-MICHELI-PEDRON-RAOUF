@@ -16,13 +16,13 @@
       <transition name="slide-fade">
         <LeftPanel v-if="showLeftPanel" class="mobile-left-panel" :isMobile="true" @close="toggleLeftPanel" />
       </transition>
-      <RightPanel class="mobile-right-panel" />
+      <RightPanel class="mobile-right-panel" :key="updateValue"/>
     </div>
     <div v-else class="flex w-full h-full flex-1">
       <LeftPanel class="desktop-left-panel" :isMobile="false" />
-      <RightPanel class="desktop-right-panel" />
+      <RightPanel class="desktop-right-panel" :key="updateValue"/>
     </div>
-    <BottomPanel v-if="!isMobile" :statusMessage="statusMessage" @launch="handleLaunch" @submitChanges="handleSubmitChanges" @sendSchedule="handleSendSchedule" class="aligned-bottom-panel" />
+    <BottomPanel @refreshContent="update" v-if="!isMobile" @launch="handleLaunch" @submitChanges="handleSubmitChanges" @sendSchedule="handleSendSchedule" class="aligned-bottom-panel" />
   </div>
 </template>
 
@@ -40,7 +40,7 @@ export default {
   },
   data() {
     return {
-      statusMessage: "Placement réalisé à 95%",
+      updateValue: 0,
       isMobile: false,
       showLeftPanel: false,
       showMenu: false,
@@ -63,6 +63,10 @@ export default {
     handleLogout() {
       console.log("Déconnexion");
       this.showMenu = false;
+    },
+    update() {
+      this.updateValue++;
+      console.log("Update value", this.updateValue);
     },
   },
   mounted() {

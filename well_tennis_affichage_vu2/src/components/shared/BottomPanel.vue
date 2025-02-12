@@ -10,7 +10,8 @@
             @click="launch"
             class="bg-[#528359] text-white py-1.5 px-3 rounded-md flex items-center text-sm hover:bg-[#456c4c] transition"
         >
-          <span class="material-symbols-outlined mr-1 text-base">play_arrow</span>
+          <span v-if="!running" class="material-symbols-outlined mr-1 text-base">play_arrow</span>
+          <span v-else class="material-symbols-outlined mr-1 text-base">pause</span>
           Lancer
         </button>
 
@@ -20,15 +21,15 @@
             class="bg-white text-[#528359] py-1.5 px-3 rounded-md flex items-center border border-[#528359] text-sm hover:bg-[#e6f4eb] transition"
         >
           <span class="material-symbols-outlined mr-1 text-base">event_repeat</span>
-          Envoyer les modifications
+          Recharger les modifications
         </button>
+      <!-- Statut ou alerte (centré) -->
+      <div v-if="statusMessage" class="flex items-center text-[#d97706] flex-1 justify-center tablet:order-2">
+        <span class="material-symbols-outlined mr-1 text-lg">warning</span>
+        <span class="text-sm">{{ statusMessage }}</span>
+      </div>
       </div>
 
-      <!-- Statut ou alerte (centré) -->
-      <div class="flex items-center text-[#d97706] flex-1 justify-center tablet:order-2">
-        <span class="material-symbols-outlined mr-1 text-sm">warning</span>
-        <span class="text-xs">{{ statusMessage }}</span>
-      </div>
 
       <!-- Bouton "Envoyer l'emploi du temps" (aligné à droite) -->
       <div class="flex lg:ml-auto">
@@ -46,20 +47,35 @@
 </template>
 
 <script>
+import useSolver from "../../useJs/useSolver.js";
+import RightPanel from "../terrains/RightPanel.vue";
+
 export default {
   name: "BottomPanel",
-  props: {
-    statusMessage: {
-      type: String,
-      default: "Placement réalisé à 98%",
-    },
+  data() {
+    return {
+      running: false,
+      statusMessage: "",
+    }
   },
   methods: {
     launch() {
-      this.$emit("launch");
+      const { startSolver, stopSolver } = useSolver();
+      if (this.running) {
+        stopSolver();
+      } else {
+        startSolver();
+      }
+      this.running = !this.running;
     },
     submitChanges() {
-      this.$emit("submitChanges");
+      const { saveSolver, statusSolver } = useSolver();
+      saveSolver().then(() => {
+        this.$emit("refreshContent");
+        statusSolver().then((status) => {
+          this.statusMessage = status;
+        });
+      });
     },
     sendSchedule() {
       this.$emit("sendSchedule");
