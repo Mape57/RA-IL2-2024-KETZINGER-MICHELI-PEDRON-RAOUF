@@ -54,6 +54,11 @@
         <input v-model="form.email" id="email" type="email" required class="input-field" placeholder="Entrez votre email" />
       </div>
 
+      <div class="flex items-center">
+        <input v-model="form.acceptTerms" id="acceptTerms" type="checkbox" class="mr-2" />
+        <label for="acceptTerms" class="text-sm text-gray-600">J'accepte l'utilisation de mes données</label>
+      </div>
+
       <!-- Bouton Inscription -->
       <button type="submit" class="submit-button">S'inscrire</button>
     </form>
@@ -76,6 +81,7 @@ export default {
       cours: "",
       disponibilites: [],
       email: "",
+      acceptTerms: false,
     });
 
     const newDisponibilite = ref({
@@ -156,10 +162,17 @@ export default {
         return alert("Veuillez remplir tous les champs !");
       }
 
+      if (!form.value.acceptTerms) {
+        return alert("Vous devez accepter l'utilisation de vos données.");
+      }
       const birthYear = new Date(form.value.age).getFullYear();
       const currentYear = new Date().getFullYear();
       if (birthYear < 1900 || birthYear > currentYear) {
         return alert("L'année de naissance doit être comprise entre 1900 et " + currentYear + ".");
+      }
+
+      if (form.value.disponibilites.length < form.value.cours) {
+        return alert("Le nombre de disponibilités doit être au moins égal au nombre de cours sélectionnés.");
       }
 
       const inscriptionData = {
