@@ -1,0 +1,61 @@
+@startuml
+top to bottom direction
+skinparam linetype ortho
+
+class Player {
+  - id: UUID
+  - age: int
+  - level: int
+  - sessionPerWeek: int
+  - availability: List<Timeslot>
+  - sessionConstraint: SessionConstraint
+  + getSportAge(LocalDate) : int
+  + isAvailable(Session) : boolean
+  + complyWith(SessionConstraint) : boolean
+}
+class PlayerSessionLink <PlanningEntity> {
+  - id: UUID
+  + PlayerSessionLink()
+  + PlayerSessionLink(Player)
+  + PlayerSessionLink(Player, Session)
+}
+class Session <PlanningEntity> {
+  - id: UUID
+  - tennisCourt: UUID
+  - day: DayOfWeek
+  - startTime: LocalTime
+  + compareTo(Session) : int
+}
+class Timetable <PlanningSolution> {
+  - name: String
+  - score: HardSoftScore
+  + MINIMUM_DURATION: int
+  - generateSessions(List<TennisCourt>) : List<Session>
+  - generatePlayerSessionLinks(List<Player>) : List<PlayerSessionLink>
+}
+class Trainer {
+  - id: UUID
+  - levelPreference: ValueRange
+  - agePreference: ValueRange
+  - weeklyMinutes: ValueRange
+  - isPartTime: boolean
+  - availability: List<Timeslot>
+  + isAvailable(Session, int) : boolean
+}
+
+PlayerSessionLink "*" -[#orange]-> "1" Session : session
+PlayerSessionLink "*" --> "1" Player : player
+Session "*" -[#orange]-> "1" Trainer : trainer
+
+Timetable -[#blue]-> "*" Player
+Timetable -[#blue]-> "*" Trainer
+Timetable -[#red]-> "*" Session
+Timetable -[#red]-> "*" PlayerSessionLink
+
+legend left
+    |Couleur | Type |
+    |<#blue>| Fait du problème |
+    |<#red>| Entité de planification |
+    |<#orange>| Variable d'entité |
+endlegend
+@enduml
