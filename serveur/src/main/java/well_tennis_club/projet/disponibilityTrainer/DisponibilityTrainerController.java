@@ -29,7 +29,7 @@ public class DisponibilityTrainerController {
     @GetMapping
     public List<DisponibilityTrainerDto> getAllDisponibilitiesTrainer(){
         List<DisponibilityTrainerDto> list = DisponibilityTrainerMapper.INSTANCE.mapToListDTO(disponibilityTrainerService.getAllDisponibilitiesTrainer());
-        if(list == null || list.size() == 0){
+        if(list == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Disponibilities not found"
             );
@@ -74,7 +74,7 @@ public class DisponibilityTrainerController {
     @GetMapping("/{id}")
     public List<DisponibilityTrainerDto> getDisponibilitiesTrainer(@PathVariable UUID id){
         List<DisponibilityTrainerDto> dtos = DisponibilityTrainerMapper.INSTANCE.mapToListDTO(disponibilityTrainerService.getDisponibilityForTrainer(id));
-        if (dtos == null || dtos.size() == 0){
+        if (dtos == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Disponibilities not found"
             );

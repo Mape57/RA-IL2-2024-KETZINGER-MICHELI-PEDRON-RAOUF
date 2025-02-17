@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="test-court" author="Thomas">
+        <insert tableName="court">
+            <column name="id" value="4f8535fd-9b6c-4bb7-b0c7-e988cf039d83"/>
+            <column name="name" value="Court 1"/>
+        </insert>
+
+        <insert tableName="court">
+            <column name="id" value="036d103e-24e4-43c9-a6da-563300722f3c"/>
+            <column name="name" value="Court 2"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

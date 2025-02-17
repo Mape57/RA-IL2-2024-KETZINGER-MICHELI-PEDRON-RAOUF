@@ -1,5 +1,6 @@
 package well_tennis_club.timefold.domain;
 
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
@@ -11,23 +12,25 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Getter
 @Setter
-@JsonIdentityInfo(scope = Player.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
+@JsonIdentityInfo(scope = Player.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Player {
-	private String name;
+	@PlanningId
+	private UUID id;
 	private int age;
-	private int level;
 	private int sessionPerWeek;
+	private int level;
 	private List<Timeslot> availability;
 	private SessionConstraint sessionConstraint;
 
 	public Player() {
 	}
 
-	public Player(String name, LocalDate birthDate, int level, int sessionPerWeek, List<Timeslot> availability, SessionConstraint sessionConstraint) {
-		this.name = name;
+	public Player(UUID id, LocalDate birthDate, int level, int sessionPerWeek, List<Timeslot> availability, SessionConstraint sessionConstraint) {
+		this.id = id;
 		this.age = getSportsAge(birthDate);
 		this.level = level;
 		this.sessionPerWeek = sessionPerWeek;
@@ -35,22 +38,22 @@ public class Player {
 		this.sessionConstraint = sessionConstraint;
 	}
 
-	public Player(String name, int age, int level, int sessionPerWeek, List<Timeslot> availability, List<SessionConstraint> sessionConstraints) {
-		this.name = name;
+	public Player(int age, int level, int sessionPerWeek, List<Timeslot> availability, List<SessionConstraint> sessionConstraints) {
+		this.id = UUID.randomUUID();
 		this.age = age;
 		this.level = level;
 		this.sessionPerWeek = sessionPerWeek;
 		this.availability = availability;
 		for (SessionConstraint sessionConstraint : sessionConstraints) {
-			if (sessionConstraint.ages().contains(age) && sessionConstraint.levels().contains(level)) {
+			if (complyWith(sessionConstraint)) {
 				this.sessionConstraint = sessionConstraint;
 				break;
 			}
 		}
 	}
 
-	public Player(String name, int age, int level, int sessionPerWeek, List<Timeslot> availability, SessionConstraint sessionConstraint) {
-		this.name = name;
+	public Player(int age, int level, int sessionPerWeek, List<Timeslot> availability, SessionConstraint sessionConstraint) {
+		this.id = UUID.randomUUID();
 		this.age = age;
 		this.level = level;
 		this.sessionPerWeek = sessionPerWeek;
@@ -78,26 +81,7 @@ public class Player {
 	public boolean equals(Object o) {
 		if (o == null || getClass() != o.getClass()) return false;
 		Player player = (Player) o;
-		if (availability == null ^ player.availability == null) return false;
-		return age == player.age &&
-				level == player.level &&
-				sessionPerWeek == player.sessionPerWeek &&
-				Objects.equals(name, player.name) &&
-				Objects.equals(sessionConstraint, player.sessionConstraint) &&
-				((availability == null) ||
-						(availability.size() == player.availability.size() &&
-								availability.containsAll(player.availability)));
-	}
-
-	@Override
-	public String toString() {
-		return name + '{' +
-				"age=" + age +
-				", level=" + level +
-				", sessionPerWeek=" + sessionPerWeek +
-				", availability=" + availability +
-				", sessionConstraint=" + sessionConstraint +
-				'}';
+		return Objects.equals(id, player.id);
 	}
 
 	public boolean isAvailable(Session session) {
@@ -110,5 +94,9 @@ public class Player {
 			return true;
 		}
 		return false;
+	}
+
+	public boolean complyWith(SessionConstraint sessionConstraint) {
+		return sessionConstraint.ages().contains(age) && sessionConstraint.levels().contains(level);
 	}
 }

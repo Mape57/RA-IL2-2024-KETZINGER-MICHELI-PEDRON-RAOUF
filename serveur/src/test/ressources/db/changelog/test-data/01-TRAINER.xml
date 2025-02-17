@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="test-trainer" author="Thomas">
+        <insert tableName='trainer'>
+            <column name="id" value="4d970d71-4ff9-4435-8860-435c12434137"/>
+            <column name='name' value="Hubert"/>
+            <column name='surname' value="Arthur"/>
+            <column name='inf_level' value="14"/>
+            <column name="sup_level" value="19"/>
+            <column name='inf_age' value="1"/>
+            <column name="sup_age" value="99"/>
+            <column name='sup_weekly_minutes' value="1"/>
+            <column name='inf_weekly_minutes' value="1"/>
+            <column name="email" value="arthur.hubert@gmail.com"/>
+            <column name="password" value="$2a$10$iWQP3yZ6DcYpU3k4xz378e6fM0WuqBs1X5OXPyWuSpYY.W8pBHDXy"/>
+            <column name="part_time" value="true"/>
+            <column name="admin" value="false"/>
+        </insert>
+
+        <insert tableName='trainer'>
+            <column name="id" value="2778a935-5d82-48a7-8b54-7e3061151e24"/>
+            <column name='name' value="Jung"/>
+            <column name='surname' value="Ines"/>
+            <column name="inf_level" value="1"/>
+            <column name='sup_level' value="13"/>
+            <column name='inf_age' value="1"/>
+            <column name="sup_age" value="18"/>
+            <column name='sup_weekly_minutes' value="1"/>
+            <column name='inf_weekly_minutes' value="1"/>
+            <column name="email" value="ines.jung@gmail.com"/>
+            <column name="password" value="password"/>
+            <column name="part_time" value="false"/>
+            <column name="admin" value="false"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

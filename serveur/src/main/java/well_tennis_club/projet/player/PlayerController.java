@@ -11,7 +11,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
-
 @RestController
 @RequestMapping("players")
 @Transactional
@@ -29,7 +28,7 @@ public class PlayerController {
     @GetMapping()
     public List<PlayerDto> getAllPlayers(){
         List<PlayerDto> list = PlayerMapper.INSTANCE.mapToListDTO(playerService.getAllPlayers());
-        if (list == null || list.size() == 0){
+        if (list == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Players not found"
             );
@@ -99,6 +98,24 @@ public class PlayerController {
             );
         }else {
             return player;
+        }
+    }
+
+    @CrossOrigin
+    @Operation(summary = "Get only player who is validate or not",description = "Return player who is validate or not")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",description = "Successfully retrieved"),
+            @ApiResponse(responseCode = "500", description = "Internal server error - Player was not found")
+    })
+    @GetMapping("/validate/{validate}")
+    public List<PlayerDto> getPlayerValidate(@PathVariable boolean validate){
+        List<PlayerDto> players = PlayerMapper.INSTANCE.mapToListDTO(playerService.getPlayerValidate(validate));
+        if (players == null){
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Players not found"
+            );
+        }else {
+            return players;
         }
     }
 }

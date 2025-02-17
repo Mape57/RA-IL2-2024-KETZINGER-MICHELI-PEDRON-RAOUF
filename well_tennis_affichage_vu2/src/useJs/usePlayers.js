@@ -1,6 +1,7 @@
 // src/composables/usePlayers.js
 import {ref} from "vue";
 import playersService from "../services/PlayersService.js";
+import PlayersService from "../services/PlayersService.js";
 
 export default function usePlayers() {
 	const players = ref([]);
@@ -26,13 +27,6 @@ export default function usePlayers() {
 	// Mettre à jour un joueur existant
 	const updatePlayer = async (player) => {
 		try {
-			// Nettoyage des disponibilités avant envoi
-			player.disponibilities = player.disponibilities.map(slot => ({
-				id: slot.id && typeof slot.id === "string" ? slot.id : undefined, // Conserver les IDs valides ou les exclure
-				day: slot.day,
-				open: slot.open,
-				close: slot.close,
-			}));
 
 			const response = await playersService.updatePlayer(player.id, player);
 			// Met à jour la liste des joueurs localement
@@ -54,13 +48,6 @@ export default function usePlayers() {
 
 	const createPlayer = async (player) => {
 		try {
-			// Nettoyage des disponibilités avant envoi
-			player.disponibilities = player.disponibilities.map(slot => ({
-				id: slot.id && typeof slot.id === "string" ? slot.id : undefined, // Conserver les IDs valides ou les exclure
-				day: slot.day,
-				open: slot.open,
-				close: slot.close,
-			}));
 
 			const response = await playersService.createPlayer(player);
 			players.value.push(response.data);
@@ -92,6 +79,39 @@ export default function usePlayers() {
 		return sportsAge;
 	};
 
+	const pendingPlayers = ref([]);
+
+	// Récupérer les joueurs qui ne sont pas encore validés
+	const fetchPendingPlayers = async () => {
+		try {
+			const response = await PlayersService.getAllPlayers();
+			pendingPlayers.value = response.data.filter(player => !player.validate);
+			console.log("Joueurs en attente récupérés :", pendingPlayers.value);
+		} catch (error) {
+			console.error("Erreur lors de la récupération des joueurs en attente :", error);
+		}
+	};
+
+	const validatePlayer = async (playerId, updatedPlayer) => {
+		try {
+			const response = await playersService.getPlayerById(playerId);
+			const player = response.data;
+
+			player.validate = true;
+			player.level = updatedPlayer.level; // Mise à jour du niveau sélectionné
+
+			const updatedResponse = await playersService.updatePlayer(playerId, player);
+
+			pendingPlayers.value = pendingPlayers.value.filter(p => p.id !== playerId);
+
+			return updatedResponse.data;
+		} catch (error) {
+			throw error;
+		}
+	};
+
+
+
 
 
 	return {
@@ -101,5 +121,8 @@ export default function usePlayers() {
 		fetchPlayers,
 		players,
 		updatePlayer,
+		pendingPlayers,
+		fetchPendingPlayers,
+		validatePlayer,
 	};
 }

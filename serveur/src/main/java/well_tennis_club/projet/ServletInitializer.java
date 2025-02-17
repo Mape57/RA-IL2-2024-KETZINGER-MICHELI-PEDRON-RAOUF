@@ -2,6 +2,7 @@ package well_tennis_club.projet;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import well_tennis_club.WellTennisClubApplication;
 
 public class ServletInitializer extends SpringBootServletInitializer {
 

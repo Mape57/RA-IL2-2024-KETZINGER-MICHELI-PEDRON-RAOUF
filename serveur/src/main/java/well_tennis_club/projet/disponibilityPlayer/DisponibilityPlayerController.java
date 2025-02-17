@@ -29,7 +29,7 @@ public class DisponibilityPlayerController {
     @GetMapping
     public List<DisponibilityPlayerDto> getAllDisponibilitiesPlayer(){
         List<DisponibilityPlayerDto> list = DisponibilityPlayerMapper.INSTANCE.mapToListDTO(disponibilityPlayerService.getAllDisponibilitiesPlayer());
-        if(list == null || list.size() == 0){
+        if(list == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Disponibilities not found"
             );
@@ -74,7 +74,7 @@ public class DisponibilityPlayerController {
     @GetMapping("/{id}")
     public List<DisponibilityPlayerDto> getDisponibilitiesPlayer(@PathVariable UUID id){
         List<DisponibilityPlayerDto> dtos = DisponibilityPlayerMapper.INSTANCE.mapToListDTO(disponibilityPlayerService.getDisponibilitiesForPlayer(id));
-        if (dtos == null || dtos.size() == 0){
+        if (dtos == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Disponibilities not found"
             );

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="test-constraint" author="Thomas">
+        <insert tableName="session_constraint">
+            <column name="id" value="92a6132e-50a7-4657-9a58-325a0cca8544"/>
+            <column name="inf_age" value="18"/>
+            <column name="sup_age" value="99"/>
+            <column name="inf_level" value="1"/>
+            <column name="sup_level" value="10"/>
+            <column name="inf_group" value="1"/>
+            <column name="sup_group" value="3"/>
+            <column name="age_diff" value="2"/>
+            <column name="level_diff" value="1"/>
+            <column name="duration" value="1"/>
+        </insert>
+        
+        <insert tableName="session_constraint">
+            <column name="id" value="7ddac09d-e3a0-4ae9-9e53-3175026a73de"/>
+            <column name="inf_age" value="1"/>
+            <column name="sup_age" value="17"/>
+            <column name="inf_level" value="15"/>
+            <column name="sup_level" value="20"/>
+            <column name="inf_group" value="2"/>
+            <column name="sup_group" value="4"/>
+            <column name="age_diff" value="1"/>
+            <column name="level_diff" value="2"/>
+            <column name="duration" value="1"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

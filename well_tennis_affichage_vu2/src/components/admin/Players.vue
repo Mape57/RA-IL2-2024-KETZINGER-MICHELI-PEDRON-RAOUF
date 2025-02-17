@@ -18,7 +18,7 @@
         <span class="material-symbols-outlined small-icon cursor-pointer"
               title="Ajouter"
               ref="addPlayerButton"
-              @click="addPlayer"
+              @click="!isMobile && addPlayer"
         >person_add</span>
       </div>
     </div>
@@ -36,9 +36,11 @@
       <div
           v-for="player in filteredPlayers"
           :key="player.id"
-          class="grid grid-cols-4 items-center py-1 cursor-pointer"
-          @click="showPlayerInfo(player)"
+          class="grid grid-cols-4 items-center py-1"
+          :class="{ 'cursor-pointer': !isMobile }"
+          @click="!isMobile && showPlayerInfo(player)"
       >
+
         <!-- Nom du joueur -->
         <span>{{ player.name }}</span>
         <!-- Prénom du joueur -->
@@ -52,12 +54,13 @@
 
       <!-- Affichage de PlayerInfoView -->
       <PlayerInfoView
-          v-if="selectedPlayer"
+          v-if="selectedPlayer && !isMobile"
           :player="selectedPlayer"
           @close="selectedPlayer = null"
           @delete="handlePlayerDeletion"
           @save="handlePlayerSave"
       />
+
 
     </div>
   </div>
@@ -73,6 +76,7 @@ export default {
   props: {
     players: Array,
     searchQuery: String,
+    isMobile: Boolean,
   },
   setup() {
     const {computeAge} = usePlayers();
@@ -82,18 +86,27 @@ export default {
   },
   data() {
     return {
+      isMobile: window.innerWidth < 768, // Vérification initiale
       isOpen: true,
       selectedPlayer: null, // Joueur sélectionné pour afficher les détails
     };
   },
   computed: {
     filteredPlayers() {
-      return this.players.filter(
-          (player) =>
+      return this.players
+          .filter(player => player.validate === true)
+          .filter(player =>
               player.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
               player.surname.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+          );
     },
+  },
+  mounted() {
+    // Mettre à jour `isMobile` lorsque l'écran est redimensionné
+    window.addEventListener("resize", this.updateIsMobile);
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.updateIsMobile);
   },
   methods: {
     toggleAccordion(event) {
@@ -107,15 +120,18 @@ export default {
       // Sinon, basculer l'état d'ouverture
       this.isOpen = !this.isOpen;
     },
+    updateIsMobile() {
+      this.isMobile = window.innerWidth < 768;
+    },
     showPlayerInfo(player) {
+      if (this.isMobile) return; // Empêche d'afficher les informations en mode mobile
       if (this.selectedPlayer && this.selectedPlayer.id === player.id) {
-        // Si le joueur sélectionné est cliqué à nouveau, on ferme l'onglet
         this.selectedPlayer = null;
       } else {
-        // Sinon, on met à jour le joueur sélectionné
         this.selectedPlayer = player;
       }
     },
+
     handlePlayerDeletion(deletedPlayerId) {
       const updatedPlayers = this.players.filter(player => player.id !== deletedPlayerId);
       this.$emit('update:players', updatedPlayers); // Émet la liste mise à jour au parent
@@ -140,9 +156,9 @@ export default {
     },
 
     addPlayer() {
-      // Initialise un joueur vide
+      if (this.isMobile) return; // Empêche l'ajout de joueurs en mode mobile
       this.selectedPlayer = {
-        id: null, // Pas encore défini
+        id: null,
         name: "",
         surname: "",
         birthday: "",
@@ -150,8 +166,10 @@ export default {
         level: 1,
         email: "",
         disponibilities: [],
-      }; // Ouvre PlayerInfoView avec ce nouveau joueur
+      };
     },
+
+
   },
 };
 </script>

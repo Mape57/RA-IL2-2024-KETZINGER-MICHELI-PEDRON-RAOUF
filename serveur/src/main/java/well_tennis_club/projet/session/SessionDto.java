@@ -15,8 +15,8 @@ import java.util.UUID;
 public class SessionDto {
     @Schema(name = "id",example = "1")
     private UUID id;
-    @Schema(name = "day",example = "Monday")
-    private String day;
+    @Schema(name = "dayWeek",example = "4")
+    private int dayWeek;
     @Schema(name = "start",example = "8:00")
     private String start;
     @Schema(name = "stop",example = "10:00")

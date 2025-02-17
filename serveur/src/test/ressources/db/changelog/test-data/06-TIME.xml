@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="test-time" author="Thomas">
+        <insert tableName="time">
+            <column name="id" value="b8b5a1c5-0020-4cd1-bed6-bd07a7623cdd"/>
+            <column name="day_week" value="1"/>
+            <column name="start" value="08:00"/>
+            <column name="stop" value="12:00"/>
+        </insert>
+
+        <insert tableName="time">
+            <column name="id" value="1c728dab-df0f-4630-a0b1-9da99f4c4619"/>
+            <column name="day_week" value="2"/>
+            <column name="start" value="14:00"/>
+            <column name="stop" value="20:00"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

@@ -1,6 +1,7 @@
 package well_tennis_club.timefold.domain;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,9 +22,10 @@ import java.util.UUID;
 @PlanningEntity(difficultyComparatorClass = SessionDifficultyComparator.class)
 @JsonIdentityInfo(scope = Session.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Session implements Comparable<Session> {
+	@PlanningId
 	private UUID id;
 
-	private String tennisCourt;
+	private UUID tennisCourt;
 	private DayOfWeek day;
 	private LocalTime startTime;
 
@@ -33,21 +35,21 @@ public class Session implements Comparable<Session> {
 	public Session() {
 	}
 
-	public Session(UUID id, DayOfWeek day, LocalTime startTime, String tennisCourt) {
+	public Session(UUID id, DayOfWeek day, LocalTime startTime, UUID tennisCourt) {
 		this.id = id;
 		this.day = day;
 		this.startTime = startTime;
 		this.tennisCourt = tennisCourt;
 	}
 
-	public Session(UUID id, DayOfWeek day, LocalTime startTime, String tennisCourt, Trainer trainer) {
+	public Session(UUID id, DayOfWeek day, LocalTime startTime, UUID tennisCourt, Trainer trainer) {
 		this(id, day, startTime, tennisCourt);
 		this.trainer = trainer;
 	}
 
 	@Override
 	public String toString() {
-		return tennisCourt + " le " + getDayString() + " à " + startTime;
+		return tennisCourt.toString() + " le " + getDayString() + " à " + startTime;
 	}
 
 	/**
@@ -65,7 +67,7 @@ public class Session implements Comparable<Session> {
 	public boolean equals(Object o) {
 		if (o == null || getClass() != o.getClass()) return false;
 		Session session = (Session) o;
-		return Objects.equals(tennisCourt, session.tennisCourt) && day == session.day && Objects.equals(startTime, session.startTime) && Objects.equals(trainer, session.trainer);
+		return Objects.equals(id, session.id);
 	}
 
 	@Override

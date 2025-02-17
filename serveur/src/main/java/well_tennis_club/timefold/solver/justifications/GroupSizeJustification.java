@@ -5,8 +5,7 @@ import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
 import well_tennis_club.timefold.domain.Session;
 
 /**
- * Justification d'une contrainte de taille de groupe dépassée.</br>
- * Sous le format : "La différence de taille de groupe pour la session du terrain {session} n'est pas respecté (dépasse de {groupSizeDifference} joueurs) : {score}"
+ * Justification d'une contrainte de taille de groupe dépassée.
  */
 public record GroupSizeJustification(Session session, Integer groupSizeDifference, HardSoftScore score,
 									 String description) implements ConstraintJustification {
@@ -15,8 +14,8 @@ public record GroupSizeJustification(Session session, Integer groupSizeDifferenc
 	}
 
 	private static String getDescription(Session session, Integer groupSizeDifference, HardSoftScore score) {
-		return String.format("La différence de taille de groupe pour la session du terrain %s n'est pas respecté (dépasse de %d joueurs) : %s",
-				session, groupSizeDifference, score.toString());
+		return String.format("Trop de joueur (%d) pour %s : %s",
+				groupSizeDifference, session, score.toString());
 	}
 
 	@Override

@@ -92,12 +92,10 @@ public class ValueRange {
 	 *
 	 * @param value valeur à comparer
 	 * @return 0 : si la valeur est dans la plage<br>
-	 * -x : si la valeur est inférieure à la plage, x étant la différence<br>
-	 * x : si la valeur est supérieure à la plage, x étant la différence
+	 * x : la différence entre la valeur et la plage
 	 */
-	// TODO tester la méthode
 	public int difference(Integer value) {
-		if (value < this.min) return value - this.min;
+		if (value < this.min) return this.min - value;
 		else if (value > this.max) return value - this.max;
 		else return 0;
 	}

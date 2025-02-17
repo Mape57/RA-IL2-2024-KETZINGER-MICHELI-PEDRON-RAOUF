@@ -1,0 +1,72 @@
+@startuml
+
+participant Client as c
+participant Spring as s
+participant "Base de données" as bd
+participant Convertisseur as cv
+participant Solveur as t
+
+' lancement spring
+c -> s : GET /solver/start
+activate s
+
+s -> bd : getAll (joueurs, entraîneurs et terrain)
+activate bd
+bd --> s : liste de joueurs, entraîneurs et terrain (entités)
+deactivate bd
+
+s -> cv : convertir les listes en domaine Timefold
+activate cv
+cv --> s : liste de joueurs, entraîneurs et terrain (domaine)
+deactivate cv
+
+create t
+s -> t : initialiser avec les listes
+activate t
+
+s --> c : 201 Created
+deactivate s
+
+t --> s : nouvelle solution (domaine)
+t --> s : nouvelle solution (domaine)
+
+' obtenir le statut
+c -> s : GET /solver/status
+activate s
+
+s -> s : getScore()
+activate s
+s --> s : score
+deactivate s
+
+s --> c : 200 OK {score}
+deactivate s
+
+t --> s : nouvelle solution (domaine)
+
+' sauvegarde de la solution
+c -> s : GET /solver/save
+activate s
+
+s -> cv : convertir les sessions de la dernière solution en entités Spring
+activate cv
+cv --> s : liste de sessions (entités)
+deactivate cv
+
+s -> bd : save (sessions)
+
+s --> c : 200 OK
+deactivate s
+
+' fin
+c -> s : GET /solver/stop
+activate s
+
+s -> t : terminer prématurément
+deactivate t
+
+s --> c : 200 OK
+deactivate s
+
+
+@enduml

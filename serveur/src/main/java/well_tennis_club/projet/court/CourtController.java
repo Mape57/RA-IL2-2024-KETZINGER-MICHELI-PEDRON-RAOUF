@@ -28,7 +28,7 @@ public class CourtController {
     @GetMapping()
     public List<CourtDto> getAllCourts(){
         List<CourtDto> list = CourtMapper.INSTANCE.mapToListDTO(courtService.getAllCourts());
-        if (list == null || list.size() == 0){
+        if (list == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Courts not found"
             );

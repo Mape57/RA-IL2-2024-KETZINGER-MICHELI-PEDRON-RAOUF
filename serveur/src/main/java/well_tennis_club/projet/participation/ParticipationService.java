@@ -14,7 +14,6 @@ public class ParticipationService {
 
     public List<ParticipationEntity> getAllParticipation(){return participationRepository.findAll();}
     public ParticipationEntity createParticipation(ParticipationEntity entity){return participationRepository.save(entity);}
-    public ParticipationEntity updateParticipation(ParticipationEntity entity){return participationRepository.save(entity);}
     public void deleteParticipation(ParticipationEntity entity){participationRepository.delete(entity);}
     public List<ParticipationEntity> getParticipationForPlayer(UUID id){return participationRepository.findByParticipationKeyIdPlayer(id);}
 }

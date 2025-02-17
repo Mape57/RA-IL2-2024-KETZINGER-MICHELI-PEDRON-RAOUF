@@ -29,7 +29,7 @@ public class TimeCourtController {
     @GetMapping
     public List<TimeCourtDto>  getAllTimeCourt(){
         List<TimeCourtDto> list = TimeCourtMapper.INSTANCE.mapToListDTO(timeCourtService.getAllTimeCourt());
-        if(list == null || list.size() == 0){
+        if(list == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Times not found"
             );
@@ -74,7 +74,7 @@ public class TimeCourtController {
     @GetMapping("/{id}")
     public List<TimeCourtDto> getTimeCourt(@PathVariable UUID id){
         List<TimeCourtDto> dtos = TimeCourtMapper.INSTANCE.mapToListDTO(timeCourtService.getTimeCourtForCourt(id));
-        if (dtos == null || dtos.size() == 0){
+        if (dtos == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Times not found"
             );

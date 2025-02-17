@@ -7,14 +7,17 @@ import well_tennis_club.timefold.domain.Player;
 import java.time.DayOfWeek;
 import java.util.List;
 
+/**
+ * Justification d'une contrainte de session unique par jour dépassée.
+ */
 public record PlayerSingleSessionPerDayJustification(Player player, List<DayOfWeek> days, HardSoftScore score, String description) implements ConstraintJustification {
 	public PlayerSingleSessionPerDayJustification(Player player, List<DayOfWeek> days, HardSoftScore score) {
 		this(player, days, score, getDescription(player, days, score));
 	}
 
 	private static String getDescription(Player player, List<DayOfWeek> days, HardSoftScore score) {
-		return String.format("Le joueur %s a plus d'une session par jour sur les jours suivant : %s. : %s",
-				player.getName(), days, score.toString());
+		return String.format("%s a plusieurs cours le %s : %s",
+				player.getId(), days, score.toString());
 	}
 
 	@Override

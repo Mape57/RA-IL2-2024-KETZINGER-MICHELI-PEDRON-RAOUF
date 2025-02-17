@@ -7,6 +7,7 @@ import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import lombok.Getter;
+import lombok.Setter;
 import well_tennis_club.timefold.data_structure.Timeslot;
 
 import java.util.*;
@@ -35,6 +36,7 @@ public class Timetable {
 	private List<PlayerSessionLink> playerSessionLinks;
 
 	// ===== PLANNING SCORE ===== //
+	@Setter
 	@PlanningScore
 	private HardSoftScore score;
 
@@ -73,11 +75,10 @@ public class Timetable {
 	// TODO tester la méthode
 	private List<Session> generateSessions(List<TennisCourt> tennisCourts) {
 		List<Session> sessions = new ArrayList<>();
-		int x = 0;
 		for (TennisCourt tennisCourt : tennisCourts) {
 			for (Timeslot openingHour : tennisCourt.getOpeningHours()) {
 				for (int i = 0; i < openingHour.endTime().toSecondOfDay() - openingHour.startTime().toSecondOfDay(); i += MINIMUM_DURATION * 60) {
-					sessions.add(new Session(UUID.randomUUID(), openingHour.day(), openingHour.startTime().plusSeconds(i), tennisCourt.getName()));
+					sessions.add(new Session(UUID.randomUUID(), openingHour.day(), openingHour.startTime().plusSeconds(i), tennisCourt.getId()));
 				}
 			}
 		}
@@ -104,40 +105,23 @@ public class Timetable {
 			if (session.getTrainer() == null) {
 				sb.append("\t").append(session).append("\n");
 			} else {
-				sb.append("\t").append(session).append(" -> ").append(session.getTrainer().getName()).append("\n");
+				sb.append("\t").append(session).append(" -> ").append(session.getTrainer().getId()).append("\n");
 			}
 		}
 		sb.append("PlayerSessionLinks:\n");
-		playerSessionLinks.sort(Comparator.comparing(o -> o.getPlayer().getName()));
+		playerSessionLinks.sort(Comparator.comparing(o -> o.getPlayer().getId()));
 		for (PlayerSessionLink playerSessionLink : playerSessionLinks) {
 			Player player = playerSessionLink.getPlayer();
 			sb.append("\t")
-					.append(player.getName())
+					.append(player.getId())
 					.append("(").append(player.getAge())
 					.append(", ").append(player.getLevel())
 					.append(") -> ").append(playerSessionLink.getSession())
 					.append("\n");
 		}
-		sb.append("Score: ").append(score.toString()).append("\n");
+		sb.append("Score: ").append(score == null ? "null" : score.toString()).append("\n");
 		return sb.toString();
 	}
-
-	/*
-	@Override
-	public String toString() {
-		players.sort(Comparator.comparing(Player::getName));
-		sessions.sort(Comparator.comparing(Session::getDay).thenComparing(Session::getStartTime));
-		playerSessionLinks.sort(Comparator.comparing(o -> o.getPlayer().getName()));
-
-		return name + '{' +
-				"trainers=" + trainers +
-				", players=" + players +
-				", sessions=" + sessions +
-				", playerSessionLinks=" + playerSessionLinks +
-				", score=" + score +
-				'}';
-	}
-	 */
 
 	@Override
 	public boolean equals(Object o) {

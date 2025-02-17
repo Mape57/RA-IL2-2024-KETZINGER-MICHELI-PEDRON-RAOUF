@@ -30,7 +30,7 @@ public class ParticipationController {
     @GetMapping
     public List<ParticipationDto> getAllParticipation(){
         List<ParticipationDto> list = ParticipationMapper.INSTANCE.mapToListDTO(participationService.getAllParticipation());
-        if(list == null || list.size() == 0){
+        if(list == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Participations not found"
             );
@@ -75,7 +75,7 @@ public class ParticipationController {
     @GetMapping("/{id}")
     public List<ParticipationDto> getParticipationPlayer(@PathVariable UUID id){
         List<ParticipationDto> dtos = ParticipationMapper.INSTANCE.mapToListDTO(participationService.getParticipationForPlayer(id));
-        if (dtos == null || dtos.size() == 0){
+        if (dtos == null){
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Participations not found"
             );

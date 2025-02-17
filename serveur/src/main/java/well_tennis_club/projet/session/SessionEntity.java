@@ -29,8 +29,8 @@ public class SessionEntity implements Serializable {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "day")
-    private String day;
+    @Column(name = "day_week")
+    private int dayWeek;
 
     @Column(name = "start")
     private String start;
