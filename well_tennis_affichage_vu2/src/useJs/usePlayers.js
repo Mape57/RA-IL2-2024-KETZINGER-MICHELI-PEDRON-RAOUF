@@ -92,6 +92,27 @@ export default function usePlayers() {
 		}
 	};
 
+	const validatePlayer = async (playerId, updatedPlayer) => {
+		try {
+			const response = await playersService.getPlayerById(playerId);
+			const player = response.data;
+
+			player.validate = true;
+			player.level = updatedPlayer.level; // Mise à jour du niveau sélectionné
+
+			const updatedResponse = await playersService.updatePlayer(playerId, player);
+
+			pendingPlayers.value = pendingPlayers.value.filter(p => p.id !== playerId);
+
+			return updatedResponse.data;
+		} catch (error) {
+			throw error;
+		}
+	};
+
+
+
+
 
 	return {
 		computeAge,
@@ -102,5 +123,6 @@ export default function usePlayers() {
 		updatePlayer,
 		pendingPlayers,
 		fetchPendingPlayers,
+		validatePlayer,
 	};
 }

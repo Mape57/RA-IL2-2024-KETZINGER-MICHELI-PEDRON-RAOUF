@@ -1,6 +1,7 @@
 import PlayersService from "../services/PlayersService.js";
-import AvailabilitiesService from "../services/DisponibilityService.js";
 import DisponibilityPlayerService from "../services/DisponibilityPlayerService.js";
+import AvailabilitiesService from "../services/DisponibilityService.js";
+
 import * as XLSX from "xlsx";
 
 class ImportService {
@@ -127,9 +128,10 @@ class ImportService {
                 // Étape 1 : Créer les disponibilités
                 const disponibilitiesResponses = await Promise.all(
                     player.disponibilities.map(async availability => {
-                        return await AvailabilitiesService.createAvailability(availability);
+                        return await AvailabilitiesService.createDisponibility(availability);
                     })
                 );
+
 
                 const disponibilitiesIds = disponibilitiesResponses.map(response => response.data.id);
 

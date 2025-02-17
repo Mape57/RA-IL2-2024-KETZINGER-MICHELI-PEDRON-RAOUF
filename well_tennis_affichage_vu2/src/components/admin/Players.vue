@@ -93,11 +93,12 @@ export default {
   },
   computed: {
     filteredPlayers() {
-      return this.players.filter(
-          (player) =>
+      return this.players
+          .filter(player => player.validate === true)
+          .filter(player =>
               player.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
               player.surname.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+          );
     },
   },
   mounted() {

@@ -39,7 +39,6 @@
 </template>
 
 <script>
-// import useTrainers from "../../useJs/useTrainers.js";
 import TrainerInfoView from "../vueInformations/TrainerInfoView.vue";
 
 export default {
