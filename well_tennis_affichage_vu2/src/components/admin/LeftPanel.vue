@@ -284,7 +284,7 @@ export default {
     checkScreenSize() {
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = setTimeout(() => {
-        this.isMobile = window.innerWidth < 768;
+        // this.isMobile = window.innerWidth < 768;
         this.isTablet = window.innerWidth >= 768 && window.innerWidth < 1024; // Détection de la tablette
       }, 200);
     },
