@@ -6,8 +6,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import well_tennis_club.projet.mail.MailFactory;
+import well_tennis_club.projet.mail.PasswordResetDto;
+import well_tennis_club.projet.mail.ResetTokenService;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,9 +22,20 @@ import java.util.UUID;
 @RequestMapping("trainers")
 @Transactional
 public class TrainerController {
-    private final TrainerService trainerService;
-    @Autowired
-    public TrainerController(TrainerService trainerService){this.trainerService = trainerService;}
+	private final TrainerService trainerService;
+	private final ResetTokenService resetTokenService;
+	private final MailFactory mailFactory;
+	private final MailSender mailSender;
+	private final PasswordEncoder passwordEncoder;
+
+	@Autowired
+	public TrainerController(TrainerService trainerService, ResetTokenService resetTokenService, MailFactory mailFactory, MailSender mailSender, PasswordEncoder passwordEncoder) {
+		this.trainerService = trainerService;
+		this.resetTokenService = resetTokenService;
+		this.mailFactory = mailFactory;
+		this.mailSender = mailSender;
+		this.passwordEncoder = passwordEncoder;
+	}
 
     @CrossOrigin
     @Operation(summary = "Get all trainers", description = "Returns all trainers")
@@ -102,4 +119,36 @@ public class TrainerController {
             return trainer;
         }
     }
+
+	@CrossOrigin
+	@PostMapping("/resetPassword")
+	public ResponseEntity<String> resetPassword(@RequestBody String trainerMail) {
+		TrainerEntity trainer = trainerService.getTrainerByEmail(trainerMail);
+		if (trainer == null) {
+			return new ResponseEntity<>("Trainer not found", HttpStatus.NOT_FOUND);
+		}
+
+		String token = UUID.randomUUID().toString();
+		resetTokenService.createResetTokenForTrainer(trainer, token);
+		mailSender.send(mailFactory.constructResetTokenMail(token, trainerMail));
+		return new ResponseEntity<>("Mail sent", HttpStatus.OK);
+	}
+
+	@CrossOrigin
+	@GetMapping("/changePassword")
+	public String changePassword(@RequestBody PasswordResetDto passwordResetDto) {
+		System.out.println("Changing password");
+		if (!passwordResetDto.getPassword().equals(passwordResetDto.getConfirmPassword())) {
+			return "Passwords do not match";
+		}
+
+		if (!resetTokenService.isResetTokenValid(passwordResetDto.getToken())) {
+			return "Token invalid";
+		}
+
+		TrainerEntity trainer = resetTokenService.getTrainerByToken(passwordResetDto.getToken());
+		trainer.setPassword(passwordEncoder.encode(passwordResetDto.getPassword()));
+		trainerService.updateTrainer(trainer);
+		return "Password changed";
+	}
 }

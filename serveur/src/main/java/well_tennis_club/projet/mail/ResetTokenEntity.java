@@ -1,0 +1,38 @@
+package well_tennis_club.projet.mail;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import well_tennis_club.projet.trainer.TrainerEntity;
+
+import java.util.Date;
+import java.util.UUID;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "reset_token")
+public class ResetTokenEntity {
+	private static final int EXPIRATION = 60 * 24;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private UUID id;
+
+	private String token;
+
+	@OneToOne(targetEntity = TrainerEntity.class, fetch = FetchType.EAGER)
+	@JoinColumn(nullable = false, name = "trainer_id")
+	private TrainerEntity trainer;
+
+	private Date expiryDate;
+
+	public ResetTokenEntity(TrainerEntity trainer, String token) {
+		this.trainer = trainer;
+		this.token = token;
+		this.expiryDate = new Date(System.currentTimeMillis() + EXPIRATION * 60 * 1000);
+	}
+}

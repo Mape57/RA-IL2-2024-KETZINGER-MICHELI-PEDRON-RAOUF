@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                .requestMatchers("/openapi/v3/api-docs/**", "/openapi/swagger-ui/**","/ws/**","/auth/*","/inscription").permitAll()
+                                .requestMatchers("/openapi/v3/api-docs/**", "/openapi/swagger-ui/**","/ws/**","/auth/*","/inscription", "/trainers/resetPassword", "/trainers/changePassword").permitAll()
                                 .anyRequest().authenticated())
                 .cors(cors -> {})
                 .addFilterBefore(new JwtFilter(connectionService,jwtUtils), UsernamePasswordAuthenticationFilter.class)
