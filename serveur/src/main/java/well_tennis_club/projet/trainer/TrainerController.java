@@ -12,8 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import well_tennis_club.projet.mail.MailFactory;
-import well_tennis_club.projet.mail.PasswordResetDto;
-import well_tennis_club.projet.mail.ResetTokenService;
+import well_tennis_club.projet.password_reset.PasswordResetDto;
+import well_tennis_club.projet.password_reset.ResetTokenService;
 
 import java.util.List;
 import java.util.UUID;
@@ -149,6 +149,7 @@ public class TrainerController {
 		TrainerEntity trainer = resetTokenService.getTrainerByToken(passwordResetDto.getToken());
 		trainer.setPassword(passwordEncoder.encode(passwordResetDto.getPassword()));
 		trainerService.updateTrainer(trainer);
+		resetTokenService.deleteByToken(passwordResetDto.getToken());
 		return "Password changed";
 	}
 }

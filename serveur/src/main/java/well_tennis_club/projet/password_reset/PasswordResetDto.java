@@ -1,4 +1,4 @@
-package well_tennis_club.projet.mail;
+package well_tennis_club.projet.password_reset;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

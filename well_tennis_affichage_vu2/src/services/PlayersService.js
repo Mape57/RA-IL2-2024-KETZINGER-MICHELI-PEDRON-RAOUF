@@ -6,6 +6,10 @@ export default {
 		return apiService.getData('/players');
 	},
 
+	getAllPlayersOfValidateStatus(status) {
+		return apiService.getData(`/players/validate/${status}`);
+	},
+
 	getPlayerById(id) {
 		return apiService.getData(`/players/${id}`);
 	},
