@@ -1,4 +1,4 @@
-package well_tennis_club.projet.mail;
+package well_tennis_club.projet.password_reset;
 
 import org.springframework.stereotype.Service;
 import well_tennis_club.projet.trainer.TrainerEntity;
@@ -26,6 +26,10 @@ public class ResetTokenService {
 
 	public boolean isResetTokenValid(String token) {
 		ResetTokenEntity resetToken = resetTokenRepository.findByToken(token);
-		return resetToken != null && !resetToken.getExpiryDate().before(new Date());
+		return resetToken != null && !resetToken.getExpirationDate().before(new Date());
+	}
+
+	public void deleteByToken(String token) {
+		resetTokenRepository.deleteByToken(token);
 	}
 }

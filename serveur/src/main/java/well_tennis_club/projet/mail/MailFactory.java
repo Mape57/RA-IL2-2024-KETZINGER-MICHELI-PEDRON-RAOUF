@@ -1,8 +1,14 @@
 package well_tennis_club.projet.mail;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
+import well_tennis_club.projet.player.PlayerInscription;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class MailFactory {
@@ -17,6 +23,21 @@ public class MailFactory {
 		String body = "To reset your password, click the link below:\n" +
 				"http://localhost:8080/trainers/changePassword?token=" + token;
 		return constructMail(subject, body, mail);
+	}
+
+	public SimpleMailMessage constructInscriptionMail(String token, PlayerInscription playerInscription) {
+		String subject = "Inscription Request";
+		ObjectMapper objectMapper = new ObjectMapper();
+		String pi;
+		try {
+			pi = objectMapper.writeValueAsString(playerInscription);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
+
+		String body = "To confirm your inscription, click the link below:\n" +
+				"http://localhost:8080/inscription?token=" + token + "&player=" + URLEncoder.encode(pi, StandardCharsets.UTF_8);
+		return constructMail(subject, body, playerInscription.getEmail());
 	}
 
 	private SimpleMailMessage constructMail(String subject, String body, String mail) {

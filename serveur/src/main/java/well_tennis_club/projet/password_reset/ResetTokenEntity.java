@@ -1,7 +1,6 @@
-package well_tennis_club.projet.mail;
+package well_tennis_club.projet.password_reset;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,11 +27,11 @@ public class ResetTokenEntity {
 	@JoinColumn(nullable = false, name = "trainer_id")
 	private TrainerEntity trainer;
 
-	private Date expiryDate;
+	private Date expirationDate;
 
 	public ResetTokenEntity(TrainerEntity trainer, String token) {
 		this.trainer = trainer;
 		this.token = token;
-		this.expiryDate = new Date(System.currentTimeMillis() + EXPIRATION * 60 * 1000);
+		this.expirationDate = new Date(System.currentTimeMillis() + EXPIRATION * 60 * 1000);
 	}
 }

@@ -23,8 +23,6 @@ public class PlayerInscription implements Serializable {
     private Long level;
     @Schema(name = "email",example = "test@email.fr")
     private String email;
-    @Schema(name = "validate",example = "true")
-    private Boolean validate;
 
     private List<DisponibilityInscription> disponibilities;
 }

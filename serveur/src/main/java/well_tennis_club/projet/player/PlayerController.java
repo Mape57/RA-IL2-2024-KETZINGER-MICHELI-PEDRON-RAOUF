@@ -102,7 +102,7 @@ public class PlayerController {
     }
 
     @CrossOrigin
-    @Operation(summary = "Get only player who is validate or not",description = "Return player who is validate or not")
+    @Operation(summary = "Return only players of the specified validate status",description = "Return players of this status")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",description = "Successfully retrieved"),
             @ApiResponse(responseCode = "500", description = "Internal server error - Player was not found")

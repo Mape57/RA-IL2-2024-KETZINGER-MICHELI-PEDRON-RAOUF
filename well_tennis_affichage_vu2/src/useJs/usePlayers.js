@@ -84,8 +84,8 @@ export default function usePlayers() {
 	// Récupérer les joueurs qui ne sont pas encore validés
 	const fetchPendingPlayers = async () => {
 		try {
-			const response = await PlayersService.getAllPlayers();
-			pendingPlayers.value = response.data.filter(player => !player.validate);
+			const response = await PlayersService.getAllPlayersOfValidateStatus(false);
+			pendingPlayers.value = response.data;
 			console.log("Joueurs en attente récupérés :", pendingPlayers.value);
 		} catch (error) {
 			console.error("Erreur lors de la récupération des joueurs en attente :", error);
