@@ -12,8 +12,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import well_tennis_club.projet.security.ConnectionService;
-import well_tennis_club.projet.security.JwtUtils;
+import well_tennis_club.projet.controller.DisponibilityController;
+import well_tennis_club.projet.dto.DisponibilityDto;
+import well_tennis_club.projet.entity.DisponibilityEntity;
+import well_tennis_club.projet.mapper.DisponibilityMapper;
+import well_tennis_club.projet.service.ConnectionService;
+import well_tennis_club.projet.config.JwtUtils;
+import well_tennis_club.projet.service.DisponibilityService;
 
 import java.util.UUID;
 

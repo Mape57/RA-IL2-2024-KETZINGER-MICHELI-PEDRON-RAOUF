@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import well_tennis_club.projet.entity.DisponibilityEntity;
+import well_tennis_club.projet.service.DisponibilityService;
 
 import java.util.UUID;
 

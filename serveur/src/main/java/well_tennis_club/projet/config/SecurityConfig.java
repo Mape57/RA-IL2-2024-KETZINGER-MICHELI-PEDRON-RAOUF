@@ -1,0 +1,58 @@
+package well_tennis_club.projet.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import well_tennis_club.projet.service.ConnectionService;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+	private final ConnectionService connectionService;
+	private final JwtUtils jwtUtils;
+
+	@Autowired
+	public SecurityConfig(ConnectionService connectionService, JwtUtils jwtUtils) {
+		this.connectionService = connectionService;
+		this.jwtUtils = jwtUtils;
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
+		AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+		authenticationManagerBuilder.userDetailsService(connectionService).passwordEncoder(passwordEncoder);
+		return authenticationManagerBuilder.build();
+	}
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		return http
+				.csrf(AbstractHttpConfigurer::disable)
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(auth ->
+						auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+								.requestMatchers("/openapi/v3/api-docs/**", "/openapi/swagger-ui/**", "/ws/**", "/auth/*", "/inscription", "/trainers/resetPassword", "/trainers/changePassword").permitAll()
+								.anyRequest().authenticated())
+				.cors(cors -> {
+				})
+				.addFilterBefore(new JwtFilter(connectionService, jwtUtils), UsernamePasswordAuthenticationFilter.class)
+				.build();
+	}
+}

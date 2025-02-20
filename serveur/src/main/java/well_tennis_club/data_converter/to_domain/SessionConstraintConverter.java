@@ -1,6 +1,6 @@
 package well_tennis_club.data_converter.to_domain;
 
-import well_tennis_club.projet.sessionConstraint.SessionConstraintEntity;
+import well_tennis_club.projet.entity.SessionConstraintEntity;
 import well_tennis_club.timefold.data_structure.SessionConstraint;
 import well_tennis_club.timefold.data_structure.ValueRange;
 

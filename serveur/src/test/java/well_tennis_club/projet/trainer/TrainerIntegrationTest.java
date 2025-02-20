@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import well_tennis_club.WellTennisClubApplication;
+import well_tennis_club.projet.entity.TrainerEntity;
+import well_tennis_club.projet.service.TrainerService;
 
 import java.util.UUID;
 

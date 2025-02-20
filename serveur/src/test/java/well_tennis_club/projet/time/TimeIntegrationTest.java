@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import well_tennis_club.projet.entity.TimeEntity;
+import well_tennis_club.projet.service.TimeService;
 
 import java.util.UUID;
 

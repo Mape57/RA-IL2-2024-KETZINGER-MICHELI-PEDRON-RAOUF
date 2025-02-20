@@ -1,0 +1,27 @@
+package well_tennis_club.projet.mapper;
+
+import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
+import well_tennis_club.projet.dto.SessionDto;
+import well_tennis_club.projet.entity.SessionEntity;
+
+import java.util.List;
+
+@Mapper(uses = {CourtMapper.class, TrainerMapper.class, PlayerMapper.class})
+public interface SessionMapper {
+	SessionMapper INSTANCE = Mappers.getMapper(SessionMapper.class);
+
+	@Mapping(target = "idTrainer", source = "idTrainer")
+	@Mapping(target = "idCourt", source = "idCourt")
+	@Mapping(target = "players", source = "players")
+	SessionDto mapToDTO(SessionEntity entity);
+
+	@InheritInverseConfiguration
+	SessionEntity mapToEntity(SessionDto dto);
+
+	List<SessionDto> mapToListDTO(List<SessionEntity> entities);
+
+	List<SessionEntity> mapToListEntity(List<SessionDto> dtos);
+}

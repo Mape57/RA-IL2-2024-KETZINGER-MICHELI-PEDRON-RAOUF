@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import well_tennis_club.projet.player.PlayerService;
+import well_tennis_club.projet.entity.SessionConstraintEntity;
+import well_tennis_club.projet.service.PlayerService;
+import well_tennis_club.projet.service.SessionConstraintService;
 
 import java.util.UUID;
 
