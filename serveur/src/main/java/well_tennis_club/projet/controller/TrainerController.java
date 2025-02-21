@@ -25,6 +25,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("trainers")
 @Transactional
+@CrossOrigin
 public class TrainerController {
 	private final TrainerService trainerService;
 	private final ResetTokenService resetTokenService;
@@ -41,7 +42,6 @@ public class TrainerController {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Get all trainers", description = "Returns all trainers")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),
@@ -60,7 +60,6 @@ public class TrainerController {
 	}
 
 
-	@CrossOrigin
 	@Operation(summary = "Create trainer", description = "Create trainer with name, surname, levels and ages from the dto")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "201", description = "Successfully created"),
@@ -73,7 +72,6 @@ public class TrainerController {
 		return TrainerMapper.INSTANCE.mapToDTO(trainerService.createTrainer(TrainerMapper.INSTANCE.mapToEntity(trainer)));
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Update trainer", description = "Update trainer with id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully patched"),
@@ -93,7 +91,6 @@ public class TrainerController {
 		}
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Delete trainer", description = "Delete trainer with id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "204", description = "Successfully deleted"),
@@ -106,7 +103,6 @@ public class TrainerController {
 		trainerService.deleteTrainer(trainerEntity);
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Get one trainer", description = "Return trainer with id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),
@@ -124,7 +120,6 @@ public class TrainerController {
 		}
 	}
 
-	@CrossOrigin
 	@PostMapping("/resetPassword")
 	public ResponseEntity<String> resetPassword(@RequestBody String trainerMail) {
 		TrainerEntity trainer = trainerService.getTrainerByEmail(trainerMail);
@@ -138,7 +133,6 @@ public class TrainerController {
 		return new ResponseEntity<>("Mail sent", HttpStatus.OK);
 	}
 
-	@CrossOrigin
 	@GetMapping("/changePassword")
 	public String changePassword(@RequestBody PasswordResetDto passwordResetDto) {
 		System.out.println("Changing password");

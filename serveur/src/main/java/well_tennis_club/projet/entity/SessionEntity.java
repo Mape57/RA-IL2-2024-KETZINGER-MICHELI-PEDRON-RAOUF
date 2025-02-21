@@ -24,6 +24,7 @@ public class SessionEntity implements Serializable {
 
 	@Id
 	@Column(name = "id")
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
 	@Column(name = "day_week")

@@ -20,6 +20,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("participations")
 @Transactional
+@Deprecated(forRemoval = true)
 public class ParticipationController {
 
 	private final ParticipationService participationService;

@@ -19,13 +19,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@CrossOrigin
 public class AuthController {
 	private final ConnectionService connectionService;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtils jwtUtils;
 	private final AuthenticationManager authenticationManager;
 
-	@CrossOrigin
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody UserConnectionDto userConnectionDto) {
 		try {

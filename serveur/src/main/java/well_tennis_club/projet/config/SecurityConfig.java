@@ -48,7 +48,9 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth ->
 						auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-								.requestMatchers("/openapi/v3/api-docs/**", "/openapi/swagger-ui/**", "/ws/**", "/auth/*", "/inscription", "/trainers/resetPassword", "/trainers/changePassword").permitAll()
+								.requestMatchers("/openapi/v3/api-docs/**", "/openapi/swagger-ui/**", "/ws/**",
+										"/auth/*", "/inscription", "/inscription/sendInscriptionToken",
+										"/trainers/resetPassword", "/trainers/changePassword").permitAll()
 								.anyRequest().authenticated())
 				.cors(cors -> {
 				})

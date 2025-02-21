@@ -19,6 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("courts")
 @Transactional
+@CrossOrigin
 public class CourtController {
 	private final CourtService courtService;
 
@@ -27,7 +28,6 @@ public class CourtController {
 		this.courtService = courtService;
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Get all courts", description = "Returns all courts")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),
@@ -45,20 +45,6 @@ public class CourtController {
 		}
 	}
 
-	@CrossOrigin
-	@Operation(summary = "Create court", description = "Create court with name, start and end from the dto")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "201", description = "Successfully created"),
-			@ApiResponse(responseCode = "404", description = "Internal server error - Court was not create")
-	})
-	@PostMapping
-	public CourtDto createCourt(@RequestBody CourtDto courtDto) {
-		CourtDto court = courtDto;
-		court.setId(UUID.randomUUID());
-		return CourtMapper.INSTANCE.mapToDTO(courtService.createCourt(CourtMapper.INSTANCE.mapToEntity(court)));
-	}
-
-	@CrossOrigin
 	@Operation(summary = "Update court", description = "Update court with id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully patched"),
@@ -78,7 +64,22 @@ public class CourtController {
 		}
 	}
 
-	@CrossOrigin
+	// ========================= DEPRECATED ========================= //
+
+	@Deprecated(forRemoval = true)
+	@Operation(summary = "Create court", description = "Create court with name, start and end from the dto")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "201", description = "Successfully created"),
+			@ApiResponse(responseCode = "404", description = "Internal server error - Court was not create")
+	})
+	@PostMapping
+	public CourtDto createCourt(@RequestBody CourtDto courtDto) {
+		CourtDto court = courtDto;
+		court.setId(UUID.randomUUID());
+		return CourtMapper.INSTANCE.mapToDTO(courtService.createCourt(CourtMapper.INSTANCE.mapToEntity(court)));
+	}
+
+	@Deprecated(forRemoval = true)
 	@Operation(summary = "Delete court", description = "Delete court with id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "204", description = "Successfully deleted"),
@@ -91,7 +92,7 @@ public class CourtController {
 		courtService.deleteCourt(entity);
 	}
 
-	@CrossOrigin
+	@Deprecated(forRemoval = true)
 	@Operation(summary = "Get one court", description = "Return court with id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),

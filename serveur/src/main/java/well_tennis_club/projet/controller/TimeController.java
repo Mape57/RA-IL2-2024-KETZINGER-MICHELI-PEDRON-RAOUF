@@ -19,6 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("time")
 @Transactional
+@Deprecated(forRemoval = true)
 public class TimeController {
 	private final TimeService timeService;
 

@@ -19,6 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("constraints")
 @Transactional
+@CrossOrigin
 public class SessionConstraintController {
 	private final SessionConstraintService sessionConstraintService;
 
@@ -27,7 +28,6 @@ public class SessionConstraintController {
 		this.sessionConstraintService = sessionConstraintService;
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Get all constraints", description = "Returns all constraints")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),
@@ -45,7 +45,6 @@ public class SessionConstraintController {
 		}
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Create constraint", description = "Create constraint with name, start and end from the dto")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "201", description = "Successfully created"),
@@ -57,7 +56,6 @@ public class SessionConstraintController {
 		return SessionConstraintMapper.INSTANCE.mapToDTO(sessionConstraintService.createConstraint(SessionConstraintMapper.INSTANCE.mapToEntity(sessionConstraint)));
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Update constraint", description = "Update constraint with id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully patched"),
@@ -77,7 +75,6 @@ public class SessionConstraintController {
 		}
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Delete constraint", description = "Delete constraint with id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully deleted"),
@@ -90,7 +87,9 @@ public class SessionConstraintController {
 		sessionConstraintService.deleteConstraint(constraint);
 	}
 
-	@CrossOrigin
+	// ========================= DEPRECATED ========================= //
+
+	@Deprecated(forRemoval = true)
 	@Operation(summary = "Get constraint by id", description = "Returns constraint by id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),

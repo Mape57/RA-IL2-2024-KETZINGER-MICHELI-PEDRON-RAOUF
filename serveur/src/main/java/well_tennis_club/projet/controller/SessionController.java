@@ -19,6 +19,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("sessions")
 @Transactional
+@CrossOrigin
 public class SessionController {
 	private final SessionService sessionService;
 
@@ -27,7 +28,6 @@ public class SessionController {
 		this.sessionService = sessionService;
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Get all sessions", description = "Returns all sessions")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),
@@ -45,7 +45,6 @@ public class SessionController {
 		}
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Create session", description = "Create session with day, start, stop, idTrainer and idCourt")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "201", description = "Successfully created"),
@@ -58,7 +57,6 @@ public class SessionController {
 		return SessionMapper.INSTANCE.mapToDTO(sessionService.createSession(SessionMapper.INSTANCE.mapToEntity(session)));
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Update session", description = "Update session with id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully updated"),
@@ -78,7 +76,6 @@ public class SessionController {
 		}
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Delete session", description = "Delete session with id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "204", description = "Successfully deleted"),
@@ -91,7 +88,9 @@ public class SessionController {
 		sessionService.deleteSession(entity);
 	}
 
-	@CrossOrigin
+	// ========================= DEPRECATED ========================= //
+
+	@Deprecated(forRemoval = true)
 	@Operation(summary = "Get one session", description = "Return session with id")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),

@@ -20,6 +20,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("disponibilityPlayer")
 @Transactional
+@Deprecated(forRemoval = true)
 public class DisponibilityPlayerController {
 	private final DisponibilityPlayerService disponibilityPlayerService;
 

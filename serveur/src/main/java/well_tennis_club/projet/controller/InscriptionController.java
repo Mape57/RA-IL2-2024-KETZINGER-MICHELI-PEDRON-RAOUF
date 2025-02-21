@@ -34,6 +34,7 @@ import java.util.UUID;
 @RestController
 @Transactional
 @RequestMapping("inscription")
+@CrossOrigin
 public class InscriptionController {
 	private final PlayerService playerService;
 	private final DisponibilityService disponibilityService;
@@ -63,7 +64,6 @@ public class InscriptionController {
 		return ResponseEntity.ok("Mail de confirmation envoyé");
 	}
 
-	@CrossOrigin
 	@Operation(summary = "Create a player", description = "Create a player with name, surname, age, level and courses")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),

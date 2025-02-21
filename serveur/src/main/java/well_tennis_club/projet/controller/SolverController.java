@@ -2,6 +2,8 @@ package well_tennis_club.projet.controller;
 
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import ai.timefold.solver.core.api.solver.SolutionManager;
+import ai.timefold.solver.core.api.solver.SolverJob;
+import ai.timefold.solver.core.api.solver.SolverJobBuilder;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,10 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import well_tennis_club.projet.entity.*;
 import well_tennis_club.projet.service.CourtService;
 import well_tennis_club.projet.service.PlayerService;
@@ -69,7 +68,7 @@ public class SolverController {
 			@ApiResponse(responseCode = "409", description = "Conflict - Timetable solver was already started"),
 			@ApiResponse(responseCode = "500", description = "Internal server error - Timetable solver was not started")
 	})
-	@GetMapping("/start")
+	@PostMapping
 	public ResponseEntity<String> startSolver() {
 		if (problemId != null) {
 			return ResponseEntity.status(409).body("Timetable solver was already started");
@@ -78,27 +77,39 @@ public class SolverController {
 		this.timetable = timetableFactory.createTimetable();
 
 		this.problemId = UUID.randomUUID();
-		solverManager.solveAndListen(this.problemId, this.timetable, (bestTimetable) -> {
-			System.out.println("New best solution found with score: " + bestTimetable.getScore().toString());
-			this.timetable = bestTimetable;
-		});
+
+		solverManager.solveBuilder()
+				.withProblemId(problemId)
+				.withProblem(timetable)
+				.withBestSolutionConsumer(bestSolution -> {
+					System.out.println("New best solution found: " + bestSolution.getScore());
+					this.timetable = bestSolution;
+				})
+				.withFinalBestSolutionConsumer(finalBestSolution -> {
+					System.out.println("Final best solution found: " + finalBestSolution.getScore());
+					this.timetable = finalBestSolution;
+					this.problemId = null;
+					saveTimetable();
+				})
+				.run();
 
 		return ResponseEntity.ok("Solver started");
 	}
 
-	@GetMapping("/status")
+	@GetMapping
 	public ResponseEntity<String> status() {
-		if (problemId == null) {
+		if (problemId == null && timetable == null) {
 			return ResponseEntity.ok("Solver not started");
+		} else if (problemId == null) {
+			return ResponseEntity.ok("Solver finished, final score: " + timetable.getScore());
+		} else {
+			return ResponseEntity.ok("Solver running, current score: " + timetable.getScore());
 		}
-
-		return ResponseEntity.ok(timetable.getScore().toString());
 	}
 
-	@GetMapping("/save")
-	public ResponseEntity<String> saveTimetable() {
-		if (problemId == null || this.timetable == null) {
-			return ResponseEntity.status(404).body("Solver not started");
+	public void saveTimetable() {
+		if (timetable == null) {
+			return;
 		}
 
 		Map<Session, List<PlayerSessionLink>> session_withPSLs = new HashMap<>();
@@ -115,21 +126,6 @@ public class SolverController {
 				.toList();
 
 		timetableService.saveAllSession(sessionEntities);
-
-
-		return ResponseEntity.ok("Timetable saved");
-	}
-
-	@GetMapping("/stop")
-	public ResponseEntity<String> stopSolver() {
-		if (problemId == null) {
-			return ResponseEntity.status(404).body("Solver not started");
-		}
-
-		solverManager.terminateEarly(problemId);
-		problemId = null;
-
-		return ResponseEntity.ok("Solver stopped");
 	}
 
 	@GetMapping("/insertData")
@@ -185,5 +181,20 @@ public class SolverController {
 		sessionEntity.setPlayers(playerEntities);
 
 		return sessionEntity;
+	}
+
+	// ========================= DEPRECATED ========================= //
+
+	@Deprecated(forRemoval = true)
+	@GetMapping("/stop")
+	public ResponseEntity<String> stopSolver() {
+		if (problemId == null) {
+			return ResponseEntity.status(404).body("Solver not started");
+		}
+
+		solverManager.terminateEarly(problemId);
+		problemId = null;
+
+		return ResponseEntity.ok("Solver stopped");
 	}
 }

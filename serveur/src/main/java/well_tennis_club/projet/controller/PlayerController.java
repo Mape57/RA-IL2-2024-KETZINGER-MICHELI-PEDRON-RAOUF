@@ -19,30 +19,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("players")
 @Transactional
+@CrossOrigin
 public class PlayerController {
 	private final PlayerService playerService;
 
 	@Autowired
 	public PlayerController(PlayerService playerService) {
 		this.playerService = playerService;
-	}
-
-	@CrossOrigin
-	@Operation(summary = "Get all players", description = "Returns all players")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),
-			@ApiResponse(responseCode = "500", description = "Internal server error - Players were not found")
-	})
-	@GetMapping()
-	public List<PlayerDto> getAllPlayers() {
-		List<PlayerDto> list = PlayerMapper.INSTANCE.mapToListDTO(playerService.getAllPlayers());
-		if (list == null) {
-			throw new ResponseStatusException(
-					HttpStatus.NOT_FOUND, "Players not found"
-			);
-		} else {
-			return list;
-		}
 	}
 
 	@CrossOrigin
@@ -124,6 +107,26 @@ public class PlayerController {
 			);
 		} else {
 			return players;
+		}
+	}
+
+	// ========================= DEPRECATED ========================= //
+
+	@Deprecated(forRemoval = true)
+	@Operation(summary = "Get all players", description = "Returns all players")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Successfully retrieved"),
+			@ApiResponse(responseCode = "500", description = "Internal server error - Players were not found")
+	})
+	@GetMapping
+	public List<PlayerDto> getAllPlayers() {
+		List<PlayerDto> list = PlayerMapper.INSTANCE.mapToListDTO(playerService.getAllPlayers());
+		if (list == null) {
+			throw new ResponseStatusException(
+					HttpStatus.NOT_FOUND, "Players not found"
+			);
+		} else {
+			return list;
 		}
 	}
 }
