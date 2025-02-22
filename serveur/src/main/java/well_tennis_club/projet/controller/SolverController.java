@@ -119,10 +119,7 @@ public class SolverController {
 		}
 
 		List<SessionEntity> sessionEntities = session_withPSLs.entrySet().stream()
-				.map(entry -> {
-					System.out.println(entry.getKey() + " -> " + entry.getValue());
-					return from(entry.getKey(), entry.getValue());
-				})
+				.map(entry -> from(entry.getKey(), entry.getValue()))
 				.toList();
 
 		timetableService.saveAllSession(sessionEntities);
@@ -130,7 +127,7 @@ public class SolverController {
 
 	@GetMapping("/insertData")
 	public ResponseEntity<String> insertData() {
-		List<PlayerEntity> players = DataInsertion.players.real_adult;
+		List<PlayerEntity> players = DataInsertion.players.real();
 		List<TrainerEntity> trainers = DataInsertion.trainers.real();
 		List<CourtEntity> courts = DataInsertion.tennisCourts.real;
 		List<SessionConstraintEntity> sessionConstraints = DataInsertion.sessionConstraints.real;

@@ -2,10 +2,7 @@ package well_tennis_club.projet.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import well_tennis_club.data_converter.to_domain.PlayerConverter;
-import well_tennis_club.data_converter.to_domain.SessionConstraintConverter;
-import well_tennis_club.data_converter.to_domain.TennisCourtConverter;
-import well_tennis_club.data_converter.to_domain.TrainerConverter;
+import well_tennis_club.data_converter.to_domain.*;
 import well_tennis_club.projet.entity.*;
 import well_tennis_club.projet.repository.CourtRepository;
 import well_tennis_club.projet.repository.PlayerRepository;
@@ -13,6 +10,7 @@ import well_tennis_club.projet.repository.SessionRepository;
 import well_tennis_club.projet.repository.TrainerRepository;
 import well_tennis_club.timefold.data_structure.SessionConstraint;
 import well_tennis_club.timefold.domain.Player;
+import well_tennis_club.timefold.domain.Session;
 import well_tennis_club.timefold.domain.TennisCourt;
 import well_tennis_club.timefold.domain.Trainer;
 
