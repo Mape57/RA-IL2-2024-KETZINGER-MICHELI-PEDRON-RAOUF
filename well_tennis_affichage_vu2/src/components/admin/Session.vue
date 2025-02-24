@@ -5,39 +5,33 @@
         class="flex justify-between items-center cursor-pointer py-2 border-b"
         @click="toggleAccordion"
     >
-      <div class="flex items-center">
-        <span
-            :class="{ 'rotate-180': isOpen }"
-            class="material-symbols-outlined transition-transform duration-300 mr-2"
-        >
-          expand_more
-        </span>
-        <h3 class="font-bold text-lg">Séances</h3>
+      <div class="flex items-center session-hover">
+      <span :class="{ 'rotate-180': isOpen }" class="material-symbols-outlined session-arrow transition-transform duration-300 mr-2">
+        expand_more
+      </span>
+            <h3 class="font-bold text-lg session-title">Séances</h3>
       </div>
-      <!-- Boutons d'action, déplacés à droite -->
-      <div class="flex space-x-2 justify-end w-full">
+
+      <div class="flex space-x-2 justify-end w-full" v-if="!localIsMobile">
         <span class="material-symbols-outlined small-icon cursor-pointer" title="Supprimer">delete</span>
         <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter">person_add</span>
       </div>
     </div>
 
-    <!-- Contenu déroulant -->
     <div v-if="isOpen" class="mt-2">
       <!-- Liste des séances -->
       <div v-for="(session, index) in sessions" :key="index" class="mb-2">
         <!-- Ligne de titre pour chaque session -->
-        <div class="flex justify-between items-center cursor-pointer py-1" @click="toggleSession(index)">
+        <div class="flex justify-between items-center cursor-pointer py-1 session-sub-hover" @click="toggleSession(index)">
           <div class="flex items-center">
-            <span
-                :class="{ 'rotate-180': openSessions.includes(index) }"
-                class="material-symbols-outlined transition-transform duration-300 mr-2 small-icon"
-            >
-              expand_more
+
+            <span :class="{ 'rotate-180': openSessions.includes(index) }"
+                  class="material-symbols-outlined session-sub-arrow transition-transform duration-300 mr-2 small-icon">
+                  expand_more
             </span>
-            <h4 class="font-semibold text-black-800">{{ session.title }}</h4>
+            <h4 class="font-semibold session-sub-title">{{ session.title }}</h4>
           </div>
-          <!-- Ajout de l'icône interdit à côté de chaque ligne -->
-          <div>
+          <div v-if="!localIsMobile">
             <span class="material-symbols-outlined cursor-pointer small-icon" title="Interdit">block</span>
           </div>
         </div>
@@ -48,44 +42,44 @@
             <tbody>
             <tr>
               <td class="text-left">Âge</td>
-              <td class="text-right">{{ session.age }}</td>
+              <td class="text-center">{{ session.age }}</td>
               <!-- Icône interdit dans la dernière colonne -->
-              <td class="text-center">
+              <td class="text-center" v-if="!localIsMobile">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Effectif</td>
-              <td class="text-right">{{ session.effective }}</td>
-              <td class="text-center">
+              <td class="text-center">{{ session.effective }}</td>
+              <td class="text-center" v-if="!localIsMobile">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Durée</td>
-              <td class="text-right">{{ session.duration }}h</td>
-              <td class="text-center">
+              <td class="text-center">{{ session.duration }}h</td>
+              <td class="text-center" v-if="!localIsMobile">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Diff. niveau</td>
-              <td class="text-right">{{ session.levelDifference }}</td>
-              <td class="text-center">
+              <td class="text-center">{{ session.levelDifference }}</td>
+              <td class="text-center" v-if="!localIsMobile">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Diff. âge</td>
-              <td class="text-right">{{ session.ageGroup }}</td>
-              <td class="text-center">
+              <td class="text-center">{{ session.ageGroup }}</td>
+              <td class="text-center" v-if="!localIsMobile">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Niveau</td>
               <td class="text-right">{{ session.level }}</td>
-              <td class="text-center">
+              <td class="text-center" v-if="!localIsMobile">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
@@ -98,10 +92,32 @@
 </template>
 
 <script>
+import { ref, onMounted, onUnmounted } from "vue";
+
 export default {
   name: "Sessions",
   props: {
     sessions: Array,
+  },
+  setup() {
+    const localIsMobile = ref(window.innerWidth < 768);
+
+    const updateIsMobile = () => {
+      localIsMobile.value = window.innerWidth < 768;
+    };
+
+    onMounted(() => {
+      updateIsMobile();
+      window.addEventListener("resize", updateIsMobile);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("resize", updateIsMobile);
+    });
+
+    return {
+      localIsMobile,
+    };
   },
   data() {
     return {
@@ -114,7 +130,6 @@ export default {
       this.isOpen = !this.isOpen;
     },
     toggleSession(index) {
-      // Bascule l'état de chaque session
       if (this.openSessions.includes(index)) {
         this.openSessions = this.openSessions.filter(i => i !== index);
       } else {
@@ -124,6 +139,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .material-symbols-outlined {
@@ -158,4 +174,27 @@ export default {
 .w-full {
   width: 100%;
 }
+
+.session-hover, .session-sub-hover {
+  transition: color 0.2s ease-in-out;
+}
+
+.session-title, .session-sub-title {
+  transition: color 0.2s ease-in-out;
+}
+
+.session-arrow, .session-sub-arrow {
+  transition: color 0.2s ease-in-out;
+}
+
+.session-hover:hover .session-title,
+.session-hover:hover .session-arrow {
+  color: #2F855A;
+}
+
+.session-sub-hover:hover .session-sub-title,
+.session-sub-hover:hover .session-sub-arrow {
+  color: #2F855A;
+}
+
 </style>

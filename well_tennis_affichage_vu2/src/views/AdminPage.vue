@@ -3,7 +3,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <!-- Bouton du menu hamburger -->
-    <button v-if="isMobile && !showLeftPanel" @click="toggleMenu" class="menu-button">
+    <button v-if="isMobile" @click="toggleMenu" class="menu-button">
       <span class="material-symbols-outlined">menu</span>
     </button>
 
@@ -39,6 +39,7 @@ import LeftPanel from "../components/admin/LeftPanel.vue";
 import RightPanel from "../components/terrains/RightPanel.vue";
 import BottomPanel from "../components/shared/BottomPanel.vue";
 import usePlayers from "../useJs/usePlayers";
+import {watch} from "vue";
 
 export default {
   name: "AdminPage",
@@ -47,6 +48,7 @@ export default {
     RightPanel,
     BottomPanel,
   },
+
   data() {
     return {
       updateValue: 0,
@@ -86,6 +88,15 @@ export default {
   mounted() {
     this.checkScreenSize();
     window.addEventListener("resize", this.checkScreenSize);
+    watch(
+        () => this.isMobile,
+        (isMobile) => {
+          if (isMobile) {
+            this.showLeftPanel = false;
+          }
+        }
+    );
+
   },
   beforeUnmount() {
     window.removeEventListener("resize", this.checkScreenSize);
@@ -94,8 +105,9 @@ export default {
 </script>
 
 <style scoped>
+
 .admin-page {
-  background: #f5f5f5;
+  background: #eaf1ee;
 }
 
 /* Bouton menu hamburger */
@@ -103,7 +115,7 @@ export default {
   position: fixed;
   top: 15px;
   left: 15px;
-  z-index: 20;
+  z-index: 200;
   padding: 0.5rem;
   border: none;
   cursor: pointer;
@@ -128,7 +140,7 @@ export default {
   background: white;
   border: 1px solid #ddd;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 15;
+  z-index: 1500;
   border-radius: 8px;
   overflow: hidden;
   display: flex;
@@ -169,7 +181,7 @@ export default {
   top: 0;
   left: 0;
   background: white;
-  z-index: 15;
+  z-index: 1500;
   overflow-y: auto;
   transition: transform 0.3s ease-in-out;
 }
@@ -187,19 +199,5 @@ export default {
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.fade-enter, .fade-leave-to {
-  opacity: 0;
-}
-
-.slide-fade-enter-active {
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-}
-.slide-fade-enter {
-  transform: translateX(-100%);
-  opacity: 0;
-}
-.slide-fade-leave-to {
-  transform: translateX(-100%);
-  opacity: 0;
-}
 </style>
+
