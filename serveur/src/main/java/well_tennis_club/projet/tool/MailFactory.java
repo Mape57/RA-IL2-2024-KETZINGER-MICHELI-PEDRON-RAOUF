@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
-import well_tennis_club.projet.dto.PlayerInscriptionDto;
+import well_tennis_club.projet.core.player.dto.PlayerInscriptionDto;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

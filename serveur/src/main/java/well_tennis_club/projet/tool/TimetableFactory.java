@@ -2,11 +2,10 @@ package well_tennis_club.projet.tool;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import well_tennis_club.projet.entity.ParticipationEntity;
-import well_tennis_club.projet.entity.SessionEntity;
-import well_tennis_club.projet.service.ParticipationService;
-import well_tennis_club.projet.service.SessionService;
-import well_tennis_club.projet.service.TimetableService;
+import well_tennis_club.projet.core.DEPRECATED_participation.ParticipationService;
+import well_tennis_club.projet.core.session.SessionEntity;
+import well_tennis_club.projet.core.session.SessionService;
+import well_tennis_club.projet.core.solver.TimetableService;
 import well_tennis_club.timefold.data_structure.SessionConstraint;
 import well_tennis_club.timefold.domain.*;
 
@@ -20,6 +19,7 @@ import java.util.UUID;
 public class TimetableFactory {
 	private final TimetableService timetableService;
 	private final SessionService sessionService;
+	// FIXME trouver un moyen de ne pas avoir à injecter cette dépendance
 	private final ParticipationService participationService;
 
 	@Autowired

@@ -1,6 +1,6 @@
 package well_tennis_club.data_converter.to_entity;
 
-import well_tennis_club.projet.entity.TrainerEntity;
+import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
 import well_tennis_club.timefold.data_structure.Timeslot;
 import well_tennis_club.timefold.data_structure.ValueRange;
 

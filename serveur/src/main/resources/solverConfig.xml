@@ -44,7 +44,7 @@
 
     <localSearch>
         <termination>
-            <unimprovedSecondsSpentLimit>5</unimprovedSecondsSpentLimit>
+            <unimprovedSecondsSpentLimit>300</unimprovedSecondsSpentLimit>
             <bestScoreLimit>0hard/0soft</bestScoreLimit>
         </termination>
         <acceptor>
@@ -58,7 +58,7 @@
 
     <localSearch>
         <termination>
-            <unimprovedSecondsSpentLimit>5</unimprovedSecondsSpentLimit>
+            <unimprovedSecondsSpentLimit>300</unimprovedSecondsSpentLimit>
             <bestScoreLimit>0hard/0soft</bestScoreLimit>
         </termination>
         <acceptor>

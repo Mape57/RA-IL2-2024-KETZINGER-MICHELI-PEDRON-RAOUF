@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import well_tennis_club.projet.service.ConnectionService;
+import well_tennis_club.projet.core.trainer.service.ConnectionService;
 
 import java.io.IOException;
 

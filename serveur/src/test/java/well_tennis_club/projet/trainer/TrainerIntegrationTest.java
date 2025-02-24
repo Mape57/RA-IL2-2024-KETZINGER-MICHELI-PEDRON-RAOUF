@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import well_tennis_club.WellTennisClubApplication;
-import well_tennis_club.projet.entity.TrainerEntity;
-import well_tennis_club.projet.service.TrainerService;
+import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
+import well_tennis_club.projet.core.trainer.service.TrainerService;
 
 import java.util.UUID;
 
@@ -60,7 +60,7 @@ public class TrainerIntegrationTest {
         Assertions.assertThat(trainer.getName()).isEqualTo("Micheli");
         Assertions.assertThat(trainer.getSurname()).isEqualTo("Thomas");
 
-        service.deleteTrainer(trainerEntity);
+        service.deleteById(trainerEntity.getId());
     }
 
     @Test
@@ -106,7 +106,7 @@ public class TrainerIntegrationTest {
         Assertions.assertThat(trainer).isNotNull();
         Assertions.assertThat(trainer.getName()).isEqualTo("Jung");
 
-        service.deleteTrainer(trainerEntity);
+        service.deleteById(trainerEntity.getId());
         trainer = service.getTrainerById(id);
         Assertions.assertThat(trainer).isNull();
     }

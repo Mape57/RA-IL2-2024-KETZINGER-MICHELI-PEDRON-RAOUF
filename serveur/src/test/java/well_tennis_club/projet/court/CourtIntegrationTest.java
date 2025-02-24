@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import well_tennis_club.projet.entity.CourtEntity;
+import well_tennis_club.projet.core.court.CourtEntity;
 import well_tennis_club.projet.config.JwtUtils;
 import well_tennis_club.projet.config.SecurityConfig;
-import well_tennis_club.projet.service.CourtService;
+import well_tennis_club.projet.core.court.CourtService;
 
 import java.util.UUID;
 

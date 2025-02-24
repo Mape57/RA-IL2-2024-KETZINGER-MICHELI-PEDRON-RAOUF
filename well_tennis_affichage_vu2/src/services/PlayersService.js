@@ -3,11 +3,11 @@ import apiService from './apiService';
 
 export default {
 	getAllPlayers() {
-		return apiService.getData('/players');
+		return apiService.getData('/players?validate=true');
 	},
 
 	getAllPlayersOfValidateStatus(status) {
-		return apiService.getData(`/players/validate/${status}`);
+		return apiService.getData(`/players?validate=${status}`);
 	},
 
 	getPlayerById(id) {

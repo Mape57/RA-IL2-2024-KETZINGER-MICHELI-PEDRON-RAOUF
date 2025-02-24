@@ -1,6 +1,6 @@
 package well_tennis_club.data_converter.to_entity;
 
-import well_tennis_club.projet.entity.SessionConstraintEntity;
+import well_tennis_club.projet.core.session_constraint.SessionConstraintEntity;
 import well_tennis_club.timefold.data_structure.SessionConstraint;
 
 import java.util.UUID;

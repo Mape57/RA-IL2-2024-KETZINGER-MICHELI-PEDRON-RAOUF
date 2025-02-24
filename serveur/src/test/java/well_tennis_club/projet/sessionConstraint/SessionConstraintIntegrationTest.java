@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import well_tennis_club.projet.entity.SessionConstraintEntity;
-import well_tennis_club.projet.service.PlayerService;
-import well_tennis_club.projet.service.SessionConstraintService;
+import well_tennis_club.projet.core.session_constraint.SessionConstraintEntity;
+import well_tennis_club.projet.core.player.service.PlayerService;
+import well_tennis_club.projet.core.session_constraint.SessionConstraintService;
 
 import java.util.UUID;
 
@@ -58,7 +58,7 @@ public class SessionConstraintIntegrationTest {
         Assertions.assertThat(constraint.getInfLevel()).isEqualTo(15);
         Assertions.assertThat(constraint.getSupLevel()).isEqualTo(20);
 
-        service.deleteConstraint(constraintEntity);
+        service.deleteById(constraintEntity.getId());
     }
 
     @Test
@@ -107,7 +107,7 @@ public class SessionConstraintIntegrationTest {
         Assertions.assertThat(constraint.getInfLevel()).isEqualTo(15);
         Assertions.assertThat(constraint.getSupLevel()).isEqualTo(20);
 
-        service.deleteConstraint(constraintEntity);
+        service.deleteById(constraintEntity.getId());
         constraint = service.getConstraintById(id);
         Assertions.assertThat(constraint).isNull();
     }

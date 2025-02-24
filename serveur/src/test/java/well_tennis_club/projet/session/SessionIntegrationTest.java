@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import well_tennis_club.projet.service.CourtService;
-import well_tennis_club.projet.entity.SessionEntity;
-import well_tennis_club.projet.service.SessionService;
-import well_tennis_club.projet.service.TrainerService;
+import well_tennis_club.projet.core.court.CourtService;
+import well_tennis_club.projet.core.session.SessionEntity;
+import well_tennis_club.projet.core.session.SessionService;
+import well_tennis_club.projet.core.trainer.service.TrainerService;
 
 import java.util.UUID;
 
@@ -57,7 +57,7 @@ public class SessionIntegrationTest {
         Assertions.assertThat(session).isNotNull();
         Assertions.assertThat(session.getDayWeek()).isEqualTo(2);
 
-        service.deleteSession(sessionEntity);
+        service.deleteById(sessionEntity.getId());
     }
 
     @Test
@@ -95,7 +95,7 @@ public class SessionIntegrationTest {
         Assertions.assertThat(session).isNotNull();
         Assertions.assertThat(session.getDayWeek()).isEqualTo(2);
 
-        service.deleteSession(sessionEntity);
+        service.deleteById(sessionEntity.getId());
         session = service.getSessionById(id);
         Assertions.assertThat(session).isNull();
     }
