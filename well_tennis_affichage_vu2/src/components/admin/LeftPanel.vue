@@ -29,7 +29,7 @@
       </div>
 
       <button
-          v-if="!isMobile"
+          v-if="userRole === 'ADMIN' && !isMobile"
           @click="selectTab('settings')"
           :class="{ active: selectedTab === 'settings' }"
           class="tab-button flex-grow flex items-center justify-center"
@@ -51,14 +51,25 @@
     <div class="content flex-1 overflow-auto p-4 w-full overflow-x-hidden">
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
-        <Trainers :trainers="trainers" @update:trainers="updateTrainers"/>
-        <Players :players="players" :searchQuery="searchQuery" @update:players="updatePlayers"/>
+        <Trainers
+            :trainers="trainers"
+            :isMobile="isMobile"
+            :userRole="userRole"
+            @update:trainers="userRole === 'ADMIN' ? updateTrainers : () => {}"
+        />
+        <Players
+            :players="players"
+            :searchQuery="searchQuery"
+            :isMobile="isMobile"
+            :userRole="userRole"
+            @update:players="userRole === 'ADMIN' ? updatePlayers : () => {}"
+        />
       </div>
 
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
-        <Terrains :terrains="terrains" />
-        <Session :sessions="sessions" />
+        <Terrains :terrains="terrains" :isMobile="isMobile" :userRole="userRole"/>
+        <Session :sessions="sessions" :isMobile="isMobile" :userRole="userRole" />
       </div>
 
       <!-- Onglet Paramètres (masqué en mode mobile) -->
@@ -140,6 +151,7 @@ export default {
   },
   props: {
     isMobile: Boolean,
+    userRole: String,
   },
   setup(props) {
     const localIsMobile = ref(props.isMobile);

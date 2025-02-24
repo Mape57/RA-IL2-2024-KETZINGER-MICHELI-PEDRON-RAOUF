@@ -2,17 +2,20 @@
   <div>
     <div class="flex justify-between items-center cursor-pointer py-2 border-b" @click="toggleAccordion">
       <div class="flex items-center trainer-hover">
-       <span :class="{ 'rotate-180': isOpen }" class="material-symbols-outlined trainer-arrow transition-transform duration-300 mr-2">
+       <span :class="{ 'rotate-180': isOpen }"
+             class="material-symbols-outlined trainer-arrow transition-transform duration-300 mr-2">
         expand_more
        </span>
-      <h3 class="font-bold text-lg trainer-title">Entraîneurs</h3>
+        <h3 class="font-bold text-lg trainer-title">Entraîneurs</h3>
 
 
       </div>
-      <div class="flex space-x-2" v-if="!localIsMobile">
-      <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter" ref="addTrainerButton" @click="addTrainer">
-        person_add
-      </span>
+
+      <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ADMIN'">
+          <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter" ref="addTrainerButton"
+                @click="addTrainer">
+            person_add
+          </span>
       </div>
 
     </div>
@@ -23,13 +26,23 @@
         <div class="text-left">Niveau Min•Max</div>
         <div class="text-center">Âge Min•Max</div>
       </div>
-      <div v-for="trainer in trainers" :key="trainer.id" class="grid grid-cols-4 items-center py-1" :class="{ 'cursor-pointer': !isMobile }" @click="!isMobile && showTrainerInfo(trainer)">
+      <div v-for="trainer in trainers" :key="trainer.id" class="grid grid-cols-4 items-center py-1"
+           :class="{ 'cursor-pointer': !isMobile }" @click="!isMobile && showTrainerInfo(trainer)">
         <span>{{ trainer.name }}</span>
         <span class="text-left">{{ trainer.surname }}</span>
         <span class="text-left">{{ trainer.infLevel }} - {{ trainer.supLevel }}</span>
         <span class="text-center">{{ trainer.infAge }} - {{ trainer.supAge }}</span>
       </div>
-      <TrainerInfoView v-if="selectedTrainer && !isMobile" :trainer="selectedTrainer" @close="selectedTrainer = null" @delete="handleTrainerDeletion" @save="handleTrainerSave" />
+
+
+      <TrainerInfoView
+          v-if="selectedTrainer && !isMobile && userRole === 'ADMIN'"
+          :trainer="selectedTrainer"
+          @close="selectedTrainer = null"
+          @delete="handleTrainerDeletion"
+          @save="handleTrainerSave"
+      />
+
     </div>
   </div>
 </template>
@@ -44,6 +57,7 @@ export default {
   props: {
     trainers: Array,
     isMobile: Boolean,
+    userRole: String,
   },
   setup() {
     const localIsMobile = ref(window.innerWidth < 768);
@@ -84,10 +98,12 @@ export default {
       this.selectedTrainer = this.selectedTrainer?.id === trainer.id ? null : trainer;
     },
     handleTrainerDeletion(deletedTrainerId) {
+      if (this.userRole !== "ADMIN") return;
       this.$emit('update:trainers', this.trainers.filter(trainer => trainer.id !== deletedTrainerId));
       this.selectedTrainer = null;
     },
     handleTrainerSave(savedTrainer) {
+      if (this.userRole !== "ADMIN") return;
       if (!savedTrainer || typeof savedTrainer !== "object") return;
       const index = this.trainers.findIndex(t => t.id === savedTrainer.id);
       if (index !== -1) {
@@ -98,7 +114,7 @@ export default {
       this.$emit("update:trainers", [...this.trainers]);
     },
     addTrainer() {
-      if (this.localIsMobile) return;
+      if (this.localIsMobile || this.userRole !== "ADMIN") return;
       this.selectedTrainer = {
         id: null,
         name: "",

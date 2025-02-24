@@ -26,7 +26,7 @@
             </span>
             <h4 class="font-semibold terrain-sub-title">{{ terrain.name }}</h4>
           </div>
-          <div class="flex space-x-2" v-if="!localIsMobile">
+          <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ADMIN'">
             <span
                 class="material-symbols-outlined small-icon cursor-pointer"
                 @click="deleteTerrain(terrain.id)"
@@ -46,7 +46,7 @@
               <th class="text-left">Jour</th>
               <th class="text-center">Ouverture</th>
               <th class="text-center">Fermeture</th>
-              <th class="text-center" v-if="!localIsMobile">Actions</th>
+              <th class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -54,7 +54,7 @@
               <td>{{ convertDay(time.dayWeek)}}</td>
               <td class="text-center">{{ time.start }}</td>
               <td class="text-center">{{ time.stop }}</td>
-              <td class="text-center" v-if="!localIsMobile">
+              <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                   <span
                       class="material-symbols-outlined small-icon cursor-pointer"
                       @click="deleteSchedule(time.id)"
@@ -80,6 +80,7 @@ export default {
       type: Array,
       required: true,
     },
+    userRole: String,
   },
   setup() {
     const localIsMobile = ref(window.innerWidth < 768);
@@ -129,9 +130,11 @@ export default {
       }
     },
     deleteTerrain(terrainId) {
+      if (this.userRole !== "ADMIN") return;
       console.log(`Supprimer le terrain avec l'id: ${terrainId}`);
     },
     deleteSchedule(timeId) {
+      if (this.userRole !== "ADMIN") return;
       console.log(`Supprimer l'horaire avec l'id: ${timeId}`);
     },
     convertDay(dayNumber) {

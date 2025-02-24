@@ -12,7 +12,7 @@
             <h3 class="font-bold text-lg session-title">Séances</h3>
       </div>
 
-      <div class="flex space-x-2 justify-end w-full" v-if="!localIsMobile">
+      <div class="flex space-x-2 justify-end w-full" v-if="!localIsMobile && userRole === 'ADMIN'">
         <span class="material-symbols-outlined small-icon cursor-pointer" title="Supprimer">delete</span>
         <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter">person_add</span>
       </div>
@@ -31,7 +31,7 @@
             </span>
             <h4 class="font-semibold session-sub-title">{{ session.title }}</h4>
           </div>
-          <div v-if="!localIsMobile">
+          <div v-if="!localIsMobile && userRole === 'ADMIN'">
             <span class="material-symbols-outlined cursor-pointer small-icon" title="Interdit">block</span>
           </div>
         </div>
@@ -44,42 +44,42 @@
               <td class="text-left">Âge</td>
               <td class="text-center">{{ session.age }}</td>
               <!-- Icône interdit dans la dernière colonne -->
-              <td class="text-center" v-if="!localIsMobile">
+              <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Effectif</td>
               <td class="text-center">{{ session.effective }}</td>
-              <td class="text-center" v-if="!localIsMobile">
+              <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Durée</td>
               <td class="text-center">{{ session.duration }}h</td>
-              <td class="text-center" v-if="!localIsMobile">
+              <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Diff. niveau</td>
               <td class="text-center">{{ session.levelDifference }}</td>
-              <td class="text-center" v-if="!localIsMobile">
+              <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Diff. âge</td>
               <td class="text-center">{{ session.ageGroup }}</td>
-              <td class="text-center" v-if="!localIsMobile">
+              <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Niveau</td>
               <td class="text-right">{{ session.level }}</td>
-              <td class="text-center" v-if="!localIsMobile">
+              <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
@@ -98,6 +98,7 @@ export default {
   name: "Sessions",
   props: {
     sessions: Array,
+    userRole: String,
   },
   setup() {
     const localIsMobile = ref(window.innerWidth < 768);
