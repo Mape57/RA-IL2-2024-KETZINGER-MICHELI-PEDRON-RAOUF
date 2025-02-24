@@ -232,7 +232,6 @@ export default {
   background-color: white;
   position: relative;
   overflow-y: auto;
-  margin-top: 1.2rem;
   margin-right: 1.37rem;
   width: 67%;
   height: 83vh;

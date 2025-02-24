@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,6 +32,7 @@ public class AuthController {
                 Map<String,Object> authData = new HashMap<>();
                 authData.put("token",jwtUtils.generateToken(userConnection.getEmail()));
                 authData.put("type","Bearer");
+                authData.put("role", authentication.getAuthorities().stream().map(Object::toString).collect(Collectors.joining(";")));
                 return ResponseEntity.ok(authData);
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error");
