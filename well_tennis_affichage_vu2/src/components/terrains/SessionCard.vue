@@ -40,12 +40,14 @@
       </div>
 
       <div class="lg:w-[10%] flex justify-end">
-        <button
-            @click="$emit('delete')"
-            class="text-red-500 hover:underline text-sm flex items-center"
-        >
-          <span class="material-icons text-base mr-1">delete</span> Supprimer
+
+        <button @click="$emit('delete')" class="delete-button">
+          <span class="material-icons delete-icon">delete</span>
+          <span class="delete-text">Supprimer</span>
         </button>
+
+
+
       </div>
     </div>
 
@@ -73,13 +75,13 @@
       </div>
 
       <div class="mt-1 flex justify-end">
-        <button
-            @click="$emit('delete')"
-            class="text-red-500 hover:underline text-sm flex items-center"
-        >
-          <span class="material-icons small-icon mr-1">delete</span>
-          Supprimer
+
+        <button @click="$emit('delete')" class="delete-button">
+          <span class="material-icons delete-icon">delete</span>
+          <span class="delete-text">Supprimer</span>
         </button>
+
+
       </div>
     </div>
   </div>
@@ -134,3 +136,51 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.delete-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #e3342f;
+  font-size: 18px;
+  font-weight: bold;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.2s ease-in-out;
+}
+
+.delete-icon {
+  font-size: 20px;
+  line-height: 1;
+  vertical-align: middle;
+  position: relative;
+  top: 1px;
+}
+
+.delete-text {
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.delete-button::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  bottom: -2px;
+  width: 96%;
+  height: 2px;
+  background-color: #e3342f;
+  transform: scaleX(0);
+  transition: transform 0.2s ease-in-out;
+}
+
+.delete-button:hover::after {
+  transform: scaleX(1);
+}
+
+
+
+</style>
