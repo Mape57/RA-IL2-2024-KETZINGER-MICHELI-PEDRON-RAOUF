@@ -3,7 +3,7 @@
     <div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center p-6">
       <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl relative">
         <button class="close-button absolute top-2 right-2" @click="$emit('close')">✕</button>
-        <h3 class="text-2xl font-bold text-gray-700 mb-6 text-center">Modifier l'Entraîneur</h3>
+        <h3 class="text-2xl font-bold text-gray-700 mb-6 text-center">{{ isEditing ? "Modifier l'Entraîneur" : "Ajouter un Entraîneur" }}</h3>
 
         <form class="grid grid-cols-2 gap-8" @submit.prevent="saveTrainer">
           <div class="space-y-4">
@@ -69,6 +69,11 @@ export default {
       required: true,
     },
   },
+  computed: {
+    isEditing() {
+      return !!this.editableTrainer.id; // Si id est défini, on est en mode édition
+    },
+  },
   setup(props, {emit}) {
     const {updateTrainer, createTrainer, deleteTrainer} = useTrainers();
 
@@ -110,7 +115,6 @@ export default {
           open: "",
           close: "",
         };
-
 
 
         const response = await DisponibilityService.createDisponibility(disponibilityData);

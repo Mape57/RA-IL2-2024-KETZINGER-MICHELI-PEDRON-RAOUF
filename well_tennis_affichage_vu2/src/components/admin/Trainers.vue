@@ -2,22 +2,19 @@
   <div>
     <div class="flex justify-between items-center cursor-pointer py-2 border-b" @click="toggleAccordion">
       <div class="flex items-center trainer-hover">
-       <span :class="{ 'rotate-180': isOpen }" class="material-symbols-outlined trainer-arrow transition-transform duration-300 mr-2">
+       <span :class="{ 'rotate-180': isOpen }"
+             class="material-symbols-outlined trainer-arrow transition-transform duration-300 mr-2">
         expand_more
        </span>
-      <h3 class="font-bold text-lg trainer-title">Entraîneurs</h3>
-
-
+        <h3 class="font-bold text-lg trainer-title">Entraîneurs</h3>
       </div>
+
       <!-- Boutons d'action -->
       <div class="flex space-x-2" v-if="!localIsMobile">
-        <span class="material-symbols-outlined small-icon cursor-pointer"
-              title="Ajouter"
-              ref="addTrainerButton"
-              @click="addTrainer"
-        >person_add</span>
-      <div class="flex space-x-2" v-if="!localIsMobile">
-      <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter" ref="addTrainerButton" @click="addTrainer">
+      <span class="material-symbols-outlined small-icon cursor-pointer"
+            title="Ajouter"
+            ref="addTrainerButton"
+            @click="addTrainer">
         person_add
       </span>
       </div>
@@ -33,24 +30,33 @@
         <div class="text-left">Niveau Min•Max</div>
         <div class="text-center">Âge Min•Max</div>
       </div>
-      <div v-for="trainer in trainers" :key="trainer.id" class="grid grid-cols-4 items-center py-1" :class="{ 'cursor-pointer': !isMobile }" @click="!isMobile && showTrainerInfo(trainer)">
+      <div v-for="trainer in trainers"
+           :key="trainer.id"
+           class="grid grid-cols-4 items-center py-1"
+           :class="{ 'cursor-pointer': !isMobile }"
+           :ref="'trainer-' + trainer.id"
+           @click="!isMobile && showTrainerInfo(trainer)">
         <span>{{ trainer.name }}</span>
         <span class="text-left">{{ trainer.surname }}</span>
         <span class="text-left">{{ trainer.infLevel }} - {{ trainer.supLevel }}</span>
         <span class="text-center">{{ trainer.infAge }} - {{ trainer.supAge }}</span>
       </div>
-      <TrainerInfoView v-if="selectedTrainer && !isMobile" :trainer="selectedTrainer" @close="selectedTrainer = null" @delete="handleTrainerDeletion" @save="handleTrainerSave" />
+      <TrainerInfoView v-if="selectedTrainer && !isMobile"
+                       :trainer="selectedTrainer"
+                       @close="selectedTrainer = null"
+                       @delete="handleTrainerDeletion"
+                       @save="handleTrainerSave"/>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
+import {ref, onMounted, onUnmounted} from "vue";
 import TrainerInfoView from "../vueInformations/TrainerInfoView.vue";
 
 export default {
   name: "Trainers",
-  components: { TrainerInfoView },
+  components: {TrainerInfoView},
   props: {
     trainers: Array,
     isMobile: Boolean,
@@ -80,7 +86,6 @@ export default {
       isOpen: true,
       selectedTrainer: null, // Joueur sélectionné pour afficher les détails
       isMobile: window.innerWidth < 768,
-      selectedTrainer: null,
     };
   },
   methods: {
@@ -119,6 +124,17 @@ export default {
 
       // Émet la liste mise à jour au parent
       this.$emit("update:trainers", [...this.trainers]);
+
+      this.$nextTick(() => {
+        const newTrainerElement = this.$refs[`trainer-${savedTrainer.id}`]?.[0];
+        if (newTrainerElement) {
+          newTrainerElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          // Ajouter une classe temporaire pour l'effet de mise en valeur
+          newTrainerElement.classList.add("highlighted");
+          setTimeout(() => newTrainerElement.classList.remove("highlighted"), 3000); // Retire l'effet après 3s
+        }
+      });
     },
     addTrainer() {
       if (this.localIsMobile) return;
@@ -167,17 +183,32 @@ export default {
   grid-template-columns: 2fr 1.7fr 1fr 1fr;
   gap: 0.5rem;
 }
+
 .material-symbols-outlined {
   cursor: pointer;
   transition: transform 0.3s ease;
 }
+
 .small-icon {
   font-size: 18px;
 }
+
 .rotate-180 {
   transform: rotate(180deg);
 }
+
 .border-b {
   border-bottom: 1px solid #e2e8f0;
 }
+
+::v-deep(.highlighted) {
+  background-color: yellow;
+  transition: background-color 1s ease-in-out;
+}
+
+
+::v-deep(.highlighted:hover) {
+  background-color: lightyellow; /* Reste subtil au survol */
+}
+
 </style>
