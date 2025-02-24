@@ -7,21 +7,23 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import well_tennis_club.projet.WellTennisClubApplication;
 import well_tennis_club.projet.security.JwtUtils;
 import well_tennis_club.projet.security.SecurityConfig;
+import well_tennis_club.projet.session.SessionEntity;
+import well_tennis_club.projet.session.SessionService;
+import well_tennis_club.projet.timeCourt.TimeCourtService;
 
+import java.util.List;
 import java.util.UUID;
 
-@Disabled
-@SpringBootTest
+@SpringBootTest(classes = WellTennisClubApplication.class)
 @ActiveProfiles("test")
 public class CourtIntegrationTest {
     @Autowired
     private CourtService service;
     @Autowired
-    private JwtUtils jwtUtils;
-    @Autowired
-    private SecurityConfig securityConfig;
+    private SessionService sessionService;
 
     @Test
     @Transactional
@@ -95,5 +97,69 @@ public class CourtIntegrationTest {
     void testGetAllCourts(){
         Assertions.assertThat(service.getAllCourts()).isNotNull();
         Assertions.assertThat(service.getAllCourts().size()).isEqualTo((5));
+    }
+
+    @Test
+    @Transactional
+    void testGetAllCreateVide(){
+        List<SessionEntity> sessions = sessionService.getAllSessions();
+        for (SessionEntity session : sessions){
+            sessionService.deleteSession(session);
+        }
+
+        List<CourtEntity> courts = service.getAllCourts();
+        for (CourtEntity court : courts){
+            service.deleteCourt(court);
+        }
+
+        Assertions.assertThat(service.getAllCourts()).isNotNull();
+        Assertions.assertThat(service.getAllCourts().size()).isEqualTo((0));
+
+        for (CourtEntity court : courts){
+            service.createCourt(court);
+        }
+
+        for (SessionEntity session : sessions){
+            sessionService.createSession(session);
+        }
+    }
+
+    @Test
+    @Transactional
+    void testDeleteInexistant(){
+        List<CourtEntity> courts = service.getAllCourts();
+        int size = courts.size();
+
+        UUID id = UUID.randomUUID();
+        CourtEntity court = new CourtEntity();
+        court.setId(id);
+        service.deleteCourt(court);
+
+        courts = service.getAllCourts();
+        Assertions.assertThat(courts.size()).isEqualTo(size);
+    }
+
+    @Test
+    @Transactional
+    void testUpdateInexistant(){
+        List<CourtEntity> courts = service.getAllCourts();
+
+        UUID id = UUID.randomUUID();
+        CourtEntity court = new CourtEntity();
+        court.setName("Ceci est un test");
+        court.setId(id);
+        service.updateCourt(court);
+
+        for (CourtEntity c : courts){
+            Assertions.assertThat(c.getName()).isNotEqualTo("Ceci est un test");
+        }
+    }
+
+    @Test
+    @Transactional
+    void testGetInexistant(){
+        UUID id = UUID.randomUUID();
+        CourtEntity court = service.getCourtById(id);
+        Assertions.assertThat(court).isNull();
     }
 }

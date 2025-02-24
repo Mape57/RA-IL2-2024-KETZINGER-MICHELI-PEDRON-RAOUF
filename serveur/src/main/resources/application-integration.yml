@@ -23,6 +23,5 @@ management:
 
 logging:
     level:
-        eu: 
-            edda:
-                shoppinglist: "DEBUG"
+        well_tennis_club:
+            projet: "DEBUG"

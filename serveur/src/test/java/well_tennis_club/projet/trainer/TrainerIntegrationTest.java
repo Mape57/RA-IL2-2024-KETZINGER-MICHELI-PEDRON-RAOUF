@@ -11,7 +11,6 @@ import well_tennis_club.projet.WellTennisClubApplication;
 
 import java.util.UUID;
 
-@Disabled
 @SpringBootTest(classes = WellTennisClubApplication.class)
 @ActiveProfiles("test")
 public class TrainerIntegrationTest {

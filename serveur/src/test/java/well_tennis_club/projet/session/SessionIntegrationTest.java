@@ -7,13 +7,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import well_tennis_club.projet.WellTennisClubApplication;
 import well_tennis_club.projet.court.CourtService;
 import well_tennis_club.projet.trainer.TrainerService;
 
 import java.util.UUID;
 
-@Disabled
-@SpringBootTest
+@SpringBootTest(classes = WellTennisClubApplication.class)
 @ActiveProfiles("test")
 public class SessionIntegrationTest {
     @Autowired

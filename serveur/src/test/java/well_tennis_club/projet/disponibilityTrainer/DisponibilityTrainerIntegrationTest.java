@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import well_tennis_club.projet.WellTennisClubApplication;
 
 import java.util.List;
 import java.util.UUID;
 
-@Disabled
-@SpringBootTest
+@SpringBootTest(classes = WellTennisClubApplication.class)
 @ActiveProfiles("test")
 public class DisponibilityTrainerIntegrationTest {
     @Autowired
@@ -74,6 +74,58 @@ public class DisponibilityTrainerIntegrationTest {
     @Transactional
     void testGetAllDisponibilitiesTrainer(){
         List<DisponibilityTrainerEntity> disponibilityTrainer = service.getAllDisponibilitiesTrainer();
+        Assertions.assertThat(disponibilityTrainer).isNotNull();
+        Assertions.assertThat(disponibilityTrainer.size()).isEqualTo(1);
+    }
+
+    @Test
+    @Transactional
+    void testGetAllCreateVide(){
+        List<DisponibilityTrainerEntity> disponibilityTrainer = service.getAllDisponibilitiesTrainer();
+        for (DisponibilityTrainerEntity disponibilityTrainerEntity : disponibilityTrainer) {
+            service.deleteDisponibilityTrainer(disponibilityTrainerEntity);
+        }
+
+        Assertions.assertThat(service.getAllDisponibilitiesTrainer()).isNotNull();
+        Assertions.assertThat(service.getAllDisponibilitiesTrainer().size()).isEqualTo(0);
+
+        for (DisponibilityTrainerEntity disponibilityTrainerEntity : disponibilityTrainer) {
+            service.createDisponibilityTrainer(disponibilityTrainerEntity);
+        }
+    }
+
+    @Test
+    @Transactional
+    void testDeleteInexistant(){
+        List<DisponibilityTrainerEntity> disponibilityTrainer = service.getAllDisponibilitiesTrainer();
+        int size = disponibilityTrainer.size();
+
+        UUID id = UUID.randomUUID();
+        UUID id1 = UUID.randomUUID();
+        DisponibilityTrainerKey key = new DisponibilityTrainerKey();
+        key.setIdTrainer(id);
+        key.setIdDisponibility(id1);
+        DisponibilityTrainerEntity newDisponibilityTrainer = new DisponibilityTrainerEntity();
+        newDisponibilityTrainer.setDisponibilityTrainerKey(key);
+        service.deleteDisponibilityTrainer(newDisponibilityTrainer);
+
+        disponibilityTrainer = service.getAllDisponibilitiesTrainer();
+        Assertions.assertThat(disponibilityTrainer.size()).isEqualTo(size);
+    }
+
+    @Test
+    @Transactional
+    void testGetInexistant(){
+        UUID id = UUID.randomUUID();
+        List<DisponibilityTrainerEntity> disponibilityTrainer = service.getDisponibilityForTrainer(id);
+        Assertions.assertThat(disponibilityTrainer).isNotNull();
+        Assertions.assertThat(disponibilityTrainer.size()).isEqualTo(0);
+    }
+
+    @Test
+    @Transactional
+    void testGetByTrainer(){
+        List<DisponibilityTrainerEntity> disponibilityTrainer = service.getDisponibilityForTrainer(UUID.fromString("4d970d71-4ff9-4435-8860-435c12434137"));
         Assertions.assertThat(disponibilityTrainer).isNotNull();
         Assertions.assertThat(disponibilityTrainer.size()).isEqualTo(1);
     }

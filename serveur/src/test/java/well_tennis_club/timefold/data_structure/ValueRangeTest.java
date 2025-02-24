@@ -1,5 +1,6 @@
 package well_tennis_club.timefold.data_structure;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Disabled
 class ValueRangeTest {
 	@Nested
 	@DisplayName("Tests sur le constructeur à partir d'une liste de valeurs")

@@ -7,15 +7,24 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import well_tennis_club.projet.WellTennisClubApplication;
+import well_tennis_club.projet.disponibilityPlayer.DisponibilityPlayerEntity;
+import well_tennis_club.projet.disponibilityPlayer.DisponibilityPlayerService;
+import well_tennis_club.projet.disponibilityTrainer.DisponibilityTrainerEntity;
+import well_tennis_club.projet.disponibilityTrainer.DisponibilityTrainerService;
 
+import java.util.List;
 import java.util.UUID;
 
-@Disabled
-@SpringBootTest
+@SpringBootTest(classes = WellTennisClubApplication.class)
 @ActiveProfiles("test")
 public class DisponibilityIntegrationTest {
     @Autowired
     private DisponibilityService service;
+    @Autowired
+    private DisponibilityPlayerService disponibilityPlayerService;
+    @Autowired
+    private DisponibilityTrainerService disponibilityTrainerService;
 
     @Test
     @Transactional
@@ -99,5 +108,81 @@ public class DisponibilityIntegrationTest {
     void testGetAllDisponibilities(){
         Assertions.assertThat(service.getAllDisponibilities()).isNotNull();
         Assertions.assertThat(service.getAllDisponibilities().size()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    void testGetAllCreateVide(){
+        List<DisponibilityPlayerEntity> disponibilityPlayers = disponibilityPlayerService.getAllDisponibilitiesPlayer();
+        for (DisponibilityPlayerEntity disponibilityPlayer : disponibilityPlayers) {
+            disponibilityPlayerService.deleteDisponibilityPlayer(disponibilityPlayer);
+        }
+
+        List<DisponibilityTrainerEntity> disponibilityTrainer = disponibilityTrainerService.getAllDisponibilitiesTrainer();
+        for (DisponibilityTrainerEntity disponibilityTrainerEntity : disponibilityTrainer) {
+            disponibilityTrainerService.deleteDisponibilityTrainer(disponibilityTrainerEntity);
+        }
+
+        List<DisponibilityEntity> disponibilities = service.getAllDisponibilities();
+        for (DisponibilityEntity disponibility : disponibilities) {
+            service.deleteDisponibility(disponibility);
+        }
+
+        Assertions.assertThat(service.getAllDisponibilities()).isNotNull();
+        Assertions.assertThat(service.getAllDisponibilities().size()).isEqualTo(0);
+
+        for (DisponibilityEntity disponibility : disponibilities) {
+            service.createDisponibility(disponibility);
+        }
+
+        for (DisponibilityTrainerEntity disponibilityTrainerEntity : disponibilityTrainer) {
+            disponibilityTrainerService.createDisponibilityTrainer(disponibilityTrainerEntity);
+        }
+
+        for (DisponibilityPlayerEntity disponibilityPlayer : disponibilityPlayers) {
+            disponibilityPlayerService.createDisponibilityPlayer(disponibilityPlayer);
+        }
+    }
+
+    @Test
+    @Transactional
+    void testDeleteInexistant(){
+        List<DisponibilityEntity> disponibilities = service.getAllDisponibilities();
+        int size = disponibilities.size();
+
+        UUID id = UUID.randomUUID();
+        DisponibilityEntity disponibility = new DisponibilityEntity();
+        disponibility.setId(id);
+        service.deleteDisponibility(disponibility);
+
+        disponibilities = service.getAllDisponibilities();
+        Assertions.assertThat(disponibilities.size()).isEqualTo(size);
+    }
+
+    @Test
+    @Transactional
+    void testUpdateInexistant(){
+        List<DisponibilityEntity> disponibilities = service.getAllDisponibilities();
+
+        UUID id = UUID.randomUUID();
+        DisponibilityEntity disponibility = new DisponibilityEntity();
+        disponibility.setId(id);
+        disponibility.setDayWeek(5);
+        disponibility.setOpen("Ceci est une heure");
+        disponibility.setClose("20:00");
+        service.updateDisponibility(disponibility);
+
+        service.updateDisponibility(disponibility);
+        for (DisponibilityEntity disponibilityEntity : disponibilities) {
+            Assertions.assertThat(disponibilityEntity.getOpen()).isNotEqualTo("Ceci est une heure");
+        }
+    }
+
+    @Test
+    @Transactional
+    void testGetInexistant(){
+        UUID id = UUID.randomUUID();
+        DisponibilityEntity disponibility = service.getDisponibilityById(id);
+        Assertions.assertThat(disponibility).isNull();
     }
 }

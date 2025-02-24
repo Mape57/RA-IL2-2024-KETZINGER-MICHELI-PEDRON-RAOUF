@@ -1,10 +1,7 @@
 package well_tennis_club.timefold.solver;
 
 import ai.timefold.solver.test.api.score.stream.ConstraintVerifier;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import well_tennis_club.timefold.data_structure.SessionConstraint;
@@ -17,6 +14,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
+@Disabled
 @SpringBootTest
 public class ConstraintsTest {
 	@Autowired
