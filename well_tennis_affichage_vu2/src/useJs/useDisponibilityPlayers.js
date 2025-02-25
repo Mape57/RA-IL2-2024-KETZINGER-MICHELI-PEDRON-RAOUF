@@ -1,4 +1,3 @@
-// src/composables/useDisponibilityPlayer.js
 import {ref} from "vue";
 import DisponibilityPlayerService from "../services/DisponibilityPlayerService.js";
 import useDisponibility from "./useDisponibility.js";

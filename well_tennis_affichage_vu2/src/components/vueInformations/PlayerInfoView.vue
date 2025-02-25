@@ -177,13 +177,11 @@ export default {
     const savePlayer = async () => {
       try {
 
-
         // 1. Validation des champs obligatoires
         if (!validateForm()) {
           alert("Veuillez remplir correctement tous les champs."); // Alerte si des champs sont manquants
           return;
         }
-
 
 
         // 2. Vérification des créneaux horaires
@@ -194,17 +192,18 @@ export default {
         }
 
 
-
         // 3. Vérification des doublons dans les disponibilités
         if (!validateUniqueDisponibilities()) {
           alert("Des chevauchements existent dans les disponibilités. Veuillez les corriger.");
           return;
         }
 
-
-
-
-        const playerData = { ...editablePlayer.value };
+        //ici Si on crée un joueur (id non défini) → On force validate: false.
+        //Si on met à jour un joueur → On garde la valeur existante. cependant je pense qu'il faudra peut etre l'enlever
+        const playerData = {
+          ...editablePlayer.value,
+          validate: editablePlayer.value.id ? editablePlayer.value.validate : true
+        };
 
         let savedPlayer;
         if (!editablePlayer.value.id) {
@@ -214,7 +213,6 @@ export default {
           savedPlayer = await updatePlayer(playerData);
           alert("Joueur mis à jour avec succès !");
         }
-
 
         emit("save", savedPlayer);
         emit("close");

@@ -28,13 +28,13 @@
             <div class="availability-container">
               <div v-for="(slot, index) in editableTrainer.disponibilities" :key="index" class="availability-row">
                 <select v-model="slot.dayWeek" class="day-select" required>
-                  <option value="Lundi">Lundi</option>
-                  <option value="Mardi">Mardi</option>
-                  <option value="Mercredi">Mercredi</option>
-                  <option value="Jeudi">Jeudi</option>
-                  <option value="Vendredi">Vendredi</option>
-                  <option value="Samedi">Samedi</option>
-                  <option value="Dimanche">Dimanche</option>
+                  <option value=1>Lundi</option>
+                  <option value=2>Mardi</option>
+                  <option value=3>Mercredi</option>
+                  <option value=4>Jeudi</option>
+                  <option value=5>Vendredi</option>
+                  <option value=6>Samedi</option>
+                  <option value=7>Dimanche</option>
                 </select>
                 <input type="time" v-model="slot.open" class="time-input" required />
                 <input type="time" v-model="slot.close" class="time-input" required />
