@@ -9,16 +9,16 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>combined.project</groupId>
-	<artifactId>combined-artifact</artifactId>
+	<groupId>Well-Tennis-Club</groupId>
+	<artifactId>Well-Tennis-Club</artifactId>
 	<version>1</version>
-	<name>CombinedProject</name>
-	<description>Combined project from two POM files</description>
+	<name>Well-Tennis-Club</name>
 
 	<properties>
 		<java.version>21</java.version>
 		<version.ai.timefold.solver>1.16.0</version.ai.timefold.solver>
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
+		<maven.test.skip>true</maven.test.skip>
 	</properties>
 
 	<dependencyManagement>
