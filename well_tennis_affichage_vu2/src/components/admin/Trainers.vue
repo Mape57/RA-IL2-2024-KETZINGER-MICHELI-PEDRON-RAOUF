@@ -1,28 +1,24 @@
 <template>
-  <!-- Conteneur principal -->
   <div>
-    <div
-        class="flex justify-between items-center cursor-pointer py-2 border-b"
-        @click="toggleAccordion"
-    >
-      <!-- Titre Entraîneurs -->
-      <div class="flex items-center">
-        <span
-            :class="{ 'rotate-180': isOpen }"
-            class="material-symbols-outlined transition-transform duration-300 mr-2"
-        >
-          expand_more
-        </span>
-        <h3 class="font-bold text-lg">Entraîneurs</h3>
+    <div class="flex justify-between items-center cursor-pointer py-2 border-b" @click="toggleAccordion">
+      <div class="flex items-center trainer-hover">
+       <span :class="{ 'rotate-180': isOpen }"
+             class="material-symbols-outlined trainer-arrow transition-transform duration-300 mr-2">
+        expand_more
+       </span>
+        <h3 class="font-bold text-lg trainer-title">Entraîneurs</h3>
       </div>
+
       <!-- Boutons d'action -->
-      <div class="flex space-x-2">
-        <span class="material-symbols-outlined small-icon cursor-pointer"
-              title="Ajouter"
-              ref="addTrainerButton"
-              @click="addTrainer"
-        >person_add</span>
+      <div class="flex space-x-2" v-if="!localIsMobile">
+      <span class="material-symbols-outlined small-icon cursor-pointer"
+            title="Ajouter"
+            ref="addTrainerButton"
+            @click="addTrainer">
+        person_add
+      </span>
       </div>
+
     </div>
 
     <!-- Contenu déroulant -->
@@ -30,57 +26,66 @@
       <!-- En-têtes des colonnes -->
       <div class="grid grid-cols-4 font-semibold text-gray-400 text-sm mb-2">
         <div class="text-left">Nom</div>
-        <div class="text-center">Prénom</div>
-        <div class="text-center">Niveau Min•Max</div>
-        <div class="text-right">Âge Min•Max</div>
+        <div class="text-left">Prénom</div>
+        <div class="text-left">Niveau Min•Max</div>
+        <div class="text-center">Âge Min•Max</div>
       </div>
-
-        <!-- Liste des entraîneurs -->
-        <div v-for="trainer in trainers"
-             :key="trainer.id"
-             class="grid grid-cols-4 items-center py-1"
-             @click="showTrainerInfo(trainer)"
-        >
-
-        <!-- Nom de l'entraîneur -->
+      <div v-for="trainer in trainers"
+           :key="trainer.id"
+           class="grid grid-cols-4 items-center py-1"
+           :class="{ 'cursor-pointer': !isMobile }"
+           :ref="'trainer-' + trainer.id"
+           @click="!isMobile && showTrainerInfo(trainer)">
         <span>{{ trainer.name }}</span>
-        <!-- Prénom de l'entraîneur -->
-        <span class="text-center">{{ trainer.surname }}</span>
-        <!-- Niveau de l'entraîneur -->
-        <span class="text-center">{{ trainer.levels }}</span>
-        <!-- Tranche d'âge -->
-        <span class="text-right">{{ trainer.ages }}</span>
+        <span class="text-left">{{ trainer.surname }}</span>
+        <span class="text-left">{{ trainer.infLevel }} - {{ trainer.supLevel }}</span>
+        <span class="text-center">{{ trainer.infAge }} - {{ trainer.supAge }}</span>
       </div>
-
-      <!-- Affichage de TrainerInfoView -->
-      <TrainerInfoView
-          v-if="selectedTrainer"
-          :trainer="selectedTrainer"
-          @close="selectedTrainer = null"
-          @delete="handleTrainerDeletion"
-          @save="handleTrainerSave"
-      />
-
+      <TrainerInfoView v-if="selectedTrainer && !isMobile"
+                       :trainer="selectedTrainer"
+                       @close="selectedTrainer = null"
+                       @delete="handleTrainerDeletion"
+                       @save="handleTrainerSave"/>
     </div>
   </div>
 </template>
 
 <script>
-// import useTrainers from "../../useJs/useTrainers.js";
+import {ref, onMounted, onUnmounted} from "vue";
 import TrainerInfoView from "../vueInformations/TrainerInfoView.vue";
 
 export default {
   name: "Trainers",
-  components: {
-    TrainerInfoView,
-  },
+  components: {TrainerInfoView},
   props: {
     trainers: Array,
+    isMobile: Boolean,
+  },
+  setup() {
+    const localIsMobile = ref(window.innerWidth < 768);
+
+    const updateIsMobile = () => {
+      localIsMobile.value = window.innerWidth < 768;
+    };
+
+    onMounted(() => {
+      updateIsMobile();
+      window.addEventListener("resize", updateIsMobile);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("resize", updateIsMobile);
+    });
+
+    return {
+      localIsMobile,
+    };
   },
   data() {
     return {
       isOpen: true,
       selectedTrainer: null, // Joueur sélectionné pour afficher les détails
+      isMobile: window.innerWidth < 768,
     };
   },
   methods: {
@@ -96,25 +101,19 @@ export default {
       this.isOpen = !this.isOpen;
     },
     showTrainerInfo(trainer) {
-      if (this.selectedTrainer && this.selectedTrainer.id === trainer.id) {
-        // Si le trainer sélectionné est cliqué à nouveau, on ferme l'onglet
-        this.selectedTrainer = null;
-      } else {
-        // Sinon, on met à jour le trainer sélectionné
-        this.selectedTrainer = trainer;
-      }
+      if (this.localIsMobile) return;
+      this.selectedTrainer = this.selectedTrainer?.id === trainer.id ? null : trainer;
     },
     handleTrainerDeletion(deletedTrainerId) {
-      const updatedTrainers = this.trainers.filter(trainer => trainer.id !== deletedTrainerId);
-      this.$emit('update:trainers', updatedTrainers); // Émet la liste mise à jour au parent
-      this.selectedTrainer = null; // Ferme l'affichage des détails
+      this.$emit('update:trainers', this.trainers.filter(trainer => trainer.id !== deletedTrainerId));
+      this.selectedTrainer = null;
     },
     handleTrainerSave(savedTrainer) {
       if (!savedTrainer || typeof savedTrainer !== "object") {
         console.error("Données invalides reçues dans handleTrainerSave :", savedTrainer);
         return;
       }
-      const index = this.trainers.findIndex(trainers => trainers.id === savedTrainer.id);
+      const index = this.trainers.findIndex(t => t.id === savedTrainer.id);
       if (index !== -1) {
         // Mise à jour d'un joueur existant
         this.trainers.splice(index, 1, savedTrainer);
@@ -125,32 +124,63 @@ export default {
 
       // Émet la liste mise à jour au parent
       this.$emit("update:trainers", [...this.trainers]);
+
+      this.$nextTick(() => {
+        const newTrainerElement = this.$refs[`trainer-${savedTrainer.id}`]?.[0];
+        if (newTrainerElement) {
+          newTrainerElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          // Ajouter une classe temporaire pour l'effet de mise en valeur
+          newTrainerElement.classList.add("highlighted");
+          setTimeout(() => newTrainerElement.classList.remove("highlighted"), 3000); // Retire l'effet après 3s
+        }
+      });
     },
     addTrainer() {
+      if (this.localIsMobile) return;
       // Initialise un trainer vide
       this.selectedTrainer = {
         id: null, // Pas encore défini
         name: "",
         surname: "",
-        levels: "",
-        ages: "",
+        infLevel: 0,
+        supLevel: 0,
+        infAge: 0,
+        supAge: 0,
         email: "",
         password: "",
-        status: "",
+        partTime: false,
+        admin: false,
         disponibilities: [],
       }; // Ouvre TrainerInfoView avec ce nouveau joueur
     },
-
-
-
   },
 };
 </script>
 
+
 <style scoped>
+
+.trainer-hover {
+  transition: color 0.2s ease-in-out;
+}
+
+.trainer-title {
+  transition: color 0.2s ease-in-out;
+}
+
+.trainer-arrow {
+  transition: color 0.2s ease-in-out;
+}
+
+.trainer-hover:hover .trainer-title,
+.trainer-hover:hover .trainer-arrow {
+  color: #2f855a;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1.7fr 1fr 1fr;
   gap: 0.5rem;
 }
 
@@ -170,4 +200,15 @@ export default {
 .border-b {
   border-bottom: 1px solid #e2e8f0;
 }
+
+::v-deep(.highlighted) {
+  background-color: yellow;
+  transition: background-color 1s ease-in-out;
+}
+
+
+::v-deep(.highlighted:hover) {
+  background-color: lightyellow; /* Reste subtil au survol */
+}
+
 </style>

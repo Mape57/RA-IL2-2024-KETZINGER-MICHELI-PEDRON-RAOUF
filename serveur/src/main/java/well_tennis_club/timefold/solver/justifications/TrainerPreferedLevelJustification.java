@@ -14,7 +14,7 @@ public record TrainerPreferedLevelJustification(Session session, Integer trainer
 
 	private static String getDescription(Session session, Integer trainerLevelOverflow, HardSoftScore score) {
 		return String.format("Depassement de niveau (+%d) de %s pour %s : %s",
-				trainerLevelOverflow, session.getTrainer().getName(), session, score);
+				trainerLevelOverflow, session.getTrainer().getId(), session, score);
 	}
 
 	@Override

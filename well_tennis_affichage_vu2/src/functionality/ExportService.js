@@ -11,13 +11,15 @@ class ExportService {
     static async downloadCSV(players, trainers, terrains, sessions) {
         try {
             const dayMapping = {
-                lundi: "monday",
-                mardi: "tuesday",
-                mercredi: "wednesday",
-                jeudi: "thursday",
-                vendredi: "friday",
-                samedi: "saturday",
+                1: "monday",
+                2: "tuesday",
+                3: "wednesday",
+                4: "thursday",
+                5: "friday",
+                6: "saturday",
+                7: "sunday"
             };
+
 
             const formattedPlayers = players.map((player) => {
                 // Initialisation des disponibilités par défaut pour chaque jour
@@ -33,7 +35,7 @@ class ExportService {
                 if (player.disponibilities && player.disponibilities.length > 0) {
 
                     player.disponibilities.forEach((d) => {
-                        const day = dayMapping[d.day.toLowerCase()];
+                        const day = dayMapping[d.dayWeek];
                         if (day && availability[day] !== undefined) {
                             availability[day] += availability[day]
                                 ? `, ${d.open} - ${d.close}`
@@ -79,14 +81,18 @@ class ExportService {
             };
 
             const formattedTrainers = trainers.map((trainer) => {
-                const [levelMin, levelMax] = (trainer.levels || "N/A - N/A").split(" - ");
-                const [ageMin, ageMax] = (trainer.ages || "N/A - N/A").split(" - ");
-
                 return {
                     Nom: trainer.name || "N/A",
                     Prénom: trainer.surname || "N/A",
-                    "Niveau Min-Max": `${levelMin || "N/A"}`,
-                    "Age Min-Max": `${ageMin || "N/A"}`,
+                    "Niveau Min": trainer.infLevel || "N/A",
+                    "Niveau Max": trainer.supLevel || "N/A",
+                    "Âge Min": trainer.infAge || "N/A",
+                    "Âge Max": trainer.supAge || "N/A",
+                    "Minutes Hebdo Min": trainer.infWeeklyMinutes || "N/A",
+                    "Minutes Hebdo Max": trainer.supWeeklyMinutes || "N/A",
+                    Email: trainer.email || "N/A",
+                    "Temps partiel": trainer.partTime ? "Oui" : "Non",
+                    Admin: trainer.admin ? "Oui" : "Non",
                 };
             });
 

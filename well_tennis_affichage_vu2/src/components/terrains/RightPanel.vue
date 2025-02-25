@@ -1,59 +1,132 @@
-<template>
-  <div class="right-panel fixed top-5 right-10 bg-white rounded-lg shadow-md w-[67%] h-[88vh] p-5 left-[32%] z-10 flex flex-col">
-    <!-- Onglets des terrains et bouton de filtrage -->
-    <div class="flex items-center relative">
-      <!-- Conteneur centré des boutons des terrains -->
-      <div class="absolute left-1/2 transform -translate-x-1/2 flex space-x-8">
-        <button
-            v-for="terrain in sortedTerrains"
-            :key="terrain.id"
-            @click="selectTerrain(terrain.id)"
-            :class="{ active: selectedTerrain === terrain.id }"
-            class="tab-button"
-        >
-          {{ terrain.name }}
-        </button>
 
-      </div>
-      <!-- Bouton Filtrer aligné à droite -->
-      <div class="ml-auto">
+<template>
+  <div class="right-panel rounded-lg shadow-md ">
+    <!-- Mode Mobile -->
+    <div v-if="isMobile" class="flex flex-col h-full w-full overflow-x-hidden">
+      <!-- Barre du haut pour le mobile -->
+      <div class="relative flex items-center p-4 bg-[white] border-b border-gray-300 w-full overflow-x-hidden">
+        <!-- Sélection du terrain -->
+        <select
+            v-model="selectedTerrain"
+            class="absolute left-1/2 transform -translate-x-1/2 text-lg font-bold text-[#528359] bg-transparent border-none focus:outline-none w-auto text-center"
+        >
+          <option v-for="terrain in sortedTerrains" :key="terrain.id" :value="terrain.id">
+            {{ terrain.name }}
+          </option>
+        </select>
+
+        <!-- Bouton "Filtrer" -->
         <button
             @click="openFilter"
-            class="flex items-center space-x-1 text-sm text-black font-semibold hover:text-green-700 transition"
-            title="Filtrer la recherche"
+            class="ml-auto flex items-center text-sm text-black font-semibold hover:text-green-700 transition"
         >
-          <span>Filtrer la recherche</span>
-          <span class="material-symbols-outlined text-base">tune</span>
+          <span class="material-symbols-outlined text-base mr-1">tune</span>
         </button>
+      </div>
+
+      <!-- Contenu pour mobile -->
+      <div class="content flex-1 overflow-auto p-4 w-full overflow-x-hidden">
+        <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6">
+          <h2 class="text-[#528359] text-xl font-bold mb-4">{{ day }}</h2>
+          <SessionCard
+              v-for="session in sessions"
+              :key="session.id"
+              :startTime="session.start"
+              :endTime="session.stop"
+              :coach="session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : 'Aucun entraîneur'"
+              :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge} ` : 'N/A'"
+              :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
+              :players="session.players.map(player => `${player.name} ${player.surname}`)"
+          />
+        </div>
       </div>
     </div>
 
-    <!-- Ligne de séparation -->
-    <div class="border-t border-gray-300 mb-4 mt-4"></div>
+    <!-- Mode Tablette -->
+    <div v-else-if="isTablet" class="flex flex-col h-full w-full overflow-x-hidden">
+      <div class="relative flex items-center p-4 bg-white border-b border-gray-300 w-full">
+        <select
+            v-model="selectedTerrain"
+            class="absolute left-1/2 transform -translate-x-1/2 text-lg font-bold text-[#528359] bg-transparent border-none focus:outline-none w-auto text-center"
+        >
+          <option v-for="terrain in sortedTerrains" :key="terrain.id" :value="terrain.id">
+            {{ terrain.name }}
+          </option>
+        </select>
 
-    <!-- Contenu du terrain sélectionné -->
-    <div class="content flex-1 overflow-auto">
-      <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6">
-        <h2 class="text-[#528359] text-xl font-bold mb-4">{{ day }}</h2>
+        <button
+            @click="openFilter"
+            class="ml-auto flex items-center text-sm text-black font-semibold hover:text-green-700 transition"
+        >
+          <span class="material-symbols-outlined text-base mr-1">tune</span>
+        </button>
+      </div>
 
-        <SessionCard
-            v-for="session in sessions"
-            :key="session.id"
-            :startTime="session.startTime"
-            :endTime="session.endTime"
-            :trainer="session.trainer"
-            :ageGroup="session.ageGroup"
-            :skillLevel="session.skillLevel"
-            :players="session.players"
-            @edit="editSession(session.id)"
-            @delete="deleteSession(session.id)"
-        />
+      <!-- Contenu principal tablette -->
+      <div class="content flex-1 overflow-auto p-4 w-full">
+        <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6">
+          <h2 class="text-[#528359] text-xl font-bold mb-4">{{ day }}</h2>
+          <SessionCard
+              v-for="session in sessions"
+              :key="session.id"
+              :startTime="session.start"
+              :endTime="session.stop"
+              :coach="session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : 'Aucun entraîneur'"
+              :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge}` : 'N/A'"
+              :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
+              :players="session.players.map(player => `${player.name} ${player.surname}`)"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Mode Bureau -->
+    <div v-else class="flex flex-col flex-1 w-full h-full overflow-x-hidden">
+      <div class="flex items-center justify-center p-2 bg-white border-b border-gray-300 w-full overflow-x-hidden">
+        <div class="flex justify-center space-x-4">
+          <button
+              v-for="terrain in sortedTerrains"
+              :key="terrain.id"
+              @click="selectTerrain(terrain.id)"
+              :class="{ active: selectedTerrain === terrain.id }"
+              class="tab-button"
+          >
+            {{ terrain.name }}
+          </button>
+        </div>
+
+        <div class="absolute right-5">
+          <button
+              @click="openFilter"
+              class="flex items-center text-sm text-black font-semibold hover:text-green-700 transition"
+          >
+            <span>Filtrer</span>
+            <span class="material-symbols-outlined text-base ml-1">tune</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Contenu principal -->
+      <div class="content flex-1 overflow-auto p-4 w-full overflow-x-hidden">
+        <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6">
+          <h2 class="text-[#528359] text-xl font-bold mb-4">{{ day }}</h2>
+          <SessionCard
+              v-for="session in sessions"
+              :key="session.id"
+              :startTime="session.start"
+              :endTime="session.stop"
+              :coach="session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : 'Aucun entraîneur'"
+              :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge}` : 'N/A'"
+              :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
+              :players="session.players.map(player => `${player.name} ${player.surname}`)"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import SessionCard from "./SessionCard.vue";
 import terrainService from "../../services/terrainService";
 import sessionsService from "../../services/sessionService";
@@ -63,148 +136,254 @@ export default {
   components: {
     SessionCard,
   },
-  data() {
-    return {
-      terrains: [], // Liste des terrains
-      sessions: [], // Liste des séances
-      selectedTerrain: null, // ID du terrain sélectionné
-    };
-  },
-  computed: {
-    sortedTerrains() {
-      return this.terrains.slice().sort((a, b) => {
-        const nameA = a.name.toUpperCase(); // Ignore la casse
-        const nameB = b.name.toUpperCase(); // Ignore la casse
-        return nameA.localeCompare(nameB, undefined, { numeric: true });
-      });
-    },
-    // Filtrer les séances pour le terrain sélectionné
-    currentTerrainSessions() {
-      if (!this.selectedTerrain) return [];
+  setup() {
+    const terrains = ref([]);
+    const sessions = ref([]);
+    const selectedTerrain = ref(null);
+    const windowWidth = ref(window.innerWidth);
 
-      return this.sessions.filter(
-          (session) => session.idCourt.id === this.selectedTerrain
-      );
-    },
-    // Grouper les séances par jour
-    sessionsByDay() {
-      const daysOfWeek = [
-        "Lundi",
-        "Mardi",
-        "Mercredi",
-        "Jeudi",
-        "Vendredi",
-        "Samedi",
-        "Dimanche",
-      ];
+    // Détection du mode mobile
+    const isMobile = computed(() => windowWidth.value < 768);
+    const isTablet = computed(() => windowWidth.value >= 768 && windowWidth.value < 1024);
 
-      const groupedSessions = {};
+    // Trie les terrains par ordre alphabétique
+    const sortedTerrains = computed(() => {
+      return terrains.value.slice().sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+    });
 
-      daysOfWeek.forEach((day) => {
-        groupedSessions[day] = [];
-      });
+    // Sessions groupées par jour
+    const sessionsByDay = computed(() => {
+      const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+      const groupedSessions = Object.fromEntries(daysOfWeek.map((day) => [day, []]));
 
-      this.currentTerrainSessions.forEach((session) => {
-        // Mapping des jours de l'anglais au français
-        const dayMapping = {
-          Monday: "Lundi",
-          Tuesday: "Mardi",
-          Wednesday: "Mercredi",
-          Thursday: "Jeudi",
-          Friday: "Vendredi",
-          Saturday: "Samedi",
-          Sunday: "Dimanche",
-        };
+      if (!selectedTerrain.value) return groupedSessions;
 
-        const mappedDay = dayMapping[session.day] || session.day;
-
-        if (mappedDay && groupedSessions[mappedDay]) {
-          // Calcul des âges
-          const playerAges = session.players.map((player) => {
-            const birthday = new Date(player.birthday);
-            const age = new Date().getFullYear() - birthday.getFullYear();
-            const hasBirthdayPassed =
-                new Date().getMonth() > birthday.getMonth() ||
-                (new Date().getMonth() === birthday.getMonth() &&
-                    new Date().getDate() >= birthday.getDate());
-            return hasBirthdayPassed ? age : age - 1;
+      sessions.value
+          .filter((session) => session.idCourt?.id === selectedTerrain.value)
+          .forEach((session) => {
+            const dayIndex = session.dayWeek - 1; // Convertit 1-7 en index 0-6
+            if (daysOfWeek[dayIndex]) {
+              groupedSessions[daysOfWeek[dayIndex]].push(session);
+            }
           });
 
-          const minAge = Math.min(...playerAges);
-          const maxAge = Math.max(...playerAges);
-
-          // Calcul des niveaux
-          const playerLevels = session.players.map((player) => player.level);
-          const minLevel = Math.min(...playerLevels);
-          const maxLevel = Math.max(...playerLevels);
-
-          groupedSessions[mappedDay].push({
-            id: session.id,
-            startTime: session.start,
-            endTime: session.stop,
-            trainer: `${session.idTrainer.name} ${session.idTrainer.surname}`,
-            ageGroup: `${minAge} - ${maxAge} ans`,
-            skillLevel: `${minLevel} - ${maxLevel}`,
-            players: session.players.map(
-                (player) => `${player.name} ${player.surname}`
-            ),
-          });
-        }
+      Object.keys(groupedSessions).forEach(day => {
+        groupedSessions[day].sort((a, b) => a.start.localeCompare(b.start));
       });
 
       return groupedSessions;
-    },
+    });
 
-  },
-  methods: {
-    async loadTerrainsAndSessions() {
+
+    // Récupération des terrains et sessions depuis l'API
+    const loadTerrainsAndSessions = async () => {
       try {
-        const terrainResponse = await terrainService.getAllTerrain();
-        this.terrains = terrainResponse.data;
+        const [terrainResponse, sessionResponse] = await Promise.all([
+          terrainService.getAllTerrain(),
+          sessionsService.getAllSessions(),
+        ]);
 
-        const sessionResponse = await sessionsService.getAllSessions();
-        this.sessions = sessionResponse.data;
+        terrains.value = terrainResponse.data;
+        sessions.value = sessionResponse.data;
 
-        this.selectedTerrain = this.sortedTerrains[0]?.id || null;
+
+        selectedTerrain.value = sortedTerrains.value[0]?.id || null;
       } catch (error) {
         console.error("Erreur lors du chargement des données :", error);
       }
-    },
-    selectTerrain(id) {
-      this.selectedTerrain = id;
-    },
-    editSession(sessionId) {
-      console.log(`Modifier la séance ${sessionId}`);
-    },
-    deleteSession(sessionId) {
-      console.log(`Supprimer la séance ${sessionId}`);
-      this.sessions = this.sessions.filter((session) => session.id !== sessionId);
-    },
-  },
-  async mounted() {
-    await this.loadTerrainsAndSessions();
+    };
+
+
+    // Sélectionne un terrain
+    const selectTerrain = (id) => {
+      selectedTerrain.value = id;
+    };
+
+    // Met à jour la taille de l'écran
+    const updateWindowSize = () => {
+      windowWidth.value = window.innerWidth;
+    };
+
+    onMounted(() => {
+      loadTerrainsAndSessions();
+      window.addEventListener("resize", updateWindowSize);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("resize", updateWindowSize);
+    });
+
+    return {
+      terrains,
+      sessions,
+      selectedTerrain,
+      sortedTerrains,
+      sessionsByDay,
+      isMobile,
+      isTablet,
+      selectTerrain,
+    };
   },
 };
 </script>
 
-
 <style scoped>
+.right-panel {
+  background-color: white;
+  position: relative;
+  overflow-y: auto;
+  margin-top: 1.2rem;
+  margin-right: 1.37rem;
+  width: 67%;
+  height: 83vh;
+  margin-bottom: 7vh;
+  z-index: 100;
+}
+
 .tab-button {
   color: gray;
   font-weight: bold;
-  transition: all 0.3s ease-in-out;
   padding: 0.5rem 1rem;
-  position: relative;
   border-bottom: 2px solid transparent;
   cursor: pointer;
-  white-space: nowrap;
-  z-index: 1;
+  transition: all 0.3s ease-in-out;
 }
 
 .tab-button.active {
   color: #528359;
   border-bottom: 2px solid #528359;
-  z-index: 2;
 }
+
+button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+select {
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #528359;
+}
+
+select:focus {
+  outline: none;
+}
+
+body {
+  font-size: 16px;
+}
+
+/* Scrollbar */
+.content::-webkit-scrollbar {
+  width: 12px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #528359, #3a6242);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.3s ease-in-out, border 0.3s ease-in-out;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #3a6242, #2f6035);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Pour firefox */
+.content {
+  scrollbar-color: #528359 transparent;
+  scrollbar-width: thin;
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  .right-panel {
+    padding: 1rem;
+    width: 100%;
+  }
+
+  .tab-button {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  select {
+    font-size: 1rem;
+  }
+
+  .material-symbols-outlined {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .right-panel {
+    width: 54%;
+    height: 80vh;
+    margin-left: auto;
+    margin-right: 2%;
+    margin-top: 17px;
+
+  }
+
+  .content {
+    padding: 1.5rem;
+  }
+
+  .tab-button {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 800px) and (max-width: 809px) {
+  .right-panel {
+    width: 54%;
+    height: 83vh;
+    margin-left: auto;
+    margin-right: 2%;
+    margin-top: 17px;
+  }
+
+  .content {
+    padding: 1.5rem;
+  }
+
+  .tab-button {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .right-panel {
+    width: 67%;
+    height: 90vh;
+    position: relative;
+    top: 0;
+    right: 0;
+    margin-left: auto;
+  }
+
+}
+
 </style>
+
 

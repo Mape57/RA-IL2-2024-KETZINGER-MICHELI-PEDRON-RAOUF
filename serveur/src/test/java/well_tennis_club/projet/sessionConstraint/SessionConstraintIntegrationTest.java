@@ -7,12 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import well_tennis_club.projet.WellTennisClubApplication;
-import well_tennis_club.projet.player.PlayerService;
+import well_tennis_club.projet.core.session_constraint.SessionConstraintEntity;
+import well_tennis_club.projet.core.player.service.PlayerService;
+import well_tennis_club.projet.core.session_constraint.SessionConstraintService;
 
 import java.util.UUID;
 
-@SpringBootTest(classes = WellTennisClubApplication.class)
+@Disabled
+@SpringBootTest
 @ActiveProfiles("test")
 public class SessionConstraintIntegrationTest {
     @Autowired

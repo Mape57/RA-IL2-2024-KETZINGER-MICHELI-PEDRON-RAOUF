@@ -10,6 +10,10 @@ import org.springframework.test.context.ActiveProfiles;
 import well_tennis_club.projet.WellTennisClubApplication;
 import well_tennis_club.projet.court.CourtService;
 import well_tennis_club.projet.trainer.TrainerService;
+import well_tennis_club.projet.core.court.CourtService;
+import well_tennis_club.projet.core.session.SessionEntity;
+import well_tennis_club.projet.core.session.SessionService;
+import well_tennis_club.projet.core.trainer.service.TrainerService;
 
 import java.util.UUID;
 
@@ -55,7 +59,7 @@ public class SessionIntegrationTest {
         Assertions.assertThat(session).isNotNull();
         Assertions.assertThat(session.getDayWeek()).isEqualTo(2);
 
-        service.deleteSession(sessionEntity);
+        service.deleteById(sessionEntity.getId());
     }
 
     @Test
@@ -93,7 +97,7 @@ public class SessionIntegrationTest {
         Assertions.assertThat(session).isNotNull();
         Assertions.assertThat(session.getDayWeek()).isEqualTo(2);
 
-        service.deleteSession(sessionEntity);
+        service.deleteById(sessionEntity.getId());
         session = service.getSessionById(id);
         Assertions.assertThat(session).isNull();
     }

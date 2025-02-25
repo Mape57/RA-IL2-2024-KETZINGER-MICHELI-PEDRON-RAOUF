@@ -17,7 +17,7 @@ public record PlayerSingleSessionPerDayJustification(Player player, List<DayOfWe
 
 	private static String getDescription(Player player, List<DayOfWeek> days, HardSoftScore score) {
 		return String.format("%s a plusieurs cours le %s : %s",
-				player.getName(), days, score.toString());
+				player.getId(), days, score.toString());
 	}
 
 	@Override

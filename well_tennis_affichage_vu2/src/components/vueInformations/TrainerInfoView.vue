@@ -1,110 +1,57 @@
 <template>
-  <div class="info-container relative">
-    <button class="close-button absolute top-2 right-2" @click="$emit('close')">✕</button>
-    <h2 class="title">Informations Complètes de l'entraineur</h2>
+  <transition name="fade">
+    <div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center p-6">
+      <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl relative">
+        <button class="close-button absolute top-2 right-2" @click="$emit('close')">✕</button>
+        <h3 class="text-2xl font-bold text-gray-700 mb-6 text-center">{{ isEditing ? "Modifier l'Entraîneur" : "Ajouter un Entraîneur" }}</h3>
 
-    <form class="info-card" @submit.prevent="saveTrainer">
-      <div>
-        <label><strong>Nom :</strong></label>
-        <input type="text" v-model="editableTrainer.name" required/>
-      </div>
+        <form class="grid grid-cols-2 gap-8" @submit.prevent="saveTrainer">
+          <div class="space-y-4">
+            <div>
+              <label class="block font-semibold text-gray-700">Nom :</label>
+              <input type="text" v-model="editableTrainer.name" class="input-field" required />
+            </div>
 
-      <div>
-        <label><strong>Prénom :</strong></label>
-        <input type="text" v-model="editableTrainer.surname" required/>
-      </div>
+            <div>
+              <label class="block font-semibold text-gray-700">Prénom :</label>
+              <input type="text" v-model="editableTrainer.surname" class="input-field" required />
+            </div>
 
-      <div>
-        <label><strong>Email :</strong></label>
-        <input type="email" v-model="editableTrainer.email" required/>
-      </div>
-
-<!--      <div>-->
-<!--        <label><strong>Niveau (1-20) :</strong></label>-->
-<!--        <input type="text" v-model="editableTrainer.level" min="1" max="20" required/>-->
-<!--      </div>-->
-
-<!--      <div>-->
-<!--        <label><strong>Nombre de cours par semaine (1-3) :</strong></label>-->
-<!--        <input type="number" v-model="editableTrainer.courses" min="1" max="3" required/>-->
-<!--      </div>-->
-
-<!--      <div>-->
-<!--        <label><strong>Date de naissance :</strong></label>-->
-<!--        <input type="date" v-model="editableTrainer.birthday" required/>-->
-<!--      </div>-->
-
-<!--      <div>-->
-<!--        <label><strong>Âge sportif :</strong></label>-->
-<!--        <span>{{ computeAge(editableTrainer.birthday) }} ans</span>-->
-<!--      </div>-->
-
-      <!-- Section Disponibilités -->
-      <div class="availability-container">
-        <div class="availability-header">
-          <span>Jour</span>
-          <span>Début</span>
-          <span>Fin</span>
-          <span></span>
-        </div>
-
-        <!-- Liste des disponibilités -->
-        <div
-
-            v-for="(slot, index) in editableTrainer.disponibilities"
-            :key="slot.id"
-            class="availability-row"
-        >
-          <!-- Sélecteur de jour -->
-          <select v-model="slot.dayWeek" class="day-select" required>
-            <option value="Lundi">Lundi</option>
-            <option value="Mardi">Mardi</option>
-            <option value="Mercredi">Mercredi</option>
-            <option value="Jeudi">Jeudi</option>
-            <option value="Vendredi">Vendredi</option>
-            <option value="Samedi">Samedi</option>
-            <option value="Dimanche">Dimanche</option>
-          </select>
-
-          <input
-              type="time"
-              v-model="slot.open"
-              class="time-input"
-              required
-              step="1800"
-          />
-          <input
-              type="time"
-              v-model="slot.close"
-              class="time-input"
-              required
-              step="1800"
-          />
-          <span class="delete-icon" @click="removeAvailability(index)">🗑️</span>
-
-          <!-- Affichage de l'erreur -->
-          <div
-              v-if="slot.error" class="error">{{ slot.error }}
+            <div>
+              <label class="block font-semibold text-gray-700">Email :</label>
+              <input type="email" v-model="editableTrainer.email" class="input-field" required />
+            </div>
           </div>
 
-        </div>
+          <div class="flex flex-col space-y-4 h-full">
+            <label class="block font-semibold text-gray-700">Disponibilités :</label>
+            <div class="availability-container">
+              <div v-for="(slot, index) in editableTrainer.disponibilities" :key="index" class="availability-row">
+                <select v-model="slot.dayWeek" class="day-select" required>
+                  <option value=1>Lundi</option>
+                  <option value=2>Mardi</option>
+                  <option value=3>Mercredi</option>
+                  <option value=4>Jeudi</option>
+                  <option value=5>Vendredi</option>
+                  <option value=6>Samedi</option>
+                  <option value=7>Dimanche</option>
+                </select>
+                <input type="time" v-model="slot.open" class="time-input" required />
+                <input type="time" v-model="slot.close" class="time-input" required />
+                <span class="delete-icon" @click="removeAvailability(index)">🗑️</span>
+              </div>
+              <button type="button" @click="addAvailability" class="add-row">➕ Ajouter une disponibilité</button>
+            </div>
+          </div>
 
-
-        <!-- Bouton Ajouter nouvelle disponibilité -->
-        <div class="add-row" @click="addAvailability">
-          <span class="add-icon">➕</span>
-          <span>Nouvelle disponibilité</span>
-        </div>
+          <div class="col-span-2 flex justify-end space-x-4 mt-6">
+            <button type="button" @click="deleteTrainerHandler" class="button-danger">Supprimer</button>
+            <button type="submit" class="button-primary">Enregistrer</button>
+          </div>
+        </form>
       </div>
-
-      <!-- Bouton Enregistrer cloture -->
-      <button class="save-button" type="submit">Enregistrer</button>
-
-      <!-- Bouton de supression du Trainer -->
-      <button class="del-button" @click.prevent="deleteTrainerHandler">Supprimer</button>
-
-    </form>
-  </div>
+    </div>
+  </transition>
 </template>
 
 <script>
@@ -120,6 +67,11 @@ export default {
     trainer: {
       type: Object,
       required: true,
+    },
+  },
+  computed: {
+    isEditing() {
+      return !!this.editableTrainer.id; // Si id est défini, on est en mode édition
     },
   },
   setup(props, {emit}) {
@@ -163,7 +115,6 @@ export default {
           open: "",
           close: "",
         };
-
 
 
         const response = await DisponibilityService.createDisponibility(disponibilityData);
@@ -323,149 +274,163 @@ export default {
 </script>
 
 <style scoped>
-.info-container {
-  padding: 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  margin: auto;
+/* Overlay du pop-up */
+.fixed.inset-0 {
+  z-index: 1000 !important;
 }
 
-.title {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: #333;
+/* Contenu de la boîte modale */
+.bg-white.p-8.rounded-lg.shadow-xl {
+  z-index: 1100 !important;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
+/* Champs de texte */
+.input-field {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border 0.3s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #528359;
+  box-shadow: 0 0 5px rgba(47, 133, 90, 0.5);
+}
+
+/* Disponibilités */
 .availability-container {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 10px;
 }
 
-.availability-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  color: #556b2f;
-}
-
+/* Liste des disponibilités */
 .availability-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  border-bottom: 1px solid #ddd;
-  padding: 0.5rem 0;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: white;
 }
 
-.day {
+.day-select, .time-input {
   flex: 1;
-  color: #2f4f4f;
-  font-weight: 500;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
 }
 
-.time-input {
-  flex: 1;
-  border: none;
-  background-color: #f7f7f7;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-}
-
+/* Supprimer une disponibilité */
 .delete-icon {
+  font-size: 20px;
   color: #d9534f;
   cursor: pointer;
-  font-size: 1.25rem;
 }
 
+.delete-icon:hover {
+  color: #c82333;
+}
+
+/* Ajouter une disponibilité */
 .add-row {
   display: flex;
   align-items: center;
-  color: #556b2f;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.add-icon {
-  font-size: 1.25rem;
-  margin-right: 0.5rem;
-}
-
-.save-button {
-  margin-top: 1rem;
-  background-color: #4caf50;
+  justify-content: center;
+  background: #528359;
   color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  padding: 10px;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 1rem;
+  transition: background 0.3s ease;
 }
 
-.del-button {
-  margin-top: 1rem;
-  background-color: #c31d1d;
+.add-row:hover {
+  background: #3e6c46;
+}
+
+/* Boutons */
+.button-primary {
+  background-color: #528359;
   color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 10px 16px;
   font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.save-button:hover {
-  background-color: #45a049;
+.button-primary:hover {
+  background-color: #3e6c46;
 }
 
-.title {
-  font-size: 1.75rem;
+.button-danger {
+  background-color: #c82333;
+  color: white;
+  padding: 10px 16px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.button-danger:hover {
+  background-color: #a81c28;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 1rem;
   color: #333;
-}
-
-.info-card {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  font-size: 1rem;
-  color: #555;
-}
-
-.error {
-  color: red;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-
-input[type="text"],
-input[type="email"],
-input[type="number"],
-input[type="date"] {
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-button {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
   cursor: pointer;
+  transition: color 0.3s ease, transform 0.2s ease;
 }
 
-button:hover {
-  background-color: #45a049;
+.close-button:hover {
+  color: #c82333;
+  transform: scale(1.2);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.bg-white.p-8.rounded-lg.shadow-xl {
+  z-index: 1100 !important;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@media (max-width: 1024px) {
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
+
 
 
 

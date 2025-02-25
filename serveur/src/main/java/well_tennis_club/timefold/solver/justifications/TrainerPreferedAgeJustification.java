@@ -15,7 +15,7 @@ public record TrainerPreferedAgeJustification(Session session, Integer trainerAg
 
 	private static String getDescription(Session session, Integer trainerAgeOverflow, HardSoftScore score) {
 		return String.format("Depassement age (+%d) de %s pour %s  : %s",
-				trainerAgeOverflow, session.getTrainer().getName(), session, score);
+				trainerAgeOverflow, session.getTrainer().getId(), session, score);
 	}
 
 	@Override

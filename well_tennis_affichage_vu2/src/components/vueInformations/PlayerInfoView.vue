@@ -1,113 +1,79 @@
 <template>
-  <div class="info-container relative">
-    <button class="close-button absolute top-2 right-2" @click="$emit('close')">✕</button>
-    <h2 class="title">Informations Complètes du Joueur</h2>
+  <transition name="fade">
+    <div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center p-6">
+      <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl relative">
+        <button class="close-button absolute top-2 right-2" @click="$emit('close')">✕</button>
+        <h3 class="text-2xl font-bold text-gray-700 mb-6 text-center">{{ isEditing ? "Modification du joueur" : "Ajouter d'un joueur" }}</h3>
 
-    <form class="info-card" @submit.prevent="savePlayer">
-      <div>
-        <label><strong>Nom :</strong></label>
-        <input type="text" v-model="editablePlayer.name" required/>
-      </div>
+        <form class="grid grid-cols-2 gap-8" @submit.prevent="savePlayer">
+          <div class="space-y-4">
+            <div>
+              <label class="block font-semibold text-gray-700">Nom :</label>
+              <input type="text" v-model="editablePlayer.name" class="input-field" required />
+            </div>
 
-      <div>
-        <label><strong>Prénom :</strong></label>
-        <input type="text" v-model="editablePlayer.surname" required/>
-      </div>
+            <div>
+              <label class="block font-semibold text-gray-700">Prénom :</label>
+              <input type="text" v-model="editablePlayer.surname" class="input-field" required />
+            </div>
 
-      <div>
-        <label><strong>Email :</strong></label>
-        <input type="email" v-model="editablePlayer.email" required/>
-      </div>
+            <div>
+              <label class="block font-semibold text-gray-700">Email :</label>
+              <input type="email" v-model="editablePlayer.email" class="input-field" required />
+            </div>
 
-      <div>
-        <label><strong>Niveau (1-20) :</strong></label>
-        <input type="text" v-model="editablePlayer.level" min="1" max="20" required/>
-      </div>
+            <div>
+              <label class="block font-semibold text-gray-700">Date de naissance :</label>
+              <input type="date" v-model="editablePlayer.birthday" class="input-field" required />
+            </div>
 
-      <div>
-        <label><strong>Nombre de cours par semaine (1-3) :</strong></label>
-        <input type="number" v-model="editablePlayer.courses" min="1" max="3" required/>
-      </div>
+            <div>
+              <label class="block font-semibold text-gray-700">Âge sportif :</label>
+              <p class="text-gray-600">{{ computeAge(editablePlayer.birthday) }} ans</p>
+            </div>
 
-      <div>
-        <label><strong>Date de naissance :</strong></label>
-        <input type="date" v-model="editablePlayer.birthday" required/>
-      </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold text-gray-700">Niveau (1-20) :</label>
+                <input type="number" v-model="editablePlayer.level" min="1" max="20" class="input-field" required />
+              </div>
 
-      <div>
-        <label><strong>Âge sportif :</strong></label>
-        <span>{{ computeAge(editablePlayer.birthday) }} ans</span>
-      </div>
-
-      <!-- Section Disponibilités -->
-      <div class="availability-container">
-        <div class="availability-header">
-          <span>Jour</span>
-          <span>Début</span>
-          <span>Fin</span>
-          <span></span>
-        </div>
-
-        <!-- Liste des disponibilités -->
-        <div
-
-            v-for="(slot, index) in editablePlayer.disponibilities"
-            :key="slot.id"
-            class="availability-row"
-        >
-          <!-- Sélecteur de jour -->
-          <select v-model="slot.dayWeek" class="day-select" required>
-            <option value="Lundi">Lundi</option>
-            <option value="Mardi">Mardi</option>
-            <option value="Mercredi">Mercredi</option>
-            <option value="Jeudi">Jeudi</option>
-            <option value="Vendredi">Vendredi</option>
-            <option value="Samedi">Samedi</option>
-            <option value="Dimanche">Dimanche</option>
-          </select>
-
-          <input
-              type="time"
-              v-model="slot.open"
-              class="time-input"
-              required
-              step="1800"
-          />
-          <input
-              type="time"
-              v-model="slot.close"
-              class="time-input"
-              required
-              step="1800"
-          />
-          <span class="delete-icon" @click="removeAvailability(index)">🗑️</span>
-
-          <!-- Affichage de l'erreur -->
-          <div
-              v-if="slot.error" class="error">{{ slot.error }}
+              <div>
+                <label class="block font-semibold text-gray-700">Nombre de cours :</label>
+                <input type="number" v-model="editablePlayer.courses" min="1" max="3" class="input-field" required />
+              </div>
+            </div>
           </div>
 
-        </div>
+          <div class="space-y-4">
+            <label class="block font-semibold text-gray-700">Disponibilités :</label>
+            <div class="availability-container">
+              <div v-for="(slot, index) in editablePlayer.disponibilities" :key="index" class="availability-row">
+                <select v-model="slot.dayWeek" class="day-select" required>
+                  <option value="1">Lundi</option>
+                  <option value="2">Mardi</option>
+                  <option value="3">Mercredi</option>
+                  <option value="4">Jeudi</option>
+                  <option value="5">Vendredi</option>
+                  <option value="6">Samedi</option>
+                  <option value="7">Dimanche</option>
+                </select>
+                <input type="time" v-model="slot.open" class="time-input" required />
+                <input type="time" v-model="slot.close" class="time-input" required />
+                <span class="delete-icon" @click="removeAvailability(index)">🗑️</span>
+              </div>
+              <button type="button" @click="addAvailability" class="add-row">➕ Ajouter une disponibilité</button>
+            </div>
+          </div>
 
-
-        <!-- Bouton Ajouter nouvelle disponibilité -->
-        <div class="add-row" @click="addAvailability">
-          <span class="add-icon">➕</span>
-          <span>Nouvelle disponibilité</span>
-        </div>
+          <div class="col-span-2 flex justify-end space-x-4 mt-6">
+            <button type="button" @click="deletePlayerHandler" class="del-button">Supprimer</button>
+            <button type="submit" class="save-button">Enregistrer</button>
+          </div>
+        </form>
       </div>
-
-      <!-- Bouton Enregistrer cloture -->
-      <button class="save-button" type="submit">Enregistrer</button>
-
-      <!-- Bouton de supression du player -->
-      <button class="del-button" @click.prevent="deletePlayerHandler">Supprimer</button>
-<!--      <span class="material-symbols-outlined small-icon cursor-pointer" title="Supprimer">delete</span>
-c'est le symbole delete
--->
-
-    </form>
-  </div>
+    </div>
+  </transition>
 </template>
 
 <script>
@@ -122,6 +88,11 @@ export default {
     player: {
       type: Object,
       required: true,
+    },
+  },
+  computed: {
+    isEditing() {
+      return !!this.editablePlayer.id; // Si id est défini, on est en mode édition
     },
   },
   setup(props, {emit}) {
@@ -206,13 +177,11 @@ export default {
     const savePlayer = async () => {
       try {
 
-
         // 1. Validation des champs obligatoires
         if (!validateForm()) {
           alert("Veuillez remplir correctement tous les champs."); // Alerte si des champs sont manquants
           return;
         }
-
 
 
         // 2. Vérification des créneaux horaires
@@ -223,17 +192,18 @@ export default {
         }
 
 
-
         // 3. Vérification des doublons dans les disponibilités
         if (!validateUniqueDisponibilities()) {
           alert("Des chevauchements existent dans les disponibilités. Veuillez les corriger.");
           return;
         }
 
-
-
-
-        const playerData = { ...editablePlayer.value };
+        //ici Si on crée un joueur (id non défini) → On force validate: false.
+        //Si on met à jour un joueur → On garde la valeur existante. cependant je pense qu'il faudra peut etre l'enlever
+        const playerData = {
+          ...editablePlayer.value,
+          validate: editablePlayer.value.id ? editablePlayer.value.validate : true
+        };
 
         let savedPlayer;
         if (!editablePlayer.value.id) {
@@ -243,7 +213,6 @@ export default {
           savedPlayer = await updatePlayer(playerData);
           alert("Joueur mis à jour avec succès !");
         }
-
 
         emit("save", savedPlayer);
         emit("close");
@@ -357,149 +326,142 @@ export default {
 </script>
 
 <style scoped>
-.info-container {
-  padding: 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  margin: auto;
+
+.fixed.inset-0 {
+  z-index: 1000 !important;
 }
 
-.title {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: #333;
+/* Pop-up */
+.bg-white.p-8.rounded-lg.shadow-xl {
+  z-index: 1100 !important;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
+/* Champs de texte */
+.input-field {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border 0.3s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #2F855A;
+  box-shadow: 0 0 5px rgba(47, 133, 90, 0.5);
+}
+
+/* 📆 Disponibilités */
 .availability-container {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
-
-.availability-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  color: #556b2f;
+  min-height: 300px;
+  max-height: 430px;
+  overflow-y: auto;
 }
 
 .availability-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  border-bottom: 1px solid #ddd;
-  padding: 0.5rem 0;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: white;
 }
 
-.day {
+.day-select, .time-input {
   flex: 1;
-  color: #2f4f4f;
-  font-weight: 500;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
 }
 
-.time-input {
-  flex: 1;
-  border: none;
-  background-color: #f7f7f7;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-}
-
+/* Supprimer une disponibilité */
 .delete-icon {
+  font-size: 20px;
   color: #d9534f;
   cursor: pointer;
-  font-size: 1.25rem;
 }
 
+.delete-icon:hover {
+  color: #c82333;
+}
+
+/* Ajouter une disponibilité */
 .add-row {
   display: flex;
   align-items: center;
-  color: #556b2f;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.add-icon {
-  font-size: 1.25rem;
-  margin-right: 0.5rem;
-}
-
-.save-button {
-  margin-top: 1rem;
-  background-color: #4caf50;
+  justify-content: center;
+  background: #2F855A;
   color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  padding: 10px;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 1rem;
+  transition: background 0.3s ease;
 }
 
-.del-button {
-  margin-top: 1rem;
-  background-color: #c31d1d;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.save-button:hover {
-  background-color: #45a049;
-}
-
-.title {
-  font-size: 1.75rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: #333;
-}
-
-.info-card {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  font-size: 1rem;
-  color: #555;
-}
-
-.error {
-  color: red;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-
-input[type="text"],
-input[type="email"],
-input[type="number"],
-input[type="date"] {
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.add-row:hover {
+  background: #256f46;
 }
 
 button {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  border-radius: 5px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-button:hover {
-  background-color: #45a049;
+.del-button {
+  background-color: #c82333;
+  color: white;
+}
+
+.del-button:hover {
+  background-color: #a81c28;
+}
+
+.save-button {
+  background-color: #2F855A;
+  color: white;
+}
+
+.save-button:hover {
+  background-color: #256f46;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.close-button:hover {
+  color: #c82333;
+  transform: scale(1.2);
+}
+
+
+@media (max-width: 1024px) {
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
+
 
 
 

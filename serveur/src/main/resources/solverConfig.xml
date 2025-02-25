@@ -44,29 +44,29 @@
 
     <localSearch>
         <termination>
-            <unimprovedSecondsSpentLimit>250</unimprovedSecondsSpentLimit>
+            <unimprovedSecondsSpentLimit>300</unimprovedSecondsSpentLimit>
             <bestScoreLimit>0hard/0soft</bestScoreLimit>
         </termination>
         <acceptor>
-            <entityTabuRatio>0.1</entityTabuRatio> <!-- 0.1 -->
+            <entityTabuRatio>0.3</entityTabuRatio> <!-- 0.3 -->
         </acceptor>
         <forager>
-            <acceptedCountLimit>1000</acceptedCountLimit> <!-- 500 -->
+            <acceptedCountLimit>200</acceptedCountLimit> <!-- 500 -->
             <finalistPodiumType>STRATEGIC_OSCILLATION_BY_LEVEL_ON_BEST_SCORE</finalistPodiumType>
         </forager>
     </localSearch>
 
     <localSearch>
         <termination>
-            <unimprovedSecondsSpentLimit>60</unimprovedSecondsSpentLimit>
+            <unimprovedSecondsSpentLimit>300</unimprovedSecondsSpentLimit>
             <bestScoreLimit>0hard/0soft</bestScoreLimit>
         </termination>
         <acceptor>
             <entityTabuRatio>0.001</entityTabuRatio> <!-- 0.001 -->
-            <lateAcceptanceSize>5000</lateAcceptanceSize> <!-- 200 -->
+            <lateAcceptanceSize>5000</lateAcceptanceSize> <!-- 10000 -->
         </acceptor>
         <forager>
-            <acceptedCountLimit>50</acceptedCountLimit> <!-- 2 -->
+            <acceptedCountLimit>20</acceptedCountLimit> <!-- 50 -->
             <finalistPodiumType>STRATEGIC_OSCILLATION_BY_LEVEL_ON_BEST_SCORE</finalistPodiumType>
         </forager>
     </localSearch>

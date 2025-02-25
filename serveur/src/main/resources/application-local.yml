@@ -16,6 +16,20 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL}
+    password: ${PASSWORD}
+    properties:
+      mail:
+        smtp:
+          ssl:
+            trust: smtp.gmail.com
+          auth: true
+          starttls:
+            enable: true
+    protocol: smtp
 
 server:
   port: 8080
@@ -24,6 +38,8 @@ server:
 
 logging:
   level:
+    org.springframework.mail: DEBUG
+    org.springframework.mail.javamail: DEBUG
     well_tennis_club: DEBUG
     org:
       hibernate:
@@ -51,3 +67,5 @@ security:
   jwt:
     secret-key: cb5d4f92af1550dca925f3ec9e4622aa3dda7b6c3fe09e9c0c666fcebcebea9a
     expiration-time: 3600000
+
+trainer_email: ${TRAINER_EMAIL}

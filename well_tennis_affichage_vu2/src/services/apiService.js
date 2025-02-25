@@ -10,19 +10,43 @@ const apiClient = axios.create({
 });
 
 
-// Ajouter le token JWT à toutes les requêtes
+// // Ajouter le token JWT à toutes les requêtes
+// apiClient.interceptors.request.use(
+// 	(config) => {
+// 		const token = accountService.getToken();
+// 		if (token) {
+// 			config.url = config.baseURL + config.url;
+// 			config.headers.Authorization = `Bearer ${token}`;
+// 			console.log(token);
+// 		}
+// 		return config;
+// 	},
+// 	(error) => Promise.reject(error)
+// );
+
 apiClient.interceptors.request.use(
 	(config) => {
 		const token = accountService.getToken();
-		if (token) {
-			config.url = config.baseURL + config.url;
+
+		// Liste des routes qui NE nécessitent PAS de token
+		const noAuthRoutes = ['/inscription'];
+
+		// Vérifier si l'URL actuelle est dans la liste des routes publiques
+		const isPublicRoute = noAuthRoutes.some(route => config.url.includes(route));
+
+		// Ajouter le token SEULEMENT si la route N'EST PAS dans la liste des routes publiques
+		if (!isPublicRoute && token) {
 			config.headers.Authorization = `Bearer ${token}`;
-			console.log(token);
+			console.log("🔑 Token ajouté pour :", config.url);
+		} else {
+			console.log("🚫 Pas de token pour :", config.url);
 		}
+
 		return config;
 	},
 	(error) => Promise.reject(error)
 );
+
 
 
 // Gestion des erreurs de réponse
@@ -32,7 +56,7 @@ apiClient.interceptors.response.use(
 
 		// Si le token est expiré (Erreur 401)
 		if (error.response && error.response.status === 401) {
-			console.warn("🔴 Token expiré, déconnexion et redirection vers /login");
+			console.warn("Token expiré, déconnexion et redirection vers /login");
 			accountService.logout();
 			router.push("/").catch(() => {}); // Redirection vers la page de connexion
 		}
@@ -52,7 +76,6 @@ export default {
 
 	post(url, data) {
 		return apiClient.post(url, data);
-
 	},
 
 	patch(url, data) {
