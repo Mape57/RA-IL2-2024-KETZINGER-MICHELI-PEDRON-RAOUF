@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +41,8 @@ public class SessionController {
 	// ========================= GET ========================= //
 	@Operation(
 			summary = "Retourne toutes les sessions",
-			description = "Retourne toutes les sessions"
+			description = "Retourne toutes les sessions",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
@@ -59,13 +62,14 @@ public class SessionController {
 
 	// ========================= POST ========================= //
 	@Operation(
-			summary = "Cree une session",
-			description = "Cree une session avec les informations fournies"
+			summary = "Crée une session",
+			description = "Crée une session avec les informations fournies",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "201",
-					description = "Creation reussie",
+					description = "Création reussie",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = SessionDto.class)
@@ -82,7 +86,7 @@ public class SessionController {
 	})
 	@PostMapping
 	// TODO revoir la creation d'une session
-	public ResponseEntity<SessionDto> createSession(@RequestBody CreateSessionDto createSessionDto) {
+	public ResponseEntity<SessionDto> createSession(@Valid @RequestBody CreateSessionDto createSessionDto) {
 		SessionEntity session = CreateSessionMapper.INSTANCE.mapToEntity(createSessionDto);
 		session = sessionService.createSession(session);
 		SessionDto sessionDto = SessionMapper.INSTANCE.mapToDTO(session);
@@ -97,7 +101,8 @@ public class SessionController {
 	}
 
 	// ========================= PATCH ========================= //
-	@Operation(summary = "Update session", description = "Update session with id")
+	@Operation(summary = "Update session", description = "Update session with id",
+			security = @SecurityRequirement(name = "bearerAuth"))
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully updated"),
 			@ApiResponse(responseCode = "404", description = "Internal server error - Session was not update")
@@ -119,12 +124,13 @@ public class SessionController {
 	// ========================= DELETE ========================= //
 	@Operation(
 			summary = "Supprime une session",
-			description = "Supprime une session avec l'id fourni"
+			description = "Supprime une session avec l'id fourni",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "204",
-					description = "Suppression reussie"
+					description = "Suppression réussie"
 			),
 			@ApiResponse(
 					responseCode = "404",

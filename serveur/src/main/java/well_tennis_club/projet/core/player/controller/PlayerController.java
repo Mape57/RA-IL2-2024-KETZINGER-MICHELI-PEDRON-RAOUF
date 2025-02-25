@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +40,14 @@ public class PlayerController {
 
 	// ========================= GET ========================= //
 	@Operation(
-			summary = "Recupere les joueurs ayant ce status",
-			description = "Retourne les joueurs etant valide par l'admin ou non"
+			summary = "Récupère tous les joueurs",
+			description = "Retourne les joueurs avec le status spécifié",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "200",
-					description = "Recuperation reussie",
+					description = "Récupération réussie",
 					content = @Content(
 							mediaType = "application/json",
 							array = @ArraySchema(schema = @Schema(implementation = PlayerDto.class))
@@ -53,7 +55,7 @@ public class PlayerController {
 			),
 			@ApiResponse(
 					responseCode = "400",
-					description = "Parametre invalide ou manquant",
+					description = "Paramètre invalide ou manquant",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = ApiErrorResponse.class)
@@ -71,15 +73,24 @@ public class PlayerController {
 
 	@Operation(
 			summary = "Retourne le joueur avec cet id",
-			description = "Retourne le joueur avec l'id specifie s'il existe"
+			description = "Retourne le joueur avec l'id spécifié si il existe",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "200",
-					description = "Recuperation reussie",
+					description = "Récupération réussie",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = PlayerDto.class)
+					)
+			),
+			@ApiResponse(
+					responseCode = "400",
+					description = "L'id fourni n'est pas un UUID",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
 					)
 			),
 			@ApiResponse(
@@ -103,8 +114,9 @@ public class PlayerController {
 
 	// ========================= POST ========================= //
 	@Operation(
-			summary = "Cree un joueur",
-			description = "Cree un joueur avec nom, prenom, anniversaire, nombre de cours, niveau, email, status et disponibilites"
+			summary = "Crée un joueur",
+			description = "Crée un joueur avec nom, prenom, anniversaire, nombre de cours, niveau, email, status et disponibilités",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
@@ -141,13 +153,14 @@ public class PlayerController {
 
 	// ========================= PATCH ========================= //
 	@Operation(
-			summary = "Met a jour le joueur",
-			description = "Met a jour le joueur avec cet id"
+			summary = "Met à jour le joueur",
+			description = "Met à jour le joueur avec cet id",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "200",
-					description = "Mise a jour reussie",
+					description = "Mise à jour reussie",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = PlayerDto.class)
@@ -155,7 +168,7 @@ public class PlayerController {
 			),
 			@ApiResponse(
 					responseCode = "400",
-					description = "Le DTO est mal forme",
+					description = "Le DTO est mal formé",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = ApiErrorResponse.class)
@@ -171,7 +184,7 @@ public class PlayerController {
 			)
 	})
 	@PatchMapping("/{id}")
-	public ResponseEntity<PlayerDto> updatePlayer(@PathVariable UUID id, @RequestBody PlayerDto playerDto) {
+	public ResponseEntity<PlayerDto> updatePlayer(@PathVariable UUID id, @Valid @RequestBody PlayerDto playerDto) {
 		PlayerEntity player = playerService.getPlayerById(id);
 		if (player == null) {
 			throw new IdNotFoundException("Pas de joueur avec cet id");
@@ -185,12 +198,21 @@ public class PlayerController {
 	// ========================= DELETE ========================= //
 	@Operation(
 			summary = "Supprime le joueur",
-			description = "Supprime le joueur avec cet id"
+			description = "Supprime le joueur avec cet id",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "204",
-					description = "Suppression reussie"
+					description = "Suppression réussie"
+			),
+			@ApiResponse(
+					responseCode = "400",
+					description = "L'id fourni n'est pas un UUID",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
 			),
 			@ApiResponse(
 					responseCode = "404",

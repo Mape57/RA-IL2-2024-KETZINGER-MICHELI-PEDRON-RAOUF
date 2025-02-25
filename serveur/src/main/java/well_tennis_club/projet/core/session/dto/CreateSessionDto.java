@@ -25,10 +25,10 @@ public class CreateSessionDto {
 	private int dayWeek;
 
 	@Schema(name = "start", example = "8:00")
-	@NotBlank(message = "L'heure de debut (start) ne peut pas être vide")
+	@NotBlank(message = "L'heure de début (start) ne peut pas être vide")
 	@Pattern(
 			regexp = "([01]?[0-9]|2[0-3]):[0-5][0-9]",
-			message = "L'heure de debut (start) doit être au format HH:mm"
+			message = "L'heure de début (start) doit être au format HH:mm"
 	)
 	private String start;
 

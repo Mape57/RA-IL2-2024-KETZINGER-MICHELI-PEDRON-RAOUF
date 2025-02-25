@@ -38,10 +38,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<dependency>
+<!--		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-rest</artifactId>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>ai.timefold.solver</groupId>
 			<artifactId>timefold-solver-spring-boot-starter</artifactId>

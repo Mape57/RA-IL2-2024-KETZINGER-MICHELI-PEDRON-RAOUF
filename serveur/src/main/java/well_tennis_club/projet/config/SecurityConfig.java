@@ -1,5 +1,9 @@
 package well_tennis_club.projet.config;
 
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,5 +60,20 @@ public class SecurityConfig {
 				})
 				.addFilterBefore(new JwtFilter(connectionService, jwtUtils), UsernamePasswordAuthenticationFilter.class)
 				.build();
+	}
+
+	@Bean
+	public OpenAPI customOpenAPI() {
+		SecurityScheme bearerAuthScheme = new SecurityScheme()
+				.type(SecurityScheme.Type.HTTP)
+				.scheme("bearer")
+				.bearerFormat("JWT")  // Optional
+				.in(SecurityScheme.In.HEADER)
+				.name("Authorization");
+
+		return new OpenAPI()
+				.components(
+						new Components().addSecuritySchemes("bearerAuth", bearerAuthScheme)
+				);
 	}
 }

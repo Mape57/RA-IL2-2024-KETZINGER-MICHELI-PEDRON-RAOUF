@@ -7,13 +7,13 @@ import jakarta.validation.constraints.NotNull;
 
 public class CreateSessionConstraintDto {
 	@Schema(name = "inf_age", example = "1")
-	@NotNull(message = "L'age minimum (inf_age) est obligatoire")
-	@Min(value = 1, message = "L'age minimum (inf_age) doit être supérieur ou égal à 1")
+	@NotNull(message = "L'âge minimum (inf_age) est obligatoire")
+	@Min(value = 1, message = "L'âge minimum (inf_age) doit être supérieur ou égal à 1")
 	private int infAge;
 
 	@Schema(name = "sup_age", example = "10")
-	@NotNull(message = "L'age maximum (sup_age) est obligatoire")
-	@Min(value = 1, message = "L'age maximum (sup_age) doit être supérieur ou égal à 1")
+	@NotNull(message = "L'âge maximum (sup_age) est obligatoire")
+	@Min(value = 1, message = "L'âge maximum (sup_age) doit être supérieur ou égal à 1")
 	private int supAge;
 
 	@Schema(name = "inf_level", example = "1")

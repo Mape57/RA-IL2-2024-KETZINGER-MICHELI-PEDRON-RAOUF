@@ -20,19 +20,19 @@ public class TimeDto {
 	@Max(value = 7, message = "Le jour (dayWeek) ne doit pas être supérieur à 7")
 	private int dayWeek;
 
-	@Schema(name = "open", example = "8:00")
-	@NotBlank(message = "L'heure d'ouverture (open) ne peut pas être vide")
+	@Schema(name = "start", example = "8:00")
+	@NotBlank(message = "L'heure d'ouverture (start) ne peut pas être vide")
 	@Pattern(
 			regexp = "([01]?[0-9]|2[0-3]):[0-5][0-9]",
-			message = "L'heure d'ouverture (open) doit être au format HH:mm"
+			message = "L'heure d'ouverture (start) doit être au format HH:mm"
 	)
-	private String open;
+	private String start;
 
-	@Schema(name = "close", example = "18:00")
-	@NotBlank(message = "L'heure de fermeture (close) ne peut pas être vide")
+	@Schema(name = "stop", example = "18:00")
+	@NotBlank(message = "L'heure de fermeture (stop) ne peut pas être vide")
 	@Pattern(
 			regexp = "([01]?[0-9]|2[0-3]):[0-5][0-9]",
-			message = "L'heure de fermeture (close) doit être au format HH:mm"
+			message = "L'heure de fermeture (stop) doit être au format HH:mm"
 	)
-	private String close;
+	private String stop;
 }

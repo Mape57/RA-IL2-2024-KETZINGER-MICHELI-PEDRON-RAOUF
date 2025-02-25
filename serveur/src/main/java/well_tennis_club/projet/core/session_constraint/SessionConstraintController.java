@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,13 +40,14 @@ public class SessionConstraintController {
 
 	// ========================= GET ========================= //
 	@Operation(
-			summary = "Recupere les contraintes de session",
-			description = "Retourne l'ensemble des contraintes de session"
+			summary = "Récupère les contraintes de session",
+			description = "Retourne l'ensemble des contraintes de session",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "200",
-					description = "Recuperation reussie",
+					description = "Récupération réussie",
 					content = @Content(
 							mediaType = "application/json",
 							array = @ArraySchema(schema = @Schema(implementation = SessionConstraintDto.class))
@@ -59,13 +62,14 @@ public class SessionConstraintController {
 
 	// ========================= POST ========================= //
 	@Operation(
-			summary = "Cree un joueur",
-			description = "Cree un joueur avec nom, prenom, anniversaire, nombre de cours, niveau, email, status et disponibilites"
+			summary = "Crée un joueur",
+			description = "Crée un joueur avec nom, prénom, anniversaire, nombre de cours, niveau, email, status et disponibilités",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "201",
-					description = "Creation reussie",
+					description = "Création réussie",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = CreateSessionConstraintDto.class)
@@ -73,7 +77,7 @@ public class SessionConstraintController {
 			),
 			@ApiResponse(
 					responseCode = "400",
-					description = "Le DTO envoye n'est pas valide",
+					description = "Le DTO envoyé n'est pas valide",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = ApiErrorResponse.class)
@@ -81,7 +85,7 @@ public class SessionConstraintController {
 			),
 	})
 	@PostMapping
-	public ResponseEntity<SessionConstraintDto> createPlayer(@RequestBody CreateSessionConstraintDto createSessionConstraintDto) {
+	public ResponseEntity<SessionConstraintDto> createPlayer(@Valid @RequestBody CreateSessionConstraintDto createSessionConstraintDto) {
 		SessionConstraintEntity constraint = CreateSessionConstraintMapper.INSTANCE.mapToEntity(createSessionConstraintDto);
 		constraint = sessionConstraintService.createConstraint(constraint);
 		SessionConstraintDto constraintDto = SessionConstraintMapper.INSTANCE.mapToDTO(constraint);
@@ -96,7 +100,8 @@ public class SessionConstraintController {
 	}
 
 	// ========================= PATCH ========================= //
-	@Operation(summary = "Update constraint", description = "Update constraint with id")
+	@Operation(summary = "Update constraint", description = "Update constraint with id",
+			security = @SecurityRequirement(name = "bearerAuth"))
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Successfully patched"),
 			@ApiResponse(responseCode = "404", description = "Internal server error - Constraint was not update")
@@ -118,7 +123,8 @@ public class SessionConstraintController {
 	// ========================= DELETE ========================= //
 	@Operation(
 			summary = "Supprime la contrainte",
-			description = "Supprime la contrainte de session avec cet id"
+			description = "Supprime la contrainte de session avec cet id",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(

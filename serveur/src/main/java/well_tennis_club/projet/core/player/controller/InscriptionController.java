@@ -47,8 +47,8 @@ public class InscriptionController {
 
 	// ========================= POST ========================= //
 	@Operation(
-			summary = "Cree un token d'inscription",
-			description = "Cree un token d'inscription pour un email et l'envoie par mail"
+			summary = "Crée un token d'inscription pour un email et l'envoie par mail",
+			description = "Crée un token d'inscription pour un email et l'envoie par mail"
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
@@ -76,12 +76,12 @@ public class InscriptionController {
 
 	@Operation(
 			summary = "Permet l'inscription d'un joueur",
-			description = "Inscrit un joueur en base de donnees si le token est valide et supprime le token d'inscription associe"
+			description = "Inscrit un joueur en base de données et supprime le token d'inscription correspondant"
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "200",
-					description = "Recuperation reussie",
+					description = "Récupération réussie",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = PlayerDto.class)
@@ -89,7 +89,7 @@ public class InscriptionController {
 			),
 			@ApiResponse(
 					responseCode = "400",
-					description = "Le DTO envoye n'est pas valide",
+					description = "Le DTO envoyé n'est pas valide",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(
@@ -107,7 +107,7 @@ public class InscriptionController {
 							)
 					)
 			)
-			// TODO @ApiResponse(responseCode = "409", description = "The email is already used")
+			// TODO @ApiResponse(responseCode = "409", description = "L'email est déjà utilisé")
 	})
 	@PostMapping
 	public ResponseEntity<PlayerDto> inscrirePlayer(@RequestHeader("Authorization") String token, @Valid @RequestBody PlayerInscriptionDto player) {
