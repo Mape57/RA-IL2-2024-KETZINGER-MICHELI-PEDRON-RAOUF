@@ -24,6 +24,8 @@ spring:
     properties:
       mail:
         smtp:
+          ssl:
+            trust: smtp.gmail.com
           auth: true
           starttls:
             enable: true
@@ -36,6 +38,8 @@ server:
 
 logging:
   level:
+    org.springframework.mail: DEBUG
+    org.springframework.mail.javamail: DEBUG
     well_tennis_club: DEBUG
     org:
       hibernate:
