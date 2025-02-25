@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import well_tennis_club.projet.core.player.entity.PlayerEntity;
+import well_tennis_club.projet.core.player.service.PlayerService;
+
 import java.util.UUID;
 
 @Disabled
@@ -52,7 +55,7 @@ public class PlayerIntegrationTest {
         Assertions.assertThat(player.getName()).isEqualTo("Federer");
         Assertions.assertThat(player.getSurname()).isEqualTo("Roger");
 
-        service.deletePlayer(playerEntity);
+        service.deleteById(playerEntity.getId());
     }
 
     @Test
@@ -91,7 +94,7 @@ public class PlayerIntegrationTest {
         Assertions.assertThat(player).isNotNull();
         Assertions.assertThat(player.getName()).isEqualTo("Micheli");
 
-        service.deletePlayer(playerEntity);
+        service.deleteById(playerEntity.getId());
         player = service.getPlayerById(id);
         Assertions.assertThat(player).isNull();
     }

@@ -28,16 +28,18 @@ public class TimetableConstraintProvider implements ConstraintProvider {
 				levelDifference(constraintFactory),
 				groupSize(constraintFactory),
 				groupHaveSameSessionConstraint(constraintFactory),
+				playerAvailability(constraintFactory),
+				playerSingleSessionPerDay(constraintFactory),
+
 				sessionTrainerWithoutPlayers(constraintFactory),
 				sessionWithPlayersNeedTrainer(constraintFactory),
 				sessionOverlapping(constraintFactory),
-				playerAvailability(constraintFactory),
-				playerSingleSessionPerDay(constraintFactory),
+
+				//trainerweeklyMinutesWithNoPlanification(constraintFactory),
+				//trainerweeklyMinutes(constraintFactory),
 				trainerAvailability(constraintFactory),
 				trainerPreferedAge(constraintFactory),
 				trainerPreferedLevel(constraintFactory),
-				//trainerweeklyMinutes(constraintFactory),
-				//trainerweeklyMinutesWithNoPlanification(constraintFactory),
 				trainerSessionOverlapping(constraintFactory)
 		};
 	}
@@ -193,6 +195,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
 	}
 
 	Constraint trainerSessionOverlapping(ConstraintFactory constraintFactory) {
+		// FIXME l'entraîneur peut être planifié sur plusieurs sessions en même temps si elles sont décalées
 		return constraintFactory
 				.forEachUniquePair(Session.class,
 						Joiners.equal(Session::getTrainer),

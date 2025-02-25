@@ -182,7 +182,6 @@ export default {
         courses: parseInt(form.value.cours),
         level: 0,
         email: form.value.email,
-        validate: false,
         disponibilities: form.value.disponibilites.map(d => ({
           dayWeek: d.dayWeek,
           open: d.open,
