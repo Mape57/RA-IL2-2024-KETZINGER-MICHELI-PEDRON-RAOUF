@@ -33,6 +33,10 @@ public class PlayerService {
 		return playerRepository.deletePlayerEntityById(id);
 	}
 
+	public void deleteAll() {
+		playerRepository.deleteAll();
+	}
+
 	public PlayerEntity getPlayerById(UUID id) {
 		return playerRepository.findById(id).orElse(null);
 	}

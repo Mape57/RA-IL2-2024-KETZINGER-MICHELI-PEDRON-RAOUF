@@ -10,7 +10,8 @@ import java.util.List;
 /**
  * Justification d'une contrainte de session unique par jour dépassée.
  */
-public record PlayerSingleSessionPerDayJustification(Player player, List<DayOfWeek> days, HardSoftScore score, String description) implements ConstraintJustification {
+public record PlayerSingleSessionPerDayJustification(Player player, List<DayOfWeek> days, HardSoftScore score,
+													 String description) implements ConstraintJustification {
 	public PlayerSingleSessionPerDayJustification(Player player, List<DayOfWeek> days, HardSoftScore score) {
 		this(player, days, score, getDescription(player, days, score));
 	}

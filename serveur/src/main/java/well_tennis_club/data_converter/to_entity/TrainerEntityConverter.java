@@ -23,7 +23,7 @@ public class TrainerEntityConverter {
 		playerEntity.setPassword("");
 		playerEntity.setPartTime(partTime);
 		playerEntity.setAdmin(false);
-		playerEntity.setDisponibitities(availability.stream().map(DisponibilityEntityConverter::from).toList());
+		playerEntity.setDisponibilities(availability.stream().map(DisponibilityEntityConverter::from).toList());
 
 		return playerEntity;
 	}

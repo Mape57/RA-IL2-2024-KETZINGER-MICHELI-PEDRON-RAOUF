@@ -71,6 +71,6 @@ public class TrainerEntity implements Serializable {
 			joinColumns = @JoinColumn(name = "id_trainer", referencedColumnName = "id"),
 			inverseJoinColumns = @JoinColumn(name = "id_disponibility", referencedColumnName = "id")
 	)
-	private List<DisponibilityEntity> disponibitities = new ArrayList<>();
+	private List<DisponibilityEntity> disponibilities = new ArrayList<>();
 
 }

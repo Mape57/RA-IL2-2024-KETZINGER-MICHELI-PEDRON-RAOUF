@@ -7,8 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import well_tennis_club.projet.core.trainer.dto.TrainerDto;
-import well_tennis_club.projet.core.trainer.mapper.TrainerMapper;
+import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
 
 import java.util.Collections;
 
@@ -24,16 +23,17 @@ public class ConnectionService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		TrainerDto trainerDto = TrainerMapper.INSTANCE.mapToDTO(trainerService.getTrainerByEmail(email));
-		if (trainerDto == null) {
+		TrainerEntity trainer = trainerService.getTrainerByEmail(email);
+		if (trainer == null) {
 			throw new UsernameNotFoundException("Error");
 		}
+
 		String role;
-		if (trainerDto.isAdmin()) {
+		if (trainer.isAdmin()) {
 			role = "ADMIN";
 		} else {
 			role = "TRAINER";
 		}
-		return new User(trainerDto.getEmail(), trainerDto.getPassword(), Collections.singletonList(new SimpleGrantedAuthority(role)));
+		return new User(trainer.getEmail(), trainer.getPassword(), Collections.singletonList(new SimpleGrantedAuthority(role)));
 	}
 }

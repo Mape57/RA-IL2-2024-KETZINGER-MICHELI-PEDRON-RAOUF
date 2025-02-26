@@ -79,8 +79,8 @@
 <script>
 import {ref, watch} from "vue";
 import usePlayers from "../../useJs/usePlayers.js";
-import DisponibilityService from "../../services/DisponibilityService.js";
-import DisponibilityPlayerService from "../../services/DisponibilityPlayerService.js";
+// import DisponibilityService from "../../services/DisponibilityService.js";
+// import DisponibilityPlayerService from "../../services/DisponibilityPlayerService.js";
 
 export default {
   name: "PlayerInfoView",
@@ -126,29 +126,11 @@ export default {
 
     const addAvailability = async () => {
       try {
-        if (!editablePlayer.value.id) {
-          alert("Veuillez enregistrer le joueur avant d'ajouter une disponibilité.");
-          return;
-        }
-
-        const disponibilityData = {
-          dayWeek: "",
+        editablePlayer.value.disponibilities.push({
+          dayWeek: "", // Initialise avec une valeur vide
           open: "",
-          close: "",
-        };
-
-
-        const response = await DisponibilityService.createDisponibility(disponibilityData);
-        const newDisponibilityId = response.data.id;
-
-        editablePlayer.value.disponibilities.push(response.data);
-
-        await DisponibilityPlayerService.createDisponibilityPlayer({
-          idPlayer: editablePlayer.value.id,
-          idDisponibility: newDisponibilityId
+          close: ""
         });
-
-
       } catch (error) {
         console.error("Erreur lors de la création de la disponibilité :", error);
         alert("Impossible d'ajouter la disponibilité.");
@@ -158,16 +140,6 @@ export default {
 
     const removeAvailability = async (index) => {
       try {
-        const slot = editablePlayer.value.disponibilities[index];
-
-        if (!slot.id) {
-          editablePlayer.value.disponibilities.splice(index, 1);
-          return;
-        }
-        await DisponibilityPlayerService.deleteDisponibilityPlayer(editablePlayer.value.id, slot.id);
-
-        await DisponibilityService.deleteDisponibility(slot.id);
-
         editablePlayer.value.disponibilities.splice(index, 1);
       } catch (error) {
         console.error("Erreur lors de la suppression de la disponibilité :", error);

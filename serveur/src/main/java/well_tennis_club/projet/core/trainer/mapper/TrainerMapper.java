@@ -14,7 +14,7 @@ import java.util.List;
 public interface TrainerMapper {
 	TrainerMapper INSTANCE = Mappers.getMapper(TrainerMapper.class);
 
-	@Mapping(target = "disponibilities", source = "disponibitities")
+	@Mapping(target = "disponibilities", source = "disponibilities")
 	TrainerDto mapToDTO(TrainerEntity entity);
 
 	@InheritInverseConfiguration

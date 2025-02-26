@@ -21,7 +21,7 @@ public class CreatePlayerDto {
 	private String name;
 
 	@Schema(name = "surname", example = "Rafael")
-	@NotBlank(message = "Le prenom (surname) est obligatoire")
+	@NotBlank(message = "Le prénom (surname) est obligatoire")
 	private String surname;
 
 	@Schema(name = "birthday", example = "1986-06-03")
@@ -44,7 +44,7 @@ public class CreatePlayerDto {
 	private Long level;
 
 	@Schema(name = "email", example = "example@mail.fr")
-	@NotBlank(message = "Email (email) is mandatory")
+	@NotBlank(message = "L'email (email) est obligatoire")
 	@Email(message = "L'email (email) doit avoir un format valide")
 	private String email;
 

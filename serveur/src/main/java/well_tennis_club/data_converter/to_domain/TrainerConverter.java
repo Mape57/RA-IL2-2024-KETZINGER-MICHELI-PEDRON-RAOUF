@@ -24,7 +24,7 @@ public class TrainerConverter {
 		int weeklyMinutesMax = trainerEntity.getSupWeeklyMinutes();
 		ValueRange weeklyMinutes = new ValueRange(weeklyMinutesMin, weeklyMinutesMax);
 
-		List<Timeslot> availability = trainerEntity.getDisponibitities().stream().map(TimeslotConverter::from).toList();
+		List<Timeslot> availability = trainerEntity.getDisponibilities().stream().map(TimeslotConverter::from).toList();
 
 		boolean isPartTime = trainerEntity.isPartTime();
 

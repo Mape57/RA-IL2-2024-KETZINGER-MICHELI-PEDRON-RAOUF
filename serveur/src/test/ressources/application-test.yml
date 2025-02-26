@@ -5,10 +5,12 @@ spring:
     password: password
     driverClassName: org.h2.Driver
   jpa:
-    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
   liquibase:
     change-log: db/changelog/db.changelog-test.yaml
-
+#    enabled: false
 security:
   jwt:
     secret-key: cb5d4f92af1550dca925f3ec9e4622aa3dda7b6c3fe09e9c0c666fcebcebea9a

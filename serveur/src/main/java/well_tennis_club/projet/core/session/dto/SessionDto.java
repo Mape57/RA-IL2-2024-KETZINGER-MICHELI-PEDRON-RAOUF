@@ -1,17 +1,21 @@
 package well_tennis_club.projet.core.session.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import well_tennis_club.projet.core.court.CourtDto;
+import lombok.Setter;
+import well_tennis_club.projet.core.court.dto.CourtDto;
 import well_tennis_club.projet.core.player.dto.PlayerDto;
 import well_tennis_club.projet.core.trainer.dto.TrainerDto;
 
 import java.util.List;
 import java.util.UUID;
 
-@Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class SessionDto {
 	@Schema(name = "id", example = "1")
 	private UUID id;

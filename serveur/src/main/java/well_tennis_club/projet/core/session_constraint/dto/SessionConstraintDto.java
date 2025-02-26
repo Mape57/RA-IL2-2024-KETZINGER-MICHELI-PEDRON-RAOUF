@@ -1,13 +1,17 @@
 package well_tennis_club.projet.core.session_constraint.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
-@Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class SessionConstraintDto {
 	@Schema(name = "id", example = "1")
 	private UUID id;
