@@ -3,7 +3,7 @@ import { accountService } from './authService';
 import axios from "axios";
 
 const apiClient = axios.create({
-	baseURL: 'http://localhost:8080', // L'URL de votre API
+	baseURL: 'http://192.168.1.14:8080', // L'URL de votre API
 	headers: {
 		'Content-Type': 'application/json'
 	},
@@ -29,7 +29,7 @@ apiClient.interceptors.request.use(
 		const token = accountService.getToken();
 
 		// Liste des routes qui NE nécessitent PAS de token
-		const noAuthRoutes = ['/inscription'];
+		const noAuthRoutes = ['/inscription', '/inscription/verify'];
 
 		// Vérifier si l'URL actuelle est dans la liste des routes publiques
 		const isPublicRoute = noAuthRoutes.some(route => config.url.includes(route));
@@ -74,8 +74,8 @@ export default {
 		return apiClient.get(url);
 	},
 
-	post(url, data) {
-		return apiClient.post(url, data);
+	post(url, data, config = {}) {
+		return apiClient.post(url, data, config);
 	},
 
 	patch(url, data) {

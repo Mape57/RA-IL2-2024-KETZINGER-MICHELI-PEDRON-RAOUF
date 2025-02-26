@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSender;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -43,11 +44,11 @@ public class TrainerController {
 	private final TrainerService trainerService;
 	private final ResetTokenService resetTokenService;
 	private final MailFactory mailFactory;
-	private final MailSender mailSender;
+	private final JavaMailSender mailSender;
 	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
-	public TrainerController(TrainerService trainerService, ResetTokenService resetTokenService, MailFactory mailFactory, MailSender mailSender, PasswordEncoder passwordEncoder) {
+	public TrainerController(TrainerService trainerService, ResetTokenService resetTokenService, MailFactory mailFactory, JavaMailSender mailSender, PasswordEncoder passwordEncoder) {
 		this.trainerService = trainerService;
 		this.resetTokenService = resetTokenService;
 		this.mailFactory = mailFactory;

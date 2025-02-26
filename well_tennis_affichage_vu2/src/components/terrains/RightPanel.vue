@@ -128,8 +128,8 @@
 <script>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import SessionCard from "./SessionCard.vue";
-import terrainService from "../../services/terrainService";
-import sessionsService from "../../services/sessionService";
+import terrainService from "../../services/TerrainService";
+import sessionsService from "../../services/SessionService";
 
 export default {
   name: "RightPanel",

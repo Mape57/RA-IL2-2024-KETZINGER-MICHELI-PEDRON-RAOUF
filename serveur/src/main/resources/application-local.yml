@@ -29,7 +29,10 @@ spring:
           auth: true
           starttls:
             enable: true
-    protocol: smtp
+          mime:
+            charset: UTF-8
+        transport:
+          protocol: smtp
 
 server:
   port: 8080
@@ -69,3 +72,4 @@ security:
     expiration-time: 3600000
 
 trainer_email: ${TRAINER_EMAIL}
+base_url: ${BASE_URL}

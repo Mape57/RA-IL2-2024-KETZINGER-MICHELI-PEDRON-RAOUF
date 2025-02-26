@@ -57,7 +57,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth ->
 						auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 								.requestMatchers("/openapi/v3/api-docs/**", "/openapi/swagger-ui/**", "/ws/**",
-										"/auth/*", "/inscription", "/inscription/sendInscriptionToken",
+										"/auth/*", "/inscription", "/inscription/verify",
 										"/trainers/resetPassword", "/trainers/changePassword").permitAll()
 								.anyRequest().authenticated())
 				.cors(cors -> {
@@ -69,7 +69,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+		configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://192.168.1.14:5173","http://172.20.64.1:5173"));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 		configuration.setAllowCredentials(true);

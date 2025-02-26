@@ -4,6 +4,7 @@ import AdminPage from '../views/AdminPage.vue';
 import ForgotPassword from "../views/ForgotPassword.vue";
 import Register from "../views/Register.vue";
 import {accountService as authService} from "../services/authService.js";
+import ValidateEmail from "../components/register/ValidateEmail.vue";
 
 const routes = [
 	{
@@ -30,6 +31,11 @@ const routes = [
 		name: 'Register',
 		component: Register,
 	},
+	{
+		path: '/email-validation', // Route pour la page de validation de l'email
+		name: 'ValidateEmail',
+		component: ValidateEmail,
+	}
 ];
 
 const router = createRouter({

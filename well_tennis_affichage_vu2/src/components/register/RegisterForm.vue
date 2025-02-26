@@ -1,29 +1,31 @@
 <template>
-  <div class="flex flex-col justify-center items-center w-full p-6 lg:w-2/3 bg-white">
-    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Inscription</h2>
-    <form @submit.prevent="validateAndSubmit" class="w-full max-w-md space-y-4">
+  <div
+      class="flex flex-col justify-start items-center w-full p-6 lg:w-2/3 bg-white h-[calc(100vh-2rem)] lg:h-[510px] overflow-y-auto">
+    <h2 v-if="showForm" class="text-2xl font-semibold text-gray-700 mb-4">Inscription</h2>
+    <form v-if="showForm" @submit.prevent="validateAndSubmit" class="w-full max-w-md space-y-4">
       <!-- Champ Nom -->
       <div>
         <label for="nom" class="block text-sm font-medium text-gray-600">Nom</label>
-        <input v-model="form.nom" id="nom" type="text" required class="input-field" placeholder="Entrez votre nom" />
+        <input v-model="form.nom" id="nom" type="text" required class="input-field" placeholder="Entrez votre nom"/>
       </div>
 
       <!-- Champ Prénom -->
       <div>
         <label for="prenom" class="block text-sm font-medium text-gray-600">Prénom</label>
-        <input v-model="form.prenom" id="prenom" type="text" required class="input-field" placeholder="Entrez votre prénom" />
+        <input v-model="form.prenom" id="prenom" type="text" required class="input-field"
+               placeholder="Entrez votre prénom"/>
       </div>
 
       <!-- Champ Date de naissance -->
       <div>
         <label for="age" class="block text-sm font-medium text-gray-600">Date de naissance</label>
-        <input v-model="form.age" id="age" type="date" required class="input-field" />
+        <input v-model="form.age" id="age" type="date" required class="input-field"/>
       </div>
 
       <!-- Champ Nombre de cours -->
       <div>
         <label for="cours" class="block text-sm font-medium text-gray-600">Nombre de cours (max 3)</label>
-        <input v-model="form.cours" id="cours" type="number" required min="1" max="3" class="input-field" />
+        <input v-model="form.cours" id="cours" type="number" required min="1" max="3" class="input-field"/>
       </div>
 
       <!-- Champ Disponibilité -->
@@ -35,8 +37,8 @@
               <option disabled value="">Choisissez un jour</option>
               <option v-for="(num, jour) in dayMapping" :key="num" :value="jour">{{ jour }}</option>
             </select>
-            <input type="time" v-model="newDisponibilite.debut" class="availability-input" />
-            <input type="time" v-model="newDisponibilite.fin" class="availability-input" />
+            <input type="time" v-model="newDisponibilite.debut" class="availability-input"/>
+            <input type="time" v-model="newDisponibilite.fin" class="availability-input"/>
           </div>
           <button type="button" @click="addDisponibilite" class="add-button">Ajouter</button>
           <ul class="mt-2">
@@ -51,28 +53,51 @@
       <!-- Champ Email -->
       <div>
         <label for="email" class="block text-sm font-medium text-gray-600">Email</label>
-        <input v-model="form.email" id="email" type="email" required class="input-field" placeholder="Entrez votre email" />
+        <input v-model="form.email" id="email" type="email" required class="input-field"
+               placeholder="Entrez votre email"/>
       </div>
 
       <div class="flex items-center">
-        <input v-model="form.acceptTerms" id="acceptTerms" type="checkbox" class="mr-2" />
+        <input v-model="form.acceptTerms" id="acceptTerms" type="checkbox" class="mr-2"/>
         <label for="acceptTerms" class="text-sm text-gray-600">J'accepte l'utilisation de mes données</label>
       </div>
 
       <!-- Bouton Inscription -->
       <button type="submit" class="submit-button">S'inscrire</button>
     </form>
+    <div v-else-if="showError" class="flex flex-col items-center justify-center h-[510px] max-w-md text-center px-4 -mt-4">
+      <div class="rounded-full bg-red-100 w-16 h-16 flex items-center justify-center">
+        <span class="material-symbols-outlined text-4xl text-red-600">error</span>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-800 mt-6">Erreur</h3>
+      <div class="space-y-3 text-gray-600 mt-4">
+        <p>Une erreur est survenue lors de l'inscription. Veuillez réessayer. Si le problème persiste, contactez-nous.</p>
+        <button @click="showForm = true; showError = false" class="text-red-600 hover:text-red-800 underline">
+          Réessayer
+        </button>
+      </div>
+    </div>
+    <div v-else class="flex flex-col items-center justify-center h-[510px] max-w-md text-center px-4 -mt-4">
+      <div class="rounded-full bg-green-100 w-16 h-16 flex items-center justify-center">
+        <span class="material-symbols-outlined text-4xl text-green-600">check_circle</span>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-800 mt-6">Inscription enregistrée !</h3>
+      <div class="space-y-3 text-gray-600 mt-4">
+        <p>Pour valider votre inscription, veuillez consulter votre boîte mail.</p>
+        <p class="text-sm italic">Vous pouvez désormais quitter cette page.</p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { ref } from "vue";
+import {ref} from "vue";
 import useInscription from "../../useJs/useInscription";
 
 export default {
   name: "RegisterForm",
   setup() {
-    const { createInscription } = useInscription();
+    const {createInscription} = useInscription();
 
     const form = ref({
       nom: "",
@@ -105,7 +130,7 @@ export default {
     };
 
     const addDisponibilite = () => {
-      const { jour, debut, fin } = newDisponibilite.value;
+      const {jour, debut, fin} = newDisponibilite.value;
 
       if (!jour || !debut || !fin) {
         return alert("Remplissez tous les champs !");
@@ -150,12 +175,15 @@ export default {
         close: fin,
       });
 
-      newDisponibilite.value = { jour: "", debut: "", fin: "" };
+      newDisponibilite.value = {jour: "", debut: "", fin: ""};
     };
 
     const removeDisponibilite = (index) => {
       form.value.disponibilites.splice(index, 1);
     };
+
+    const showForm = ref(true);
+    const showError = ref(false);
 
     const validateAndSubmit = async () => {
       if (!form.value.nom || !form.value.prenom || !form.value.age || !form.value.email || form.value.disponibilites.length === 0) {
@@ -191,9 +219,10 @@ export default {
 
       try {
         await createInscription(inscriptionData);
-        alert("Inscription réussie !");
+        showForm.value = false;
       } catch (error) {
-        alert("Erreur lors de l'inscription !");
+        showForm.value = false;
+        showError.value = true;
         console.error(error);
       }
     };
@@ -205,11 +234,12 @@ export default {
       addDisponibilite,
       removeDisponibilite,
       validateAndSubmit,
+      showForm,
+      showError,
     };
   },
 };
 </script>
-
 
 
 <style scoped>
@@ -219,9 +249,9 @@ export default {
   border-radius: 8px;
   padding: 8px;
   margin-top: 4px;
-  focus:outline-none;
-  focus:ring-2;
-  focus:ring-blue-500;
+  focus: outline-none;
+  focus: ring-2;
+  focus: ring-blue-500;
 }
 
 .availability-box {
@@ -275,4 +305,24 @@ export default {
 .submit-button:hover {
   background-color: #3b6345;
 }
+
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #528359, #3a6242);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.3s ease-in-out, border 0.3s ease-in-out;
+}
+
 </style>
