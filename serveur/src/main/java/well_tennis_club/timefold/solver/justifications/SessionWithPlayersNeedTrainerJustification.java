@@ -7,7 +7,8 @@ import well_tennis_club.timefold.domain.Session;
 /**
  * Justification d'une contrainte de session avec des joueurs mais pas d'entraîneur.
  */
-public record SessionWithPlayersNeedTrainerJustification(Session session, HardSoftScore score, String description) implements ConstraintJustification {
+public record SessionWithPlayersNeedTrainerJustification(Session session, HardSoftScore score,
+														 String description) implements ConstraintJustification {
 	public SessionWithPlayersNeedTrainerJustification(Session session, HardSoftScore score) {
 		this(session, score, getDescription(session, score));
 	}

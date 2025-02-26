@@ -4,7 +4,7 @@ import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
-import well_tennis_club.projet.core.court.CourtMapper;
+import well_tennis_club.projet.core.court.mapper.CourtMapper;
 import well_tennis_club.projet.core.player.mapper.PlayerMapper;
 import well_tennis_club.projet.core.session.SessionEntity;
 import well_tennis_club.projet.core.session.dto.SessionDto;

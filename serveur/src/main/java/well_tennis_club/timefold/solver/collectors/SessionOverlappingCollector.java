@@ -24,16 +24,20 @@ public class SessionOverlappingCollector implements BiConstraintCollector<Player
 			Session sessionA = pslA.getSession();
 			Session sessionB = pslB.getSession();
 
-			if (!Objects.equals(sessionA.getTennisCourt(), sessionB.getTennisCourt())) return () -> {};
-			if (!Objects.equals(sessionA.getDay(), sessionB.getDay())) return () -> {};
+			if (!Objects.equals(sessionA.getTennisCourt(), sessionB.getTennisCourt())) return () -> {
+			};
+			if (!Objects.equals(sessionA.getDay(), sessionB.getDay())) return () -> {
+			};
 
 			LocalTime sessionAStartTime = sessionA.getStartTime();
 			LocalTime sessionBStartTime = sessionB.getStartTime();
-			if (!sessionAStartTime.isBefore(sessionBStartTime)) return () -> {};
+			if (!sessionAStartTime.isBefore(sessionBStartTime)) return () -> {
+			};
 
 			int sessionADuration = pslA.getPlayer().getSessionConstraint().duration();
 			LocalTime sessionAEndTime = sessionAStartTime.plusMinutes(sessionADuration);
-			if (!sessionBStartTime.isBefore(sessionAEndTime)) return () -> {};
+			if (!sessionBStartTime.isBefore(sessionAEndTime)) return () -> {
+			};
 
 			counter.increment();
 			return counter::decrement;

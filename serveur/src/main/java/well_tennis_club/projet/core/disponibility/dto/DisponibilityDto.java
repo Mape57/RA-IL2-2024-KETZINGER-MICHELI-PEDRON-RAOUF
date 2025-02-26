@@ -2,14 +2,18 @@ package well_tennis_club.projet.core.disponibility.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.UUID;
 
-@Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class DisponibilityDto implements Serializable {
 	@Schema(name = "id", example = "1")
 	@NotNull(message = "L'id (id) ne peut pas être nul")

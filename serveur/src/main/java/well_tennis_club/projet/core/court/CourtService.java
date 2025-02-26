@@ -27,8 +27,8 @@ public class CourtService {
 		return courtRepository.save(entity);
 	}
 
-	public void deleteCourt(CourtEntity entity) {
-		courtRepository.delete(entity);
+	public int deleteById(UUID id) {
+		return courtRepository.deleteCourtEntityById(id);
 	}
 
 	public CourtEntity getCourtById(UUID id) {

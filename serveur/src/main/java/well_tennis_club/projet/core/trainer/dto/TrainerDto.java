@@ -1,16 +1,20 @@
 package well_tennis_club.projet.core.trainer.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import well_tennis_club.projet.core.disponibility.dto.DisponibilityDto;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
-@Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class TrainerDto implements Serializable {
 	@Schema(name = "id", example = "1")
 	private UUID id;
@@ -32,8 +36,6 @@ public class TrainerDto implements Serializable {
 	private int infWeeklyMinutes;
 	@Schema(name = "email", example = "test@email.fr")
 	private String email;
-	@Schema(name = "password", example = "password")
-	private String password;
 	@Schema(name = "partTime", example = "false")
 	private boolean partTime;
 	@Schema(name = "admin", example = "true")

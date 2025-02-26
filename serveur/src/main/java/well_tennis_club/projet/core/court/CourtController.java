@@ -5,11 +5,16 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import well_tennis_club.projet.core.court.dto.CourtDto;
+import well_tennis_club.projet.core.court.dto.PutCourtDto;
+import well_tennis_club.projet.core.court.mapper.CourtMapper;
+import well_tennis_club.projet.core.court.mapper.PutCourtMapper;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
 
@@ -30,13 +35,14 @@ public class CourtController {
 
 	// ========================= GET ========================= //
 	@Operation(
-			summary = "Recupere les terrains de tennis",
-			description = "Retourne l'ensemble des terrains de tennis avec leurs horaires"
+			summary = "Réupère les terrains de tennis",
+			description = "Retourne l'ensemble des terrains de tennis avec leurs horaires",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
 					responseCode = "200",
-					description = "Recuperation reussie",
+					description = "Récupération réussie",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = CourtDto.class)
@@ -50,10 +56,11 @@ public class CourtController {
 	}
 
 
-	// ========================= PATCH ========================= //
+	// ========================= PUT ========================= //
 	@Operation(
 			summary = "Met a jour un terrain de tennis",
-			description = "Met a jour le terrain de tennis pour l'id specifie"
+			description = "Met a jour le terrain de tennis pour l'id spécifié",
+			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
 			@ApiResponse(
@@ -66,7 +73,7 @@ public class CourtController {
 			),
 			@ApiResponse(
 					responseCode = "400",
-					description = "Le DTO est mal forme",
+					description = "Le DTO ou l'id est mal formé",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = ApiErrorResponse.class)
@@ -74,21 +81,22 @@ public class CourtController {
 			),
 			@ApiResponse(
 					responseCode = "404",
-					description = "Pas de joueur avec cet id",
+					description = "Pas de terrain avec cet id",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = ApiErrorResponse.class)
 					)
 			)
 	})
-	@PatchMapping("/{id}")
-	public ResponseEntity<CourtDto> updateCourt(@PathVariable UUID id, @Valid @RequestBody CourtDto courtDto) {
+	@PutMapping("/{id}")
+	public ResponseEntity<CourtDto> updateCourt(@PathVariable UUID id, @Valid @RequestBody PutCourtDto courtDto) {
 		CourtEntity court = courtService.getCourtById(id);
 		if (court == null) {
 			throw new IdNotFoundException("Pas de terrain avec cet id");
 		} else {
-			courtDto.setId(id);
-			court = courtService.updateCourt(CourtMapper.INSTANCE.mapToEntity(courtDto));
+			court = PutCourtMapper.INSTANCE.mapToEntity(courtDto);
+			court.setId(id);
+			court = courtService.updateCourt(court);
 			return ResponseEntity.ok(CourtMapper.INSTANCE.mapToDTO(court));
 		}
 	}

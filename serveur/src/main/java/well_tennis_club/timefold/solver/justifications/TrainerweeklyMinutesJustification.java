@@ -7,7 +7,8 @@ import well_tennis_club.timefold.domain.Trainer;
 /**
  * Justification d'une contrainte de nombre d'heures hebdomadaires d'un entraîneur non respectée.
  */
-public record TrainerweeklyMinutesJustification(Trainer trainer, Integer weeklyMinutes, HardSoftScore score, String description) implements ConstraintJustification {
+public record TrainerweeklyMinutesJustification(Trainer trainer, Integer weeklyMinutes, HardSoftScore score,
+												String description) implements ConstraintJustification {
 	public TrainerweeklyMinutesJustification(Trainer trainer, Integer weeklyMinutes, HardSoftScore score) {
 		this(trainer, weeklyMinutes, score, getDescription(trainer, weeklyMinutes, score));
 	}

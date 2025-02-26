@@ -3,22 +3,26 @@ package well_tennis_club.projet.core.player.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import well_tennis_club.projet.core.disponibility.dto.CreateDisponibilityDto;
 
 import java.io.Serializable;
 import java.util.List;
 
-@Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class PlayerInscriptionDto implements Serializable {
 	@Schema(name = "name", example = "Nadal")
 	@NotBlank(message = "Le nom (name) est obligatoire")
 	private String name;
 
 	@Schema(name = "surname", example = "Rafael")
-	@NotBlank(message = "Le prenom (surname) est obligatoire")
+	@NotBlank(message = "Le prénom (surname) est obligatoire")
 	private String surname;
 
 	@Schema(name = "birthday", example = "1986-06-03")
@@ -41,7 +45,7 @@ public class PlayerInscriptionDto implements Serializable {
 	private Long level;
 
 	@Schema(name = "email", example = "example@mail.fr")
-	@NotBlank(message = "Email (email) is mandatory")
+	@NotBlank(message = "L'email (email) est obligatoire")
 	@Email(message = "L'email (email) doit avoir un format valide")
 	private String email;
 

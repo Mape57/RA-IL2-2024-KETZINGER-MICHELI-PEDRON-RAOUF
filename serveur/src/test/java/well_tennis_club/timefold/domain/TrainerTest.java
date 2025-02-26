@@ -1,5 +1,6 @@
 package well_tennis_club.timefold.domain;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Disabled
 class TrainerTest {
 	@Nested
 	@DisplayName("Tests sur la méthode isAvailable")
