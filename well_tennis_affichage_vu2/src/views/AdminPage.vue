@@ -26,12 +26,12 @@
       <RightPanel class="mobile-right-panel " :userRole="'ADMIN'" />
     </div>
 
-    <div v-else class="flex w-full h-full flex-1">
+    <div v-else class="grid w-full h-full flex-1">
       <LeftPanel class="desktop-left-panel" :isMobile="false" :userRole="'ADMIN'" />
       <RightPanel class="desktop-right-panel" :userRole="'ADMIN'" />
+      <BottomPanel v-if="!isMobile" :statusMessage="statusMessage" @updatePlayers="fetchPlayers" class="aligned-bottom-panel" />
     </div>
 
-    <BottomPanel v-if="!isMobile" :statusMessage="statusMessage" @updatePlayers="fetchPlayers" class="aligned-bottom-panel" />
   </div>
 </template>
 

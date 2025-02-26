@@ -243,7 +243,7 @@ export default {
   margin-right: 1.37rem;
   width: 67%;
   height: 83vh;
-  margin-bottom: 7vh;
+  margin-bottom: 4vh;
   z-index: 100;
 }
 

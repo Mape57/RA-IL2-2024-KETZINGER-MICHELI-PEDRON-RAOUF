@@ -74,7 +74,7 @@ export default {
   z-index: 10;
   right: 1.37rem; /* Alignement avec le RightPanel */
   width: 67%; /* Même largeur que le RightPanel */
-  height: 7vh; /* Hauteur ajustée */
+  height: 50px; /* Hauteur ajustée */
   background-color: white;
   border-radius: 0.5rem;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -82,6 +82,8 @@ export default {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.25rem;
+  position: fixed;
+  transform: translateY(0);
 }
 
 @media (min-width: 1024px) {
@@ -89,7 +91,9 @@ export default {
     width: 67%;
     right: 1.37rem;
     left: auto;
-    height: 6vh;
+    position: fixed;
+    height: 60px;
+    transform: translateY(0);
   }
 }
 

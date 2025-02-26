@@ -95,7 +95,7 @@
         </div>
         <button class="menu-item" @click="downloadXLS">
           <span class="material-symbols-outlined mr-2">calendar_today</span>
-          Planning - format XLS
+          Planning - format PDF
         </button>
 
         <button class="menu-item" @click="downloadCSV">
@@ -133,12 +133,15 @@ import usePlayers from "../../useJs/usePlayers";
 import PlayersService from "../../services/PlayersService.js";
 import ExportService from "../../functionality/ExportService";
 import ImportService from "../../functionality/ImportService";
+import ExportPdf from "../../functionality/ExportPdf";
+
 
 import Players from "./Players.vue";
 import Trainers from "./Trainers.vue";
 import Terrains from "./Terrain.vue";
 import Session from "./Session.vue";
 import PlayerNot from "../vueInformations/PlayerNot.vue";
+
 
 export default {
   name: "LeftPanel",
@@ -273,8 +276,13 @@ export default {
       }
     },
 
-    downloadXLS() {
-      alert("Téléchargement de planning XLS");
+    async downloadXLS() {
+      try {
+        await ExportPdf.generateSessionsPdf();
+        console.log("Exportation PDF réussie !");
+      } catch (error) {
+        console.error("Erreur lors de l'exportation du PDF :", error);
+      }
     },
 
     async downloadCSV() {
