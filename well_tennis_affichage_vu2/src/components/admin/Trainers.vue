@@ -16,6 +16,7 @@
           </span>
 
     </div>
+    </div>
 
     <!-- Contenu déroulant -->
     <div v-if="isOpen" class="mt-2">
@@ -26,6 +27,7 @@
         <div class="text-left">Niveau Min•Max</div>
         <div class="text-center">Âge Min•Max</div>
       </div>
+
       <div v-for="trainer in trainers"
            :key="trainer.id"
            class="grid grid-cols-4 items-center py-1"
@@ -46,9 +48,9 @@
           @delete="handleTrainerDeletion"
           @save="handleTrainerSave"
       />
-
     </div>
   </div>
+
 </template>
 
 <script>
