@@ -19,7 +19,7 @@ public class TrainerEntityConverter {
 		playerEntity.setSupAge(agePreference.getMax());
 		playerEntity.setInfWeeklyMinutes(weeklyMinutes.getMin());
 		playerEntity.setSupWeeklyMinutes(weeklyMinutes.getMax());
-		playerEntity.setEmail("");
+		playerEntity.setEmail(UUID.randomUUID() + "@mail.fr");
 		playerEntity.setPassword("");
 		playerEntity.setPartTime(partTime);
 		playerEntity.setAdmin(false);

@@ -18,7 +18,7 @@ public class PlayerEntityConverter {
 		playerEntity.setBirthday(LocalDate.of(LocalDate.now().getYear() - age, 1, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 		playerEntity.setCourses((long) weeklySession);
 		playerEntity.setLevel((long) level);
-		playerEntity.setEmail("");
+		playerEntity.setEmail(UUID.randomUUID() + "@mail.fr");
 		playerEntity.setValidate(true);
 		if (availability == null) availability = List.of();
 		playerEntity.setDisponibilities(availability.stream().map(DisponibilityEntityConverter::from).toList());

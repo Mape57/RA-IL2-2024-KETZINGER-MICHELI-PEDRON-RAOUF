@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import well_tennis_club.projet.core.DEPRECATED_participation.ParticipationService;
 import well_tennis_club.projet.core.player.dto.CreatePlayerDto;
 import well_tennis_club.projet.core.player.dto.PlayerDto;
 import well_tennis_club.projet.core.player.dto.PutPlayerDto;
@@ -21,6 +22,8 @@ import well_tennis_club.projet.core.player.mapper.CreatePlayerMapper;
 import well_tennis_club.projet.core.player.mapper.PlayerMapper;
 import well_tennis_club.projet.core.player.mapper.PutPlayerMapper;
 import well_tennis_club.projet.core.player.service.PlayerService;
+import well_tennis_club.projet.core.session.SessionRepository;
+import well_tennis_club.projet.core.session.SessionService;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
 
@@ -34,10 +37,14 @@ import java.util.UUID;
 @CrossOrigin
 public class PlayerController {
 	private final PlayerService playerService;
+	private final ParticipationService participationService;
+	private final SessionService sessionService;
 
 	@Autowired
-	public PlayerController(PlayerService playerService) {
+	public PlayerController(PlayerService playerService, ParticipationService participationService, SessionService sessionService) {
 		this.playerService = playerService;
+		this.participationService = participationService;
+		this.sessionService = sessionService;
 	}
 
 	// ========================= GET ========================= //
@@ -243,6 +250,7 @@ public class PlayerController {
 	})
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deletePlayer(@PathVariable UUID id) {
+		participationService.deleteByPlayerId(id);
 		int result = playerService.deleteById(id);
 		if (result == 0) {
 			throw new IdNotFoundException("Pas de joueur avec cet id");
@@ -264,7 +272,7 @@ public class PlayerController {
 	})
 	@DeleteMapping
 	public ResponseEntity<Void> deleteAllPlayers() {
-		playerService.deleteAll();
+		sessionService.deleteAll();
 		return ResponseEntity.noContent().build();
 	}
 }
