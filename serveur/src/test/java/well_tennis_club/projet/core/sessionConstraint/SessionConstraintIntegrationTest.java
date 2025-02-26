@@ -11,9 +11,9 @@ import well_tennis_club.projet.core.session_constraint.SessionConstraintEntity;
 import well_tennis_club.projet.core.player.service.PlayerService;
 import well_tennis_club.projet.core.session_constraint.SessionConstraintService;
 
+import java.util.List;
 import java.util.UUID;
 
-@Disabled
 @SpringBootTest
 @ActiveProfiles("test")
 public class SessionConstraintIntegrationTest {
@@ -40,8 +40,6 @@ public class SessionConstraintIntegrationTest {
     @Test
     @Transactional
     void testCreateConstraint(){
-        UUID id = UUID.randomUUID();
-
         SessionConstraintEntity newConstraint = new SessionConstraintEntity();
         newConstraint.setInfAge(18);
         newConstraint.setSupAge(99);
@@ -50,10 +48,9 @@ public class SessionConstraintIntegrationTest {
         newConstraint.setAgeDiff(10);
         newConstraint.setLevelDiff(2);
         newConstraint.setDuration(2);
-        newConstraint.setId(id);
         SessionConstraintEntity constraintEntity = service.createConstraint(newConstraint);
 
-        SessionConstraintEntity constraint = service.getConstraintById(id);
+        SessionConstraintEntity constraint = service.getConstraintById(constraintEntity.getId());
         Assertions.assertThat(constraint).isNotNull();
         Assertions.assertThat(constraint.getInfLevel()).isEqualTo(15);
         Assertions.assertThat(constraint.getSupLevel()).isEqualTo(20);
@@ -89,8 +86,6 @@ public class SessionConstraintIntegrationTest {
     @Test
     @Transactional
     void testDeleteConstraint(){
-        UUID id = UUID.randomUUID();
-
         SessionConstraintEntity newConstraint = new SessionConstraintEntity();
         newConstraint.setInfAge(18);
         newConstraint.setSupAge(99);
@@ -99,16 +94,15 @@ public class SessionConstraintIntegrationTest {
         newConstraint.setAgeDiff(10);
         newConstraint.setLevelDiff(2);
         newConstraint.setDuration(2);
-        newConstraint.setId(id);
         SessionConstraintEntity constraintEntity = service.createConstraint(newConstraint);
 
-        SessionConstraintEntity constraint = service.getConstraintById(id);
+        SessionConstraintEntity constraint = service.getConstraintById(constraintEntity.getId());
         Assertions.assertThat(constraint).isNotNull();
         Assertions.assertThat(constraint.getInfLevel()).isEqualTo(15);
         Assertions.assertThat(constraint.getSupLevel()).isEqualTo(20);
 
         service.deleteById(constraintEntity.getId());
-        constraint = service.getConstraintById(id);
+        constraint = service.getConstraintById(constraintEntity.getId());
         Assertions.assertThat(constraint).isNull();
     }
 
@@ -117,5 +111,44 @@ public class SessionConstraintIntegrationTest {
     void testGetAllConstraints(){
         Assertions.assertThat(service.getAllConstraints()).isNotNull();
         Assertions.assertThat(service.getAllConstraints().size()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    void testGetAllCreatVide(){
+        List<SessionConstraintEntity> constraints = service.getAllConstraints();
+        for (SessionConstraintEntity constraint : constraints){
+            service.deleteById(constraint.getId());
+        }
+
+        Assertions.assertThat(service.getAllConstraints()).isNotNull();
+        Assertions.assertThat(service.getAllConstraints().size()).isEqualTo(0);
+
+        for (SessionConstraintEntity constraint : constraints){
+            service.createConstraint(constraint);
+        }
+    }
+
+    @Test
+    @Transactional
+    void testDeleteInexistant(){
+        List<SessionConstraintEntity> constraints = service.getAllConstraints();
+        int size = constraints.size();
+
+        UUID id = UUID.randomUUID();
+        SessionConstraintEntity constraint = new SessionConstraintEntity();
+        constraint.setId(id);
+        service.deleteById(constraint.getId());
+
+        constraints = service.getAllConstraints();
+        Assertions.assertThat(constraints.size()).isEqualTo(size);
+    }
+
+    @Test
+    @Transactional
+    void testGetInexistant(){
+        UUID id = UUID.randomUUID();
+        SessionConstraintEntity constraint = service.getConstraintById(id);
+        Assertions.assertThat(constraint).isNull();
     }
 }

@@ -81,7 +81,7 @@ public class CourtIntegrationTest {
         Assertions.assertThat(court.getName()).isEqualTo("Court 3");
 
         service.deleteById(court.getId());
-        court = service.getCourtById(id);
+        court = service.getCourtById(court.getId());
         Assertions.assertThat(court).isNull();
     }
 
@@ -102,7 +102,7 @@ public class CourtIntegrationTest {
 
         List<CourtEntity> courts = service.getAllCourts();
         for (CourtEntity court : courts){
-            service.deleteCourt(court);
+            service.deleteById(court.getId());
         }
 
         Assertions.assertThat(service.getAllCourts()).isNotNull();
@@ -127,28 +127,10 @@ public class CourtIntegrationTest {
         int size = courts.size();
 
         UUID id = UUID.randomUUID();
-        CourtEntity court = new CourtEntity();
-        court.setId(id);
-        service.deleteCourt(court);
+        service.deleteById(id);
 
         courts = service.getAllCourts();
         Assertions.assertThat(courts.size()).isEqualTo(size);
-    }
-
-    @Test
-    @Transactional
-    void testUpdateInexistant(){
-        List<CourtEntity> courts = service.getAllCourts();
-
-        UUID id = UUID.randomUUID();
-        CourtEntity court = new CourtEntity();
-        court.setName("Ceci est un test");
-        court.setId(id);
-        service.updateCourt(court);
-
-        for (CourtEntity c : courts){
-            Assertions.assertThat(c.getName()).isNotEqualTo("Ceci est un test");
-        }
     }
 
     @Test

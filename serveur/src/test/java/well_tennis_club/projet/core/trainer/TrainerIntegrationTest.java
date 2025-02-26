@@ -2,15 +2,19 @@ package well_tennis_club.projet.core.trainer;
 
 import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import well_tennis_club.WellTennisClubApplication;
+import well_tennis_club.projet.core.session.SessionEntity;
+import well_tennis_club.projet.core.session.SessionService;
 import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
 import well_tennis_club.projet.core.trainer.service.TrainerService;
 
+import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest(classes = WellTennisClubApplication.class)
@@ -19,6 +23,8 @@ public class TrainerIntegrationTest {
 
     @Autowired
     private TrainerService service;
+    @Autowired
+    private SessionService sessionService;
 
     @Test
     @Transactional
@@ -125,5 +131,56 @@ public class TrainerIntegrationTest {
     void testGetAllTrainers(){
         Assertions.assertThat(service.getAllTrainers()).isNotNull();
         Assertions.assertThat(service.getAllTrainers().size()).isEqualTo(3);
+    }
+
+    @Test
+    @Transactional
+    void testGetAllCreateVide(){
+        List<SessionEntity> sessions = sessionService.getAllSessions();
+        for (SessionEntity session : sessions){
+            sessionService.deleteById(session.getId());
+        }
+
+        List<TrainerEntity> trainers = service.getAllTrainers();
+        for (TrainerEntity trainer : trainers){
+            service.deleteById(trainer.getId());
+        }
+
+        Assertions.assertThat(service.getAllTrainers()).isNotNull();
+        Assertions.assertThat(service.getAllTrainers().size()).isEqualTo(0);
+
+        for (TrainerEntity trainer : trainers){
+            service.createTrainer(trainer);
+        }
+
+        trainers = service.getAllTrainers();
+
+        for (SessionEntity session : sessions){
+            session.setIdTrainer(trainers.get(0));
+            sessionService.createSession(session);
+        }
+    }
+
+    @Test
+    @Transactional
+    void testDeleteInexistant(){
+        List<TrainerEntity> trainers = service.getAllTrainers();
+        int size = trainers.size();
+
+        UUID id = UUID.randomUUID();
+        TrainerEntity trainer = new TrainerEntity();
+        trainer.setId(id);
+        service.deleteById(trainer.getId());
+
+        trainers = service.getAllTrainers();
+        Assertions.assertThat(trainers.size()).isEqualTo(size);
+    }
+
+    @Test
+    @Transactional
+    void testGetInexistant(){
+        UUID id = UUID.randomUUID();
+        TrainerEntity trainer = service.getTrainerById(id);
+        Assertions.assertThat(trainer).isNull();
     }
 }

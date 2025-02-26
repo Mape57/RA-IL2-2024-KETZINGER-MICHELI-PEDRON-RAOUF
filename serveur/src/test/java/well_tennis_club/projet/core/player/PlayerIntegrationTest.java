@@ -2,15 +2,20 @@ package well_tennis_club.projet.core.player;
 
 import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import well_tennis_club.WellTennisClubApplication;
+import well_tennis_club.projet.core.disponibility.entity.DisponibilityEntity;
 import well_tennis_club.projet.core.player.entity.PlayerEntity;
 import well_tennis_club.projet.core.player.service.PlayerService;
+import well_tennis_club.projet.core.session.SessionEntity;
+import well_tennis_club.projet.core.session.SessionService;
 import well_tennis_club.timefold.domain.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +25,8 @@ public class PlayerIntegrationTest {
 
     @Autowired
     private PlayerService service;
+    @Autowired
+    private SessionService sessionService;
 
     @Test
     @Transactional
@@ -106,6 +113,11 @@ public class PlayerIntegrationTest {
     @Test
     @Transactional
     void testGetAllCreateVide(){
+        List<SessionEntity> session = sessionService.getAllSessions();
+        for (SessionEntity s : session){
+            sessionService.deleteById(s.getId());
+        }
+
         List<PlayerEntity> players = service.getAllPlayers();
         for (PlayerEntity player : players){
             service.deleteById(player.getId());
@@ -117,5 +129,35 @@ public class PlayerIntegrationTest {
         for (PlayerEntity player : players){
             service.createPlayer(player);
         }
+
+        players = service.getAllPlayers();
+
+        for (SessionEntity s : session){
+            s.setPlayers(players);
+            sessionService.deleteById(s.getId());
+        }
+    }
+
+    @Test
+    @Transactional
+    void testDeleteInexistant(){
+        List<PlayerEntity> players = service.getAllPlayers();
+        int size = players.size();
+
+        UUID id = UUID.randomUUID();
+        PlayerEntity player = new PlayerEntity();
+        player.setId(id);
+        service.deleteById(player.getId());
+
+        players = service.getAllPlayers();
+        Assertions.assertThat(players.size()).isEqualTo(size);
+    }
+
+    @Test
+    @Transactional
+    void testGetInexistant(){
+        UUID id = UUID.randomUUID();
+        PlayerEntity player = service.getPlayerById(id);
+        Assertions.assertThat(player).isNull();
     }
 }
