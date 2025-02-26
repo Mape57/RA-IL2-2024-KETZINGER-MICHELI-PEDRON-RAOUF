@@ -131,6 +131,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import useTerrain from "../../useJs/useTerrain.js";
 import useLeftPanel from "../../useJs/useLeftPanel.js";
 import usePlayers from "../../useJs/usePlayers";
+import useSessionConstraint from "../../useJs/useSessionConstraint.js";
 import PlayersService from "../../services/PlayersService.js";
 import ExportService from "../../functionality/ExportService";
 import ImportService from "../../functionality/ImportService";
@@ -142,6 +143,7 @@ import Trainers from "./Trainers.vue";
 import Terrains from "./Terrain.vue";
 import Session from "./Session.vue";
 import PlayerNot from "../vueInformations/PlayerNot.vue";
+
 
 
 export default {
@@ -291,8 +293,17 @@ export default {
     sendReinscriptionMail() {
       alert("Envoi du mail de réinscription !");
     },
-    deleteAllPlayers() {
-      alert("Suppression de tous les joueurs !");
+    async deleteAllPlayers() {
+      if (confirm("Êtes-vous sûr de vouloir supprimer tous les joueurs ?")) {
+        try {
+          await PlayersService.deleteAllPlayers(); // Suppression via l'API
+          this.players = []; // Mise à jour de la liste après suppression
+          alert("Tous les joueurs ont été supprimés avec succès !");
+        } catch (error) {
+          console.error("Erreur lors de la suppression des joueurs :", error);
+          alert("Une erreur s'est produite lors de la suppression.");
+        }
+      }
     },
     checkScreenSize() {
       clearTimeout(this.resizeTimeout);

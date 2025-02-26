@@ -110,6 +110,14 @@ export default function usePlayers() {
 		}
 	};
 
+	const deleteAllPlayer = async () => {
+		try {
+			await playersService.deleteAllPlayers();
+			players.value = [];
+		} catch (error) {
+			console.error("Erreur lors de la suppression de tous les joueurs :", error);
+		}
+	};
 
 
 
@@ -119,6 +127,7 @@ export default function usePlayers() {
 		createPlayer,
 		deletePlayer,
 		fetchPlayers,
+		deleteAllPlayer,
 		players,
 		updatePlayer,
 		pendingPlayers,

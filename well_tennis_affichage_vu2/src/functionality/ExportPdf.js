@@ -25,7 +25,7 @@ class ExportPdf {
             doc.setFont("helvetica");
 
             const pageWidth = doc.internal.pageSize.width;
-            const margin = 6;
+            const margin = 8;
             const colWidth = (pageWidth - 2 * margin) / 6;
             const startX = margin;
             const maxY = 190; // Hauteur max avant nouvelle page
@@ -55,14 +55,17 @@ class ExportPdf {
                 let startY = 25;
                 const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
 
-                // Dessiner l'en-tête des jours
+                // en-tête des jours
                 doc.setFontSize(12);
                 doc.setTextColor(0);
                 jours.forEach((jour, i) => {
-                    doc.text(jour, startX + i * colWidth, startY);
+                    const centerX = startX + i * colWidth + colWidth / 2; // Calcul du centre de la colonne
+                    doc.text(jour, centerX, startY, { align: "center" });
                 });
+                doc.setDrawColor(82, 131, 89);
+                doc.setLineWidth(0.7);
                 doc.line(startX, startY + 2, pageWidth - margin, startY + 2);
-                startY += 6; // Garde startY à 30 avec espace sous l'en-tête
+                startY += 8;
 
                 // Regrouper les sessions par jour
                 const sessionsByDay = sessions
@@ -81,7 +84,7 @@ class ExportPdf {
                 let columnPositions = { ...jours.reduce((acc, jour) => ({ ...acc, [jour]: startY }), {}) };
                 let overflowSessions = [];
 
-                // Vérification préalable des dépassements
+                // Vérification des dépassements
                 jours.forEach((jour, i) => {
                     let tempColumnY = columnPositions[jour];
 
@@ -112,11 +115,14 @@ class ExportPdf {
                     jours.forEach((j, idx) => {
                         doc.text(j, startX + idx * colWidth, overflowStartY);
                     });
+                    doc.setDrawColor(82, 131, 89);
+                    doc.setLineWidth(0.7);
                     doc.line(startX, overflowStartY + 2, pageWidth - margin, overflowStartY + 2);
 
-                    // Position de départ correcte pour chaque colonne
+
+                    // Position de départ pour chaque colonne
                     jours.forEach(jour => {
-                        overflowColumnPositions[jour] += 10; // Décalage après les jours
+                        overflowColumnPositions[jour] += 10;
                     });
 
                     // Affichage des sessions en overflow
@@ -158,12 +164,12 @@ function afficherSession(doc, session, x, y, colWidth, getCoachColor) {
     const lineColor = session.idTrainer ? getCoachColor(session.idTrainer.id) : [150, 150, 150];
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
+    doc.setFontSize(8);
     doc.text(coach, x, y);
     doc.text(time, x + colWidth - 1, y, { align: "right" });
 
-    const ageY = y + 4;
-    doc.setFont("helvetica", "normal");
+    const ageY = y + 5;
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
     doc.text(ageLevel, x, ageY);
 
@@ -174,6 +180,8 @@ function afficherSession(doc, session, x, y, colWidth, getCoachColor) {
 
     const playersY = lineY + 5;
     const splitPlayers = doc.splitTextToSize(players, colWidth - 2);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
     doc.text(splitPlayers, x, playersY);
 
     return playersY + splitPlayers.length * 2.5 + 5;
