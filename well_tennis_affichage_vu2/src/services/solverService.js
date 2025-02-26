@@ -2,7 +2,7 @@ import apiService from "./apiService.js";
 
 export default {
 	startSolver() {
-		return apiService.getData('/solver/start');
+		return apiService.post('/solver');
 	},
 
 	stopSolver() {
