@@ -1,4 +1,4 @@
-package well_tennis_club.projet.core.trainer;
+package well_tennis_club.projet.core.trainer.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,7 +18,6 @@ import well_tennis_club.projet.core.trainer.dto.AuthResponseDto;
 import well_tennis_club.projet.core.trainer.dto.UserConnectionDto;
 import well_tennis_club.projet.exception.FailedAuthException;
 
-import javax.security.auth.login.FailedLoginException;
 import java.util.stream.Collectors;
 
 @RestController
@@ -42,8 +41,7 @@ public class AuthController {
 							schema = @Schema(implementation = AuthResponseDto.class)
 					)
 			)
-	}
-	)
+	})
 	@PostMapping("/login")
 	public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody UserConnectionDto userConnectionDto) {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userConnectionDto.getEmail(), userConnectionDto.getPassword());

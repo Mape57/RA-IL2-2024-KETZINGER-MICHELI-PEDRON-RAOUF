@@ -11,6 +11,10 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import well_tennis_club.projet.core.court.dto.CourtDto;
+import well_tennis_club.projet.core.court.dto.PutCourtDto;
+import well_tennis_club.projet.core.court.mapper.CourtMapper;
+import well_tennis_club.projet.core.court.mapper.PutCourtMapper;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
 
@@ -52,7 +56,7 @@ public class CourtController {
 	}
 
 
-	// ========================= PATCH ========================= //
+	// ========================= PUT ========================= //
 	@Operation(
 			summary = "Met a jour un terrain de tennis",
 			description = "Met a jour le terrain de tennis pour l'id spécifié",
@@ -77,21 +81,22 @@ public class CourtController {
 			),
 			@ApiResponse(
 					responseCode = "404",
-					description = "Pas de joueur avec cet id",
+					description = "Pas de terrain avec cet id",
 					content = @Content(
 							mediaType = "application/json",
 							schema = @Schema(implementation = ApiErrorResponse.class)
 					)
 			)
 	})
-	@PatchMapping("/{id}")
-	public ResponseEntity<CourtDto> updateCourt(@PathVariable UUID id, @Valid @RequestBody CourtDto courtDto) {
+	@PutMapping("/{id}")
+	public ResponseEntity<CourtDto> updateCourt(@PathVariable UUID id, @Valid @RequestBody PutCourtDto courtDto) {
 		CourtEntity court = courtService.getCourtById(id);
 		if (court == null) {
 			throw new IdNotFoundException("Pas de terrain avec cet id");
 		} else {
-			courtDto.setId(id);
-			court = courtService.updateCourt(CourtMapper.INSTANCE.mapToEntity(courtDto));
+			court = PutCourtMapper.INSTANCE.mapToEntity(courtDto);
+			court.setId(id);
+			court = courtService.updateCourt(court);
 			return ResponseEntity.ok(CourtMapper.INSTANCE.mapToDTO(court));
 		}
 	}

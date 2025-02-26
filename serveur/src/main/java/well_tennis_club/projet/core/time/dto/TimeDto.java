@@ -1,14 +1,15 @@
-package well_tennis_club.projet.core.time;
+package well_tennis_club.projet.core.time.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
-@Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class TimeDto {
 	@Schema(name = "id", example = "1")
 	@NotNull(message = "L'identifiant (id) ne peut pas être nul")

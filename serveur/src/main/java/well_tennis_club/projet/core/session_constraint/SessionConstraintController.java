@@ -15,9 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import well_tennis_club.projet.core.session_constraint.dto.CreateSessionConstraintDto;
+import well_tennis_club.projet.core.court.dto.CourtDto;
+import well_tennis_club.projet.core.session_constraint.dto.NewSessionConstraintDto;
 import well_tennis_club.projet.core.session_constraint.dto.SessionConstraintDto;
-import well_tennis_club.projet.core.session_constraint.mapper.CreateSessionConstraintMapper;
+import well_tennis_club.projet.core.session_constraint.mapper.NewSessionConstraintMapper;
 import well_tennis_club.projet.core.session_constraint.mapper.SessionConstraintMapper;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
@@ -72,7 +73,7 @@ public class SessionConstraintController {
 					description = "Création réussie",
 					content = @Content(
 							mediaType = "application/json",
-							schema = @Schema(implementation = CreateSessionConstraintDto.class)
+							schema = @Schema(implementation = NewSessionConstraintDto.class)
 					)
 			),
 			@ApiResponse(
@@ -85,8 +86,8 @@ public class SessionConstraintController {
 			),
 	})
 	@PostMapping
-	public ResponseEntity<SessionConstraintDto> createPlayer(@Valid @RequestBody CreateSessionConstraintDto createSessionConstraintDto) {
-		SessionConstraintEntity constraint = CreateSessionConstraintMapper.INSTANCE.mapToEntity(createSessionConstraintDto);
+	public ResponseEntity<SessionConstraintDto> createPlayer(@Valid @RequestBody NewSessionConstraintDto newSessionConstraintDto) {
+		SessionConstraintEntity constraint = NewSessionConstraintMapper.INSTANCE.mapToEntity(newSessionConstraintDto);
 		constraint = sessionConstraintService.createConstraint(constraint);
 		SessionConstraintDto constraintDto = SessionConstraintMapper.INSTANCE.mapToDTO(constraint);
 
@@ -99,24 +100,48 @@ public class SessionConstraintController {
 		return ResponseEntity.created(location).body(constraintDto);
 	}
 
-	// ========================= PATCH ========================= //
-	@Operation(summary = "Update constraint", description = "Update constraint with id",
-			security = @SecurityRequirement(name = "bearerAuth"))
+	// ========================= PUT ========================= //
+	@Operation(
+			summary = "Met a jour la contrainte de session",
+			description = "Met a jour la contrainte de session avec l'id spécifié",
+			security = @SecurityRequirement(name = "bearerAuth")
+	)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Successfully patched"),
-			@ApiResponse(responseCode = "404", description = "Internal server error - Constraint was not update")
+			@ApiResponse(
+					responseCode = "200",
+					description = "Mise à jour reussie",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = SessionConstraintDto.class)
+					)
+			),
+			@ApiResponse(
+					responseCode = "400",
+					description = "Le DTO ou l'id est mal formé",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			),
+			@ApiResponse(
+					responseCode = "404",
+					description = "Pas de terrain avec cet id",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			)
 	})
-	@PatchMapping("/{id}")
-	public SessionConstraintDto updateConstraint(@PathVariable UUID id, @RequestBody SessionConstraintDto sessionconstraintDto) {
-		SessionConstraintDto constraint = SessionConstraintMapper.INSTANCE.mapToDTO(sessionConstraintService.getConstraintById(id));
+	@PutMapping("/{id}")
+	public ResponseEntity<SessionConstraintDto> updateConstraint(@PathVariable UUID id, @Valid @RequestBody NewSessionConstraintDto sessionconstraintDto) {
+		SessionConstraintEntity constraint = sessionConstraintService.getConstraintById(id);
 		if (constraint == null) {
-			throw new ResponseStatusException(
-					HttpStatus.NOT_FOUND, "Constraint not found"
-			);
+			throw new IdNotFoundException("Pas de contrainte avec cet id");
 		} else {
-			SessionConstraintDto modif = sessionconstraintDto;
-			modif.setId(id);
-			return SessionConstraintMapper.INSTANCE.mapToDTO(sessionConstraintService.updateConstraint(SessionConstraintMapper.INSTANCE.mapToEntity(modif)));
+			constraint = NewSessionConstraintMapper.INSTANCE.mapToEntity(sessionconstraintDto);
+			constraint.setId(id);
+			constraint = sessionConstraintService.updateConstraint(constraint);
+			return ResponseEntity.ok(SessionConstraintMapper.INSTANCE.mapToDTO(constraint));
 		}
 	}
 

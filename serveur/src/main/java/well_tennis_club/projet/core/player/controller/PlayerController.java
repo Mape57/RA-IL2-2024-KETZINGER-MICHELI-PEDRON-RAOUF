@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import well_tennis_club.projet.core.player.dto.CreatePlayerDto;
 import well_tennis_club.projet.core.player.dto.PlayerDto;
+import well_tennis_club.projet.core.player.dto.PutPlayerDto;
 import well_tennis_club.projet.core.player.entity.PlayerEntity;
 import well_tennis_club.projet.core.player.mapper.CreatePlayerMapper;
 import well_tennis_club.projet.core.player.mapper.PlayerMapper;
+import well_tennis_club.projet.core.player.mapper.PutPlayerMapper;
 import well_tennis_club.projet.core.player.service.PlayerService;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
@@ -151,7 +153,7 @@ public class PlayerController {
 		return ResponseEntity.created(location).body(PlayerMapper.INSTANCE.mapToDTO(player));
 	}
 
-	// ========================= PATCH ========================= //
+	// ========================= PUT ========================= //
 	@Operation(
 			summary = "Met à jour le joueur",
 			description = "Met à jour le joueur avec cet id",
@@ -183,14 +185,15 @@ public class PlayerController {
 					)
 			)
 	})
-	@PatchMapping("/{id}")
-	public ResponseEntity<PlayerDto> updatePlayer(@PathVariable UUID id, @Valid @RequestBody PlayerDto playerDto) {
+	@PutMapping("/{id}")
+	public ResponseEntity<PlayerDto> updatePlayer(@PathVariable UUID id, @Valid @RequestBody PutPlayerDto playerDto) {
 		PlayerEntity player = playerService.getPlayerById(id);
 		if (player == null) {
 			throw new IdNotFoundException("Pas de joueur avec cet id");
 		} else {
-			playerDto.setId(id);
-			player = playerService.updatePlayer(PlayerMapper.INSTANCE.mapToEntity(playerDto));
+			player = PutPlayerMapper.INSTANCE.mapToEntity(playerDto);
+			player.setId(id);
+			player = playerService.updatePlayer(player);
 			return ResponseEntity.ok(PlayerMapper.INSTANCE.mapToDTO(player));
 		}
 	}

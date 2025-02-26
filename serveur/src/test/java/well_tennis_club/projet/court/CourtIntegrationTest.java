@@ -53,7 +53,7 @@ public class CourtIntegrationTest {
         Assertions.assertThat(court).isNotNull();
         Assertions.assertThat(court.getName()).isEqualTo("Court 3");
 
-        service.deleteCourt(courtEntity);
+        service.deleteById(courtEntity.getId());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class CourtIntegrationTest {
         Assertions.assertThat(court).isNotNull();
         Assertions.assertThat(court.getName()).isEqualTo("Court 3");
 
-        service.deleteCourt(court);
+        service.deleteById(court.getId());
         court = service.getCourtById(id);
         Assertions.assertThat(court).isNull();
     }

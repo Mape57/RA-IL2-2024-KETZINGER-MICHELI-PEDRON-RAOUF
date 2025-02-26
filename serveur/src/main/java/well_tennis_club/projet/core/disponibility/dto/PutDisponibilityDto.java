@@ -11,9 +11,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Setter
 @Getter
-public class DisponibilityDto implements Serializable {
+public class PutDisponibilityDto implements Serializable {
 	@Schema(name = "id", example = "1")
-	@NotNull(message = "L'id (id) ne peut pas être nul")
 	private UUID id;
 
 	@Schema(name = "dayWeek", example = "5")

@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSender;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import well_tennis_club.projet.core.disponibility.mapper.PlayerInscriptionMapper;
+import well_tennis_club.projet.core.player.mapper.PlayerInscriptionMapper;
 import well_tennis_club.projet.core.player.dto.PlayerDto;
 import well_tennis_club.projet.core.player.dto.PlayerInscriptionDto;
 import well_tennis_club.projet.core.player.entity.PlayerEntity;

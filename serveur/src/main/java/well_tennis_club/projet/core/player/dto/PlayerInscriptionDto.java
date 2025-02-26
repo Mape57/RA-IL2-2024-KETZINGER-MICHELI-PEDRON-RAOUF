@@ -3,15 +3,16 @@ package well_tennis_club.projet.core.player.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import well_tennis_club.projet.core.disponibility.dto.CreateDisponibilityDto;
 
 import java.io.Serializable;
 import java.util.List;
 
-@Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class PlayerInscriptionDto implements Serializable {
 	@Schema(name = "name", example = "Nadal")
 	@NotBlank(message = "Le nom (name) est obligatoire")

@@ -10,15 +10,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import well_tennis_club.projet.core.session.dto.CreateSessionDto;
+import well_tennis_club.projet.core.court.dto.CourtDto;
+import well_tennis_club.projet.core.session.dto.NewSessionDto;
 import well_tennis_club.projet.core.session.dto.SessionDto;
-import well_tennis_club.projet.core.session.mapper.CreateSessionMapper;
-import well_tennis_club.projet.core.session.mapper.SessionMapper;
+import well_tennis_club.projet.core.session.mapper.*;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
 
@@ -32,10 +30,12 @@ import java.util.UUID;
 @CrossOrigin
 public class SessionController {
 	private final SessionService sessionService;
+	private final NewSessionMapperImpl newSessionMapperImpl;
 
 	@Autowired
-	public SessionController(SessionService sessionService) {
+	public SessionController(SessionService sessionService, NewSessionMapperImpl newSessionMapperImpl) {
 		this.sessionService = sessionService;
+		this.newSessionMapperImpl = newSessionMapperImpl;
 	}
 
 	// ========================= GET ========================= //
@@ -85,9 +85,8 @@ public class SessionController {
 			)
 	})
 	@PostMapping
-	// TODO revoir la creation d'une session
-	public ResponseEntity<SessionDto> createSession(@Valid @RequestBody CreateSessionDto createSessionDto) {
-		SessionEntity session = CreateSessionMapper.INSTANCE.mapToEntity(createSessionDto);
+	public ResponseEntity<SessionDto> createSession(@Valid @RequestBody NewSessionDto newSessionDto) {
+		SessionEntity session = newSessionMapperImpl.mapToEntity(newSessionDto);
 		session = sessionService.createSession(session);
 		SessionDto sessionDto = SessionMapper.INSTANCE.mapToDTO(session);
 
@@ -100,24 +99,48 @@ public class SessionController {
 		return ResponseEntity.created(location).body(sessionDto);
 	}
 
-	// ========================= PATCH ========================= //
-	@Operation(summary = "Update session", description = "Update session with id",
-			security = @SecurityRequirement(name = "bearerAuth"))
+	// ========================= PUT ========================= //
+	@Operation(
+			summary = "Met a jour la session",
+			description = "Met a jour la session avec l'id spécifié",
+			security = @SecurityRequirement(name = "bearerAuth")
+	)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Successfully updated"),
-			@ApiResponse(responseCode = "404", description = "Internal server error - Session was not update")
+			@ApiResponse(
+					responseCode = "200",
+					description = "Mise à jour reussie",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = SessionDto.class)
+					)
+			),
+			@ApiResponse(
+					responseCode = "400",
+					description = "Le DTO ou l'id est mal formé",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			),
+			@ApiResponse(
+					responseCode = "404",
+					description = "Pas de terrain avec cet id",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			)
 	})
-	@PatchMapping("/{id}")
-	public SessionDto updateSession(@PathVariable UUID id, @RequestBody SessionDto sessionDto) {
-		SessionDto session = SessionMapper.INSTANCE.mapToDTO(sessionService.getSessionById(id));
+	@PutMapping("/{id}")
+	public ResponseEntity<SessionDto> updateSession(@PathVariable UUID id, @Valid @RequestBody NewSessionDto sessionDto) {
+		SessionEntity session = sessionService.getSessionById(id);
 		if (session == null) {
-			throw new ResponseStatusException(
-					HttpStatus.NOT_FOUND, "Session not found"
-			);
+			throw new IdNotFoundException("Pas de session avec cet id");
 		} else {
-			SessionDto modif = sessionDto;
-			modif.setId(id);
-			return SessionMapper.INSTANCE.mapToDTO(sessionService.updateSession(SessionMapper.INSTANCE.mapToEntity(modif)));
+			session = newSessionMapperImpl.mapToEntity(sessionDto);
+			session.setId(id);
+			session = sessionService.updateSession(session);
+			return ResponseEntity.ok(SessionMapper.INSTANCE.mapToDTO(session));
 		}
 	}
 

@@ -12,9 +12,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import well_tennis_club.projet.core.court.CourtController;
-import well_tennis_club.projet.core.court.CourtDto;
+import well_tennis_club.projet.core.court.dto.CourtDto;
 import well_tennis_club.projet.core.court.CourtEntity;
-import well_tennis_club.projet.core.court.CourtMapper;
+import well_tennis_club.projet.core.court.mapper.CourtMapper;
 import well_tennis_club.projet.core.trainer.service.ConnectionService;
 import well_tennis_club.projet.config.JwtUtils;
 import well_tennis_club.projet.core.court.CourtService;
@@ -104,6 +104,6 @@ public class CourtControllerTest {
         mockMvc.perform(delete("/courts/" + id))
                 .andExpect(status().isOk());
 
-        Mockito.verify(service, Mockito.times(1)).deleteCourt(Mockito.any());
+        Mockito.verify(service, Mockito.times(1)).deleteById(Mockito.any());
     }
 }

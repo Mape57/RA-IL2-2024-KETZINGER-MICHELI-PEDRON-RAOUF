@@ -3,21 +3,16 @@ package well_tennis_club.projet.core.player.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import well_tennis_club.projet.core.disponibility.dto.DisponibilityDto;
+import well_tennis_club.projet.core.disponibility.dto.PutDisponibilityDto;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
-public class PlayerDto implements Serializable {
-	@Schema(name = "id", example = "1")
-	@NotNull(message = "L'id (id) ne peut pas être nul")
-	private UUID id;
-
+public class PutPlayerDto implements Serializable {
 	@Schema(name = "name", example = "Nadal")
 	@NotBlank(message = "Le nom (name) est obligatoire")
 	private String name;
@@ -54,5 +49,5 @@ public class PlayerDto implements Serializable {
 	@NotNull(message = "La validation (validate) est obligatoire")
 	private Boolean validate;
 
-	private List<DisponibilityDto> disponibilities;
+	private List<PutDisponibilityDto> disponibilities;
 }

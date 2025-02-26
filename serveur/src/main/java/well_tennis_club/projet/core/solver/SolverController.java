@@ -128,9 +128,9 @@ public class SolverController {
 
 	@GetMapping("/insertData")
 	public ResponseEntity<String> insertData() {
-		List<PlayerEntity> players = DataInsertion.players.real();
-		List<TrainerEntity> trainers = DataInsertion.trainers.real();
-		List<CourtEntity> courts = DataInsertion.tennisCourts.real;
+		List<PlayerEntity> players = DataInsertion.players.real_3_4;
+		List<TrainerEntity> trainers = DataInsertion.trainers.simple;
+		List<CourtEntity> courts = DataInsertion.tennisCourts.simple;
 		List<SessionConstraintEntity> sessionConstraints = DataInsertion.sessionConstraints.real;
 
 		timetableService.saveAllPlayer(players);

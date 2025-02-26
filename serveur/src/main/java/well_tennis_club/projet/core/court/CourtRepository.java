@@ -7,4 +7,5 @@ import java.util.UUID;
 
 @Repository
 public interface CourtRepository extends ListCrudRepository<CourtEntity, UUID> {
+	int deleteCourtEntityById(UUID id);
 }

@@ -1,23 +1,20 @@
 package well_tennis_club.projet.core.session.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import well_tennis_club.projet.core.court.CourtDto;
-import well_tennis_club.projet.core.player.dto.PlayerDto;
-import well_tennis_club.projet.core.trainer.dto.TrainerDto;
 
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
-public class CreateSessionDto {
+public class NewSessionDto {
 	@Schema(name = "dayWeek", example = "4")
 	@NotNull(message = "Le jour de la semaine (dayWeek) ne peut pas être nul")
 	@Min(value = 1, message = "Le jour (dayWeek) ne doit pas être inférieur à 1")
@@ -40,12 +37,14 @@ public class CreateSessionDto {
 	)
 	private String stop;
 
-	@Valid
-	private CourtDto idCourt;
+	@Schema(name = "idCourt", example = "1")
+	@NotNull(message = "L'id du court (idCourt) ne peut pas être nul")
+	private UUID idCourt;
 
-	@Valid
-	private TrainerDto idTrainer;
+	@Schema(name = "idTrainer", example = "1")
+	private UUID idTrainer;
 
-	@Valid
-	private List<PlayerDto> players;
+	@Schema(name = "players", example = "[1, 2, 3]")
+	@NotNull(message = "La liste des joueurs (players) ne peut pas être nulle")
+	private List<UUID> playerIds;
 }

@@ -13,6 +13,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import well_tennis_club.projet.exception.FailedAuthException;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.exception.InvalidTokenException;
+import well_tennis_club.projet.exception.PasswordNotMatching;
 import well_tennis_club.projet.tool.ApiErrorResponse;
 
 import java.sql.SQLException;
@@ -101,7 +102,7 @@ public class GlobalExcpetionHandler {
 	public ResponseEntity<ApiErrorResponse> handleIdNotFoundException(IdNotFoundException ex) {
 		ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
 		apiErrorResponse.setStatus(HttpStatus.NOT_FOUND.value());
-		apiErrorResponse.setMessage("Id non trouvé");
+		apiErrorResponse.setMessage("Identifiant non trouvé");
 		apiErrorResponse.setDescription(ex.getMessage());
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiErrorResponse);
@@ -115,5 +116,15 @@ public class GlobalExcpetionHandler {
 		apiErrorResponse.setDescription(ex.getMessage());
 
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiErrorResponse);
+	}
+
+	@ExceptionHandler(PasswordNotMatching.class)
+	public ResponseEntity<ApiErrorResponse> handlePasswordNotMatching(PasswordNotMatching ex) {
+		ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+		apiErrorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+		apiErrorResponse.setMessage("Mot de passe incorrect");
+		apiErrorResponse.setDescription(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiErrorResponse);
 	}
 }

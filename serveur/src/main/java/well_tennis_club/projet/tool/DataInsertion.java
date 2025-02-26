@@ -49,6 +49,16 @@ public class DataInsertion {
 				), false)
 		);
 
+		public static List<TrainerEntity> simple = List.of(
+				TrainerEntityConverter.from("HOUTMANN", "Bastien", new ValueRange(1, 99), new ValueRange(1, 19), new ValueRange(1680, 1680), List.of(
+						new Timeslot(DayOfWeek.TUESDAY, LocalTime.of(9, 0), LocalTime.of(22, 30)),
+						new Timeslot(DayOfWeek.WEDNESDAY, LocalTime.of(9, 0), LocalTime.of(22, 30)),
+						new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(9, 0), LocalTime.of(22, 30)),
+						new Timeslot(DayOfWeek.FRIDAY, LocalTime.of(9, 0), LocalTime.of(22, 30)),
+						new Timeslot(DayOfWeek.SATURDAY, LocalTime.of(9, 0), LocalTime.of(16, 0))
+				), true)
+		);
+
 		public static List<TrainerEntity> real_adult = List.of(
 				TrainerEntityConverter.from("BRANDT", "Pierre", new ValueRange(1, 99), new ValueRange(14, 19), new ValueRange(1620, 1620), List.of(
 						new Timeslot(DayOfWeek.MONDAY, LocalTime.of(9, 0), LocalTime.of(22, 30)),
@@ -122,6 +132,10 @@ public class DataInsertion {
 		public static List<CourtEntity> medium = List.of(
 				CourtEntityConverter.from("Terrain 1", timeslot.medium.group_1),
 				CourtEntityConverter.from("Terrain 2", timeslot.medium.group_1)
+		);
+
+		public static List<CourtEntity> simple = List.of(
+				CourtEntityConverter.from("Terrain 1", timeslot.large.group_1)
 		);
 
 		public static List<CourtEntity> real = List.of(

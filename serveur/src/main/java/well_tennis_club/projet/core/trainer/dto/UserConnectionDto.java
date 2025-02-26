@@ -3,17 +3,14 @@ package well_tennis_club.projet.core.trainer.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 
-@Getter
-@Setter
-@Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class UserConnectionDto implements Serializable {
 	@Schema(name = "email", example = "oui@oui.non")
 	@NotBlank(message = "L'email (email) est obligatoire")

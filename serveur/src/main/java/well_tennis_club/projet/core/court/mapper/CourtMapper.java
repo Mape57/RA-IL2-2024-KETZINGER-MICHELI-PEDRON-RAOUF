@@ -1,10 +1,12 @@
-package well_tennis_club.projet.core.court;
+package well_tennis_club.projet.core.court.mapper;
 
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
-import well_tennis_club.projet.core.time.TimeMapper;
+import well_tennis_club.projet.core.court.CourtEntity;
+import well_tennis_club.projet.core.court.dto.CourtDto;
+import well_tennis_club.projet.core.time.mapper.TimeMapper;
 
 import java.util.List;
 

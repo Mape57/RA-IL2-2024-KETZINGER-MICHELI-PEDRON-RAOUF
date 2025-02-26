@@ -40,8 +40,8 @@ public class TrainerService {
 	}
 
 	public String getPassword(String email) {
-		TrainerDto trainerDto = TrainerMapper.INSTANCE.mapToDTO(trainerRepository.findByEmail(email));
-		return trainerDto != null ? trainerDto.getPassword() : null;
+		TrainerEntity trainer = trainerRepository.findByEmail(email);
+		return trainer != null ? trainer.getPassword() : null;
 	}
 
 	public TrainerEntity getTrainerByEmail(String email) {

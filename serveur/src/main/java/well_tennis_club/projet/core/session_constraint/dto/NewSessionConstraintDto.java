@@ -4,8 +4,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public class CreateSessionConstraintDto {
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+public class NewSessionConstraintDto {
 	@Schema(name = "inf_age", example = "1")
 	@NotNull(message = "L'âge minimum (inf_age) est obligatoire")
 	@Min(value = 1, message = "L'âge minimum (inf_age) doit être supérieur ou égal à 1")
