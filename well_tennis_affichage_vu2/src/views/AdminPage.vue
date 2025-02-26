@@ -23,16 +23,15 @@
       <transition name="slide-fade">
         <LeftPanel v-if="showLeftPanel" class="mobile-left-panel" :isMobile="true" @close="toggleLeftPanel" />
       </transition>
-      <RightPanel class="mobile-right-panel " :userRole="'ADMIN'" />
+      <RightPanel class="mobile-right-panel" :userRole="'ADMIN'" :key="updateValue"/>
     </div>
 
-    <div v-else class="grid w-full h-full flex-1">
+    <div v-else class="flex w-full h-full flex-1">
       <LeftPanel class="desktop-left-panel" :isMobile="false" :userRole="'ADMIN'" />
-      <RightPanel class="desktop-right-panel" :userRole="'ADMIN'" />
-      <BottomPanel v-if="!isMobile" :statusMessage="statusMessage" @updatePlayers="fetchPlayers" class="aligned-bottom-panel" />
+      <RightPanel class="desktop-right-panel" :userRole="'ADMIN'" :key="updateValue"/>
     </div>
-
-  </div>
+    <BottomPanel v-if="!isMobile" :statusMessage="statusMessage" @launch="handleLaunch" @updatePlayers="fetchPlayers"
+                 @submitChanges="handleSubmitChanges" @sendSchedule="handleSendSchedule" class="aligned-bottom-panel" />  </div>
 </template>
 
 <script>
@@ -52,6 +51,7 @@ export default {
 
   data() {
     return {
+      updateValue: 0,
       statusMessage: "Placement réalisé à 95%",
       isMobile: false,
       showLeftPanel: false,
@@ -79,6 +79,10 @@ export default {
     handleLogout() {
       console.log("Déconnexion");
       this.showMenu = false;
+    },
+    update() {
+      this.updateValue++;
+      console.log("Update value", this.updateValue);
     },
   },
   mounted() {

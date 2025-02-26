@@ -3,7 +3,7 @@
     <div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center p-6">
       <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl relative">
         <button class="close-button absolute top-2 right-2" @click="$emit('close')">✕</button>
-        <h3 class="text-2xl font-bold text-gray-700 mb-6 text-center">Informations sur le joueur </h3>
+        <h3 class="text-2xl font-bold text-gray-700 mb-6 text-center">{{ isEditing ? "Modification du joueur" : "Ajouter d'un joueur" }}</h3>
 
         <form class="grid grid-cols-2 gap-8" @submit.prevent="savePlayer">
           <div class="space-y-4">
@@ -90,6 +90,11 @@ export default {
       required: true,
     },
   },
+  computed: {
+    isEditing() {
+      return !!this.editablePlayer.id; // Si id est défini, on est en mode édition
+    },
+  },
   setup(props, {emit}) {
     const {computeAge, updatePlayer, createPlayer, deletePlayer} = usePlayers();
 
@@ -172,13 +177,11 @@ export default {
     const savePlayer = async () => {
       try {
 
-
         // 1. Validation des champs obligatoires
         if (!validateForm()) {
           alert("Veuillez remplir correctement tous les champs."); // Alerte si des champs sont manquants
           return;
         }
-
 
 
         // 2. Vérification des créneaux horaires
@@ -189,17 +192,18 @@ export default {
         }
 
 
-
         // 3. Vérification des doublons dans les disponibilités
         if (!validateUniqueDisponibilities()) {
           alert("Des chevauchements existent dans les disponibilités. Veuillez les corriger.");
           return;
         }
 
-
-
-
-        const playerData = { ...editablePlayer.value };
+        //ici Si on crée un joueur (id non défini) → On force validate: false.
+        //Si on met à jour un joueur → On garde la valeur existante. cependant je pense qu'il faudra peut etre l'enlever
+        const playerData = {
+          ...editablePlayer.value,
+          validate: editablePlayer.value.id ? editablePlayer.value.validate : true
+        };
 
         let savedPlayer;
         if (!editablePlayer.value.id) {
@@ -209,7 +213,6 @@ export default {
           savedPlayer = await updatePlayer(playerData);
           alert("Joueur mis à jour avec succès !");
         }
-
 
         emit("save", savedPlayer);
         emit("close");

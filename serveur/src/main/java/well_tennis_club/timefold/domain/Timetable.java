@@ -56,7 +56,7 @@ public class Timetable {
 		this.playerSessionLinks = generatePlayerSessionLinks(players);
 	}
 
-	public Timetable(String name, List<Session> sessions, List<Trainer> trainers, List<Player> players) {
+	public Timetable(String name, List<Player> players, List<Trainer> trainers, List<Session> sessions) {
 		this.name = name;
 		this.trainers = trainers;
 		this.players = players;
@@ -64,7 +64,7 @@ public class Timetable {
 		this.playerSessionLinks = generatePlayerSessionLinks(players);
 	}
 
-	public Timetable(String name, List<Session> sessions, List<Trainer> trainers, List<Player> players, List<PlayerSessionLink> playerSessionLinks) {
+	public Timetable(String name, List<Player> players, List<Trainer> trainers, List<Session> sessions, List<PlayerSessionLink> playerSessionLinks) {
 		this.name = name;
 		this.trainers = trainers;
 		this.players = players;
@@ -73,7 +73,7 @@ public class Timetable {
 	}
 
 	// TODO tester la méthode
-	private List<Session> generateSessions(List<TennisCourt> tennisCourts) {
+	public static List<Session> generateSessions(List<TennisCourt> tennisCourts) {
 		List<Session> sessions = new ArrayList<>();
 		for (TennisCourt tennisCourt : tennisCourts) {
 			for (Timeslot openingHour : tennisCourt.getOpeningHours()) {
@@ -86,7 +86,7 @@ public class Timetable {
 	}
 
 	// TODO tester la méthode
-	private List<PlayerSessionLink> generatePlayerSessionLinks(List<Player> players) {
+	public static List<PlayerSessionLink> generatePlayerSessionLinks(List<Player> players) {
 		List<PlayerSessionLink> playerSessionLinks = new ArrayList<>();
 		for (Player player : players) {
 			for (int i = 0; i < player.getSessionPerWeek(); i++) {

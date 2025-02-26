@@ -1,7 +1,7 @@
 package well_tennis_club.data_converter.to_entity;
 
-import well_tennis_club.projet.player.PlayerEntity;
-import well_tennis_club.projet.sessionConstraint.SessionConstraintEntity;
+import well_tennis_club.projet.core.player.entity.PlayerEntity;
+import well_tennis_club.projet.core.session_constraint.SessionConstraintEntity;
 import well_tennis_club.timefold.data_structure.Timeslot;
 
 import java.time.LocalDate;

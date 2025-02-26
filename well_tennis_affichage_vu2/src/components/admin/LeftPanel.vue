@@ -119,6 +119,7 @@
         <!-- Liste des inscrits en attente -->
         <PlayerNot v-if="showPendingPlayers" :pendingPlayers="pendingPlayers" @update:pendingPlayers="updatePendingPlayers" />
 
+
       </div>
     </div>
   </div>
@@ -207,8 +208,9 @@ export default {
       try {
         await PlayersService.updatePlayer(playerId, { validate: true });
         pendingPlayers.value = pendingPlayers.value.filter(player => player.id !== playerId);
-        selectedPlayer.value = null;
-      } catch (error) {}
+        selectedPlayer.value = null; // Fermer la modale après validation
+      } catch (error) {
+      }
     };
 
     const showPlayerDetails = (player) => {
@@ -221,7 +223,6 @@ export default {
         fetchPendingPlayers();
       }
     };
-
     onMounted(() => {
       fetchTrainers();
       fetchPlayers();
@@ -256,8 +257,8 @@ export default {
     return {
       isTablet: false,
       sessions: [
-        { title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, sessions_level: "0 - 7" },
-        { title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, sessions_level: "1 - 10" },
+        {title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, sessions_level: "0 - 7"},
+        {title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, sessions_level: "1 - 10"},
       ],
     };
   },
@@ -284,19 +285,15 @@ export default {
         console.error("Erreur lors de l'exportation du PDF :", error);
       }
     },
-
     async downloadCSV() {
       await ExportService.downloadCSV(this.players, this.trainers, this.terrains, this.sessions);
     },
-
     sendReinscriptionMail() {
       alert("Envoi du mail de réinscription !");
     },
-
     deleteAllPlayers() {
       alert("Suppression de tous les joueurs !");
     },
-
     checkScreenSize() {
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = setTimeout(() => {
@@ -384,7 +381,6 @@ export default {
   justify-content: center;
 }
 
-/* Ligne verte sous l’onglet actif */
 .tab-button.active::after {
   content: "";
   position: absolute;
@@ -494,7 +490,6 @@ export default {
 }
 
 </style>
-
 
 
 

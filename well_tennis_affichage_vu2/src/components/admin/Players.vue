@@ -5,7 +5,8 @@
         @click="toggleAccordion"
     >
       <div class="flex items-center players-hover">
-        <span :class="{ 'rotate-180': isOpen }" class="material-symbols-outlined players-arrow transition-transform duration-300 mr-2">
+        <span :class="{ 'rotate-180': isOpen }"
+              class="material-symbols-outlined players-arrow transition-transform duration-300 mr-2">
           expand_more
         </span>
         <h3 class="font-bold text-lg players-title">Joueurs</h3>
@@ -16,8 +17,8 @@
   <span class="material-symbols-outlined small-icon cursor-pointer"
         title="Ajouter"
         ref="addPlayerButton"
-        @click="addPlayer"
-  >person_add</span>
+        @click="addPlayer">
+        person_add</span>
       </div>
 
     </div>
@@ -37,6 +38,7 @@
           :key="player.id"
           class="grid grid-cols-4 items-center py-1"
           :class="{ 'cursor-pointer': !isMobile }"
+          :ref="'player-' + player.id"
           @click="!isMobile && showPlayerInfo(player)"
       >
 
@@ -65,13 +67,13 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
+import {ref, onMounted, onUnmounted} from "vue";
 import usePlayers from "../../useJs/usePlayers.js";
 import PlayerInfoView from "../vueInformations/PlayerInfoView.vue";
 
 export default {
   name: "Players",
-  components: { PlayerInfoView },
+  components: {PlayerInfoView},
   props: {
     players: Array,
     searchQuery: String,
@@ -79,7 +81,7 @@ export default {
     userRole: String,
   },
   setup() {
-    const { computeAge } = usePlayers();
+    const {computeAge} = usePlayers();
 
     const localIsMobile = ref(window.innerWidth < 768);
 
@@ -158,7 +160,20 @@ export default {
 
       // Émet la liste mise à jour au parent
       this.$emit("update:players", [...this.players]);
+
+      this.$nextTick(() => {
+        const newPlayerElement = this.$refs[`player-${savedPlayer.id}`]?.[0];
+        if (newPlayerElement) {
+          newPlayerElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          // Ajouter une classe temporaire pour l'effet de mise en valeur
+          newPlayerElement.classList.add("highlighted");
+          setTimeout(() => newPlayerElement.classList.remove("highlighted"), 3000); // Retire l'effet après 3s
+        }
+      });
+
     },
+
 
     addPlayer() {
       if (this.localIsMobile || this.userRole !== "ADMIN") return; // Empêche l'ajout de joueurs en mode mobile
@@ -219,5 +234,14 @@ export default {
   border-bottom: 1px solid #e2e8f0;
 }
 
+::v-deep(.highlighted) {
+  background-color: #1234bb;
+  transition: background-color 1s ease-in-out;
+}
+
+
+::v-deep(.highlighted:hover) {
+  background-color: #7d1dad; /* Reste subtil au survol */
+}
 
 </style>
