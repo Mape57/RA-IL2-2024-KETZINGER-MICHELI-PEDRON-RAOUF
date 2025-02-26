@@ -1,18 +1,13 @@
-package well_tennis_club.projet.session;
+package well_tennis_club.projet.core.session;
 
 import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import well_tennis_club.projet.WellTennisClubApplication;
-import well_tennis_club.projet.court.CourtService;
-import well_tennis_club.projet.trainer.TrainerService;
+import well_tennis_club.WellTennisClubApplication;
 import well_tennis_club.projet.core.court.CourtService;
-import well_tennis_club.projet.core.session.SessionEntity;
-import well_tennis_club.projet.core.session.SessionService;
 import well_tennis_club.projet.core.trainer.service.TrainerService;
 
 import java.util.UUID;
@@ -44,18 +39,15 @@ public class SessionIntegrationTest {
     @Test
     @Transactional
     void testCreateSession(){
-        UUID id = UUID.randomUUID();
-
         SessionEntity newSession = new SessionEntity();
         newSession.setDayWeek(2);
         newSession.setStart("10:00");
         newSession.setStop("12:00");
         newSession.setIdTrainer(trainerService.getTrainerById(UUID.fromString("4d970d71-4ff9-4435-8860-435c12434137")));
         newSession.setIdCourt(courtService.getCourtById(UUID.fromString("4f8535fd-9b6c-4bb7-b0c7-e988cf039d83")));
-        newSession.setId(id);
         SessionEntity sessionEntity = service.createSession(newSession);
 
-        SessionEntity session = service.getSessionById(id);
+        SessionEntity session = service.getSessionById(sessionEntity.getId());
         Assertions.assertThat(session).isNotNull();
         Assertions.assertThat(session.getDayWeek()).isEqualTo(2);
 
@@ -82,26 +74,22 @@ public class SessionIntegrationTest {
     @Test
     @Transactional
     void testDeleteSession(){
-        UUID id = UUID.randomUUID();
-
         SessionEntity newSession = new SessionEntity();
         newSession.setDayWeek(2);
         newSession.setStart("10:00");
         newSession.setStop("12:00");
         newSession.setIdTrainer(trainerService.getTrainerById(UUID.fromString("4d970d71-4ff9-4435-8860-435c12434137")));
         newSession.setIdCourt(courtService.getCourtById(UUID.fromString("4f8535fd-9b6c-4bb7-b0c7-e988cf039d83")));
-        newSession.setId(id);
         SessionEntity sessionEntity = service.createSession(newSession);
 
-        SessionEntity session = service.getSessionById(id);
+        SessionEntity session = service.getSessionById(sessionEntity.getId());
         Assertions.assertThat(session).isNotNull();
         Assertions.assertThat(session.getDayWeek()).isEqualTo(2);
 
         service.deleteById(sessionEntity.getId());
-        session = service.getSessionById(id);
+        session = service.getSessionById(sessionEntity.getId());
         Assertions.assertThat(session).isNull();
     }
-
     @Test
     @Transactional
     void testGetAllSessions(){

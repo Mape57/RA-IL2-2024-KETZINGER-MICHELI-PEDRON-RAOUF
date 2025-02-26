@@ -1,4 +1,4 @@
-package well_tennis_club.projet.court;
+package well_tennis_club.projet.core.court;
 
 import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
@@ -7,12 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import well_tennis_club.projet.WellTennisClubApplication;
-import well_tennis_club.projet.security.JwtUtils;
-import well_tennis_club.projet.security.SecurityConfig;
-import well_tennis_club.projet.session.SessionEntity;
-import well_tennis_club.projet.session.SessionService;
-import well_tennis_club.projet.timeCourt.TimeCourtService;
+import well_tennis_club.WellTennisClubApplication;
+import well_tennis_club.projet.core.court.CourtEntity;
+import well_tennis_club.projet.core.court.CourtService;
+import well_tennis_club.projet.core.session.SessionEntity;
+import well_tennis_club.projet.core.session.SessionService;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,14 +41,11 @@ public class CourtIntegrationTest {
     @Test
     @Transactional
     void testCreateCourt(){
-        UUID id = UUID.randomUUID();
-
         CourtEntity newCourt = new CourtEntity();
         newCourt.setName("Court 3");
-        newCourt.setId(id);
         CourtEntity courtEntity = service.createCourt(newCourt);
 
-        CourtEntity court = service.getCourtById(id);
+        CourtEntity court = service.getCourtById(courtEntity.getId());
         Assertions.assertThat(court).isNotNull();
         Assertions.assertThat(court.getName()).isEqualTo("Court 3");
 
@@ -76,19 +72,16 @@ public class CourtIntegrationTest {
     @Test
     @Transactional
     void testDeleteCourt(){
-        UUID id = UUID.randomUUID();
-
         CourtEntity courtEntity = new CourtEntity();
         courtEntity.setName("Court 3");
-        courtEntity.setId(id);
-        service.createCourt(courtEntity);
+        courtEntity = service.createCourt(courtEntity);
 
-        CourtEntity court = service.getCourtById(id);
+        CourtEntity court = service.getCourtById(courtEntity.getId());
         Assertions.assertThat(court).isNotNull();
         Assertions.assertThat(court.getName()).isEqualTo("Court 3");
 
         service.deleteCourt(court);
-        court = service.getCourtById(id);
+        court = service.getCourtById(court.getId());
         Assertions.assertThat(court).isNull();
     }
 
@@ -96,7 +89,7 @@ public class CourtIntegrationTest {
     @Transactional
     void testGetAllCourts(){
         Assertions.assertThat(service.getAllCourts()).isNotNull();
-        Assertions.assertThat(service.getAllCourts().size()).isEqualTo((5));
+        Assertions.assertThat(service.getAllCourts().size()).isEqualTo((2));
     }
 
     @Test
@@ -104,7 +97,7 @@ public class CourtIntegrationTest {
     void testGetAllCreateVide(){
         List<SessionEntity> sessions = sessionService.getAllSessions();
         for (SessionEntity session : sessions){
-            sessionService.deleteSession(session);
+            sessionService.deleteById(session.getId());
         }
 
         List<CourtEntity> courts = service.getAllCourts();
@@ -119,7 +112,10 @@ public class CourtIntegrationTest {
             service.createCourt(court);
         }
 
+        courts = service.getAllCourts();
+
         for (SessionEntity session : sessions){
+            session.setIdCourt(courts.get(0));
             sessionService.createSession(session);
         }
     }

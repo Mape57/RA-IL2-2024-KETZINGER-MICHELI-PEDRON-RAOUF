@@ -1,4 +1,4 @@
-package well_tennis_club.projet.sessionConstraint;
+package well_tennis_club.projet.core.sessionConstraint;
 
 import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
@@ -58,7 +58,7 @@ public class SessionConstraintIntegrationTest {
         Assertions.assertThat(constraint.getInfLevel()).isEqualTo(15);
         Assertions.assertThat(constraint.getSupLevel()).isEqualTo(20);
 
-        service.deleteConstraint(constraintEntity);
+        service.deleteById(constraintEntity.getId());
     }
 
     @Test
@@ -107,7 +107,7 @@ public class SessionConstraintIntegrationTest {
         Assertions.assertThat(constraint.getInfLevel()).isEqualTo(15);
         Assertions.assertThat(constraint.getSupLevel()).isEqualTo(20);
 
-        service.deleteConstraint(constraintEntity);
+        service.deleteById(constraintEntity.getId());
         constraint = service.getConstraintById(id);
         Assertions.assertThat(constraint).isNull();
     }
