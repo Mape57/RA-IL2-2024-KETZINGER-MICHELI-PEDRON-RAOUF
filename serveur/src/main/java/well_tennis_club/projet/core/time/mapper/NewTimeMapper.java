@@ -5,7 +5,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import well_tennis_club.projet.core.time.TimeEntity;
 import well_tennis_club.projet.core.time.dto.NewTimeDto;
-import well_tennis_club.projet.core.time.dto.TimeDto;
 
 import java.util.List;
 

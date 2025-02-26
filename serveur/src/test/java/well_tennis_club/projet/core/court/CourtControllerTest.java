@@ -1,4 +1,4 @@
-package well_tennis_club.projet.court;
+package well_tennis_club.projet.core.court;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;

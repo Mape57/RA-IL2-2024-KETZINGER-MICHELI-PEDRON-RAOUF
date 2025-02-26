@@ -1,4 +1,4 @@
-package well_tennis_club.projet.sessionConstraint;
+package well_tennis_club.projet.core.sessionConstraint;
 
 import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;

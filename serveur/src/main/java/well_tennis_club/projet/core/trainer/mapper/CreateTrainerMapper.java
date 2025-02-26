@@ -9,7 +9,6 @@ import well_tennis_club.projet.core.trainer.dto.CreateTrainerDto;
 import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
 
 import java.util.List;
-import java.util.UUID;
 
 @Mapper(uses = CreateDisponibilityMapper.class)
 public interface CreateTrainerMapper {

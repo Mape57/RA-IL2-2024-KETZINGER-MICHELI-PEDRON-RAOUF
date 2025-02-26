@@ -8,7 +8,8 @@ import well_tennis_club.timefold.domain.Session;
 /**
  * Justification d'une contrainte de disponibilité de joueur non respectée.
  */
-public record PlayerAvailabilityJustification(PlayerSessionLink playerSessionLink, HardSoftScore score, String description) implements ConstraintJustification {
+public record PlayerAvailabilityJustification(PlayerSessionLink playerSessionLink, HardSoftScore score,
+											  String description) implements ConstraintJustification {
 	public PlayerAvailabilityJustification(PlayerSessionLink playerSessionLink, HardSoftScore score) {
 		this(playerSessionLink, score, getDescription(playerSessionLink, score));
 	}
@@ -17,7 +18,7 @@ public record PlayerAvailabilityJustification(PlayerSessionLink playerSessionLin
 		Session session = playerSessionLink.getSession();
 		return String.format("Joueur %s indisponible pour %s : %s",
 				playerSessionLink.getPlayer().getId(), session, score.toString());
-		}
+	}
 
 	@Override
 	public String toString() {

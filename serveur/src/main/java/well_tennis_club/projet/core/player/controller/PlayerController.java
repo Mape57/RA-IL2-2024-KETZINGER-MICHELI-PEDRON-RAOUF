@@ -137,7 +137,14 @@ public class PlayerController {
 							schema = @Schema(implementation = ApiErrorResponse.class)
 					)
 			),
-			// TODO @ApiResponse(responseCode = "409", description = "The email is already used")
+			@ApiResponse(
+					responseCode = "409",
+					description = "Conflit, données existante",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			),
 	})
 	@PostMapping
 	public ResponseEntity<PlayerDto> createPlayer(@Valid @RequestBody CreatePlayerDto playerDto) {
@@ -183,7 +190,15 @@ public class PlayerController {
 							mediaType = "application/json",
 							schema = @Schema(implementation = ApiErrorResponse.class)
 					)
-			)
+			),
+			@ApiResponse(
+					responseCode = "409",
+					description = "Conflit, données existante",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			),
 	})
 	@PutMapping("/{id}")
 	public ResponseEntity<PlayerDto> updatePlayer(@PathVariable UUID id, @Valid @RequestBody PutPlayerDto playerDto) {

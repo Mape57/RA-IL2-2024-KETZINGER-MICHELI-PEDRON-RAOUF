@@ -13,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import well_tennis_club.projet.core.court.dto.CourtDto;
 import well_tennis_club.projet.core.session.dto.NewSessionDto;
 import well_tennis_club.projet.core.session.dto.SessionDto;
-import well_tennis_club.projet.core.session.mapper.*;
+import well_tennis_club.projet.core.session.mapper.NewSessionMapperImpl;
+import well_tennis_club.projet.core.session.mapper.SessionMapper;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
 

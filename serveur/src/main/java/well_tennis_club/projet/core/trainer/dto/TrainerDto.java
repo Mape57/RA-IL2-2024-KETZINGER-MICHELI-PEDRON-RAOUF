@@ -1,7 +1,10 @@
 package well_tennis_club.projet.core.trainer.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import well_tennis_club.projet.core.disponibility.dto.DisponibilityDto;
 
 import java.io.Serializable;

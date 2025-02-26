@@ -12,10 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSender;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import well_tennis_club.projet.core.player.mapper.PlayerInscriptionMapper;
 import well_tennis_club.projet.core.player.dto.PlayerDto;
 import well_tennis_club.projet.core.player.dto.PlayerInscriptionDto;
 import well_tennis_club.projet.core.player.entity.PlayerEntity;
+import well_tennis_club.projet.core.player.mapper.PlayerInscriptionMapper;
 import well_tennis_club.projet.core.player.mapper.PlayerMapper;
 import well_tennis_club.projet.core.player.service.InscriptionTokenService;
 import well_tennis_club.projet.core.player.service.PlayerService;
@@ -63,7 +63,14 @@ public class InscriptionController {
 							schema = @Schema(implementation = ApiErrorResponse.class)
 					)
 			),
-			// TODO @ApiResponse(responseCode = "409", description = "The email is already used")
+			@ApiResponse(
+					responseCode = "409",
+					description = "Conflit, données existante",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			),
 	})
 	@PostMapping("/verify")
 	public ResponseEntity<String> inscrirePlayer(@Valid @RequestBody PlayerInscriptionDto playerInscriptionDto) {
@@ -106,8 +113,15 @@ public class InscriptionController {
 									implementation = ApiErrorResponse.class
 							)
 					)
-			)
-			// TODO @ApiResponse(responseCode = "409", description = "L'email est déjà utilisé")
+			),
+			@ApiResponse(
+					responseCode = "409",
+					description = "Conflit, données existante",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			),
 	})
 	@PostMapping
 	public ResponseEntity<PlayerDto> inscrirePlayer(@RequestHeader("Authorization") String token, @Valid @RequestBody PlayerInscriptionDto player) {

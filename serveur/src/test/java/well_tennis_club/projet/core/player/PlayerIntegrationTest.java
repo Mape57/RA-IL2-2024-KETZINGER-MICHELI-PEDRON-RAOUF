@@ -1,19 +1,20 @@
-package well_tennis_club.projet.player;
+package well_tennis_club.projet.core.player;
 
 import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import well_tennis_club.WellTennisClubApplication;
 import well_tennis_club.projet.core.player.entity.PlayerEntity;
 import well_tennis_club.projet.core.player.service.PlayerService;
+import well_tennis_club.timefold.domain.Player;
 
+import java.util.List;
 import java.util.UUID;
 
-@Disabled
-@SpringBootTest
+@SpringBootTest(classes = WellTennisClubApplication.class)
 @ActiveProfiles("test")
 public class PlayerIntegrationTest {
 
@@ -38,8 +39,6 @@ public class PlayerIntegrationTest {
     @Test
     @Transactional
     void testCreatePlayer(){
-        UUID id = UUID.randomUUID();
-
         PlayerEntity newPlayer = new PlayerEntity();
         newPlayer.setName("Federer");
         newPlayer.setSurname("Roger");
@@ -47,10 +46,10 @@ public class PlayerIntegrationTest {
         newPlayer.setCourses(0L);
         newPlayer.setLevel(19L);
         newPlayer.setEmail("roger.federer@gmail.com");
-        newPlayer.setId(id);
+        newPlayer.setValidate(true);
         PlayerEntity playerEntity = service.createPlayer(newPlayer);
 
-        PlayerEntity player = service.getPlayerById(id);
+        PlayerEntity player = service.getPlayerById(playerEntity.getId());
         Assertions.assertThat(player).isNotNull();
         Assertions.assertThat(player.getName()).isEqualTo("Federer");
         Assertions.assertThat(player.getSurname()).isEqualTo("Roger");
@@ -78,8 +77,6 @@ public class PlayerIntegrationTest {
     @Test
     @Transactional
     void testDeletePlayer(){
-        UUID id = UUID.randomUUID();
-
         PlayerEntity playerEntity = new PlayerEntity();
         playerEntity.setName("Micheli");
         playerEntity.setSurname("Thomas");
@@ -87,15 +84,15 @@ public class PlayerIntegrationTest {
         playerEntity.setCourses(0L);
         playerEntity.setLevel(19L);
         playerEntity.setEmail("thomas@mail.com");
-        playerEntity.setId(id);
-        service.createPlayer(playerEntity);
+        playerEntity.setValidate(false);
+        playerEntity = service.createPlayer(playerEntity);
 
-        PlayerEntity player = service.getPlayerById(id);
+        PlayerEntity player = service.getPlayerById(playerEntity.getId());
         Assertions.assertThat(player).isNotNull();
         Assertions.assertThat(player.getName()).isEqualTo("Micheli");
 
-        service.deleteById(playerEntity.getId());
-        player = service.getPlayerById(id);
+        service.deleteById(player.getId());
+        player = service.getPlayerById(player.getId());
         Assertions.assertThat(player).isNull();
     }
 
@@ -103,6 +100,22 @@ public class PlayerIntegrationTest {
     @Transactional
     void testGetAllPlayers(){
         Assertions.assertThat(service.getAllPlayers()).isNotNull();
-        Assertions.assertThat(service.getAllPlayers().size()).isEqualTo(3);
+        Assertions.assertThat(service.getAllPlayers().size()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    void testGetAllCreateVide(){
+        List<PlayerEntity> players = service.getAllPlayers();
+        for (PlayerEntity player : players){
+            service.deleteById(player.getId());
+        }
+
+        Assertions.assertThat(service.getAllPlayers()).isNotNull();
+        Assertions.assertThat(service.getAllPlayers().size()).isEqualTo(0);
+
+        for (PlayerEntity player : players){
+            service.createPlayer(player);
+        }
     }
 }

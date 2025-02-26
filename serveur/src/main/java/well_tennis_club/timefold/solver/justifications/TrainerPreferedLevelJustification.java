@@ -7,7 +7,8 @@ import well_tennis_club.timefold.domain.Session;
 /**
  * Justification d'une contrainte de préférence de niveau d'un entraîneur non respectée.
  */
-public record TrainerPreferedLevelJustification(Session session, Integer trainerLevelOverflow, HardSoftScore score, String description) implements ConstraintJustification {
+public record TrainerPreferedLevelJustification(Session session, Integer trainerLevelOverflow, HardSoftScore score,
+												String description) implements ConstraintJustification {
 	public TrainerPreferedLevelJustification(Session session, Integer trainerLevelOverflow, HardSoftScore score) {
 		this(session, trainerLevelOverflow, score, getDescription(session, trainerLevelOverflow, score));
 	}

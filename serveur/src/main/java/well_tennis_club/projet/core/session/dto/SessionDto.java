@@ -1,7 +1,10 @@
 package well_tennis_club.projet.core.session.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import well_tennis_club.projet.core.court.dto.CourtDto;
 import well_tennis_club.projet.core.player.dto.PlayerDto;
 import well_tennis_club.projet.core.trainer.dto.TrainerDto;

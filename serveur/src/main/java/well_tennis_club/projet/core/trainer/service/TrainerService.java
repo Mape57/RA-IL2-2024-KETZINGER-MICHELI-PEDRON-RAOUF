@@ -2,9 +2,7 @@ package well_tennis_club.projet.core.trainer.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import well_tennis_club.projet.core.trainer.dto.TrainerDto;
 import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
-import well_tennis_club.projet.core.trainer.mapper.TrainerMapper;
 import well_tennis_club.projet.core.trainer.repository.TrainerRepository;
 
 import java.util.List;

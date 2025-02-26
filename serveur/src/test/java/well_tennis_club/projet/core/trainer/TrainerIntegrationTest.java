@@ -1,4 +1,4 @@
-package well_tennis_club.projet.trainer;
+package well_tennis_club.projet.core.trainer;
 
 import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
@@ -13,7 +13,6 @@ import well_tennis_club.projet.core.trainer.service.TrainerService;
 
 import java.util.UUID;
 
-@Disabled
 @SpringBootTest(classes = WellTennisClubApplication.class)
 @ActiveProfiles("test")
 public class TrainerIntegrationTest {
@@ -39,8 +38,6 @@ public class TrainerIntegrationTest {
     @Test
     @Transactional
     void testCreateTrainer(){
-        UUID id = UUID.randomUUID();
-
         TrainerEntity newTrainer = new TrainerEntity();
         newTrainer.setName("Micheli");
         newTrainer.setSurname("Thomas");
@@ -52,10 +49,9 @@ public class TrainerIntegrationTest {
         newTrainer.setPassword("password");
         newTrainer.setPartTime(true);
         newTrainer.setAdmin(true);
-        newTrainer.setId(id);
         TrainerEntity trainerEntity = service.createTrainer(newTrainer);
 
-        TrainerEntity trainer = service.getTrainerById(id);
+        TrainerEntity trainer = service.getTrainerById(trainerEntity.getId());
         Assertions.assertThat(trainer).isNotNull();
         Assertions.assertThat(trainer.getName()).isEqualTo("Micheli");
         Assertions.assertThat(trainer.getSurname()).isEqualTo("Thomas");
@@ -86,8 +82,6 @@ public class TrainerIntegrationTest {
     @Test
     @Transactional
     void testDeleteTrainer(){
-        UUID id = UUID.randomUUID();
-
         TrainerEntity trainerEntity = new TrainerEntity();
         trainerEntity.setName("Jung");
         trainerEntity.setSurname("Ines");
@@ -99,15 +93,14 @@ public class TrainerIntegrationTest {
         trainerEntity.setPassword("password");
         trainerEntity.setPartTime(false);
         trainerEntity.setAdmin(false);
-        trainerEntity.setId(id);
-        service.createTrainer(trainerEntity);
+        trainerEntity = service.createTrainer(trainerEntity);
 
-        TrainerEntity trainer = service.getTrainerById(id);
+        TrainerEntity trainer = service.getTrainerById(trainerEntity.getId());
         Assertions.assertThat(trainer).isNotNull();
         Assertions.assertThat(trainer.getName()).isEqualTo("Jung");
 
         service.deleteById(trainerEntity.getId());
-        trainer = service.getTrainerById(id);
+        trainer = service.getTrainerById(trainerEntity.getId());
         Assertions.assertThat(trainer).isNull();
     }
 
