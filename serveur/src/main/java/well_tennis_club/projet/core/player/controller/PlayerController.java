@@ -250,4 +250,21 @@ public class PlayerController {
 			return ResponseEntity.noContent().build();
 		}
 	}
+
+	@Operation(
+			summary = "Supprime tout les joueurs",
+			description = "Supprime les joueurs",
+			security = @SecurityRequirement(name = "bearerAuth")
+	)
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "204",
+					description = "Suppression réussie"
+			)
+	})
+	@DeleteMapping
+	public ResponseEntity<Void> deleteAllPlayers() {
+		playerService.deleteAll();
+		return ResponseEntity.noContent().build();
+	}
 }
