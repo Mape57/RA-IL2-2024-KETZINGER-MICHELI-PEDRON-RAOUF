@@ -9,6 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import well_tennis_club.WellTennisClubApplication;
 import well_tennis_club.projet.core.player.entity.PlayerEntity;
 import well_tennis_club.projet.core.player.service.PlayerService;
+import well_tennis_club.timefold.domain.Player;
 
 import java.util.List;
 import java.util.UUID;
@@ -100,5 +101,21 @@ public class PlayerIntegrationTest {
     void testGetAllPlayers(){
         Assertions.assertThat(service.getAllPlayers()).isNotNull();
         Assertions.assertThat(service.getAllPlayers().size()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    void testGetAllCreateVide(){
+        List<PlayerEntity> players = service.getAllPlayers();
+        for (PlayerEntity player : players){
+            service.deleteById(player.getId());
+        }
+
+        Assertions.assertThat(service.getAllPlayers()).isNotNull();
+        Assertions.assertThat(service.getAllPlayers().size()).isEqualTo(0);
+
+        for (PlayerEntity player : players){
+            service.createPlayer(player);
+        }
     }
 }

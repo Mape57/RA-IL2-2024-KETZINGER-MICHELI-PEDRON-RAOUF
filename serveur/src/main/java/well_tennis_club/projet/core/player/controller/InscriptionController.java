@@ -63,7 +63,14 @@ public class InscriptionController {
 							schema = @Schema(implementation = ApiErrorResponse.class)
 					)
 			),
-			// TODO @ApiResponse(responseCode = "409", description = "The email is already used")
+			@ApiResponse(
+					responseCode = "409",
+					description = "Conflit, données existante",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			),
 	})
 	@PostMapping("/verify")
 	public ResponseEntity<String> inscrirePlayer(@Valid @RequestBody PlayerInscriptionDto playerInscriptionDto) {
@@ -106,8 +113,15 @@ public class InscriptionController {
 									implementation = ApiErrorResponse.class
 							)
 					)
-			)
-			// TODO @ApiResponse(responseCode = "409", description = "The email is already used")
+			),
+			@ApiResponse(
+					responseCode = "409",
+					description = "Conflit, données existante",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			),
 	})
 	@PostMapping
 	public ResponseEntity<PlayerDto> inscrirePlayer(@RequestHeader("Authorization") String token, @Valid @RequestBody PlayerInscriptionDto player) {
