@@ -37,6 +37,7 @@
               :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge} ` : 'N/A'"
               :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
               :players="session.players.map(player => `${player.name} ${player.surname}`)"
+              :userRole="userRole"
           />
         </div>
       </div>
@@ -75,6 +76,7 @@
               :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge}` : 'N/A'"
               :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
               :players="session.players.map(player => `${player.name} ${player.surname}`)"
+              :userRole="userRole"
           />
         </div>
       </div>
@@ -119,6 +121,7 @@
               :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge}` : 'N/A'"
               :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
               :players="session.players.map(player => `${player.name} ${player.surname}`)"
+              :userRole="userRole"
           />
         </div>
       </div>
@@ -135,6 +138,11 @@ export default {
   name: "RightPanel",
   components: {
     SessionCard,
+  },
+  props: {
+    isMobile: Boolean,
+    isTablet: Boolean,
+    userRole: String,
   },
   setup() {
     const terrains = ref([]);
@@ -232,11 +240,10 @@ export default {
   background-color: white;
   position: relative;
   overflow-y: auto;
-  margin-top: 1.2rem;
   margin-right: 1.37rem;
   width: 67%;
   height: 83vh;
-  margin-bottom: 7vh;
+  margin-bottom: 4vh;
   z-index: 100;
 }
 

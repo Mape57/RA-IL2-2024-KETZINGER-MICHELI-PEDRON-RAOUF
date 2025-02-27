@@ -26,4 +26,8 @@ export default {
 		return apiService.delete(`/players/${id}`);
 	},
 
+	deleteAllPlayers() {
+		return apiService.delete('/players');
+	}
+
 };

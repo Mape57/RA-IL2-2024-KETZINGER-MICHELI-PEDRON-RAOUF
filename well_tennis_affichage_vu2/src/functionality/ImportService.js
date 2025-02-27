@@ -1,7 +1,4 @@
 import PlayersService from "../services/PlayersService.js";
-// import DisponibilityPlayerService from "../services/DisponibilityPlayerService.js";
-// import AvailabilitiesService from "../services/DisponibilityService.js";
-
 import * as XLSX from "xlsx";
 
 class ImportService {
@@ -20,6 +17,7 @@ class ImportService {
                     }
 
                     await ImportService.savePlayersToAPI(players);
+                    alert("Importation réussie !");
                     resolve(players);
                 } catch (error) {
                     reject(new Error(`Erreur lors de l'importation : ${error.message}`));
@@ -53,6 +51,7 @@ class ImportService {
                 email: ImportService.validateEmail(row[headers.indexOf("Email")]) ? row[headers.indexOf("Email")] : `default_${row[0] || "unknown"}@example.com`,
                 level: parseInt(row[headers.indexOf("Niveau")] || "0", 10),
                 courses: parseInt(row[headers.indexOf("Cours par semaine")] || "0", 10),
+                validate: true,
                 disponibilities: ImportService.parseDisponibilities(row, headers),
             }))
             .filter(player => player.name !== "Inconnu" && player.surname !== "Inconnu");
@@ -68,7 +67,6 @@ class ImportService {
             "Samedi": 6,
             "Dimanche": 7
         };
-
 
         return Object.keys(dayMapping).flatMap((day) => {
             const dayIndex = headers.indexOf(day);
@@ -86,9 +84,7 @@ class ImportService {
             }
             return [];
         });
-
     }
-
 
     static formatHour(hour) {
         if (!hour) return "00:00";
@@ -124,44 +120,8 @@ class ImportService {
 
         for (const player of players) {
             try {
-
-                // Étape 1 : Créer les disponibilités
-                const disponibilitiesResponses = await Promise.all(
-                    player.disponibilities.map(async availability => {
-                        return await AvailabilitiesService.createDisponibility(availability);
-                    })
-                );
-
-
-                const disponibilitiesIds = disponibilitiesResponses.map(response => response.data.id);
-
-                // Étape 2 : Créer le joueur avec validate: true
-
-                const response = await PlayersService.createPlayer({
-                    name: player.name,
-                    surname: player.surname,
-                    email: player.email,
-                    birthday: player.birthday,
-                    level: player.level,
-                    courses: player.courses,
-                    validate: true
-                });
-
-                const playerId = response.data.id;
-
-                // Étape 3 : Associer les disponibilités au joueur
-                await Promise.all(
-                    disponibilitiesIds.map(async idDisponibility => {
-                        console.log("📤 Association joueur-disponibilité :", JSON.stringify({
-                            idPlayer: playerId,
-                            idDisponibility
-                        }, null, 2));
-                        return await DisponibilityPlayerService.createDisponibilityPlayer({
-                            idPlayer: playerId,
-                            idDisponibility,
-                        });
-                    })
-                );
+                await PlayersService.createPlayer(player);
+                console.log(`Joueur ajouté : ${player.name} ${player.surname}`);
             } catch (error) {
                 if (error.response?.status === 409) {
                     console.error(`Le joueur ${player.name} existe déjà.`);
@@ -173,7 +133,6 @@ class ImportService {
             }
         }
     }
-
 }
 
 export default ImportService;

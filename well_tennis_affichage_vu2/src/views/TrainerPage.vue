@@ -7,31 +7,18 @@
       <span class="material-symbols-outlined">menu</span>
     </button>
 
-    <!-- Menu contextuel avec animation -->
-    <transition name="fade">
-      <div v-if="showMenu" class="menu-contextual" @click.self="toggleMenu">
-        <button @click="handleLogout">
-          <span class="material-icons">exit_to_app</span> Déconnexion
-        </button>
-        <button @click="toggleLeftPanel">
-          <span class="material-icons">storage</span> Données
-        </button>
-      </div>
-    </transition>
-
     <div v-if="isMobile" class="mobile-container">
       <transition name="slide-fade">
         <LeftPanel v-if="showLeftPanel" class="mobile-left-panel" :isMobile="true" @close="toggleLeftPanel" />
       </transition>
-      <RightPanel class="mobile-right-panel" :userRole="'ADMIN'" :key="updateValue"/>
+      <RightPanel class="mobile-right-panel" />
     </div>
 
     <div v-else class="flex w-full h-full flex-1">
-      <LeftPanel class="desktop-left-panel" :isMobile="false" :userRole="'ADMIN'" />
-      <RightPanel class="desktop-right-panel" :userRole="'ADMIN'" :key="updateValue"/>
+      <LeftPanel class="desktop-left-panel" :isMobile="false" :userRole="'TRAINER'" />
+      <RightPanel class="desktop-right-panel" />
     </div>
-    <BottomPanel v-if="!isMobile" :statusMessage="statusMessage" @launch="handleLaunch" @updatePlayers="fetchPlayers"
-                 @submitChanges="handleSubmitChanges" @sendSchedule="handleSendSchedule" class="aligned-bottom-panel" />  </div>
+  </div>
 </template>
 
 <script>
@@ -51,7 +38,6 @@ export default {
 
   data() {
     return {
-      updateValue: 0,
       statusMessage: "Placement réalisé à 95%",
       isMobile: false,
       showLeftPanel: false,
@@ -79,10 +65,6 @@ export default {
     handleLogout() {
       console.log("Déconnexion");
       this.showMenu = false;
-    },
-    update() {
-      this.updateValue++;
-      console.log("Update value", this.updateValue);
     },
   },
   mounted() {
@@ -113,6 +95,7 @@ export default {
 .desktop-right-panel
 {
   margin-top : 1.2rem;
+  height: 97vh;
 }
 /* Bouton menu hamburger */
 .menu-button {
@@ -136,21 +119,6 @@ export default {
   transition: color 0.3s ease-in-out;
 }
 
-/* Menu contextuel */
-.menu-contextual {
-  position: fixed;
-  top: 60px;
-  left: 15px;
-  background: white;
-  border: 1px solid #ddd;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1500;
-  border-radius: 8px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-}
 
 .menu-contextual button {
   background: none;
@@ -200,8 +168,5 @@ export default {
   box-sizing: border-box;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s ease;
-}
 </style>
 

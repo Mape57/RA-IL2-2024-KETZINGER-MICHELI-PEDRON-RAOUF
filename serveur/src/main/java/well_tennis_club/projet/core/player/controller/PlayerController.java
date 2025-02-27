@@ -273,6 +273,7 @@ public class PlayerController {
 	@DeleteMapping
 	public ResponseEntity<Void> deleteAllPlayers() {
 		sessionService.deleteAll();
+		playerService.deleteAll();
 		return ResponseEntity.noContent().build();
 	}
 }
