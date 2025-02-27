@@ -8,7 +8,7 @@
     <changeSet id="test-dispoT" author="Thomas">
         <insert tableName="disponibility_trainer">
             <column name="id_trainer" value="4d970d71-4ff9-4435-8860-435c12434137"/>
-            <column name="id_disponibility" value="36697925-5b75-4601-a88c-24e68b248d86"/>
+            <column name="id_disponibility" value="77fb89b2-a0a8-4242-a82f-9ec15cbdb934"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

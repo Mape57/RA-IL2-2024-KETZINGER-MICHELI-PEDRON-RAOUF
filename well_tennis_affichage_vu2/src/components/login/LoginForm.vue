@@ -1,12 +1,12 @@
 <template>
   <div class="w-full bg-white flex justify-center items-center shadow-md p-4 lg:p-0 lg:w-[760px] h-auto lg:h-[510px]">
     <div class="text-center w-full lg:w-auto">
-      <h1 class="text-[#1A4220] text-xl lg:text-2xl font-bold mb-4 lg:mb-6">Well Tennis Club</h1>
+      <h1 class="text-[#1A4220] text-2xl lg:text-4xl font-bold mb-6 lg:mb-8">Well Tennis Club</h1>
       <form class="space-y-3" @submit.prevent="Connectlogin">
         <input
             type="text"
             placeholder="Identifiant"
-            class="w-full lg:w-[380px] h-[40px] border border-gray-300 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#528359] text-sm"
+            class="w-full lg:w-[380px] h-[50px] rounded-lg p-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#528359] text-sm"
             v-model="email"
         />
         <div class="relative w-full lg:w-[380px] mx-auto">
@@ -14,12 +14,12 @@
               id="password-field"
               type="password"
               placeholder="Mot de passe"
-              class="w-full h-[40px] border border-gray-300 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#528359] text-sm"
+              class="w-full lg:w-[380px] h-[50px] rounded-lg p-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#528359] text-sm"
               v-model="password"
           />
           <span
               @click="togglePasswordVisibility"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer material-symbols-outlined"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-[#528359] cursor-pointer material-symbols-outlined"
           >
             {{ passwordVisible ? 'visibility_off' : 'visibility' }}
           </span>
@@ -34,14 +34,14 @@
 
         <!-- Bouton Se connecter -->
         <button
-            class="w-full lg:w-[380px] h-[60px] bg-[#528359] text-white text-base rounded-lg shadow-md py-3 hover:bg-[#456c4c] transition mx-auto flex justify-center items-center"
+            class="w-full lg:w-[380px] h-[50px] bg-[#528359] text-white text-base rounded-lg shadow-md py-3 hover:bg-[#456c4c] transition mx-auto flex justify-center items-center"
         >
           Se connecter
         </button>
 
         <!-- Bouton S'inscrire -->
         <router-link
-            class="w-full lg:w-[380px] h-[60px] bg-white text-[#528359] border border-[#528359] text-base rounded-lg shadow-md py-3 hover:bg-[#ebf5eb] transition mx-auto flex justify-center items-center"
+            class="w-full lg:w-[380px] h-[50px] bg-white text-[#528359] border border-[#528359] text-base rounded-lg shadow-md py-3 hover:bg-[#ebf5eb] transition mx-auto flex justify-center items-center"
             to="/register"
         >
           S'inscrire
@@ -50,6 +50,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import {accountService} from "../../services/authService";
@@ -71,6 +72,7 @@ export default {
     },
 
 
+
     async Connectlogin() {
       sessionStorage.removeItem("token"); // Supprime tout ancien token au chargement
 
@@ -81,10 +83,23 @@ export default {
 
       try {
         const response = await accountService.login(this.email, this.password);
-        console.log("Connexion réussie :", response.data);
-        accountService.saveToken(response.data.token);
-        this.$router.push('/admin'); // Redirection après connexion
-      } catch (error) {
+        if (response.token && response.role) {
+         accountService.saveToken(response.token);
+          sessionStorage.setItem("role", response.role);
+           const userRole = response.role.toUpperCase();
+         // this.$router.push('/admin'); // Redirection après connexion
+          if (userRole === "TRAINER") {
+            this.$router.push('/trainer');
+          } else if (userRole === "ADMIN") {
+            this.$router.push('/admin');
+          } else {
+            this.$router.push('/');
+          }
+        }
+        else {
+          console.error("Réponse invalide de l'API. Vérifiez votre backend.");
+        }
+      }catch (error) {
         console.error("Erreur lors de la connexion :", error.response?.data || error.message);
       }
     },

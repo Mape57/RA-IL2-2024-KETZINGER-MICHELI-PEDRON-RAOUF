@@ -1,7 +1,7 @@
 package well_tennis_club.data_converter.to_domain;
 
-import well_tennis_club.projet.disponibility.DisponibilityEntity;
-import well_tennis_club.projet.time.TimeEntity;
+import well_tennis_club.projet.core.disponibility.entity.DisponibilityEntity;
+import well_tennis_club.projet.core.time.TimeEntity;
 import well_tennis_club.timefold.data_structure.Timeslot;
 
 import java.time.DayOfWeek;

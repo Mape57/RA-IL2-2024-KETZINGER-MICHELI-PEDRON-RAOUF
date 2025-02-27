@@ -53,7 +53,7 @@
             <button @click="selectedPlayer = null" class="bg-gray-300 hover:bg-gray-400 px-5 py-2 rounded-lg text-lg">
               Fermer
             </button>
-            <button @click="validateAndClose(selectedPlayer.id)" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg text-lg">
+            <button @click="validateAndClose(selectedPlayer.id)" class="bg-[#528359] hover:bg-[#456c4c] text-white px-5 py-2 rounded-lg text-lg">
               Valider
             </button>
           </div>

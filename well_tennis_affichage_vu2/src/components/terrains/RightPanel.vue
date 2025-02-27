@@ -1,3 +1,4 @@
+
 <template>
   <div class="right-panel rounded-lg shadow-md ">
     <!-- Mode Mobile -->
@@ -36,6 +37,7 @@
               :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge} ` : 'N/A'"
               :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
               :players="session.players.map(player => `${player.name} ${player.surname}`)"
+              :userRole="userRole"
           />
         </div>
       </div>
@@ -74,6 +76,7 @@
               :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge}` : 'N/A'"
               :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
               :players="session.players.map(player => `${player.name} ${player.surname}`)"
+              :userRole="userRole"
           />
         </div>
       </div>
@@ -118,6 +121,7 @@
               :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge}` : 'N/A'"
               :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
               :players="session.players.map(player => `${player.name} ${player.surname}`)"
+              :userRole="userRole"
           />
         </div>
       </div>
@@ -127,13 +131,18 @@
 <script>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import SessionCard from "./SessionCard.vue";
-import terrainService from "../../services/terrainService";
-import sessionsService from "../../services/sessionService";
+import terrainService from "../../services/TerrainService";
+import sessionsService from "../../services/SessionService";
 
 export default {
   name: "RightPanel",
   components: {
     SessionCard,
+  },
+  props: {
+    isMobile: Boolean,
+    isTablet: Boolean,
+    userRole: String,
   },
   setup() {
     const terrains = ref([]);
@@ -152,7 +161,7 @@ export default {
 
     // Sessions groupées par jour
     const sessionsByDay = computed(() => {
-      const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+      const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
       const groupedSessions = Object.fromEntries(daysOfWeek.map((day) => [day, []]));
 
       if (!selectedTerrain.value) return groupedSessions;
@@ -166,8 +175,13 @@ export default {
             }
           });
 
+      Object.keys(groupedSessions).forEach(day => {
+        groupedSessions[day].sort((a, b) => a.start.localeCompare(b.start));
+      });
+
       return groupedSessions;
     });
+
 
     // Récupération des terrains et sessions depuis l'API
     const loadTerrainsAndSessions = async () => {
@@ -224,14 +238,14 @@ export default {
 <style scoped>
 .right-panel {
   background-color: white;
+  position: relative;
   overflow-y: auto;
-  margin-top: 1.2rem;
   margin-right: 1.37rem;
   width: 67%;
   height: 83vh;
-  margin-bottom: 7vh;
+  margin-bottom: 4vh;
+  z-index: 100;
 }
-
 
 .tab-button {
   color: gray;
@@ -267,6 +281,35 @@ select:focus {
 
 body {
   font-size: 16px;
+}
+
+/* Scrollbar */
+.content::-webkit-scrollbar {
+  width: 12px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #528359, #3a6242);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.3s ease-in-out, border 0.3s ease-in-out;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #3a6242, #2f6035);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Pour firefox */
+.content {
+  scrollbar-color: #528359 transparent;
+  scrollbar-width: thin;
 }
 
 @media (max-width: 768px) {
@@ -336,7 +379,6 @@ body {
   }
 }
 
-
 @media (min-width: 1024px) {
   .right-panel {
     width: 67%;
@@ -346,7 +388,9 @@ body {
     right: 0;
     margin-left: auto;
   }
+
 }
 
 </style>
+
 

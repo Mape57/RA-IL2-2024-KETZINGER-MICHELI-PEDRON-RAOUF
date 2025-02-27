@@ -8,7 +8,7 @@ export default {
         return apiService.post("/sessions", session);
     },
     updateSession(id, data) {
-        return apiService.patch(`/sessions/${id}`, data);
+        return apiService.put(`/sessions/${id}`, data);
     },
     deleteSession(id) {
         return apiService.delete(`/sessions/${id}`);

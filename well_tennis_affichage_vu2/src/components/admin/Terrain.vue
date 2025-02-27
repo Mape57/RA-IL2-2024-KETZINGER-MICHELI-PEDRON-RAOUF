@@ -5,14 +5,11 @@
         class="flex justify-between items-center cursor-pointer py-2 border-b"
         @click="toggleAccordion"
     >
-      <div class="flex items-center">
-        <span
-            :class="{ 'rotate-180': isOpen }"
-            class="material-symbols-outlined transition-transform duration-300 mr-2"
-        >
+      <div class="flex items-center terrain-hover">
+        <span :class="{ 'rotate-180': isOpen }" class="material-symbols-outlined terrain-arrow transition-transform duration-300 mr-2">
           expand_more
         </span>
-        <h3 class="font-bold text-lg">Terrains</h3>
+              <h3 class="font-bold text-lg terrain-title">Terrains</h3>
       </div>
     </div>
 
@@ -20,20 +17,16 @@
     <div v-if="isOpen" class="mt-2">
       <div v-for="terrain in sortedTerrains" :key="terrain.id" class="mb-2">
       <!-- Terrain principal -->
-        <div
-            class="flex justify-between items-center cursor-pointer py-1"
-            @click="toggleTerrain(terrain.id)"
-        >
+        <div class="flex justify-between items-center cursor-pointer py-1 terrain-sub-hover"
+             @click="toggleTerrain(terrain.id)">
           <div class="flex items-center">
-            <span
-                :class="{ 'rotate-180': openTerrains.includes(terrain.id) }"
-                class="material-symbols-outlined transition-transform duration-300 mr-2 small-icon"
-            >
-              expand_more
+            <span :class="{ 'rotate-180': openTerrains.includes(terrain.id) }"
+                  class="material-symbols-outlined terrain-sub-arrow transition-transform duration-300 mr-2 small-icon">
+                   expand_more
             </span>
-            <h4 class="font-semibold text-black-800">{{ terrain.name }}</h4>
+            <h4 class="font-semibold terrain-sub-title">{{ terrain.name }}</h4>
           </div>
-          <div class="flex space-x-2">
+          <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ADMIN'">
             <span
                 class="material-symbols-outlined small-icon cursor-pointer"
                 @click="deleteTerrain(terrain.id)"
@@ -53,7 +46,7 @@
               <th class="text-left">Jour</th>
               <th class="text-center">Ouverture</th>
               <th class="text-center">Fermeture</th>
-              <th class="text-center">Actions</th>
+              <th class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -61,12 +54,12 @@
               <td>{{ convertDay(time.dayWeek)}}</td>
               <td class="text-center">{{ time.start }}</td>
               <td class="text-center">{{ time.stop }}</td>
-              <td class="text-center">
+              <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                   <span
                       class="material-symbols-outlined small-icon cursor-pointer"
                       @click="deleteSchedule(time.id)"
-                  >delete</span
-                  >
+                  >delete
+                  </span>
               </td>
             </tr>
             </tbody>
@@ -78,6 +71,8 @@
 </template>
 
 <script>
+import { ref, onMounted, onUnmounted } from "vue";
+
 export default {
   name: "Terrains",
   props: {
@@ -85,6 +80,27 @@ export default {
       type: Array,
       required: true,
     },
+    userRole: String,
+  },
+  setup() {
+    const localIsMobile = ref(window.innerWidth < 768);
+
+    const updateIsMobile = () => {
+      localIsMobile.value = window.innerWidth < 768;
+    };
+
+    onMounted(() => {
+      updateIsMobile();
+      window.addEventListener("resize", updateIsMobile);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("resize", updateIsMobile);
+    });
+
+    return {
+      localIsMobile,
+    };
   },
   data() {
     return {
@@ -114,9 +130,11 @@ export default {
       }
     },
     deleteTerrain(terrainId) {
+      if (this.userRole !== "ADMIN") return;
       console.log(`Supprimer le terrain avec l'id: ${terrainId}`);
     },
     deleteSchedule(timeId) {
+      if (this.userRole !== "ADMIN") return;
       console.log(`Supprimer l'horaire avec l'id: ${timeId}`);
     },
     convertDay(dayNumber) {
@@ -125,6 +143,7 @@ export default {
   },
 };
 </script>
+
 
 
 <style scoped>
@@ -156,4 +175,27 @@ export default {
 .w-full {
   width: 100%;
 }
+
+.terrain-hover, .terrain-sub-hover {
+  transition: color 0.2s ease-in-out;
+}
+
+.terrain-title, .terrain-sub-title {
+  transition: color 0.2s ease-in-out;
+}
+
+.terrain-arrow, .terrain-sub-arrow {
+  transition: color 0.2s ease-in-out;
+}
+
+.terrain-hover:hover .terrain-title,
+.terrain-hover:hover .terrain-arrow {
+  color: #2F855A;
+}
+
+.terrain-sub-hover:hover .terrain-sub-title,
+.terrain-sub-hover:hover .terrain-sub-arrow {
+  color: #2F855A;
+}
+
 </style>

@@ -9,16 +9,16 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>combined.project</groupId>
-	<artifactId>combined-artifact</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>CombinedProject</name>
-	<description>Combined project from two POM files</description>
+	<groupId>Well-Tennis-Club</groupId>
+	<artifactId>Well-Tennis-Club</artifactId>
+	<version>1</version>
+	<name>Well-Tennis-Club</name>
 
 	<properties>
 		<java.version>21</java.version>
 		<version.ai.timefold.solver>1.16.0</version.ai.timefold.solver>
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
+		<maven.test.skip>true</maven.test.skip>
 	</properties>
 
 	<dependencyManagement>
@@ -38,10 +38,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<dependency>
+<!--		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-rest</artifactId>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>ai.timefold.solver</groupId>
 			<artifactId>timefold-solver-spring-boot-starter</artifactId>
@@ -94,6 +94,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+			<version>1.10</version>
 		</dependency>
 		<dependency>
 			<groupId>ai.timefold.solver</groupId>
@@ -159,6 +164,18 @@
 			<artifactId>json</artifactId>
 			<version>20210307</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>org.eclipse.angus</groupId>
+			<artifactId>jakarta.mail</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -171,8 +188,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>22</source>
-					<target>22</target>
+					<source>21</source>
+					<target>21</target>
 					<verbose>true</verbose>
 					<annotationProcessorPaths>
 						<path>

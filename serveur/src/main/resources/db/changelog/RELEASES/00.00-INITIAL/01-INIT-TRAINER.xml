@@ -35,7 +35,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="email" type="varchar(200)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
             <column name="password" type="varchar(200)">
                 <constraints nullable="false"/>
@@ -58,7 +58,7 @@
             <column name='inf_age' value="1"/>
             <column name='sup_weekly_minutes' value="1"/>
             <column name='inf_weekly_minutes' value="1"/>
-            <column name="email" value="pierre.brandt@gmail.com"/>
+            <column name="email" value="${trainer_email}"/>
             <column name="password" value="$2a$10$iWQP3yZ6DcYpU3k4xz378e6fM0WuqBs1X5OXPyWuSpYY.W8pBHDXy"/>
             <column name="part_time" value="true"/>
             <column name="admin" value="true"/>

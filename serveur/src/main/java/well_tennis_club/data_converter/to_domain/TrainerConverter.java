@@ -1,6 +1,6 @@
 package well_tennis_club.data_converter.to_domain;
 
-import well_tennis_club.projet.trainer.TrainerEntity;
+import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
 import well_tennis_club.timefold.data_structure.Timeslot;
 import well_tennis_club.timefold.data_structure.ValueRange;
 import well_tennis_club.timefold.domain.Trainer;
@@ -24,7 +24,7 @@ public class TrainerConverter {
 		int weeklyMinutesMax = trainerEntity.getSupWeeklyMinutes();
 		ValueRange weeklyMinutes = new ValueRange(weeklyMinutesMin, weeklyMinutesMax);
 
-		List<Timeslot> availability = trainerEntity.getDisponibitities().stream().map(TimeslotConverter::from).toList();
+		List<Timeslot> availability = trainerEntity.getDisponibilities().stream().map(TimeslotConverter::from).toList();
 
 		boolean isPartTime = trainerEntity.isPartTime();
 

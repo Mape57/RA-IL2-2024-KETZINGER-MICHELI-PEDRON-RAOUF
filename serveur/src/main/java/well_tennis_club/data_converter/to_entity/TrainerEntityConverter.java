@@ -1,6 +1,6 @@
 package well_tennis_club.data_converter.to_entity;
 
-import well_tennis_club.projet.trainer.TrainerEntity;
+import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
 import well_tennis_club.timefold.data_structure.Timeslot;
 import well_tennis_club.timefold.data_structure.ValueRange;
 
@@ -19,11 +19,11 @@ public class TrainerEntityConverter {
 		playerEntity.setSupAge(agePreference.getMax());
 		playerEntity.setInfWeeklyMinutes(weeklyMinutes.getMin());
 		playerEntity.setSupWeeklyMinutes(weeklyMinutes.getMax());
-		playerEntity.setEmail("");
+		playerEntity.setEmail(UUID.randomUUID() + "@mail.fr");
 		playerEntity.setPassword("");
 		playerEntity.setPartTime(partTime);
 		playerEntity.setAdmin(false);
-		playerEntity.setDisponibitities(availability.stream().map(DisponibilityEntityConverter::from).toList());
+		playerEntity.setDisponibilities(availability.stream().map(DisponibilityEntityConverter::from).toList());
 
 		return playerEntity;
 	}

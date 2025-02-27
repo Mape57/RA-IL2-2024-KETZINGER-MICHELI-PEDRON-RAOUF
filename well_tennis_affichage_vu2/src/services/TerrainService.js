@@ -16,7 +16,7 @@ export default {
 
 	updateTerrain(id, terrainData) {
 		// Utilisation de terrainData (et non TerrainData)
-		return apiService.patch(`/courts/${id}`, terrainData);
+		return apiService.put(`/courts/${id}`, terrainData);
 	},
 
 	deleteTerrain(id) {

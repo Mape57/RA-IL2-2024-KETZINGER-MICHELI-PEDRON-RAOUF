@@ -4,23 +4,23 @@
         class="flex justify-between items-center cursor-pointer py-2 border-b"
         @click="toggleAccordion"
     >
-      <div class="flex items-center">
-        <span
-            :class="{ 'rotate-180': isOpen }"
-            class="material-symbols-outlined transition-transform duration-300 mr-2"
-        >
+      <div class="flex items-center players-hover">
+        <span :class="{ 'rotate-180': isOpen }"
+              class="material-symbols-outlined players-arrow transition-transform duration-300 mr-2">
           expand_more
         </span>
-        <h3 class="font-bold text-lg">Joueurs</h3>
+        <h3 class="font-bold text-lg players-title">Joueurs</h3>
       </div>
+
       <!-- Boutons d'action -->
-      <div class="flex space-x-2">
-        <span class="material-symbols-outlined small-icon cursor-pointer"
-              title="Ajouter"
-              ref="addPlayerButton"
-              @click="!isMobile && addPlayer"
-        >person_add</span>
+      <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ADMIN'">
+  <span class="material-symbols-outlined small-icon cursor-pointer"
+        title="Ajouter"
+        ref="addPlayerButton"
+        @click="addPlayer">
+        person_add</span>
       </div>
+
     </div>
 
     <!-- Contenu déroulant -->
@@ -28,9 +28,9 @@
       <!-- En-têtes des colonnes -->
       <div class="grid grid-cols-4 font-semibold text-gray-400 text-sm mb-2">
         <div class="text-left">Nom</div>
-        <div class="text-center">Prénom</div>
-        <div class="text-center">Âge</div>
-        <div class="text-right">Niveau</div>
+        <div class="text-left">Prénom</div>
+        <div class="text-left">Âge</div>
+        <div class="text-center">Niveau</div>
       </div>
 
       <div
@@ -38,23 +38,23 @@
           :key="player.id"
           class="grid grid-cols-4 items-center py-1"
           :class="{ 'cursor-pointer': !isMobile }"
+          :ref="'player-' + player.id"
           @click="!isMobile && showPlayerInfo(player)"
       >
 
         <!-- Nom du joueur -->
         <span>{{ player.name }}</span>
         <!-- Prénom du joueur -->
-        <span class="text-center">{{ player.surname }}</span>
+        <span class="text-left">{{ player.surname }}</span>
         <!-- Âge du joueur -->
-        <span class="text-center">{{ computeAge(player.birthday) || "N/A" }} ans</span>
+        <span class="text-left">{{ computeAge(player.birthday) || "N/A" }} ans</span>
         <!-- Niveau du joueur -->
-        <span class="text-right">{{ player.level }}</span>
+        <span class="text-center">{{ player.level }}</span>
       </div>
-
 
       <!-- Affichage de PlayerInfoView -->
       <PlayerInfoView
-          v-if="selectedPlayer && !isMobile"
+          v-if="selectedPlayer && !isMobile && userRole === 'ADMIN'"
           :player="selectedPlayer"
           @close="selectedPlayer = null"
           @delete="handlePlayerDeletion"
@@ -67,6 +67,7 @@
 </template>
 
 <script>
+import {ref, onMounted, onUnmounted} from "vue";
 import usePlayers from "../../useJs/usePlayers.js";
 import PlayerInfoView from "../vueInformations/PlayerInfoView.vue";
 
@@ -77,18 +78,34 @@ export default {
     players: Array,
     searchQuery: String,
     isMobile: Boolean,
+    userRole: String,
   },
   setup() {
     const {computeAge} = usePlayers();
+
+    const localIsMobile = ref(window.innerWidth < 768);
+
+    const updateIsMobile = () => {
+      localIsMobile.value = window.innerWidth < 768;
+    };
+    onMounted(() => {
+      updateIsMobile();
+      window.addEventListener("resize", updateIsMobile);
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener("resize", updateIsMobile);
+    });
+
     return {
       computeAge,
+      localIsMobile,
     };
   },
   data() {
     return {
-      isMobile: window.innerWidth < 768, // Vérification initiale
       isOpen: true,
-      selectedPlayer: null, // Joueur sélectionné pour afficher les détails
+      selectedPlayer: null,
     };
   },
   computed: {
@@ -101,18 +118,10 @@ export default {
           );
     },
   },
-  mounted() {
-    // Mettre à jour `isMobile` lorsque l'écran est redimensionné
-    window.addEventListener("resize", this.updateIsMobile);
-  },
-  beforeUnmount() {
-    window.removeEventListener("resize", this.updateIsMobile);
-  },
   methods: {
     toggleAccordion(event) {
       const addButton = this.$refs.addPlayerButton;
 
-      // Si le bouton "Ajouter" est cliqué et que le panneau est déjà ouvert, ne pas refermer
       if (addButton && addButton.contains(event.target) && this.isOpen) {
         return;
       }
@@ -120,11 +129,8 @@ export default {
       // Sinon, basculer l'état d'ouverture
       this.isOpen = !this.isOpen;
     },
-    updateIsMobile() {
-      this.isMobile = window.innerWidth < 768;
-    },
     showPlayerInfo(player) {
-      if (this.isMobile) return; // Empêche d'afficher les informations en mode mobile
+      if (this.localIsMobile) return; // Empêche d'afficher les informations en mode mobile
       if (this.selectedPlayer && this.selectedPlayer.id === player.id) {
         this.selectedPlayer = null;
       } else {
@@ -138,6 +144,7 @@ export default {
       this.selectedPlayer = null; // Ferme l'affichage des détails
     },
     handlePlayerSave(savedPlayer) {
+      if (this.userRole !== "ADMIN") return;
       if (!savedPlayer || typeof savedPlayer !== "object") {
         console.error("Données invalides reçues dans handlePlayerSave :", savedPlayer);
         return;
@@ -153,10 +160,23 @@ export default {
 
       // Émet la liste mise à jour au parent
       this.$emit("update:players", [...this.players]);
+
+      this.$nextTick(() => {
+        const newPlayerElement = this.$refs[`player-${savedPlayer.id}`]?.[0];
+        if (newPlayerElement) {
+          newPlayerElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          // Ajouter une classe temporaire pour l'effet de mise en valeur
+          newPlayerElement.classList.add("highlighted");
+          setTimeout(() => newPlayerElement.classList.remove("highlighted"), 3000); // Retire l'effet après 3s
+        }
+      });
+
     },
 
+
     addPlayer() {
-      if (this.isMobile) return; // Empêche l'ajout de joueurs en mode mobile
+      if (this.localIsMobile || this.userRole !== "ADMIN") return; // Empêche l'ajout de joueurs en mode mobile
       this.selectedPlayer = {
         id: null,
         name: "",
@@ -168,17 +188,33 @@ export default {
         disponibilities: [],
       };
     },
-
-
   },
 };
 </script>
 
+
 <style scoped>
+.players-hover {
+  transition: color 0.2s ease-in-out;
+}
+
+.players-title {
+  transition: color 0.2s ease-in-out;
+}
+
+.players-arrow {
+  transition: color 0.2s ease-in-out;
+}
+
+.players-hover:hover .players-title,
+.players-hover:hover .players-arrow {
+  color: #2F855A;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 0.5rem;
+  grid-template-columns: 2fr 1.7fr 1fr 1fr;
+  gap: 0.8rem;
 }
 
 .material-symbols-outlined {
@@ -186,6 +222,9 @@ export default {
   transition: transform 0.3s ease;
 }
 
+.small-icon {
+  font-size: 18px;
+}
 
 .rotate-180 {
   transform: rotate(180deg);
@@ -195,5 +234,26 @@ export default {
   border-bottom: 1px solid #e2e8f0;
 }
 
+::v-deep(.highlighted) {
+  animation: highlightEffect 2s ease-out;
+}
+
+@keyframes highlightEffect {
+  0% {
+    color: #2F855A;
+    font-weight: bold;
+    transform: scale(1.02);
+  }
+  70% {
+    color: #2F855A;
+    font-weight: bold;
+    transform: scale(1.01);
+  }
+  100% {
+    color: inherit;
+    font-weight: normal;
+    transform: scale(1);
+  }
+}
 
 </style>

@@ -1,9 +1,9 @@
 <template>
   <div
-      :class="['left-panel', isMobile ? 'w-[55%]' : isTablet ? 'w-[40%]' : 'w-[30%]']"
+      :class="['left-panel', localIsMobile ? 'w-[55%]' : isTablet ? 'w-[40%]' : 'w-[30%]']"
       class="fixed top-5 left-5 bg-white rounded-lg shadow-md h-[97vh] p-6 flex flex-col ">
     <!-- Bouton de fermeture -->
-    <button v-if="isMobile" @click="$emit('close')" class="close-button">
+    <button v-if="localIsMobile" @click="$emit('close')" class="close-button">
       <span class="material-symbols-outlined">close</span>
     </button>
 
@@ -29,12 +29,12 @@
       </div>
 
       <button
-          v-if="!isMobile"
+          v-if="userRole === 'ADMIN' && !isMobile"
           @click="selectTab('settings')"
           :class="{ active: selectedTab === 'settings' }"
           class="tab-button flex-grow flex items-center justify-center"
       >
-        <span class="material-symbols-outlined mr-2">settings</span>
+        <span class="material-symbols-outlined ">settings</span>
       </button>
     </div>
 
@@ -48,17 +48,28 @@
     </div>
 
     <!-- Contenu des onglets -->
-    <div class="content flex-1 overflow-auto">
+    <div class="content flex-1 overflow-auto p-4 w-full overflow-x-hidden">
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
-        <Trainers :trainers="trainers" @update:trainers="updateTrainers"/>
-        <Players :players="players" :searchQuery="searchQuery" @update:players="updatePlayers"/>
+        <Trainers
+            :trainers="trainers"
+            :isMobile="isMobile"
+            :userRole="userRole"
+            @update:trainers="userRole === 'ADMIN' ? updateTrainers : () => {}"
+        />
+        <Players
+            :players="players"
+            :searchQuery="searchQuery"
+            :isMobile="isMobile"
+            :userRole="userRole"
+            @update:players="userRole === 'ADMIN' ? updatePlayers : () => {}"
+        />
       </div>
 
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
-        <Terrains :terrains="terrains" />
-        <Session :sessions="sessions" />
+        <Terrains :terrains="terrains" :isMobile="isMobile" :userRole="userRole"/>
+        <Session :isMobile="isMobile" :userRole="userRole" />
       </div>
 
       <!-- Onglet Paramètres (masqué en mode mobile) -->
@@ -84,7 +95,7 @@
         </div>
         <button class="menu-item" @click="downloadXLS">
           <span class="material-symbols-outlined mr-2">calendar_today</span>
-          Planning - format XLS
+          Planning - format PDF
         </button>
 
         <button class="menu-item" @click="downloadCSV">
@@ -116,18 +127,24 @@
 
 
 <script>
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import useTerrain from "../../useJs/useTerrain.js";
+import useLeftPanel from "../../useJs/useLeftPanel.js";
+import usePlayers from "../../useJs/usePlayers";
+import useSessionConstraint from "../../useJs/useSessionConstraint.js";
+import PlayersService from "../../services/PlayersService.js";
+import ExportService from "../../functionality/ExportService";
+import ImportService from "../../functionality/ImportService";
+import ExportPdf from "../../functionality/ExportPdf";
+
+
 import Players from "./Players.vue";
 import Trainers from "./Trainers.vue";
 import Terrains from "./Terrain.vue";
 import Session from "./Session.vue";
-import useTerrain from "../../useJs/useTerrain.js";
-import useLeftPanel from "../../useJs/useLeftPanel.js";
-import usePlayers from "../../useJs/usePlayers";
-import {onMounted, ref} from "vue";
-import ExportService from "../../functionality/ExportService";
-import ImportService from "../../functionality/ImportService";
-import PlayersService from "../../services/PlayersService.js";
 import PlayerNot from "../vueInformations/PlayerNot.vue";
+
+
 
 export default {
   name: "LeftPanel",
@@ -140,9 +157,31 @@ export default {
   },
   props: {
     isMobile: Boolean,
-
+    userRole: String,
   },
-  setup() {
+  setup(props) {
+    const localIsMobile = ref(props.isMobile);
+    const isTablet = ref(false);
+    const selectedPlayer = ref(null);
+    const showPendingPlayers = ref(false);
+
+    watch(() => props.isMobile, (newVal) => {
+      localIsMobile.value = newVal;
+    });
+
+    const checkScreenSize = () => {
+      localIsMobile.value = window.innerWidth < 768;
+      isTablet.value = window.innerWidth >= 768 && window.innerWidth < 1024;
+    };
+
+    onMounted(() => {
+      checkScreenSize();
+      window.addEventListener("resize", checkScreenSize);
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener("resize", checkScreenSize);
+    });
 
     const updatePendingPlayers = (updatedList) => {
       pendingPlayers.value = updatedList;
@@ -164,7 +203,8 @@ export default {
 
 
     const { terrains, fetchTerrains } = useTerrain();
-    const {trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers, updateTrainers} = useLeftPanel();
+    const { trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers, updateTrainers } = useLeftPanel();
+    const { pendingPlayers, fetchPendingPlayers } = usePlayers();
 
     const validatePlayer = async (playerId) => {
       try {
@@ -175,13 +215,9 @@ export default {
       }
     };
 
-    const selectedPlayer = ref(null);
-
     const showPlayerDetails = (player) => {
       selectedPlayer.value = player;
     };
-    const { pendingPlayers, fetchPendingPlayers } = usePlayers();
-    const showPendingPlayers = ref(false);
 
     const togglePendingPlayers = () => {
       showPendingPlayers.value = !showPendingPlayers.value;
@@ -196,10 +232,16 @@ export default {
     });
 
     return {
+      localIsMobile,
+      isTablet,
       trainers,
       players,
       searchQuery,
       selectedTab,
+      pendingPlayers,
+      showPendingPlayers,
+      terrains,
+      selectedPlayer,
       showPlayerDetails,
       fetchTrainers,
       fetchPlayers,
@@ -209,10 +251,6 @@ export default {
       togglePendingPlayers,
       validatePlayer,
       updatePendingPlayers,
-      pendingPlayers,
-      showPendingPlayers,
-      terrains,
-      selectedPlayer,
       getJourLabel,
     };
   },
@@ -220,10 +258,6 @@ export default {
   data() {
     return {
       isTablet: false,
-      sessions: [
-        {title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, sessions_level: "0 - 7"},
-        {title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, sessions_level: "1 - 10"},
-      ],
     };
   },
 
@@ -241,37 +275,104 @@ export default {
       }
     },
 
-    downloadXLS() {
-      alert("Téléchargement de planning XLS");
+    async downloadXLS() {
+      try {
+        await ExportPdf.generateSessionsPdf();
+        console.log("Exportation PDF réussie !");
+      } catch (error) {
+        console.error("Erreur lors de l'exportation du PDF :", error);
+      }
     },
+    
     async downloadCSV() {
-      await ExportService.downloadCSV(this.players, this.trainers, this.terrains, this.sessions);
+        const { sessionConstraints, fetchSessionConstraints } = useSessionConstraint();
+        await fetchSessionConstraints();
+        await ExportService.downloadCSV(this.players, this.trainers, this.terrains, sessionConstraints.value);
     },
+
     sendReinscriptionMail() {
       alert("Envoi du mail de réinscription !");
     },
-    deleteAllPlayers() {
-      alert("Suppression de tous les joueurs !");
+    async deleteAllPlayers() {
+      if (confirm("Êtes-vous sûr de vouloir supprimer tous les joueurs ?")) {
+        try {
+          await PlayersService.deleteAllPlayers(); // Suppression via l'API
+          this.players = []; // Mise à jour de la liste après suppression
+          alert("Tous les joueurs ont été supprimés avec succès !");
+        } catch (error) {
+          console.error("Erreur lors de la suppression des joueurs :", error);
+          alert("Une erreur s'est produite lors de la suppression.");
+        }
+      }
     },
     checkScreenSize() {
       clearTimeout(this.resizeTimeout);
       this.resizeTimeout = setTimeout(() => {
-        // this.isMobile = window.innerWidth < 768;
-        this.isTablet = window.innerWidth >= 768 && window.innerWidth < 1024; // Détection de la tablette
+        this.localIsMobile = window.innerWidth < 768;
+        this.isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
       }, 200);
     },
   },
+
   mounted() {
     this.checkScreenSize();
     window.addEventListener("resize", this.checkScreenSize);
   },
+
   beforeUnmount() {
     window.removeEventListener("resize", this.checkScreenSize);
   },
 };
 </script>
 
+
 <style scoped>
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 7px;
+  box-sizing: content-box;
+}
+
+/* Scrollbar */
+.content::-webkit-scrollbar {
+  width: 12px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #528359, #3a6242);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.3s ease-in-out, border 0.3s ease-in-out;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #3a6242, #2f6035);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Pour firefox */
+.content {
+  scrollbar-color: #528359 transparent;
+  scrollbar-width: thin;
+}
+
+.left-panel {
+  position: fixed;
+  z-index: 1000;
+  background: white;
+  border-radius: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
 
 .tabs {
   display: flex;
@@ -285,41 +386,34 @@ export default {
   transition: all 0.3s ease-in-out;
   padding-bottom: 0.5rem;
   position: relative;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tab-button.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 2px;
+  background-color: #2f855a;
+  transition: width 0.3s ease-in-out;
 }
 
 .tab-button.active {
   color: #2f855a;
 }
 
-.tab-button.active::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: #2f855a;
-}
-
-.material-symbols-outlined {
-  font-size: 1.3rem;
-  line-height: 1;
-  vertical-align: middle;
-}
-
-.material-symbols-outlined:hover {
-  color: #2f855a;
-}
-
-.content-settings {
-  padding: 1rem;
-}
 
 .menu-item {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 8px 12px;
+  padding: 13px 12px;
   margin-bottom: 0.5rem;
   background-color: white;
   border: 1px solid #e2e8f0;
@@ -333,8 +427,37 @@ export default {
   background-color: #f0f4f3;
 }
 
-.left-panel {
-  position: relative;
+/* Icône dans les boutons */
+.menu-item .material-symbols-outlined {
+  font-size: 20px;
+  line-height: 1;
+  vertical-align: middle;
+  margin-right: 10px;
+  transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.menu-item:hover {
+  background-color: #2F855A;
+  color: white;
+  border-color: #2F855A;
+  transform: translateY(-2px);
+}
+
+
+.menu-item:hover {
+  background-color: #2F855A;
+  color: white;
+  border-color: #2F855A;
+  transform: translateY(-2px);
+}
+
+.menu-item:hover .material-symbols-outlined {
+  color: white;
+  transform: scale(1.1);
+}
+
+.menu-item:active {
+  transform: scale(0.95);
 }
 
 .close-button {
@@ -354,26 +477,6 @@ export default {
 
 .tab-button span {
   display: inline;
-}
-
-
-.left-panel {
-  position: relative;
-}
-
-.left-panel {
-  position: relative;
-}
-
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  color: #528359;
 }
 
 .close-button:hover {

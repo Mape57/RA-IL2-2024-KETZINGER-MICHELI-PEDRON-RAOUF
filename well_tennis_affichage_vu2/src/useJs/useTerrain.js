@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import terrainService from "../services/terrainService.js";
+import terrainService from "../services/TerrainService.js";
 
 export default function useTerrain() {
     const terrains = ref([]);

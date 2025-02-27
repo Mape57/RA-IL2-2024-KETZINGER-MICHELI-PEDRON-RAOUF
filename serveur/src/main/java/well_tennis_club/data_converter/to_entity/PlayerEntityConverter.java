@@ -1,7 +1,7 @@
 package well_tennis_club.data_converter.to_entity;
 
-import well_tennis_club.projet.player.PlayerEntity;
-import well_tennis_club.projet.sessionConstraint.SessionConstraintEntity;
+import well_tennis_club.projet.core.player.entity.PlayerEntity;
+import well_tennis_club.projet.core.session_constraint.SessionConstraintEntity;
 import well_tennis_club.timefold.data_structure.Timeslot;
 
 import java.time.LocalDate;
@@ -18,7 +18,7 @@ public class PlayerEntityConverter {
 		playerEntity.setBirthday(LocalDate.of(LocalDate.now().getYear() - age, 1, 1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 		playerEntity.setCourses((long) weeklySession);
 		playerEntity.setLevel((long) level);
-		playerEntity.setEmail("");
+		playerEntity.setEmail(UUID.randomUUID() + "@mail.fr");
 		playerEntity.setValidate(true);
 		if (availability == null) availability = List.of();
 		playerEntity.setDisponibilities(availability.stream().map(DisponibilityEntityConverter::from).toList());
