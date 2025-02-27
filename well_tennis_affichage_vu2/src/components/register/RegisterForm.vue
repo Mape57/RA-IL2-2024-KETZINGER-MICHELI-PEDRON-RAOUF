@@ -65,6 +65,10 @@
       <!-- Bouton Inscription -->
       <button type="submit" class="submit-button">S'inscrire</button>
     </form>
+    <div v-else-if="isLoading" class="flex flex-col items-center justify-center h-[510px] max-w-md text-center px-4 -mt-4">
+      <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 border-t-[#528359]"></div>
+      <p class="mt-4 text-gray-600">Inscription en cours...</p>
+    </div>
     <div v-else-if="showError" class="flex flex-col items-center justify-center h-[510px] max-w-md text-center px-4 -mt-4">
       <div class="rounded-full bg-red-100 w-16 h-16 flex items-center justify-center">
         <span class="material-symbols-outlined text-4xl text-red-600">error</span>
@@ -184,6 +188,7 @@ export default {
 
     const showForm = ref(true);
     const showError = ref(false);
+    const isLoading = ref(false);
 
     const validateAndSubmit = async () => {
       if (!form.value.nom || !form.value.prenom || !form.value.age || !form.value.email || form.value.disponibilites.length === 0) {
@@ -193,6 +198,7 @@ export default {
       if (!form.value.acceptTerms) {
         return alert("Vous devez accepter l'utilisation de vos données.");
       }
+
       const birthYear = new Date(form.value.age).getFullYear();
       const currentYear = new Date().getFullYear();
       if (birthYear < 1900 || birthYear > currentYear) {
@@ -218,10 +224,12 @@ export default {
       };
 
       try {
+        showForm.value = false;
+        isLoading.value = true;
         await createInscription(inscriptionData);
-        showForm.value = false;
+        isLoading.value = false;
       } catch (error) {
-        showForm.value = false;
+        isLoading.value = false;
         showError.value = true;
         console.error(error);
       }
@@ -236,6 +244,7 @@ export default {
       validateAndSubmit,
       showForm,
       showError,
+      isLoading,
     };
   },
 };
