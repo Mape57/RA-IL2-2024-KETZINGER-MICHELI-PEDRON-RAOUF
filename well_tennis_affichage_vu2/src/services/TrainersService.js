@@ -16,7 +16,7 @@ export default {
 
 
 	updateTrainer(id, trainerData) {
-		return apiService.patch(`/trainers/${id}`, trainerData);
+		return apiService.put(`/trainers/${id}`, trainerData);
 	},
 
 	deleteTrainer(id) {

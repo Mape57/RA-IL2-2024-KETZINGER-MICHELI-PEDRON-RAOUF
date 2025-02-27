@@ -19,7 +19,7 @@ export default {
 	},
 
 	updatePlayer(id, playerData) {
-		return apiService.patch(`/players/${id}`, playerData);
+		return apiService.put(`/players/${id}`, playerData);
 	},
 
 	deletePlayer(id) {

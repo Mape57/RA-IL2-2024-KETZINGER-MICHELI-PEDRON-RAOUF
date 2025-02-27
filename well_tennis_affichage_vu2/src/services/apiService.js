@@ -3,7 +3,7 @@ import { accountService } from './authService';
 import axios from "axios";
 
 const apiClient = axios.create({
-	baseURL: 'http://192.168.1.14:8080', // L'URL de votre API
+	baseURL: 'http://localhost:8080', // L'URL de votre API
 	headers: {
 		'Content-Type': 'application/json'
 	},
@@ -78,8 +78,8 @@ export default {
 		return apiClient.post(url, data, config);
 	},
 
-	patch(url, data) {
-		return apiClient.patch(url, data);
+	put(url, data) {
+		return apiClient.put(url, data);
 	},
 
 	delete(url) {

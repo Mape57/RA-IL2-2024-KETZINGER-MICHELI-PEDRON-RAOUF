@@ -194,12 +194,13 @@ public class TrainerController {
 	})
 	@PutMapping("/{id}")
 	public ResponseEntity<TrainerDto> updateTrainer(@PathVariable UUID id, @Valid @RequestBody PutTrainerDto trainerDto) {
-		TrainerEntity trainer = trainerService.getTrainerById(id);
-		if (trainer == null) {
+		TrainerEntity oldTrainer = trainerService.getTrainerById(id);
+		if (oldTrainer == null) {
 			throw new IdNotFoundException("Pas d'entraineur avec cet id");
 		} else {
-			trainer = PutTrainerMapper.INSTANCE.mapToEntity(trainerDto);
+			TrainerEntity trainer = PutTrainerMapper.INSTANCE.mapToEntity(trainerDto);
 			trainer.setId(id);
+			trainer.setPassword(oldTrainer.getPassword());
 			trainer = trainerService.updateTrainer(trainer);
 			return ResponseEntity.ok(TrainerMapper.INSTANCE.mapToDTO(trainer));
 		}
