@@ -69,7 +69,7 @@
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
         <Terrains :terrains="terrains" :isMobile="isMobile" :userRole="userRole"/>
-        <Session :sessions="sessions" :isMobile="isMobile" :userRole="userRole" />
+        <Session :isMobile="isMobile" :userRole="userRole" />
       </div>
 
       <!-- Onglet Paramètres (masqué en mode mobile) -->
@@ -258,10 +258,6 @@ export default {
   data() {
     return {
       isTablet: false,
-      sessions: [
-        {title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, sessions_level: "0 - 7"},
-        {title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, sessions_level: "1 - 10"},
-      ],
     };
   },
 
@@ -287,9 +283,13 @@ export default {
         console.error("Erreur lors de l'exportation du PDF :", error);
       }
     },
+    
     async downloadCSV() {
-      await ExportService.downloadCSV(this.players, this.trainers, this.terrains, this.sessions);
+        const { sessionConstraints, fetchSessionConstraints } = useSessionConstraint();
+        await fetchSessionConstraints();
+        await ExportService.downloadCSV(this.players, this.trainers, this.terrains, sessionConstraints.value);
     },
+
     sendReinscriptionMail() {
       alert("Envoi du mail de réinscription !");
     },

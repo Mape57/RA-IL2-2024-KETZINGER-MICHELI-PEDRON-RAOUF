@@ -20,16 +20,15 @@
 
     <div v-if="isOpen" class="mt-2">
       <!-- Liste des séances -->
-      <div v-for="(session, index) in sessions" :key="index" class="mb-2">
+      <div v-for="(constraint, index) in sessionConstraints" :key="constraint.id" class="mb-2">
         <!-- Ligne de titre pour chaque session -->
         <div class="flex justify-between items-center cursor-pointer py-1 session-sub-hover" @click="toggleSession(index)">
           <div class="flex items-center">
-
-            <span :class="{ 'rotate-180': openSessions.includes(index) }"
-                  class="material-symbols-outlined session-sub-arrow transition-transform duration-300 mr-2 small-icon">
-                  expand_more
-            </span>
-            <h4 class="font-semibold session-sub-title">{{ session.title }}</h4>
+        <span :class="{ 'rotate-180': openSessions.includes(index) }"
+              class="material-symbols-outlined session-sub-arrow transition-transform duration-300 mr-2 small-icon">
+              expand_more
+        </span>
+            <h4 class="font-semibold session-sub-title"> {{ constraint.infAge }} - {{ constraint.supAge }} ans</h4>
           </div>
           <div v-if="!localIsMobile && userRole === 'ADMIN'">
             <span class="material-symbols-outlined cursor-pointer small-icon" title="Interdit">block</span>
@@ -42,43 +41,42 @@
             <tbody>
             <tr>
               <td class="text-left">Âge</td>
-              <td class="text-center">{{ session.age }}</td>
-              <!-- Icône interdit dans la dernière colonne -->
+              <td class="text-center">{{ constraint.infAge }} - {{ constraint.supAge }}</td>
               <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Effectif</td>
-              <td class="text-center">{{ session.effective }}</td>
+              <td class="text-center">{{ constraint.infGroup }} - {{ constraint.supGroup }}</td>
               <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Durée</td>
-              <td class="text-center">{{ session.duration }}h</td>
+              <td class="text-center">{{ (constraint.duration / 60).toFixed(1) }}h</td>
               <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Diff. niveau</td>
-              <td class="text-center">{{ session.levelDifference }}</td>
+              <td class="text-center">{{ constraint.levelDiff }}</td>
               <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Diff. âge</td>
-              <td class="text-center">{{ session.ageGroup }}</td>
+              <td class="text-center">{{ constraint.ageDiff }}</td>
               <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
             </tr>
             <tr>
               <td class="text-left">Niveau</td>
-              <td class="text-right">{{ session.level }}</td>
+              <td class="text-center">{{ constraint.infLevel }} - {{ constraint.supLevel }}</td>
               <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
                 <span class="material-symbols-outlined small-icon cursor-pointer" title="Interdit">block</span>
               </td>
@@ -88,19 +86,21 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted } from "vue";
+import useSessionConstraint from "../../useJs/useSessionConstraint.js";
 
 export default {
   name: "Sessions",
   props: {
-    sessions: Array,
     userRole: String,
   },
   setup() {
+    const { sessionConstraints, fetchSessionConstraints } = useSessionConstraint();
     const localIsMobile = ref(window.innerWidth < 768);
 
     const updateIsMobile = () => {
@@ -108,16 +108,13 @@ export default {
     };
 
     onMounted(() => {
-      updateIsMobile();
+      fetchSessionConstraints(); // Récupérer les contraintes de session
       window.addEventListener("resize", updateIsMobile);
-    });
-
-    onUnmounted(() => {
-      window.removeEventListener("resize", updateIsMobile);
     });
 
     return {
       localIsMobile,
+      sessionConstraints
     };
   },
   data() {
@@ -139,6 +136,7 @@ export default {
     },
   },
 };
+
 </script>
 
 
