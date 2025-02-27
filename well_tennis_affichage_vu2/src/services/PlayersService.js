@@ -19,11 +19,15 @@ export default {
 	},
 
 	updatePlayer(id, playerData) {
-		return apiService.patch(`/players/${id}`, playerData);
+		return apiService.put(`/players/${id}`, playerData);
 	},
 
 	deletePlayer(id) {
 		return apiService.delete(`/players/${id}`);
 	},
+
+	deleteAllPlayers() {
+		return apiService.delete('/players');
+	}
 
 };

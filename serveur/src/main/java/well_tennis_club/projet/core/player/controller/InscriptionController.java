@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSender;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import well_tennis_club.projet.core.player.dto.PlayerDto;
@@ -34,11 +35,11 @@ public class InscriptionController {
 	private final PlayerService playerService;
 	private final InscriptionTokenService inscriptionTokenService;
 	private final MailFactory mailFactory;
-	private final MailSender mailSender;
+	private final JavaMailSender mailSender;
 
 	@Autowired
 	public InscriptionController(PlayerService playerService, InscriptionTokenService inscriptionTokenService,
-								 MailFactory mailFactory, MailSender mailSender) {
+								 MailFactory mailFactory, JavaMailSender mailSender) {
 		this.playerService = playerService;
 		this.inscriptionTokenService = inscriptionTokenService;
 		this.mailFactory = mailFactory;

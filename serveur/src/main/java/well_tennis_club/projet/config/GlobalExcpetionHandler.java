@@ -28,7 +28,7 @@ public class GlobalExcpetionHandler {
 		apiErrorResponse.setMessage("Violation de contrainte d'integrite");
 		apiErrorResponse.setDescription("Duplication de clé unique, voir les logs pour plus d'informations");
 
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiErrorResponse);
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiErrorResponse);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)

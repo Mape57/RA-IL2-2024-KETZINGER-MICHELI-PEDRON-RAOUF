@@ -8,47 +8,37 @@ class ExportService {
         return today.getFullYear() - birthDate.getFullYear();
     }
 
-    static async downloadCSV(players, trainers, terrains, sessions) {
+    static async downloadCSV(players, trainers, terrains = [], constraints = []) {
         try {
             const dayMapping = {
-                1: "monday",
-                2: "tuesday",
-                3: "wednesday",
-                4: "thursday",
-                5: "friday",
-                6: "saturday",
-                7: "sunday"
+                1: "Lundi",
+                2: "Mardi",
+                3: "Mercredi",
+                4: "Jeudi",
+                5: "Vendredi",
+                6: "Samedi",
+                7: "Dimanche"
             };
 
-
             const formattedPlayers = players.map((player) => {
-                // Initialisation des disponibilités par défaut pour chaque jour
                 const availability = {
-                    monday: "",
-                    tuesday: "",
-                    wednesday: "",
-                    thursday: "",
-                    friday: "",
-                    saturday: "",
+                    Lundi: "",
+                    Mardi: "",
+                    Mercredi: "",
+                    Jeudi: "",
+                    Vendredi: "",
+                    Samedi: "",
                 };
 
                 if (player.disponibilities && player.disponibilities.length > 0) {
-
                     player.disponibilities.forEach((d) => {
                         const day = dayMapping[d.dayWeek];
                         if (day && availability[day] !== undefined) {
                             availability[day] += availability[day]
                                 ? `, ${d.open} - ${d.close}`
                                 : `${d.open} - ${d.close}`;
-                        } else {
-                            console.warn("Jour non valide détecté :", d.day);
                         }
                     });
-
-
-                    console.log("Disponibilités après mapping:", availability);
-                } else {
-                    console.warn("Aucune disponibilité trouvée pour ce joueur :", player.name);
                 }
 
                 return {
@@ -59,101 +49,67 @@ class ExportService {
                     Email: player.email || "N/A",
                     Niveau: player.level || "N/A",
                     "Cours par semaine": player.courses || "N/A",
-                    Lundi: availability.monday,
-                    Mardi: availability.tuesday,
-                    Mercredi: availability.wednesday,
-                    Jeudi: availability.thursday,
-                    Vendredi: availability.friday,
-                    Samedi: availability.saturday,
+                    ...availability,
                 };
             });
 
-            // Création de la feuille Excel pour les joueurs
-            const playersSheet = XLSX.utils.json_to_sheet(formattedPlayers, { origin: "A2" });
+            const playersSheet = XLSX.utils.json_to_sheet(formattedPlayers);
 
-            playersSheet["!merges"] = [
-                { s: { r: 0, c: 7 }, e: { r: 0, c: 12 } },
-            ];
-            playersSheet["H1"] = {
-                t: "s",
-                v: "Disponibilités",
-                s: { alignment: { horizontal: "center", vertical: "center" } },
-            };
+            const formattedTrainers = trainers.map((trainer) => ({
+                Nom: trainer.name || "N/A",
+                Prénom: trainer.surname || "N/A",
+                "Niveau Min": trainer.infLevel || "N/A",
+                "Niveau Max": trainer.supLevel || "N/A",
+                "Âge Min": trainer.infAge || "N/A",
+                "Âge Max": trainer.supAge || "N/A",
+                "Minutes Hebdo Min": trainer.infWeeklyMinutes || "N/A",
+                "Minutes Hebdo Max": trainer.supWeeklyMinutes || "N/A",
+                Email: trainer.email || "N/A",
+                "Temps partiel": trainer.partTime ? "Oui" : "Non",
+                Admin: trainer.admin ? "Oui" : "Non",
+            }));
 
-            const formattedTrainers = trainers.map((trainer) => {
-                return {
-                    Nom: trainer.name || "N/A",
-                    Prénom: trainer.surname || "N/A",
-                    "Niveau Min": trainer.infLevel || "N/A",
-                    "Niveau Max": trainer.supLevel || "N/A",
-                    "Âge Min": trainer.infAge || "N/A",
-                    "Âge Max": trainer.supAge || "N/A",
-                    "Minutes Hebdo Min": trainer.infWeeklyMinutes || "N/A",
-                    "Minutes Hebdo Max": trainer.supWeeklyMinutes || "N/A",
-                    Email: trainer.email || "N/A",
-                    "Temps partiel": trainer.partTime ? "Oui" : "Non",
-                    Admin: trainer.admin ? "Oui" : "Non",
-                };
-            });
+            const trainersSheet = XLSX.utils.json_to_sheet(formattedTrainers);
 
-            const dayMapping1 = {
-                Monday: "Lundi",
-                Tuesday: "Mardi",
-                Wednesday: "Mercredi",
-                Thursday: "Jeudi",
-                Friday: "Vendredi",
-                Saturday: "Samedi",
-                Sunday: "Dimanche",
-            };
-
-            const formattedTerrains = terrains.map((terrain) => {
-                // Initialisation des horaires par défaut pour chaque jour
-                const schedule = {
-                    Lundi: "",
-                    Mardi: "",
-                    Mercredi: "",
-                    Jeudi: "",
-                    Vendredi: "",
-                    Samedi: "",
-                    Dimanche: "",
-                };
-
+            const formattedTerrains = terrains.length > 0 ? terrains.map((terrain) => {
+                const schedule = {};
                 terrain.times.forEach((time) => {
-                    const day = dayMapping1[time.day];
+                    const day = dayMapping[time.dayWeek];
                     if (day) {
                         schedule[day] = `${time.start} - ${time.stop}`;
                     }
                 });
-
                 return {
                     Terrain: terrain.name || "N/A",
                     ...schedule,
                 };
-            });
+            }) : [{ Terrain: "Aucune donnée disponible" }];
+
+            const formattedSessions = constraints.length > 0 ? constraints.map((session) => ({
+                "Contraintes": `${session.infAge}-${session.supAge} ans`,
+                "Âge Min": session.infAge !== null && session.infAge !== undefined ? session.infAge : "N/A",
+                "Âge Max": session.supAge !== null && session.supAge !== undefined ? session.supAge : "N/A",
+                "Niveau Min": session.infLevel !== null && session.infLevel !== undefined ? session.infLevel : "N/A",
+                "Niveau Max": session.supLevel !== null && session.supLevel !== undefined ? session.supLevel : "N/A",
+                "Groupe Min": session.infGroup !== null && session.infGroup !== undefined ? session.infGroup : "N/A",
+                "Groupe Max": session.supGroup !== null && session.supGroup !== undefined ? session.supGroup : "N/A",
+                "Diff. d'âge max": session.ageDiff !== null && session.ageDiff !== undefined ? session.ageDiff : "N/A",
+                "Diff. de niveau max": session.levelDiff !== null && session.levelDiff !== undefined ? session.levelDiff : "N/A",
+                "Durée": session.duration ? `${(session.duration / 60).toFixed(1)}h` : "N/A" // Conversion en heures
+            })) : [{ "Contraintes": "Aucune donnée disponible" }];
 
 
-            const formattedSessions = sessions.map((session) => ({
-                Titre: session.title || "N/A",
-                Âge: session.age || "N/A",
-                Effectif: session.effective || "N/A",
-                Durée: `${session.duration || 0}h`,
-                "Diff. Niveau": session.sessions_level || "N/A",
-            }));
-
-            // Création des autres feuilles Excel
-            const trainersSheet = XLSX.utils.json_to_sheet(formattedTrainers);
             const terrainsSheet = XLSX.utils.json_to_sheet(formattedTerrains);
             const sessionsSheet = XLSX.utils.json_to_sheet(formattedSessions);
 
-            // Création du classeur Excel
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, playersSheet, "Joueurs");
             XLSX.utils.book_append_sheet(workbook, trainersSheet, "Entraîneurs");
             XLSX.utils.book_append_sheet(workbook, terrainsSheet, "Terrains");
-            XLSX.utils.book_append_sheet(workbook, sessionsSheet, "Séances");
+            XLSX.utils.book_append_sheet(workbook, sessionsSheet, "Contraintes de session");
 
-            // Exportation du fichier Excel
             XLSX.writeFile(workbook, "donnees.xlsx");
+            alert("Téléchargement réussi !");
         } catch (error) {
             console.error("Erreur lors de l'exportation :", error);
         }

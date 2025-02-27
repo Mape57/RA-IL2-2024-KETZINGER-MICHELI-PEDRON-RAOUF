@@ -31,6 +31,10 @@ public class SessionService {
 		return sessionRepository.deleteSessionEntityById(id);
 	}
 
+	public void deleteAll() {
+		sessionRepository.deleteAll();
+	}
+
 	public SessionEntity getSessionById(UUID id) {
 		return sessionRepository.findById(id).orElse(null);
 	}

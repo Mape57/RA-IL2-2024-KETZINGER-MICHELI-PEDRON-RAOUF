@@ -5,7 +5,7 @@
         v-if="!isMobile"
         class="session-card bg-gray-50 border border-gray-300 rounded-lg p-4 shadow-sm mb-4 flex lg:flex-row items-center"
     >
-      <div class="text-custom-color font-bold text-lg lg:w-[15%] text-center lg:border-r border-gray-800 lg:pr-4 mb-4 lg:mb-0 flex flex-col justify-center items-center">
+      <div class="text-custom-color font-bold text-lg lg:w-[10%] text-center lg:border-r border-gray-800 lg:pr-4 mb-4 lg:mb-0 flex flex-col justify-center items-center">
         <p>{{ startTime }}</p>
         <p>{{ endTime }}</p>
       </div>
@@ -23,23 +23,22 @@
       </div>
 
       <div class="flex-1 pl-2 ml-0">
-        <span class="font-bold text-sm">Joueurs :</span>
         <div class="flex mt-1">
           <div class="pr-1">
             <ul class="list-disc list-inside text-sm text-gray-700">
-              <li v-for="(player, index) in players.slice(0, 4)" :key="index">{{ player }}</li>
+              <li v-for="(player, index) in firstHalfPlayers" :key="index">{{ player }}</li>
             </ul>
           </div>
 
           <div class="w-1/2 pl-2">
             <ul class="list-disc list-inside text-sm text-gray-700">
-              <li v-for="(player, index) in players.slice(4, 8)" :key="index">{{ player }}</li>
+              <li v-for="(player, index) in secondHalfPlayers" :key="index">{{ player }}</li>
             </ul>
           </div>
         </div>
       </div>
 
-      <div class="lg:w-[10%] flex justify-end">
+      <div class="lg:w-[10%] flex justify-end" v-if="userRole === 'ADMIN'">
 
         <button @click="$emit('delete')" class="delete-button">
           <span class="material-icons delete-icon">delete</span>
@@ -74,8 +73,7 @@
         </span>
       </div>
 
-      <div class="mt-1 flex justify-end">
-
+      <div class="mt-1 flex justify-end" v-if="userRole === 'ADMIN'">
         <button @click="$emit('delete')" class="delete-button">
           <span class="material-icons delete-icon">delete</span>
           <span class="delete-text">Supprimer</span>
@@ -115,12 +113,23 @@ export default {
       type: Array,
       required: true,
     },
+    userRole: String,
   },
   data() {
     return {
       isMobile: false,
       showInfo: false,
     };
+  },
+  computed: {
+    firstHalfPlayers() {
+      const half = Math.ceil(this.players.length / 2);
+      return this.players.slice(0, half);
+    },
+    secondHalfPlayers() {
+      const half = Math.ceil(this.players.length / 2);
+      return this.players.slice(half);
+    },
   },
   methods: {
     checkScreenSize() {

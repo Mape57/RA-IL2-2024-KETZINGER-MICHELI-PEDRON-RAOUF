@@ -72,6 +72,7 @@ export default {
     },
 
 
+
     async Connectlogin() {
       sessionStorage.removeItem("token"); // Supprime tout ancien token au chargement
 
@@ -82,10 +83,23 @@ export default {
 
       try {
         const response = await accountService.login(this.email, this.password);
-        console.log("Connexion réussie :", response.data);
-        accountService.saveToken(response.data.token);
-        this.$router.push('/admin'); // Redirection après connexion
-      } catch (error) {
+        if (response.token && response.role) {
+         accountService.saveToken(response.token);
+          sessionStorage.setItem("role", response.role);
+           const userRole = response.role.toUpperCase();
+         // this.$router.push('/admin'); // Redirection après connexion
+          if (userRole === "TRAINER") {
+            this.$router.push('/trainer');
+          } else if (userRole === "ADMIN") {
+            this.$router.push('/admin');
+          } else {
+            this.$router.push('/');
+          }
+        }
+        else {
+          console.error("Réponse invalide de l'API. Vérifiez votre backend.");
+        }
+      }catch (error) {
         console.error("Erreur lors de la connexion :", error.response?.data || error.message);
       }
     },

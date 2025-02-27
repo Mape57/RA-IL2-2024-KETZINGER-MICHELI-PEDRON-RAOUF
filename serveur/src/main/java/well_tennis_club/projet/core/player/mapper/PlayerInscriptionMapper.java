@@ -19,6 +19,7 @@ public interface PlayerInscriptionMapper {
 
 	@InheritInverseConfiguration
 	@Mapping(target = "validate", constant = "false")
+	@Mapping(target = "level", constant = "0L")
 	PlayerEntity mapToEntity(PlayerInscriptionDto dto);
 
 	List<PlayerInscriptionDto> mapToListDTO(List<PlayerEntity> entities);

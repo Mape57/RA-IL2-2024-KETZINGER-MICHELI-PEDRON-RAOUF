@@ -1,6 +1,6 @@
 // src/composables/useTrainers.js
 import { ref } from "vue";
-import trainersService from "../services/trainersService.js";
+import trainersService from "../services/TrainersService.js";
 
 export default function useTrainers() {
 	const trainers = ref([]);

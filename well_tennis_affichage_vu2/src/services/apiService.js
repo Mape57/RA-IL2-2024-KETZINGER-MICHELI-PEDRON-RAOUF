@@ -29,7 +29,7 @@ apiClient.interceptors.request.use(
 		const token = accountService.getToken();
 
 		// Liste des routes qui NE nécessitent PAS de token
-		const noAuthRoutes = ['/inscription'];
+		const noAuthRoutes = ['/inscription', '/inscription/verify'];
 
 		// Vérifier si l'URL actuelle est dans la liste des routes publiques
 		const isPublicRoute = noAuthRoutes.some(route => config.url.includes(route));
@@ -74,12 +74,12 @@ export default {
 		return apiClient.get(url);
 	},
 
-	post(url, data) {
-		return apiClient.post(url, data);
+	post(url, data, config = {}) {
+		return apiClient.post(url, data, config);
 	},
 
-	patch(url, data) {
-		return apiClient.patch(url, data);
+	put(url, data) {
+		return apiClient.put(url, data);
 	},
 
 	delete(url) {

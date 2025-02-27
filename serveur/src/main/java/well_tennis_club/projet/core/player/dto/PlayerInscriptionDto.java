@@ -38,12 +38,6 @@ public class PlayerInscriptionDto implements Serializable {
 	@Min(value = 1, message = "Le nombre de cours (courses) ne doit pas être inférieur à 1")
 	private Long courses;
 
-	@Schema(name = "level", example = "19")
-	@NotNull(message = "Le niveau (level) est obligatoire")
-	@Min(value = 0, message = "Le niveau (level) ne doit pas être inférieur à 0")
-	@Max(value = 19, message = "Le niveau (level) ne doit pas être supérieur à 19")
-	private Long level;
-
 	@Schema(name = "email", example = "example@mail.fr")
 	@NotBlank(message = "L'email (email) est obligatoire")
 	@Email(message = "L'email (email) doit avoir un format valide")

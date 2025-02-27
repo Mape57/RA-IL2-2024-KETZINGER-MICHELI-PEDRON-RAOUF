@@ -64,7 +64,7 @@ public class TrainerEntity implements Serializable {
 	@Column(name = "admin")
 	private boolean admin;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@Fetch(FetchMode.SELECT)
 	@JoinTable(
 			name = "disponibility_trainer",

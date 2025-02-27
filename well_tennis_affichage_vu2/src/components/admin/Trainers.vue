@@ -9,16 +9,13 @@
         <h3 class="font-bold text-lg trainer-title">Entraîneurs</h3>
       </div>
 
-      <!-- Boutons d'action -->
-      <div class="flex space-x-2" v-if="!localIsMobile">
-      <span class="material-symbols-outlined small-icon cursor-pointer"
-            title="Ajouter"
-            ref="addTrainerButton"
-            @click="addTrainer">
-        person_add
-      </span>
-      </div>
+      <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ADMIN'">
+          <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter" ref="addTrainerButton"
+                @click="addTrainer">
+            person_add
+          </span>
 
+    </div>
     </div>
 
     <!-- Contenu déroulant -->
@@ -30,6 +27,7 @@
         <div class="text-left">Niveau Min•Max</div>
         <div class="text-center">Âge Min•Max</div>
       </div>
+
       <div v-for="trainer in trainers"
            :key="trainer.id"
            class="grid grid-cols-4 items-center py-1"
@@ -41,13 +39,18 @@
         <span class="text-left">{{ trainer.infLevel }} - {{ trainer.supLevel }}</span>
         <span class="text-center">{{ trainer.infAge }} - {{ trainer.supAge }}</span>
       </div>
-      <TrainerInfoView v-if="selectedTrainer && !isMobile"
-                       :trainer="selectedTrainer"
-                       @close="selectedTrainer = null"
-                       @delete="handleTrainerDeletion"
-                       @save="handleTrainerSave"/>
+
+
+      <TrainerInfoView
+          v-if="selectedTrainer && !isMobile && userRole === 'ADMIN'"
+          :trainer="selectedTrainer"
+          @close="selectedTrainer = null"
+          @delete="handleTrainerDeletion"
+          @save="handleTrainerSave"
+      />
     </div>
   </div>
+
 </template>
 
 <script>
@@ -60,6 +63,7 @@ export default {
   props: {
     trainers: Array,
     isMobile: Boolean,
+    userRole: String,
   },
   setup() {
     const localIsMobile = ref(window.innerWidth < 768);
@@ -84,8 +88,7 @@ export default {
   data() {
     return {
       isOpen: true,
-      selectedTrainer: null, // Joueur sélectionné pour afficher les détails
-      isMobile: window.innerWidth < 768,
+      selectedTrainer: null,
     };
   },
   methods: {
@@ -105,14 +108,13 @@ export default {
       this.selectedTrainer = this.selectedTrainer?.id === trainer.id ? null : trainer;
     },
     handleTrainerDeletion(deletedTrainerId) {
+      if (this.userRole !== "ADMIN") return;
       this.$emit('update:trainers', this.trainers.filter(trainer => trainer.id !== deletedTrainerId));
       this.selectedTrainer = null;
     },
     handleTrainerSave(savedTrainer) {
-      if (!savedTrainer || typeof savedTrainer !== "object") {
-        console.error("Données invalides reçues dans handleTrainerSave :", savedTrainer);
-        return;
-      }
+      if (this.userRole !== "ADMIN") return;
+      if (!savedTrainer || typeof savedTrainer !== "object") return;
       const index = this.trainers.findIndex(t => t.id === savedTrainer.id);
       if (index !== -1) {
         // Mise à jour d'un joueur existant
@@ -137,8 +139,7 @@ export default {
       });
     },
     addTrainer() {
-      if (this.localIsMobile) return;
-      // Initialise un trainer vide
+      if (this.localIsMobile || this.userRole !== "ADMIN") return;
       this.selectedTrainer = {
         id: null, // Pas encore défini
         name: "",

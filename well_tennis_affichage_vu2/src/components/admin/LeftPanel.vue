@@ -29,7 +29,7 @@
       </div>
 
       <button
-          v-if="!isMobile"
+          v-if="userRole === 'ADMIN' && !isMobile"
           @click="selectTab('settings')"
           :class="{ active: selectedTab === 'settings' }"
           class="tab-button flex-grow flex items-center justify-center"
@@ -51,14 +51,25 @@
     <div class="content flex-1 overflow-auto p-4 w-full overflow-x-hidden">
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
-        <Trainers :trainers="trainers" @update:trainers="updateTrainers"/>
-        <Players :players="players" :searchQuery="searchQuery" @update:players="updatePlayers"/>
+        <Trainers
+            :trainers="trainers"
+            :isMobile="isMobile"
+            :userRole="userRole"
+            @update:trainers="userRole === 'ADMIN' ? updateTrainers : () => {}"
+        />
+        <Players
+            :players="players"
+            :searchQuery="searchQuery"
+            :isMobile="isMobile"
+            :userRole="userRole"
+            @update:players="userRole === 'ADMIN' ? updatePlayers : () => {}"
+        />
       </div>
 
       <!-- Onglet Contraintes -->
       <div v-if="selectedTab === 'constraints'">
-        <Terrains :terrains="terrains" />
-        <Session :sessions="sessions" />
+        <Terrains :terrains="terrains" :isMobile="isMobile" :userRole="userRole"/>
+        <Session :isMobile="isMobile" :userRole="userRole" />
       </div>
 
       <!-- Onglet Paramètres (masqué en mode mobile) -->
@@ -84,7 +95,7 @@
         </div>
         <button class="menu-item" @click="downloadXLS">
           <span class="material-symbols-outlined mr-2">calendar_today</span>
-          Planning - format XLS
+          Planning - format PDF
         </button>
 
         <button class="menu-item" @click="downloadCSV">
@@ -120,15 +131,20 @@ import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import useTerrain from "../../useJs/useTerrain.js";
 import useLeftPanel from "../../useJs/useLeftPanel.js";
 import usePlayers from "../../useJs/usePlayers";
+import useSessionConstraint from "../../useJs/useSessionConstraint.js";
 import PlayersService from "../../services/PlayersService.js";
 import ExportService from "../../functionality/ExportService";
 import ImportService from "../../functionality/ImportService";
+import ExportPdf from "../../functionality/ExportPdf";
+
 
 import Players from "./Players.vue";
 import Trainers from "./Trainers.vue";
 import Terrains from "./Terrain.vue";
 import Session from "./Session.vue";
 import PlayerNot from "../vueInformations/PlayerNot.vue";
+
+
 
 export default {
   name: "LeftPanel",
@@ -141,6 +157,7 @@ export default {
   },
   props: {
     isMobile: Boolean,
+    userRole: String,
   },
   setup(props) {
     const localIsMobile = ref(props.isMobile);
@@ -241,10 +258,6 @@ export default {
   data() {
     return {
       isTablet: false,
-      sessions: [
-        {title: "3 à 4 ans", age: "3 - 4", effective: "4 - 6", duration: 1, sessions_level: "0 - 7"},
-        {title: "5 à 7 ans", age: "5 - 7", effective: "6 - 8", duration: 1.5, sessions_level: "1 - 10"},
-      ],
     };
   },
 
@@ -262,17 +275,35 @@ export default {
       }
     },
 
-    downloadXLS() {
-      alert("Téléchargement de planning XLS");
+    async downloadXLS() {
+      try {
+        await ExportPdf.generateSessionsPdf();
+        console.log("Exportation PDF réussie !");
+      } catch (error) {
+        console.error("Erreur lors de l'exportation du PDF :", error);
+      }
     },
+    
     async downloadCSV() {
-      await ExportService.downloadCSV(this.players, this.trainers, this.terrains, this.sessions);
+        const { sessionConstraints, fetchSessionConstraints } = useSessionConstraint();
+        await fetchSessionConstraints();
+        await ExportService.downloadCSV(this.players, this.trainers, this.terrains, sessionConstraints.value);
     },
+
     sendReinscriptionMail() {
       alert("Envoi du mail de réinscription !");
     },
-    deleteAllPlayers() {
-      alert("Suppression de tous les joueurs !");
+    async deleteAllPlayers() {
+      if (confirm("Êtes-vous sûr de vouloir supprimer tous les joueurs ?")) {
+        try {
+          await PlayersService.deleteAllPlayers(); // Suppression via l'API
+          this.players = []; // Mise à jour de la liste après suppression
+          alert("Tous les joueurs ont été supprimés avec succès !");
+        } catch (error) {
+          console.error("Erreur lors de la suppression des joueurs :", error);
+          alert("Une erreur s'est produite lors de la suppression.");
+        }
+      }
     },
     checkScreenSize() {
       clearTimeout(this.resizeTimeout);
