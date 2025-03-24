@@ -18,6 +18,10 @@ import well_tennis_club.projet.core.player.entity.PlayerEntity;
 import well_tennis_club.projet.core.player.service.PlayerService;
 import well_tennis_club.projet.core.session.SessionEntity;
 import well_tennis_club.projet.core.session_constraint.SessionConstraintEntity;
+import well_tennis_club.projet.core.solver.dto.JustificationsDto;
+import well_tennis_club.projet.core.solver.dto.PlayerJustificationsDto;
+import well_tennis_club.projet.core.solver.dto.SessionJustificationsDto;
+import well_tennis_club.projet.core.solver.dto.TrainerJustificationsDto;
 import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
 import well_tennis_club.projet.core.trainer.service.TrainerService;
 import well_tennis_club.projet.tool.DataInsertion;
@@ -47,6 +51,9 @@ public class SolverController {
 	private SolverManager<Timetable, UUID> solverManager;
 	private SolutionManager<Timetable, HardSoftScore> solutionManager;
 
+	private UUID problemId;
+	private Timetable timetable;
+
 	@Autowired
 	public SolverController(TimetableFactory timetableFactory, TimetableService timetableService,
 							PlayerService playerService, CourtService courtService, TrainerService trainerService,
@@ -59,9 +66,6 @@ public class SolverController {
 		this.solverManager = solverManager;
 		this.solutionManager = solutionManager;
 	}
-
-	private UUID problemId;
-	private Timetable timetable;
 
 	@Operation(summary = "Start the timetable solver", description = "Start the timetable solver")
 	@ApiResponses(value = {
@@ -106,6 +110,37 @@ public class SolverController {
 		} else {
 			return ResponseEntity.ok("Solver running, current score: " + timetable.getScore());
 		}
+	}
+
+	@GetMapping("/justifications")
+	public ResponseEntity<List<JustificationsDto>> justifications() {
+		List<JustificationsDto> justificationsDtos = new ArrayList<>();
+		TrainerEntity trainerEntity = trainerService.getTrainerByEmail("matheo.pedron214@gmail.com");
+
+		CourtEntity courtEntity = new CourtEntity();
+		courtEntity.setName("Terrain 1");
+
+		SessionEntity sessionEntity = new SessionEntity();
+		sessionEntity.setId(UUID.randomUUID());
+		sessionEntity.setDayWeek(1);
+		sessionEntity.setStart("10:00");
+		sessionEntity.setStop("11:00");
+		sessionEntity.setIdCourt(courtEntity);
+
+		TrainerJustificationsDto trainerJustificationsDto = new TrainerJustificationsDto(trainerEntity);
+		trainerJustificationsDto.addUnavailability(sessionEntity);
+		justificationsDtos.add(trainerJustificationsDto);
+
+		SessionJustificationsDto sessionJustificationsDto = new SessionJustificationsDto(sessionEntity);
+		sessionJustificationsDto.addJustification("Le niveau dépasse de 3.", "3 légères");
+		sessionJustificationsDto.addJustification("L'âge dépasse de 1 an.", "1 légère");
+		justificationsDtos.add(sessionJustificationsDto);
+
+		PlayerJustificationsDto playerJustificationsDto = new PlayerJustificationsDto(playerService.getAllPlayers().getFirst());
+		playerJustificationsDto.addSessionPerDay(sessionEntity);
+		justificationsDtos.add(playerJustificationsDto);
+
+		return ResponseEntity.ok(justificationsDtos);
 	}
 
 	public void saveTimetable() {
