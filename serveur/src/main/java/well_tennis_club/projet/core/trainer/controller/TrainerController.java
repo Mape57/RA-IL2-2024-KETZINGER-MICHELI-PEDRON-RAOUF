@@ -262,8 +262,9 @@ public class TrainerController {
 					)
 			)
 	})
-	@PostMapping("/resetPassword")
+	@PostMapping("/reset-password")
 	public ResponseEntity<Void> resetPassword(@RequestBody String trainerMail) {
+		System.out.println("Received mail: '" + trainerMail + "'");
 		TrainerEntity trainer = trainerService.getTrainerByEmail(trainerMail);
 		if (trainer == null) {
 			throw new IdNotFoundException("Pas d'entraîneur avec cet email");
@@ -301,7 +302,7 @@ public class TrainerController {
 					)
 			)
 	})
-	@PatchMapping("/changePassword")
+	@PatchMapping("/change-password")
 	public ResponseEntity<Void> changePassword(@RequestBody PasswordResetDto passwordResetDto) {
 		if (!passwordResetDto.getPassword().equals(passwordResetDto.getConfirmPassword())) {
 			throw new PasswordNotMatching("Les mots de passe ne correspondent pas");
