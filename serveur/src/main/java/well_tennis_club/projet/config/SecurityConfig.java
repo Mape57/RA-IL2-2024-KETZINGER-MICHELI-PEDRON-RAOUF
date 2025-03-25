@@ -59,7 +59,11 @@ public class SecurityConfig {
 								.requestMatchers("/openapi/v3/api-docs/**", "/openapi/swagger-ui/**", "/ws/**",
 										"/auth/*", "/inscription", "/inscription/verify", "/trainers/change-password",
 										"/trainers/reset-password").permitAll()
-								.anyRequest().authenticated())
+								.requestMatchers(HttpMethod.GET, "/trainers").hasAnyRole("TRAINER", "ADMIN")
+								.requestMatchers(HttpMethod.GET, "/courts").hasAnyRole("TRAINER", "ADMIN")
+								.requestMatchers(HttpMethod.GET, "/players").hasAnyRole("TRAINER", "ADMIN")
+								.requestMatchers(HttpMethod.GET, "/sessions").hasAnyRole("TRAINER", "ADMIN")
+								.anyRequest().hasRole("ADMIN"))
 				.cors(cors -> {
 				})
 				.addFilterBefore(new JwtFilter(connectionService, jwtUtils), UsernamePasswordAuthenticationFilter.class)

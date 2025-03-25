@@ -34,6 +34,6 @@ public class ConnectionService implements UserDetailsService {
 		} else {
 			role = "TRAINER";
 		}
-		return new User(trainer.getEmail(), trainer.getPassword(), Collections.singletonList(new SimpleGrantedAuthority(role)));
+		return new User(trainer.getEmail(), trainer.getPassword(), Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
 	}
 }
