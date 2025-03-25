@@ -89,6 +89,13 @@
           <input type="file" accept=".xlsx, .xls" @change="importCSV" class="hidden" />
         </label>
 
+        <div v-if="terrainErrors.length" class="bg-red-100 text-red-800 p-4 rounded mb-4">
+          <p class="font-semibold mb-2">Erreurs détectées lors de l'import :</p>
+          <ul class="list-disc list-inside text-sm">
+            <li v-for="(err, index) in terrainErrors" :key="index">{{ err }}</li>
+          </ul>
+        </div>
+
         <div class="py-2 font-bold text-gray-700 flex items-center">
           <span class="material-symbols-outlined mr-2">download</span>
           Télécharger vos données
@@ -164,6 +171,8 @@ export default {
     const isTablet = ref(false);
     const selectedPlayer = ref(null);
     const showPendingPlayers = ref(false);
+    const terrainErrors = ref([]);
+
 
     watch(() => props.isMobile, (newVal) => {
       localIsMobile.value = newVal;
@@ -242,6 +251,7 @@ export default {
       showPendingPlayers,
       terrains,
       selectedPlayer,
+      terrainErrors,
       showPlayerDetails,
       fetchTrainers,
       fetchPlayers,
@@ -269,9 +279,18 @@ export default {
         return;
       }
       try {
-        await ImportService.importExcel(file);
+        const result = await ImportService.importExcel(file);
+        this.terrainErrors = result.terrainErrors || [];
+        if (this.terrainErrors.length > 0) {
+          this.selectTab('settings');
+        }
+
       } catch (error) {
         console.error("Erreur lors de l'importation :", error);
+        this.terrainErrors = [
+          "Une erreur est survenue pendant l'importation.",
+          error.message || ""
+        ];
       }
     },
 

@@ -84,7 +84,7 @@
 
     <!-- Mode Bureau -->
     <div v-else class="flex flex-col flex-1 w-full h-full overflow-x-hidden">
-      <div class="flex items-center justify-center p-2 bg-white border-b border-gray-300 w-full overflow-x-hidden">
+      <div class="flex items-center justify-center p-2 bg-white border-b border-gray-300 w-full overflow-x-hidden relative">
         <div class="flex justify-center space-x-4">
           <button
               v-for="terrain in sortedTerrains"
@@ -106,6 +106,56 @@
             <span class="material-symbols-outlined text-base ml-1">tune</span>
           </button>
         </div>
+
+        <teleport to="body">
+          <div
+              v-if="showFilterPopup"
+              class="fixed top-[65px] right-[40px] w-80 bg-white shadow-lg rounded-xl p-4 z-[9999] border border-gray-200"
+          >
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Filtrer Sessions</h3>
+
+            <div class="space-y-3">
+              <input
+                  type="text"
+                  v-model="trainerSearchQuery"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Nom de l'entraîneur"
+              />
+              <input
+                  type="text"
+                  v-model="playerSearchQuery"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Nom du joueur"
+              />
+              <input
+                  type="number"
+                  v-model="selectedLevel"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Niveau"
+              />
+              <input
+                  type="number"
+                  v-model="selectedAge"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Âge"
+              />
+            </div>
+
+            <div class="flex justify-end mt-4">
+              <button
+                  @click="showAllSessions"
+                  class="px-4 py-1 rounded-md text-white bg-green-700 hover:bg-green-800 text-sm"
+              >
+                Réinitialiser
+              </button>
+            </div>
+          </div>
+        </teleport>
+
       </div>
 
       <!-- Contenu principal -->
@@ -133,6 +183,8 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import SessionCard from "./SessionCard.vue";
 import terrainService from "../../services/TerrainService";
 import sessionsService from "../../services/SessionService";
+import trainerService from "../../services/TrainersService";
+import playerService from "../../services/PlayersService";
 
 export default {
   name: "RightPanel",
@@ -147,7 +199,14 @@ export default {
   setup() {
     const terrains = ref([]);
     const sessions = ref([]);
+    const trainers = ref([]);
+    const players = ref([]);
     const selectedTerrain = ref(null);
+    const trainerSearchQuery = ref("");
+    const playerSearchQuery = ref("");
+    const selectedLevel = ref(null);
+    const selectedAge = ref(null);
+    const showFilterPopup = ref(false);
     const windowWidth = ref(window.innerWidth);
 
     // Détection du mode mobile
@@ -168,6 +227,10 @@ export default {
 
       sessions.value
           .filter((session) => session.idCourt?.id === selectedTerrain.value)
+          .filter((session) => !trainerSearchQuery.value || session.idTrainer?.name.toLowerCase().includes(trainerSearchQuery.value.toLowerCase()) || session.idTrainer?.surname.toLowerCase().includes(trainerSearchQuery.value.toLowerCase()))
+          .filter((session) => !playerSearchQuery.value || session.players.some(player => player.name.toLowerCase().includes(playerSearchQuery.value.toLowerCase()) || player.surname.toLowerCase().includes(playerSearchQuery.value.toLowerCase())))
+          .filter((session) => !selectedLevel.value || (session.idTrainer?.infLevel <= selectedLevel.value && session.idTrainer?.supLevel >= selectedLevel.value))
+          .filter((session) => !selectedAge.value || (session.idTrainer?.infAge <= selectedAge.value && session.idTrainer?.supAge >= selectedAge.value))
           .forEach((session) => {
             const dayIndex = session.dayWeek - 1; // Convertit 1-7 en index 0-6
             if (daysOfWeek[dayIndex]) {
@@ -186,14 +249,17 @@ export default {
     // Récupération des terrains et sessions depuis l'API
     const loadTerrainsAndSessions = async () => {
       try {
-        const [terrainResponse, sessionResponse] = await Promise.all([
+        const [terrainResponse, sessionResponse, trainerResponse, playerResponse] = await Promise.all([
           terrainService.getAllTerrain(),
           sessionsService.getAllSessions(),
+          trainerService.getAllTrainers(),
+          playerService.getAllPlayers(),
         ]);
 
         terrains.value = terrainResponse.data;
         sessions.value = sessionResponse.data;
-
+        trainers.value = trainerResponse.data;
+        players.value = playerResponse.data;
 
         selectedTerrain.value = sortedTerrains.value[0]?.id || null;
       } catch (error) {
@@ -212,6 +278,45 @@ export default {
       windowWidth.value = window.innerWidth;
     };
 
+    const openFilter = () => {
+      showFilterPopup.value = !showFilterPopup.value;
+    };
+
+    const closeFilterPopup = () => {
+      showFilterPopup.value = false;
+    };
+    const filterSessions = () => {
+    };
+    const showAllSessions = () => {
+      trainerSearchQuery.value = "";
+      playerSearchQuery.value = "";
+      selectedLevel.value = null;
+      selectedAge.value = null;
+    };
+
+    const sessionLevels = computed(() => {
+      const levels = new Set();
+      sessions.value.forEach(session => {
+        if (session.idTrainer) {
+          levels.add(JSON.stringify({
+            infLevel: session.idTrainer.infLevel,
+            supLevel: session.idTrainer.supLevel
+          }));
+        }
+      });
+      return Array.from(levels).map(level => JSON.parse(level)).sort((a, b) => a.infLevel - b.infLevel);
+    });
+
+    const sessionAges = computed(() => {
+      const ages = new Set();
+      sessions.value.forEach(session => {
+        if (session.idTrainer) {
+          ages.add(session.idTrainer.age);
+        }
+      });
+      return Array.from(ages).sort((a, b) => a - b);
+    });
+
     onMounted(() => {
       loadTerrainsAndSessions();
       window.addEventListener("resize", updateWindowSize);
@@ -224,12 +329,25 @@ export default {
     return {
       terrains,
       sessions,
+      trainers,
+      players,
       selectedTerrain,
+      trainerSearchQuery,
+      playerSearchQuery,
+      selectedLevel,
+      selectedAge,
+      sessionLevels,
+      sessionAges,
       sortedTerrains,
       sessionsByDay,
+      showAllSessions,
       isMobile,
       isTablet,
       selectTerrain,
+      openFilter,
+      closeFilterPopup,
+      showFilterPopup,
+      filterSessions,
     };
   },
 };
@@ -264,6 +382,26 @@ export default {
 button:focus {
   outline: none;
   box-shadow: none;
+}
+
+button {
+  padding: 10px 16px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.popup-content h3 {
+  margin-bottom: 10px;
+}
+
+.popup-content select {
+  margin-bottom: 10px;
+}
+
+select:focus {
+  outline: none;
 }
 
 select {

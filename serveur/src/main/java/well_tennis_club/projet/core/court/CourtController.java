@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import well_tennis_club.projet.core.court.dto.CourtDto;
 import well_tennis_club.projet.core.court.dto.PutCourtDto;
 import well_tennis_club.projet.core.court.mapper.CourtMapper;
@@ -18,6 +19,7 @@ import well_tennis_club.projet.core.court.mapper.PutCourtMapper;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -99,5 +101,43 @@ public class CourtController {
 			court = courtService.updateCourt(court);
 			return ResponseEntity.ok(CourtMapper.INSTANCE.mapToDTO(court));
 		}
+	}
+
+	// ========================= POST ========================= //
+	@Operation(
+			summary = "Crée un terrain de tennis",
+			description = "Crée un terrain de tennis avec les informations fournies",
+			security = @SecurityRequirement(name = "bearerAuth")
+	)
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "201",
+					description = "Création réussie",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = CourtDto.class)
+					)
+			),
+			@ApiResponse(
+					responseCode = "400",
+					description = "Le DTO est mal formé",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			)
+	})
+	@PostMapping
+	public ResponseEntity<CourtDto> createCourt(@Valid @RequestBody PutCourtDto courtDto) {
+		CourtEntity court = PutCourtMapper.INSTANCE.mapToEntity(courtDto);
+		court = courtService.createCourt(court);
+
+		URI location = ServletUriComponentsBuilder
+				.fromCurrentRequest()
+				.path("/{id}")
+				.buildAndExpand(court.getId())
+				.toUri();
+
+		return ResponseEntity.created(location).body(CourtMapper.INSTANCE.mapToDTO(court));
 	}
 }
