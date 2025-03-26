@@ -2,7 +2,7 @@ import apiService from "./apiService.js";
 
 export default {
 	startSolver() {
-		return apiService.post('/solver');
+		return apiService.post('/solver', {});
 	},
 
 	stopSolver() {
@@ -16,4 +16,8 @@ export default {
 	saveSolver() {
 		return apiService.getData('/solver/save');
 	},
+
+	justifications() {
+		return apiService.getData('/solver/justifications');
+	}
 }

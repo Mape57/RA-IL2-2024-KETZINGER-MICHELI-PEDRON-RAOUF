@@ -41,10 +41,21 @@ export default function useSolver() {
 		}
 	}
 
+	const solverJustifications = async () => {
+		try {
+			const response = await solverService.justifications();
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de la récupération des justifications du solveur :", error.response?.data || error.message);
+			throw error;
+		}
+	}
+
 	return {
 		startSolver,
 		stopSolver,
 		statusSolver,
-		saveSolver
+		saveSolver,
+		solverJustifications
 	}
 }

@@ -15,14 +15,10 @@
           Lancer
         </button>
 
-        <!-- Bouton "Envoyer les modifications" -->
-        <button
-            @click="submitChanges"
-            class="bg-white text-[#528359] py-1.5 px-3 rounded-md flex items-center border border-[#528359] text-sm hover:bg-[#e6f4eb] transition"
-        >
-          <span class="material-symbols-outlined mr-1 text-base">event_repeat</span>
-          Recharger les modifications
-        </button>
+        <!-- Bouton "Valider la génération" -->
+        <ValidationPopup>
+
+        </ValidationPopup>
       <!-- Statut ou alerte (centré) -->
       <div v-if="statusMessage" class="flex items-center text-[#d97706] flex-1 justify-center tablet:order-2">
         <span class="material-symbols-outlined mr-1 text-lg">warning</span>
@@ -44,18 +40,26 @@
 
     </div>
   </div>
+
+  <ValidationPopup
+      v-if="showValidationPopup"
+      @close="showValidationPopup = false"
+  />
 </template>
 
 <script>
 import useSolver from "../../useJs/useSolver.js";
-import RightPanel from "../terrains/RightPanel.vue";
+import PlayerInfoView from "../vueInformations/PlayerInfoView.vue";
+import ValidationPopup from "../generationValidation/ValidationPopup.vue";
 
 export default {
   name: "BottomPanel",
+  components: {ValidationPopup, PlayerInfoView},
   data() {
     return {
       running: false,
       statusMessage: "",
+      showValidationPopup: false,
     }
   },
   methods: {
@@ -68,14 +72,8 @@ export default {
       }
       this.running = !this.running;
     },
-    submitChanges() {
-      const { saveSolver, statusSolver } = useSolver();
-      saveSolver().then(() => {
-        this.$emit("refreshContent");
-        statusSolver().then((status) => {
-          this.statusMessage = status;
-        });
-      });
+    toggleValidationPopup() {
+      this.showValidationPopup = true;
     },
     sendSchedule() {
       this.$emit("sendSchedule");
