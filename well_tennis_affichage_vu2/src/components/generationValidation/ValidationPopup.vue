@@ -7,17 +7,17 @@
     Valider la génération
   </button>
   <Teleport to="body">
-    <div v-if="open" class="modal">
-      <div class="modal-dialog">
-        <div class="modal-header">
+    <div v-if="open" class="popup">
+      <div>
+        <div class="popup-header">
           <h2>Validation de la génération</h2>
-          <button @click="open = false" class="close-button">
+          <button @click="open=false" class="close-button">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
 
-        <div class="modal-content">
-          <div v-for="(justification, index) in justifications" :key="index" class="justification-item">
+        <div class="popup-content">
+          <div v-for="(justification, index) in justifications" :key="index">
             <PlayerValidation
                 v-if="justification.type === 'PLAYER'"
                 :justification="justification"
@@ -31,15 +31,6 @@
                 :justification="justification"
             />
           </div>
-        </div>
-
-        <div class="modal-footer">
-          <button
-              @click="open = false"
-              class="bg-[#528359] text-white py-1.5 px-4 rounded-md hover:bg-[#456c4c] transition"
-          >
-            Fermer
-          </button>
         </div>
       </div>
     </div>
@@ -66,8 +57,8 @@ watch(open, async (isOpen) => {
 
 </script>
 
-<style scoped>
-.modal {
+<style>
+.popup {
   position: fixed;
   z-index: 1500;
   top: 0;
@@ -78,72 +69,140 @@ watch(open, async (isOpen) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  
+  > div {
+    width: 60%;
+    height: 70%;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 }
 
-.modal-dialog {
-  width: 60%;
-  height: 70%;
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.modal-header {
+.popup-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
   border-bottom: 1px solid #e2e8f0;
+
+  > h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2F855A;
+    margin: 0;
+  }
 }
 
-.modal-header h2 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #2F855A;
-  margin: 0;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #4A5568;
-}
-
-.close-button:hover {
-  color: #2F855A;
-}
-
-.modal-content {
+.popup-content {
   padding: 1rem;
   overflow-y: auto;
   flex: 1;
+
+  > * {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  > *:last-child {
+    border-bottom: none;
+  }
 }
 
-.justification-item {
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.justification-item:last-child {
-  border-bottom: none;
-}
-
-.modal-footer {
-  padding: 1rem;
+.selecteur {
   display: flex;
-  justify-content: flex-end;
-  border-top: 1px solid #e2e8f0;
+  align-items: center;
+  cursor: pointer;
+  color: #1A4220;
+
+  > .checkbox-icon {
+    padding-right: 0.5rem;
+    font-size: 1.25rem;
+    color: inherit;
+  }
+
+  > span {
+    width: 100%;
+    cursor: pointer;
+    color: inherit;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
 }
 
-@media (max-width: 768px) {
-  .modal-dialog {
-    width: 95%;
-    max-height: 90vh;
+.icon-placeholder {
+  width: 1.75rem;
+  flex-basis: 1.75rem;
+}
+
+.checkbox-icon {
+  padding-right: 0.5rem;
+  font-size: 1.25rem;
+  color: #AAB7AC;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  > span:not(.checkbox-icon) {
+    color: #AAB7AC;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:nth-child(2) {
+      flex: 1;
+    }
+  }
+}
+
+.validation {
+  padding: 0 1rem;
+
+  > h3 {
+    font-size: 1.2rem;
+    padding-bottom: 0.5rem;
+  }
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 3rem;
+
+    .validation-left {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      justify-content: space-between;
+
+      .information-split {
+        display: flex;
+
+        &.smaller {
+          justify-content: space-between;
+          gap: 1rem;
+          align-items: flex-end;
+        }
+
+        &:not(.smaller) > * {
+          flex: 1;
+        }
+      }
+    }
+
+    .validation-right > :not(:last-child) {
+      padding-bottom: 0.5rem;
+    }
+
+    > * {
+      flex: 1;
+    }
   }
 }
 </style>

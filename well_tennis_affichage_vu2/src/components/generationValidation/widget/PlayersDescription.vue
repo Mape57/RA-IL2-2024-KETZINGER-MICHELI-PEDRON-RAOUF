@@ -1,19 +1,18 @@
 <template>
   <div>
-    <div class="player-selector-title">
+    <div class="title">
       <span
           v-if="players.length > 1"
-          class="material-symbols-outlined checkbox-icon group-checkbox"
+          class="material-symbols-outlined checkbox-icon"
           @click="toggleAll"
-          :style="{ color: '#AAB7AC' }"
       >
         {{
           allChecked ? 'check_box' : someChecked && !allChecked ? 'indeterminate_check_box' : 'check_box_outline_blank'
         }}
       </span>
-      <span v-else class="checkbox-placeholder"></span>
-      <label class="group-label" @click="toggleAll">Joueurs</label>
-      <label class="group-label" @click="toggleAll">Âge • Niveau</label>
+      <span v-else class="icon-placeholder"></span>
+      <span @click="toggleAll">Joueurs</span>
+      <span @click="toggleAll">Âge • Niveau</span>
     </div>
     <PlayerSelector
         v-for="(player, index) in players"
@@ -67,30 +66,3 @@ export default {
   }
 };
 </script>
-
-<style>
-.player-selector-title {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  color: #AAB7AC;
-}
-
-.checkbox-icon.group-checkbox {
-  padding-right: 0.5rem;
-  font-size: 1.25rem;
-}
-
-.checkbox-placeholder {
-  width: 1.75rem; /* Accounts for icon width + padding-right */
-}
-
-.group-label {
-  font-weight: bold;
-  cursor: pointer;
-
-  &:not(:last-child) {
-    flex: 1;
-  }
-}
-</style>

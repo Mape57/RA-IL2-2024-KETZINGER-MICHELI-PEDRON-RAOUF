@@ -1,10 +1,10 @@
 <template>
-  <div class="trainer-validation">
+  <div class="validation">
     <h3>Validation de l'entraîneur {{ justification.trainer.name }} {{ justification.trainer.surname }}</h3>
-    <div class="trainer-validation-data">
-      <div class="trainer-information">
+    <div>
+      <div class="validation-left">
         <div>
-          <div class="trainer-info">
+          <div class="information-split">
             <p>Préf. âge : {{ justification.trainer.infLevel }}-{{ justification.trainer.supLevel }}</p>
             <p>Préf. niveau : {{ justification.trainer.infAge }}-{{ justification.trainer.supAge }}</p>
           </div>
@@ -15,7 +15,7 @@
         </button>
 
       </div>
-      <div class="trainer-sessions">
+      <div class="validation-right">
         <GroupSessionSelector v-if="justification.unavailabilities.length" :title="'Indisponibilités'"
                               :sessions="justification.unavailabilities"></GroupSessionSelector>
         <GroupSessionSelector v-if="justification.overlappingSessions.length" :title="'Session en simultanée'"
@@ -45,43 +45,3 @@ export default {
   }
 };
 </script>
-
-<style>
-h3 {
-  font-size: 1.2rem;
-  padding-bottom: 0.5rem;
-}
-
-.trainer-validation {
-  padding: 0 1rem;
-}
-
-.trainer-validation-data {
-  display: flex;
-  justify-content: space-between;
-  gap: 3rem;
-
-  > * {
-    flex: 1;
-  }
-}
-
-.trainer-information {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  justify-content: space-between;
-}
-
-.trainer-info {
-  display: flex;
-
-  > * {
-    flex: 1;
-  }
-}
-
-.trainer-sessions > :not(:last-child) {
-  padding-bottom: 0.5rem;
-}
-</style>

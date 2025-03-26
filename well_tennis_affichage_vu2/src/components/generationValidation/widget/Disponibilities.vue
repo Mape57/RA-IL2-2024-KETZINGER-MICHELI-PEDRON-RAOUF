@@ -24,8 +24,8 @@ export default {
 </script>
 
 <style>
-  ul {
-    list-style-type: disc;
-    padding-inline-start: 1.5em;
-  }
+ul {
+  list-style-type: disc;
+  padding-inline-start: 1.5em;
+}
 </style>
