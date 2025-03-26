@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="flex justify-between items-center cursor-pointer py-2 border-b" @click="toggleAccordion">
+    <div class="flex justify-between items-center cursor-pointer py-2 border-b"
+         @click="toggleAccordion"
+    >
       <div class="flex items-center trainer-hover">
        <span :class="{ 'rotate-180': isOpen }"
              class="material-symbols-outlined trainer-arrow transition-transform duration-300 mr-2">
@@ -28,7 +30,18 @@
         <div class="text-center">Âge Min•Max</div>
       </div>
 
-      <div v-for="trainer in trainers"
+      <VueDraggable
+          v-model="filteredTrainers"
+          :group="{ name: 'trainers', pull: 'clone', put: false }"
+          item-key="id"
+          :sort="false"
+          @start="onDragStart"
+          @end="onDragEnd"
+          class="trainer-list"
+      >
+
+
+      <div v-for="trainer in filteredTrainers"
            :key="trainer.id"
            class="grid grid-cols-4 items-center py-1"
            :class="{ 'cursor-pointer': !isMobile }"
@@ -39,6 +52,8 @@
         <span class="text-left">{{ trainer.infLevel }} - {{ trainer.supLevel }}</span>
         <span class="text-center">{{ trainer.infAge }} - {{ trainer.supAge }}</span>
       </div>
+
+      </VueDraggable>
 
 
       <TrainerInfoView
@@ -56,14 +71,16 @@
 <script>
 import {ref, onMounted, onUnmounted} from "vue";
 import TrainerInfoView from "../vueInformations/TrainerInfoView.vue";
+import {VueDraggable} from "vue-draggable-plus";
 
 export default {
   name: "Trainers",
-  components: {TrainerInfoView},
+  components: {VueDraggable, TrainerInfoView},
   props: {
     trainers: Array,
     isMobile: Boolean,
     userRole: String,
+    searchQuery: String,
   },
   setup() {
     const localIsMobile = ref(window.innerWidth < 768);
@@ -89,7 +106,17 @@ export default {
     return {
       isOpen: true,
       selectedTrainer: null,
+      draggedTrainer: null,
     };
+  },
+  computed: {
+    filteredTrainers() {
+    return this.trainers
+        .filter(trainer =>
+            trainer.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+            trainer.surname.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+    },
   },
   methods: {
     toggleAccordion(event) {
@@ -155,6 +182,17 @@ export default {
         disponibilities: [],
       }; // Ouvre TrainerInfoView avec ce nouveau joueur
     },
+    onDragStart(event) {
+      console.log('start')
+      this.draggedTrainer = event.item.element;
+    },
+    onDragEnd() {
+      console.log('update')
+      this.$emit("trainer-dragged", this.draggedTrainer);
+      this.draggedTrainer = null;
+    }
+
+
   },
 };
 </script>
@@ -210,6 +248,20 @@ export default {
 
 ::v-deep(.highlighted:hover) {
   background-color: lightyellow; /* Reste subtil au survol */
+}
+
+/* Ajout de styles pour indiquer les éléments glissables */
+.trainer-list li, .trainer-list > div {
+  cursor: grab;
+  transition: background-color 0.2s;
+}
+
+.trainer-list li:hover, .trainer-list > div:hover {
+  background-color: rgba(82, 131, 89, 0.1);
+}
+
+.trainer-list li:active, .trainer-list > div:active {
+  cursor: grabbing;
 }
 
 </style>

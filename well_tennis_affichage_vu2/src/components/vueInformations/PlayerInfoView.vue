@@ -79,8 +79,8 @@
 <script>
 import {ref, watch} from "vue";
 import usePlayers from "../../useJs/usePlayers.js";
-// import DisponibilityService from "../../services/DisponibilityService.js";
-// import DisponibilityPlayerService from "../../services/DisponibilityPlayerService.js";
+import {useSessionsStore} from "../../store/useSessionsStore.js";
+import {storeToRefs} from "pinia";
 
 export default {
   name: "PlayerInfoView",
@@ -96,6 +96,12 @@ export default {
     },
   },
   setup(props, {emit}) {
+    const sessionsStore = useSessionsStore();
+    const { sessions } = storeToRefs(sessionsStore);
+    const refreshSessions = sessionsStore.refreshSessions;
+
+
+
     const {computeAge, updatePlayer, createPlayer, deletePlayer} = usePlayers();
 
     const editablePlayer = ref({...props.player, disponibilities: [...(props.player.disponibilities || [])]});
@@ -185,6 +191,8 @@ export default {
           savedPlayer = await updatePlayer(playerData);
           alert("Joueur mis à jour avec succès !");
         }
+
+
 
         emit("save", savedPlayer);
         emit("close");

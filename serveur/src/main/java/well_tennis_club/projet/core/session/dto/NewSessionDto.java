@@ -44,7 +44,7 @@ public class NewSessionDto {
 	@Schema(name = "idTrainer", example = "1")
 	private UUID idTrainer;
 
-	@Schema(name = "players", example = "[1, 2, 3]")
+	@Schema(name = "players", example = "[6e0dc352-e17b-40ba-8cf5-1ea01d722984, e4ac2627-3bcf-4269-9db8-31004c6118a7, 1d4de1a6-ad6b-480f-a3d2-081163ef77c5]")
 	@NotNull(message = "La liste des joueurs (players) ne peut pas être nulle")
 	private List<UUID> playerIds;
 }

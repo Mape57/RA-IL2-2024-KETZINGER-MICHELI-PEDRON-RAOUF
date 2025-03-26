@@ -12,7 +12,28 @@
 
       <div class="w-[25%] h-[20%] lg:pl-2 mb-4 lg:mb-0 flex flex-col justify-center">
         <div class="mb-2">
-          <span class="font-bold text-sm">Entraîneur :</span> {{ coach }}
+          <div class="font-bold text-sm">Entraîneur : </div>
+
+
+          <VueDraggable
+              v-model="entraineur"
+              :group="{ name: 'coach', pull: false, put: ['trainers'] }"
+              item-key="idtrainer"
+              :sort="false"
+              class="pr-1 coach-area"
+              @add="onCoachDropped"
+              :move="moveValidator"
+          >
+            <div
+                v-if="entraineur.length"
+                :key="entraineur[0].id"
+            >
+              {{ entraineur[0].name }} {{ entraineur[0].surname }}
+            </div>
+            <div v-else class="italic text-gray-400">Aucun entraîneur</div>
+          </VueDraggable>
+
+
         </div>
         <div class="mb-2">
           <span class="font-bold text-sm">Âge :</span> {{ ageGroup }} ans
@@ -24,27 +45,52 @@
 
       <div class="flex-1 pl-2 ml-0">
         <div class="flex mt-1">
-          <div class="pr-1">
-            <ul class="list-disc list-inside text-sm text-gray-700">
-              <li v-for="(player, index) in firstHalfPlayers" :key="index">{{ player }}</li>
-            </ul>
-          </div>
 
-          <div class="w-1/2 pl-2">
-            <ul class="list-disc list-inside text-sm text-gray-700">
-              <li v-for="(player, index) in secondHalfPlayers" :key="index">{{ player }}</li>
-            </ul>
-          </div>
+          <VueDraggable
+              v-model="leftPlayers"
+              :group="{ name: 'players', pull: true, put: true }"
+              item-key="id"
+              :sort="false"
+              class="pr-1 players-area"
+              @end="onDragEnd"
+              @add="onPlayerAdded"
+              @remove="onPlayerRemoved"
+          >
+            <template v-for="(player, index) in leftPlayers" :key="player.id || index">
+              <li class="list-disc list-inside text-sm text-gray-700">
+                {{ player.name }} {{ player.surname }}
+              </li>
+            </template>
+          </VueDraggable>
+
+
+
+          <VueDraggable
+              v-model="rightPlayers"
+              :group="{ name: 'players', pull: true, put: true }"
+              item-key="id"
+              :sort="false"
+              class="pl-2 players-area"
+              @end="onDragEnd"
+              @add="onPlayerAdded"
+              @remove="onPlayerRemoved"
+          >
+            <template v-for="(player, index) in rightPlayers" :key="player.id || index">
+              <li class="list-disc list-inside text-sm text-gray-700">
+                {{ player.name }} {{ player.surname }}
+              </li>
+            </template>
+          </VueDraggable>
+
         </div>
       </div>
 
-      <div class="lg:w-[10%] flex justify-end" v-if="userRole === 'ADMIN'">
 
+      <div class="lg:w-[10%] flex justify-end" v-if="userRole === 'ADMIN'">
         <button @click="$emit('delete')" class="delete-button">
           <span class="material-icons delete-icon">delete</span>
           <span class="delete-text">Supprimer</span>
         </button>
-
 
 
       </div>
@@ -86,9 +132,15 @@
 </template>
 
 <script>
+import {VueDraggable} from "vue-draggable-plus";
+import {watchEffect} from "vue";
+
 export default {
+  components: {VueDraggable},
   name: "SessionCard",
+  emits: ["update-players", "delete", "player-removed","update-coach"],
   props: {
+    sessionId: String,
     startTime: {
       type: String,
       required: true,
@@ -98,8 +150,9 @@ export default {
       required: true,
     },
     coach: {
-      type: String,
-      required: true,
+      type: Object,
+      required: false,
+      default: null
     },
     ageGroup: {
       type: String,
@@ -117,31 +170,119 @@ export default {
   },
   data() {
     return {
+      entraineur: [],
       isMobile: false,
       showInfo: false,
+      leftPlayers: [],
+      rightPlayers: [],
+      lastRemovedPlayer: null,
     };
   },
-  computed: {
-    firstHalfPlayers() {
-      const half = Math.ceil(this.players.length / 2);
-      return this.players.slice(0, half);
-    },
-    secondHalfPlayers() {
-      const half = Math.ceil(this.players.length / 2);
-      return this.players.slice(half);
-    },
+  mounted() {
+    this.checkScreenSize();
+    window.addEventListener("resize", this.checkScreenSize);
+
+    watchEffect(() => {
+      if (this.players && this.players.length) {
+        const half = Math.ceil(this.players.length / 2);
+        this.leftPlayers = this.players.slice(0, half);
+        this.rightPlayers = this.players.slice(half);
+      }
+      if (this.coach) {
+        this.entraineur = [this.coach];
+      } else {
+        this.entraineur = [];
+      }
+    });
+  },
+  beforeDestroy() {
+    window.removeEventListener("resize", this.checkScreenSize);
   },
   methods: {
     checkScreenSize() {
       this.isMobile = window.innerWidth <= 1024;
     },
-  },
-  mounted() {
-    this.checkScreenSize();
-    window.addEventListener("resize", this.checkScreenSize);
-  },
-  beforeDestroy() {
-    window.removeEventListener("resize", this.checkScreenSize);
+
+    moveValidator(evt) {
+      // Si on essaie de déposer dans la zone coach, vérifier que c'est bien un entraîneur
+      if (evt.to.classList.contains('coach-area')) {
+        // Vérifier que l'élément vient du groupe "trainers"
+        return evt.from.className.includes('trainer-list');
+      }
+      return true; // Autoriser tous les autres déplacements
+    },
+
+    onDragEnd(evt) {
+      // Combine left and right players to get complete list
+      const updatedPlayers = [...this.leftPlayers, ...this.rightPlayers];
+
+      // Emit event with session ID and updated players
+      this.$emit('update-players', {
+        sessionId: this.sessionId,
+        players: updatedPlayers
+      });
+    },
+
+    onPlayerAdded(evt) {
+      console.log("Player added to session", this.sessionId);
+      const updatedPlayers = [...this.leftPlayers, ...this.rightPlayers];
+
+      this.$emit('update-players', {
+        sessionId: this.sessionId,
+        players: updatedPlayers
+      });
+    },
+
+    onPlayerRemoved(evt) {
+      console.log("Player removed from session", this.sessionId);
+      const movedPlayerEl = evt.item;
+      const playerIndex = evt.oldIndex;
+
+      // Store information about the removed player for tracking
+      let removedPlayer;
+      if (evt.from.className.includes('pr-1')) {
+        // Player was from leftPlayers
+        removedPlayer = this.players[playerIndex];
+      } else {
+        // Player was from rightPlayers
+        const half = Math.ceil(this.players.length / 2);
+        removedPlayer = this.players[half + playerIndex];
+      }
+
+      if (removedPlayer) {
+        this.$emit('player-removed', {
+          player: removedPlayer,
+          fromSessionId: this.sessionId
+        });
+      }
+    },
+
+    onCoachDropped(evt) {
+      // Vérifier si l'élément déposé est bien un entraîneur
+      if (evt.from.className.includes('trainer-list')) {
+        let newCoach = null;
+        newCoach = this.entraineur[0];
+
+        if (newCoach && (newCoach.id)) {
+          this.$emit("update-coach", {
+            sessionId: this.sessionId,
+            coach: newCoach
+          });
+
+          console.log("Coach ajouté à la session:", newCoach);
+        } else {
+          console.warn("Coach drop event doesn't contain valid coach data", evt);
+        }
+      } else {
+        console.warn("Tentative de déposer un non-entraîneur dans la zone entraîneur");
+        if (this.coach) {
+          this.entraineur = [this.coach];
+        } else {
+          this.entraineur = [];
+        }
+      }
+    }
+
   },
 };
 </script>
@@ -190,6 +331,19 @@ export default {
   transform: scaleX(1);
 }
 
+/* Ajout de styles pour indiquer visuellement les zones de drop */
+.coach-area {
+  min-height: 2rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
 
+.coach-area:empty, .coach-area.sortable-drag-active {
+  background-color: rgba(82, 131, 89, 0.1);
+  border: 1px dashed #528359;
+}
 
+.players-area {
+  min-height: 2rem;
+}
 </style>

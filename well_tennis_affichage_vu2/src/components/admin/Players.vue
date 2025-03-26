@@ -33,24 +33,32 @@
         <div class="text-center">Niveau</div>
       </div>
 
+      <VueDraggable
+          v-model="filteredPlayers"
+          :group="{ name: 'players', pull: 'clone', put: false }"
+          item-key="id"
+          :sort="false"
+          @start="onDragStart"
+          @end="onDragEnd"
+      >
       <div
           v-for="player in filteredPlayers"
           :key="player.id"
           class="grid grid-cols-4 items-center py-1"
           :class="{ 'cursor-pointer': !isMobile }"
           :ref="'player-' + player.id"
-          @click="!isMobile && showPlayerInfo(player)"
-      >
+          @click="!isMobile && showPlayerInfo(player)">
 
-        <!-- Nom du joueur -->
-        <span>{{ player.name }}</span>
-        <!-- Prénom du joueur -->
-        <span class="text-left">{{ player.surname }}</span>
-        <!-- Âge du joueur -->
-        <span class="text-left">{{ computeAge(player.birthday) || "N/A" }} ans</span>
-        <!-- Niveau du joueur -->
-        <span class="text-center">{{ player.level }}</span>
-      </div>
+          <!-- Nom du joueur -->
+          <span>{{ player.name }}</span>
+          <!-- Prénom du joueur -->
+          <span class="text-left">{{ player.surname }}</span>
+          <!-- Âge du joueur -->
+          <span class="text-left">{{ computeAge(player.birthday) || "N/A" }} ans</span>
+          <!-- Niveau du joueur -->
+          <span class="text-center">{{ player.level }}</span>
+        </div>
+      </VueDraggable>
 
       <!-- Affichage de PlayerInfoView -->
       <PlayerInfoView
@@ -70,10 +78,11 @@
 import {ref, onMounted, onUnmounted} from "vue";
 import usePlayers from "../../useJs/usePlayers.js";
 import PlayerInfoView from "../vueInformations/PlayerInfoView.vue";
+import {VueDraggable} from "vue-draggable-plus";
 
 export default {
   name: "Players",
-  components: {PlayerInfoView},
+  components: {VueDraggable, PlayerInfoView },
   props: {
     players: Array,
     searchQuery: String,
@@ -97,15 +106,19 @@ export default {
       window.removeEventListener("resize", updateIsMobile);
     });
 
+
+
     return {
       computeAge,
       localIsMobile,
     };
   },
+
   data() {
     return {
       isOpen: true,
       selectedPlayer: null,
+      draggedPlayer: null, // Stocke le joueur en cours de drag
     };
   },
   computed: {
@@ -188,6 +201,15 @@ export default {
         disponibilities: [],
       };
     },
+    onDragStart(event) {
+      console.log('start')
+      this.draggedPlayer = event.item.element;
+    },
+    onDragEnd() {
+      console.log('update')
+      this.$emit("player-dragged", this.draggedPlayer);
+      this.draggedPlayer = null;
+    }
   },
 };
 </script>

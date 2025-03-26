@@ -1,7 +1,9 @@
-import { ref } from "vue";
+import {nextTick, ref, watchEffect} from "vue";
 import sessionsService from "../services/SessionService.js";
+import { defineStore } from "pinia";
 
-export default function useSessions() {
+
+export const useSessions = defineStore("sessions", () => {
     const sessions = ref([]);
 
     // Récupérer toutes les sessions
@@ -73,13 +75,12 @@ export default function useSessions() {
 
         return `${hours}h ${minutes}min`;
     };
-
     return {
         computeDuration,
         createSession,
         deleteSession,
         fetchSessions,
         sessions,
-        updateSession,
+
     };
-}
+});

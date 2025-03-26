@@ -1,15 +1,20 @@
 <template>
   <div>
     <!-- Conteneur principal -->
-    <div
-        class="flex justify-between items-center cursor-pointer py-2 border-b"
-        @click="toggleAccordion"
-    >
-      <div class="flex items-center terrain-hover">
-        <span :class="{ 'rotate-180': isOpen }" class="material-symbols-outlined terrain-arrow transition-transform duration-300 mr-2">
-          expand_more
-        </span>
-              <h3 class="font-bold text-lg terrain-title">Terrains</h3>
+    <div class="flex justify-between items-center py-2 border-b">
+      <div class="flex items-center terrain-hover cursor-pointer" @click="toggleAccordion">
+    <span :class="{ 'rotate-180': isOpen }" class="material-symbols-outlined terrain-arrow transition-transform duration-300 mr-2">
+      expand_more
+    </span>
+        <h3 class="font-bold text-lg terrain-title">Terrains</h3>
+      </div>
+
+      <div v-if="!localIsMobile && userRole === 'ADMIN'">
+    <span
+        class="material-symbols-outlined small-icon cursor-pointer text-black hover:text-green-800"
+        title="Ajouter un terrain"
+        @click="openCreateTerrain"
+    >add</span>
       </div>
     </div>
 
@@ -27,14 +32,17 @@
             <h4 class="font-semibold terrain-sub-title">{{ terrain.name }}</h4>
           </div>
           <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ADMIN'">
+              <span
+                  class="material-symbols-outlined small-icon cursor-pointer text-green-600 hover:text-green-800"
+                  title="Modifier le terrain"
+                  @click.stop="editTerrain(terrain)"
+              >edit</span>
+
             <span
-                class="material-symbols-outlined small-icon cursor-pointer"
-                @click="deleteTerrain(terrain.id)"
-            >delete</span
-            >
-            <span class="material-symbols-outlined small-icon cursor-pointer"
-            >playlist_add</span
-            >
+                class="material-symbols-outlined small-icon cursor-pointer text-red-600 hover:text-red-800"
+                title="Supprimer le terrain"
+                @click.stop="deleteTerrain(terrain.id)"
+            >delete</span>
           </div>
         </div>
 
@@ -46,7 +54,6 @@
               <th class="text-left">Jour</th>
               <th class="text-center">Ouverture</th>
               <th class="text-center">Fermeture</th>
-              <th class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -54,24 +61,63 @@
               <td>{{ convertDay(time.dayWeek)}}</td>
               <td class="text-center">{{ time.start }}</td>
               <td class="text-center">{{ time.stop }}</td>
-              <td class="text-center" v-if="!localIsMobile && userRole === 'ADMIN'">
-                  <span
-                      class="material-symbols-outlined small-icon cursor-pointer"
-                      @click="deleteSchedule(time.id)"
-                  >delete
-                  </span>
-              </td>
             </tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
+
+    <!-- Popup terrain (adapté visuellement à celui des Séances) -->
+    <div v-if="showTerrainPopup" class="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+      <div class="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-md max-h-[90vh] overflow-y-auto">
+        <h3 class="text-lg font-semibold mb-4 text-green-700 border-b pb-2">
+          {{ editTerrainMode ? 'Modifier le terrain' : 'Nouveau terrain' }}
+        </h3>
+
+        <!-- Formulaire -->
+        <form class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+          <!-- Nom -->
+          <div class="col-span-2">
+            <label class="block mb-1 font-medium">Nom du terrain</label>
+            <input v-model="terrainForm.name" type="text" class="input-style" />
+          </div>
+
+          <!-- Horaires (boucle) -->
+          <div class="col-span-2">
+            <label class="block mb-1 font-medium">Horaires</label>
+            <div v-for="(time, index) in terrainForm.times" :key="time.id" class="mb-2 border p-2 rounded">
+              <div class="flex gap-2 mb-1 items-center">
+                <select v-model="time.dayWeek" class="input-style w-full">
+                  <option disabled value="">-- Jour --</option>
+                  <option v-for="(day, idx) in daysOfWeek" :key="idx" :value="idx">{{ day }}</option>
+                </select>
+                <input type="time" v-model="time.start" class="input-style w-full" />
+                <input type="time" v-model="time.stop" class="input-style w-full" />
+                <button @click.prevent="removeTime(index)" class="text-red-600 hover:underline text-sm">Suppr</button>
+              </div>
+            </div>
+            <button @click.prevent="addTime" class="text-green-700 hover:underline text-sm mt-1">+ Ajouter un horaire</button>
+          </div>
+        </form>
+
+        <!-- Boutons -->
+        <div class="flex justify-end space-x-2 mt-6">
+          <button @click="cancelTerrainEdit" class="text-sm text-gray-600 hover:underline">Annuler</button>
+          <button @click="editTerrainMode ? submitEditedTerrain() : submitNewTerrain()"
+                  class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm font-medium">
+            {{ editTerrainMode ? 'Enregistrer' : 'Ajouter' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import useTerrain from "../../useJs/useTerrain";
 
 export default {
   name: "Terrains",
@@ -83,13 +129,141 @@ export default {
     userRole: String,
   },
   setup() {
+    const {
+      terrains,
+      fetchTerrains,
+      createTerrain,
+      updateTerrain,
+      deleteTerrain: deleteTerrainService,
+    } = useTerrain();
+
     const localIsMobile = ref(window.innerWidth < 768);
+
+    const isOpen = ref(true);
+    const openTerrains = ref([]);
+
+    const showTerrainPopup = ref(false);
+    const editTerrainMode = ref(false);
+    const editedTerrainId = ref(null);
+
+    const terrainForm = ref({
+      name: "",
+      times: [],
+    });
+
+    const daysOfWeek = [
+      "Lundi",
+      "Mardi",
+      "Mercredi",
+      "Jeudi",
+      "Vendredi",
+      "Samedi",
+      "Dimanche",
+    ];
 
     const updateIsMobile = () => {
       localIsMobile.value = window.innerWidth < 768;
     };
 
+    const toggleAccordion = () => {
+      isOpen.value = !isOpen.value;
+    };
+
+    const toggleTerrain = (id) => {
+      if (openTerrains.value.includes(id)) {
+        openTerrains.value = openTerrains.value.filter((tid) => tid !== id);
+      } else {
+        openTerrains.value.push(id);
+      }
+    };
+
+    const editTerrain = (terrain) => {
+      editTerrainMode.value = true;
+      editedTerrainId.value = terrain.id;
+      terrainForm.value = { ...terrain };
+      showTerrainPopup.value = true;
+    };
+
+    const submitEditedTerrain = async () => {
+      try {
+        await updateTerrain(editedTerrainId.value, terrainForm.value);
+        await fetchTerrains();
+        cancelTerrainEdit();
+      } catch (err) {
+        console.error("Erreur lors de la mise à jour :", err);
+        alert("Erreur lors de la mise à jour du terrain.");
+      }
+    };
+
+    const submitNewTerrain = async () => {
+      try {
+        console.log("Terrain envoyé :", terrainForm.value);
+        await createTerrain(terrainForm.value);
+        await fetchTerrains();
+        cancelTerrainEdit();
+      } catch (err) {
+        console.error("Erreur lors de la création du terrain :", err);
+        alert("Erreur lors de la création du terrain.");
+      }
+    };
+
+    const cancelTerrainEdit = () => {
+      showTerrainPopup.value = false;
+      editTerrainMode.value = false;
+      editedTerrainId.value = null;
+      terrainForm.value = {
+        name: "",
+        times: [],
+      };
+    };
+
+    const deleteTerrain = async (id) => {
+      try {
+        const confirmed = confirm("Voulez-vous vraiment supprimer ce terrain ?");
+        if (!confirmed) return;
+
+        await deleteTerrainService(id);
+        await fetchTerrains();
+      } catch (err) {
+        console.error("Erreur lors de la suppression du terrain :", err);
+        alert("Erreur lors de la suppression du terrain.");
+      }
+    };
+
+    const deleteSchedule = (id) => {
+      if (userRole.value !== "ADMIN") return;
+      console.log("Suppression horaire ID :", id);
+    };
+
+    const addTime = () => {
+      terrainForm.value.times.push({
+        dayWeek: 1,
+        start: "08:00",
+        stop: "18:00",
+      });
+    };
+
+    const removeTime = (index) => {
+      terrainForm.value.times.splice(index, 1);
+    };
+
+    const convertDay = (num) => daysOfWeek[num] || "Jour inconnu";
+
+    const sortedTerrains = computed(() =>
+        terrains.value.slice().sort((a, b) => a.name.localeCompare(b.name))
+    );
+
+    const openCreateTerrain = () => {
+      editTerrainMode.value = false;
+      terrainForm.value = {
+        name: "",
+        times: [],
+      };
+      showTerrainPopup.value = true;
+    };
+
     onMounted(() => {
+      fetchTerrains();
       updateIsMobile();
       window.addEventListener("resize", updateIsMobile);
     });
@@ -100,47 +274,31 @@ export default {
 
     return {
       localIsMobile,
+      isOpen,
+      openTerrains,
+      showTerrainPopup,
+      editTerrainMode,
+      editedTerrainId,
+      terrainForm,
+      sortedTerrains,
+      daysOfWeek,
+
+      createTerrain,
+      toggleAccordion,
+      toggleTerrain,
+      editTerrain,
+      submitEditedTerrain,
+      submitNewTerrain,
+      cancelTerrainEdit,
+      deleteTerrain,
+      deleteSchedule,
+      convertDay,
+      addTime,
+      removeTime,
+      openCreateTerrain,
     };
   },
-  data() {
-    return {
-      isOpen: true,
-      openTerrains: [],
-      daysOfWeek: ["", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
-    };
-  },
-  computed: {
-    sortedTerrains() {
-      return this.terrains.slice().sort((a, b) => {
-        const nameA = a.name.toUpperCase();
-        const nameB = b.name.toUpperCase();
-        return nameA.localeCompare(nameB, undefined, { numeric: true });
-      });
-    },
-  },
-  methods: {
-    toggleAccordion() {
-      this.isOpen = !this.isOpen;
-    },
-    toggleTerrain(id) {
-      if (this.openTerrains.includes(id)) {
-        this.openTerrains = this.openTerrains.filter((terrainId) => terrainId !== id);
-      } else {
-        this.openTerrains.push(id);
-      }
-    },
-    deleteTerrain(terrainId) {
-      if (this.userRole !== "ADMIN") return;
-      console.log(`Supprimer le terrain avec l'id: ${terrainId}`);
-    },
-    deleteSchedule(timeId) {
-      if (this.userRole !== "ADMIN") return;
-      console.log(`Supprimer l'horaire avec l'id: ${timeId}`);
-    },
-    convertDay(dayNumber) {
-      return this.daysOfWeek[dayNumber] || "Jour inconnu";
-    },
-  },
+
 };
 </script>
 
@@ -197,5 +355,21 @@ export default {
 .terrain-sub-hover:hover .terrain-sub-arrow {
   color: #2F855A;
 }
+
+.input-style {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.input-style:focus {
+  border-color: #2f855a;
+  box-shadow: 0 0 0 1px #2f855a;
+}
+
 
 </style>

@@ -21,6 +21,47 @@
               <label class="block font-semibold text-gray-700">Email :</label>
               <input type="email" v-model="editableTrainer.email" class="input-field" required />
             </div>
+
+            <div>
+              <label class="block font-semibold text-gray-700">Niveau max d'enseignement :</label>
+              <input type="number" v-model="editableTrainer.supLevel" class="input-field" required min="1" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-gray-700">Niveau min d'enseignement :</label>
+              <input type="number" v-model="editableTrainer.infLevel" class="input-field" required min="1" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-gray-700">Âge max encadré :</label>
+              <input type="number" v-model="editableTrainer.supAge" class="input-field" required min="1" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-gray-700">Âge min encadré :</label>
+              <input type="number" v-model="editableTrainer.infAge" class="input-field" required min="1" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-gray-700">Minutes max d'enseignement par semaine :</label>
+              <input type="number" v-model="editableTrainer.supWeeklyMinutes" class="input-field" required min="1" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-gray-700">Minutes min d'enseignement par semaine :</label>
+              <input type="number" v-model="editableTrainer.infWeeklyMinutes" class="input-field" required min="1" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-gray-700">Temps partiel :</label>
+              <input type="checkbox" v-model="editableTrainer.partTime" class="checkbox-input" />
+            </div>
+
+            <div>
+              <label class="block font-semibold text-gray-700">Administrateur :</label>
+              <input type="checkbox" v-model="editableTrainer.admin" class="checkbox-input" />
+            </div>
+
           </div>
 
           <div class="flex flex-col space-y-4 h-full">
@@ -98,56 +139,27 @@ export default {
         }
     );
 
-    // const addAvailability = async () => {
-    //   try {
-    //
-    //
-    //     if (!editableTrainer.value.id) {
-    //       alert("Veuillez enregistrer le joueur avant d'ajouter une disponibilité.");
-    //       return;
-    //     }
-    //
-    //     const disponibilityData = {
-    //       dayWeek: "",
-    //       open: "",
-    //       close: "",
-    //     };
-    //
-    //
-    //     const response = await DisponibilityService.createDisponibility(disponibilityData);
-    //     const newDisponibilityId = response.data.id;
-    //
-    //     editableTrainer.value.disponibilities.push(response.data);
-    //
-    //     await DisponibilityTrainerService.createDisponibilityTrainer({
-    //       idTrainer: editableTrainer.value.id,
-    //       idDisponibility: newDisponibilityId
-    //     });
-    //
-    //
-    //   } catch (error) {
-    //     console.error("Erreur lors de l'ajout de disponibilité :", error);
-    //     alert("Une erreur est survenue lors de l'ajout de disponibilité.");
-    //   }
-    // };
+    const addAvailability = async () => {
+      try {
+        const disponibilityData = {
+          dayWeek: "",
+          open: "",
+          close: "",
+        };
+        editableTrainer.value.disponibilities.push(disponibilityData)
+      } catch (error) {
+        console.error("Erreur lors de l'ajout de disponibilité :", error);
+        alert("Une erreur est survenue lors de l'ajout de disponibilité.");
+      }
+    };
 
-    // const removeAvailability = async (index) => {
-    //   try {
-    //     const slot = editableTrainer.value.disponibilities[index];
-    //
-    //     if (!slot.id) {
-    //       editableTrainer.value.disponibilities.splice(index, 1);
-    //       return;
-    //     }
-    //     await disponibilityTrainerService.deleteDisponibilityTrainer(editableTrainer.value.id, slot.id);
-    //
-    //     await DisponibilityService.deleteDisponibility(slot.id);
-    //
-    //     editableTrainer.value.disponibilities.splice(index, 1);
-    //   } catch (error) {
-    //     console.error("Erreur lors de la suppression de la disponibilité :", error);
-    //   }
-    // };
+    const removeAvailability = async (index) => {
+      try {
+        editableTrainer.value.disponibilities.splice(index, 1);
+      } catch (error) {
+        console.error("Erreur lors de la suppression de la disponibilité :", error);
+      }
+    };
 
     const saveTrainer = async () => {
       try {
@@ -264,7 +276,7 @@ export default {
       editableTrainer,
       saveTrainer,
       addAvailability,
-      removeAvailability,
+      removeAvailability
     };
   },
 };
@@ -427,7 +439,3 @@ export default {
   }
 }
 </style>
-
-
-
-

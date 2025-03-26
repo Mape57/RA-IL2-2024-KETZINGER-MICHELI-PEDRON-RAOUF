@@ -48,7 +48,7 @@ public class SessionEntity implements Serializable {
 	@JoinColumn(name = "id_trainer", referencedColumnName = "id")
 	private TrainerEntity idTrainer;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@JoinTable(
 			name = "participation",
