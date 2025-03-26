@@ -41,13 +41,13 @@
           @start="onDragStart"
           @end="onDragEnd"
       >
-        <div
-            v-for="player in filteredPlayers"
-            :key="player.id"
-            class="grid grid-cols-4 items-center py-1"
-            :class="{ 'cursor-pointer': !isMobile }"
-            @click="!isMobile && showPlayerInfo(player)">
-          <!--              :ref="'player-' + player.id"-->
+      <div
+          v-for="player in filteredPlayers"
+          :key="player.id"
+          class="grid grid-cols-4 items-center py-1"
+          :class="{ 'cursor-pointer': !isMobile }"
+          :ref="'player-' + player.id"
+          @click="!isMobile && showPlayerInfo(player)">
 
           <!-- Nom du joueur -->
           <span>{{ player.name }}</span>

@@ -115,13 +115,17 @@
           <SessionCard
               v-for="session in sessions"
               :key="session.id"
+              :sessionId="session.id"
               :startTime="session.start"
               :endTime="session.stop"
-              :coach="session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : 'Aucun entraîneur'"
+              :coach="session.idTrainer"
               :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge}` : 'N/A'"
               :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
-              :players="session.players.map(player => `${player.name} ${player.surname}`)"
+              :players="session.players"
               :userRole="userRole"
+              @update-players="updateSessionsPlayers"
+              @delete="deleteSession(session.id)"
+              @update-coach="handleCoachUpdate"
           />
         </div>
       </div>
@@ -129,12 +133,18 @@
   </div>
 </template>
 <script>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import {ref, computed, onMounted, onUnmounted, watch} from "vue";
 import SessionCard from "./SessionCard.vue";
-import terrainService from "../../services/TerrainService";
-import sessionsService from "../../services/SessionService";
+import useTerrains from "../../useJs/useTerrain.js";
+import { useSessionsStore } from "../../store/useSessionsStore.js";
+import { storeToRefs } from "pinia";
+import { useSessions } from "../../useJs/useSessions.js";
+
+
+
 
 export default {
+
   name: "RightPanel",
   components: {
     SessionCard,
@@ -145,8 +155,13 @@ export default {
     userRole: String,
   },
   setup() {
-    const terrains = ref([]);
-    const sessions = ref([]);
+    const sessionsStore = useSessionsStore();
+    const { sessions } = storeToRefs(sessionsStore);
+    const fetchSessions = sessionsStore.fetchSessions;
+    const updateSession = sessionsStore.updateSession;
+
+
+    const { terrains, fetchTerrains } = useTerrains();
     const selectedTerrain = ref(null);
     const windowWidth = ref(window.innerWidth);
 
@@ -164,7 +179,12 @@ export default {
       const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
       const groupedSessions = Object.fromEntries(daysOfWeek.map((day) => [day, []]));
 
-      if (!selectedTerrain.value) return groupedSessions;
+
+      if (!selectedTerrain.value && sortedTerrains.value.length > 0) {
+        selectedTerrain.value = sortedTerrains.value[0]?.id || null;
+      }
+
+      if (!sessions.value || sessions.value.length === 0) return groupedSessions;
 
       sessions.value
           .filter((session) => session.idCourt?.id === selectedTerrain.value)
@@ -183,24 +203,6 @@ export default {
     });
 
 
-    // Récupération des terrains et sessions depuis l'API
-    const loadTerrainsAndSessions = async () => {
-      try {
-        const [terrainResponse, sessionResponse] = await Promise.all([
-          terrainService.getAllTerrain(),
-          sessionsService.getAllSessions(),
-        ]);
-
-        terrains.value = terrainResponse.data;
-        sessions.value = sessionResponse.data;
-
-
-        selectedTerrain.value = sortedTerrains.value[0]?.id || null;
-      } catch (error) {
-        console.error("Erreur lors du chargement des données :", error);
-      }
-    };
-
 
     // Sélectionne un terrain
     const selectTerrain = (id) => {
@@ -213,13 +215,151 @@ export default {
     };
 
     onMounted(() => {
-      loadTerrainsAndSessions();
+      fetchTerrains();
+      fetchSessions();
       window.addEventListener("resize", updateWindowSize);
     });
 
     onUnmounted(() => {
       window.removeEventListener("resize", updateWindowSize);
     });
+
+    const openFilter = () => {
+      // Implement filter functionality
+    };
+
+    const deleteSession = async (sessionId) => {
+      try {
+        await sessionsStore.deleteSession(sessionId);
+        // Refresh sessions after deletion
+        await fetchSessions();
+      } catch (error) {
+        console.error("Erreur lors de la suppression de la session:", error);
+      }
+    };
+
+    // Track removed players to handle cross-session transfers
+    const lastRemovedPlayer = ref(null);
+    const lastRemovedFromSession = ref(null);
+    const lastTrainersModified= ref(null);
+    const lastTrainersModifiedFromSession = ref(null);
+
+    // Handle player removed from a session
+    const handlePlayerRemoved = (data) => {
+      if (data && data.player && data.fromSessionId) {
+        lastRemovedPlayer.value = data.player;
+        lastRemovedFromSession.value = data.fromSessionId;
+      }
+    };
+
+    const handleCoachUpdate = async ({ sessionId, coach }) => {
+      try {
+        // Trouver la session à mettre à jour
+        const session = sessions.value.find(s => s.id === sessionId);
+
+        if (!session) {
+          console.error("Session non trouvée :", sessionId);
+          return;
+        }
+
+        // Extraire l'ID de l'entraîneur
+        const trainerId = coach?.id || coach?.idtrainer || null;
+
+        // Créer l'objet session mis à jour
+        const updatedSession = {
+          ...session,
+          idTrainer: trainerId // Envoyer uniquement l'ID
+        };
+
+        // Appeler la méthode de mise à jour du store
+        await sessionsStore.updateSession(updatedSession);
+
+        // Rafraîchir les sessions pour obtenir les dernières données
+        await fetchSessions();
+
+        console.log("Entraîneur mis à jour pour la session :", sessionId);
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour de l'entraîneur :", error);
+      }
+    };
+
+    const updateSessionsPlayers = async (data) => {
+        // Validate data object
+        if (!data || typeof data !== 'object') {
+          console.error("Erreur dans updateSessionsPlayers : données invalides", data);
+          return;
+        }
+        const {sessionId, players} = data;
+        // Validate sessionId
+        if (!sessionId) {
+          console.error("Erreur dans updateSessionsPlayers : sessionId manquant");
+          return;
+        }
+        try {
+          // Find the session to update
+          const session = sessions.value.find(s => s.id === sessionId);
+          if (!session) {
+            console.error("Session non trouvée :", sessionId);
+            return;
+          }
+          const validPlayers = players || [];
+
+          // If this is a different session than the one a player was removed from,
+          // and we have a lastRemovedPlayer, this is likely a cross-session transfer
+          if (lastRemovedFromSession.value &&
+              lastRemovedFromSession.value !== sessionId &&
+              lastRemovedPlayer.value) {
+
+            console.log("Cross-session transfer detected");
+
+            // Create updated session object with new players
+            const updatedSession = {
+              ...session,
+              players: validPlayers
+            };
+
+            console.log("Mise à jour de la session de destination:", sessionId);
+            console.log("Avec joueurs:", validPlayers);
+            await sessionsStore.updateSession(updatedSession);
+
+            // Now update the source session by removing the player
+            const sourceSession = sessions.value.find(s => s.id === lastRemovedFromSession.value);
+            if (sourceSession) {
+              const updatedSourcePlayers = sourceSession.players.filter(
+                p => p.id !== lastRemovedPlayer.value.id
+              );
+
+              const updatedSourceSession = {
+                ...sourceSession,
+                players: updatedSourcePlayers
+              };
+
+              console.log("Mise à jour de la session source:", lastRemovedFromSession.value);
+              console.log("Pour supprimer le joueur:", lastRemovedPlayer.value.name);
+              await sessionsStore.updateSession(updatedSourceSession);
+            }
+
+            // Reset tracking variables
+            lastRemovedPlayer.value = null;
+            lastRemovedFromSession.value = null;
+          } else {
+            // Regular update within the same session
+            const updatedSession = {
+              ...session,
+              players: validPlayers
+            };
+
+            console.log("Mise à jour régulière avec joueurs:", validPlayers);
+            await sessionsStore.updateSession(updatedSession);
+          }
+
+          console.log("Joueurs mis à jour pour la session :", sessionId);
+          // Refresh sessions to get latest data
+          await fetchSessions();
+        } catch (error) {
+          console.error("Erreur dans updateSessionsPlayers :", error);
+        }
+    };
 
     return {
       terrains,
@@ -230,8 +370,14 @@ export default {
       isMobile,
       isTablet,
       selectTerrain,
+      updateSessionsPlayers,
+      handlePlayerRemoved,
+      openFilter,
+      deleteSession,
+      handleCoachUpdate
     };
   },
+
 };
 </script>
 

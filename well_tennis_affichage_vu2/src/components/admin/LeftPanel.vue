@@ -53,6 +53,7 @@
       <div v-if="selectedTab === 'data'">
         <Trainers
             :trainers="trainers"
+            :searchQuery="searchQuery"
             :isMobile="isMobile"
             :userRole="userRole"
             @update:trainers="userRole === 'ADMIN' ? updateTrainers : () => {}"
