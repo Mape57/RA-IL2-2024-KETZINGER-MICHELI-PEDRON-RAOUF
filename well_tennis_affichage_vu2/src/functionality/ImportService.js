@@ -2,6 +2,7 @@ import PlayersService from "../services/PlayersService.js";
 import * as XLSX from "xlsx";
 import TerrainService from "../services/TerrainService.js";
 import SessionConstraintService from "../services/sessionConstraintService.js";
+import TrainersService from "../services/TrainersService.js";
 
 class ImportService {
     static errors;
@@ -14,39 +15,47 @@ class ImportService {
                     const binaryStr = event.target.result;
                     const workbook = XLSX.read(binaryStr, { type: "binary" });
 
+                    // 1. Extraction des données
                     const { terrains, errors: terrainErrors } = ImportService.parseTerrains(workbook);
-                    console.log("Terrains importés :", terrains);
-                    await ImportService.saveTerrainsToAPI(terrains);
-
                     const sessions = ImportService.parseSessionConstraints(workbook);
-                    console.log("Contraintes de sessions importées :", sessions);
-                    await ImportService.saveSessionConstraintsToAPI(sessions);
-
                     const players = ImportService.parsePlayers(workbook);
+                    const { trainers, errors: trainerErrors } = ImportService.parseTrainers(workbook);
 
-                    if (players.length > 0) {
-                        await ImportService.savePlayersToAPI(players);
-                    } else {
-                        console.warn("Aucun joueur trouvé dans le fichier.");
-                    }
-                    resolve({ players, terrains, terrainErrors });
+                    // 2. Si des erreurs critiques sont présentes, on bloque tout
+                    const totalErrors = [...terrainErrors, ...trainerErrors];
 
-                    if (this.errors.length > 0) {
-                        alert("Erreurs lors de l'import des terrains :\n\n" + this.errors.join("\n"));
+                    if (totalErrors.length > 0) {
+                        reject(new Error("Des erreurs ont été détectées dans le fichier :\n\n" + totalErrors.join("\n")));
+                        return;
                     }
 
+                    // 3. Aucun problème → on sauvegarde toutes les données
                     if (terrains.length > 0) {
                         await ImportService.saveTerrainsToAPI(terrains);
                     }
 
+                    if (sessions.length > 0) {
+                        await ImportService.saveSessionConstraintsToAPI(sessions);
+                    }
+
                     if (players.length > 0) {
                         await ImportService.savePlayersToAPI(players);
                     } else {
-                        console.warn("Aucun joueur trouvé dans le fichier.");
+                        console.warn("Aucun joueur trouvé, mais l'import continue.");
                     }
 
-                    alert("Importation terminée !");
-                    resolve({ players, terrains, terrainErrors });
+                    if (trainers.length > 0) {
+                        await ImportService.saveTrainersToAPI(trainers);
+                    }
+
+                    if (totalErrors.length > 0) {
+                        reject(new Error("Des erreurs ont été détectées dans le fichier :\n\n" + totalErrors.join("\n")));
+                        return;
+                    }
+
+                    alert("Importation terminée avec succès.");
+                    resolve({ players, terrains, terrainErrors: [] });
+
                 } catch (error) {
                     reject(new Error(`Erreur lors de l'importation : ${error.message}`));
                 }
@@ -100,6 +109,51 @@ class ImportService {
             })
             .filter(player => player.name !== "Inconnu" && player.surname !== "Inconnu");
     }
+
+    static parseTrainers(workbook) {
+        const sheetName = "Entraîneurs";
+        const sheet = workbook.Sheets[sheetName];
+        if (!sheet) {
+            return { trainers: [], errors: ["Feuille 'Entraineurs' introuvable."] };
+        }
+
+        const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        if (rawData.length < 2) {
+            return { trainers: [], errors: ["La feuille 'Entraineurs' est vide."] };
+        }
+
+        const headers = rawData[0];
+        const dataRows = rawData.slice(1);
+        const errors = [];
+
+        const trainers = dataRows.map((row, i) => {
+            const get = (label) => row[headers.indexOf(label)];
+
+            const nom = get("Nom");
+            const prenom = get("Prénom");
+            if (!nom || !prenom) {
+                errors.push(`Ligne ${i + 2} : Nom ou prénom manquant.`);
+                return null;
+            }
+
+            return {
+                name: nom,
+                surname: prenom,
+                infLevel: parseInt(get("Niveau Min") || 0, 10),
+                supLevel: parseInt(get("Niveau Max") || 0, 10),
+                infAge: parseInt(get("Âge Min") || 0, 10),
+                supAge: parseInt(get("Âge Max") || 0, 10),
+                minWeeklyMinutes: parseInt(get("Minutes Hebdo Min") || 0, 10),
+                maxWeeklyMinutes: parseInt(get("Minutes Hebdo Max") || 0, 10),
+                email: get("Email") || "",
+                isPartTime: (get("Temps partiel") || "").toString().toLowerCase() === "oui",
+                isAdmin: (get("Admin") || "").toString().toLowerCase() === "oui",
+            };
+        }).filter(Boolean);
+
+        return { trainers, errors };
+    }
+
 
 
     static parseDisponibilities(row, headers) {
@@ -304,6 +358,20 @@ class ImportService {
             }
         }
     }
+
+    static async saveTrainersToAPI(trainers) {
+        if (!trainers.length) return;
+
+        for (const trainer of trainers) {
+            try {
+                await TrainersService.createTrainer(trainer);
+                console.log(`Entraîneur ajouté : ${trainer.name} ${trainer.surname}`);
+            } catch (error) {
+                console.error(`Erreur pour l'entraîneur ${trainer.name} :`, error.response?.data || error.message);
+            }
+        }
+    }
+
 
     static async saveTerrainsToAPI(terrains) {
         if (terrains.length === 0) return;
