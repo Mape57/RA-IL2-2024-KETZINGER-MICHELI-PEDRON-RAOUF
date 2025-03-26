@@ -84,7 +84,7 @@
 
     <!-- Mode Bureau -->
     <div v-else class="flex flex-col flex-1 w-full h-full overflow-x-hidden">
-      <div class="flex items-center justify-center p-2 bg-white border-b border-gray-300 w-full overflow-x-hidden">
+      <div class="flex items-center justify-center p-2 bg-white border-b border-gray-300 w-full overflow-x-hidden relative">
         <div class="flex justify-center space-x-4">
           <button
               v-for="terrain in sortedTerrains"
@@ -106,6 +106,56 @@
             <span class="material-symbols-outlined text-base ml-1">tune</span>
           </button>
         </div>
+
+        <teleport to="body">
+          <div
+              v-if="showFilterPopup"
+              class="fixed top-[65px] right-[40px] w-80 bg-white shadow-lg rounded-xl p-4 z-[9999] border border-gray-200"
+          >
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Filtrer Sessions</h3>
+
+            <div class="space-y-3">
+              <input
+                  type="text"
+                  v-model="trainerSearchQuery"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Nom de l'entraîneur"
+              />
+              <input
+                  type="text"
+                  v-model="playerSearchQuery"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Nom du joueur"
+              />
+              <input
+                  type="number"
+                  v-model="selectedLevel"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Niveau"
+              />
+              <input
+                  type="number"
+                  v-model="selectedAge"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Âge"
+              />
+            </div>
+
+            <div class="flex justify-end mt-4">
+              <button
+                  @click="showAllSessions"
+                  class="px-4 py-1 rounded-md text-white bg-green-700 hover:bg-green-800 text-sm"
+              >
+                Réinitialiser
+              </button>
+            </div>
+          </div>
+        </teleport>
+
       </div>
 
       <!-- Contenu principal -->
@@ -139,12 +189,16 @@ import useTerrains from "../../useJs/useTerrain.js";
 import { useSessionsStore } from "../../store/useSessionsStore.js";
 import { storeToRefs } from "pinia";
 import { useSessions } from "../../useJs/useSessions.js";
-
+import terrainService from "../../services/TerrainService";
+import sessionsService from "../../services/SessionService";
+import trainerService from "../../services/TrainersService";
+import playerService from "../../services/PlayersService";
+import usePlayers from "../../useJs/usePlayers.js";
+import useTrainers from "../../useJs/useTrainers.js";
 
 
 
 export default {
-
   name: "RightPanel",
   components: {
     SessionCard,
@@ -155,14 +209,23 @@ export default {
     userRole: String,
   },
   setup() {
+    // ici j utilise le store de session
     const sessionsStore = useSessionsStore();
     const { sessions } = storeToRefs(sessionsStore);
     const fetchSessions = sessionsStore.fetchSessions;
     const updateSession = sessionsStore.updateSession;
 
+    const {trainers, fetchTrainers} = useTrainers()
+    const {players, fetchPlayers } = usePlayers()
+    const {terrains, fetchTerrains } = useTerrains();
 
-    const { terrains, fetchTerrains } = useTerrains();
+
     const selectedTerrain = ref(null);
+    const trainerSearchQuery = ref("");
+    const playerSearchQuery = ref("");
+    const selectedLevel = ref(null);
+    const selectedAge = ref(null);
+    const showFilterPopup = ref(false);
     const windowWidth = ref(window.innerWidth);
 
     // Détection du mode mobile
@@ -188,6 +251,10 @@ export default {
 
       sessions.value
           .filter((session) => session.idCourt?.id === selectedTerrain.value)
+          .filter((session) => !trainerSearchQuery.value || session.idTrainer?.name.toLowerCase().includes(trainerSearchQuery.value.toLowerCase()) || session.idTrainer?.surname.toLowerCase().includes(trainerSearchQuery.value.toLowerCase()))
+          .filter((session) => !playerSearchQuery.value || session.players.some(player => player.name.toLowerCase().includes(playerSearchQuery.value.toLowerCase()) || player.surname.toLowerCase().includes(playerSearchQuery.value.toLowerCase())))
+          .filter((session) => !selectedLevel.value || (session.idTrainer?.infLevel <= selectedLevel.value && session.idTrainer?.supLevel >= selectedLevel.value))
+          .filter((session) => !selectedAge.value || (session.idTrainer?.infAge <= selectedAge.value && session.idTrainer?.supAge >= selectedAge.value))
           .forEach((session) => {
             const dayIndex = session.dayWeek - 1; // Convertit 1-7 en index 0-6
             if (daysOfWeek[dayIndex]) {
@@ -203,7 +270,6 @@ export default {
     });
 
 
-
     // Sélectionne un terrain
     const selectTerrain = (id) => {
       selectedTerrain.value = id;
@@ -214,9 +280,50 @@ export default {
       windowWidth.value = window.innerWidth;
     };
 
+    const openFilter = () => {
+      showFilterPopup.value = !showFilterPopup.value;
+    };
+
+    const closeFilterPopup = () => {
+      showFilterPopup.value = false;
+    };
+    const filterSessions = () => {
+    };
+    const showAllSessions = () => {
+      trainerSearchQuery.value = "";
+      playerSearchQuery.value = "";
+      selectedLevel.value = null;
+      selectedAge.value = null;
+    };
+
+    const sessionLevels = computed(() => {
+      const levels = new Set();
+      sessions.value.forEach(session => {
+        if (session.idTrainer) {
+          levels.add(JSON.stringify({
+            infLevel: session.idTrainer.infLevel,
+            supLevel: session.idTrainer.supLevel
+          }));
+        }
+      });
+      return Array.from(levels).map(level => JSON.parse(level)).sort((a, b) => a.infLevel - b.infLevel);
+    });
+
+    const sessionAges = computed(() => {
+      const ages = new Set();
+      sessions.value.forEach(session => {
+        if (session.idTrainer) {
+          ages.add(session.idTrainer.age);
+        }
+      });
+      return Array.from(ages).sort((a, b) => a - b);
+    });
+
     onMounted(() => {
       fetchTerrains();
-      fetchSessions();
+      fetchSessions()
+      fetchPlayers();
+      fetchTrainers();
       window.addEventListener("resize", updateWindowSize);
     });
 
@@ -224,9 +331,6 @@ export default {
       window.removeEventListener("resize", updateWindowSize);
     });
 
-    const openFilter = () => {
-      // Implement filter functionality
-    };
 
     const deleteSession = async (sessionId) => {
       try {
@@ -241,8 +345,6 @@ export default {
     // Track removed players to handle cross-session transfers
     const lastRemovedPlayer = ref(null);
     const lastRemovedFromSession = ref(null);
-    const lastTrainersModified= ref(null);
-    const lastTrainersModifiedFromSession = ref(null);
 
     // Handle player removed from a session
     const handlePlayerRemoved = (data) => {
@@ -256,32 +358,27 @@ export default {
       try {
         // Trouver la session à mettre à jour
         const session = sessions.value.find(s => s.id === sessionId);
-
         if (!session) {
           console.error("Session non trouvée :", sessionId);
           return;
         }
-
         // Extraire l'ID de l'entraîneur
         const trainerId = coach?.id || coach?.idtrainer || null;
-
         // Créer l'objet session mis à jour
         const updatedSession = {
           ...session,
           idTrainer: trainerId // Envoyer uniquement l'ID
         };
-
         // Appeler la méthode de mise à jour du store
         await sessionsStore.updateSession(updatedSession);
-
         // Rafraîchir les sessions pour obtenir les dernières données
         await fetchSessions();
-
         console.log("Entraîneur mis à jour pour la session :", sessionId);
       } catch (error) {
         console.error("Erreur lors de la mise à jour de l'entraîneur :", error);
       }
     };
+
 
     const updateSessionsPlayers = async (data) => {
         // Validate data object
@@ -309,36 +406,29 @@ export default {
           if (lastRemovedFromSession.value &&
               lastRemovedFromSession.value !== sessionId &&
               lastRemovedPlayer.value) {
-
             console.log("Cross-session transfer detected");
-
             // Create updated session object with new players
             const updatedSession = {
               ...session,
               players: validPlayers
             };
-
             console.log("Mise à jour de la session de destination:", sessionId);
             console.log("Avec joueurs:", validPlayers);
-            await sessionsStore.updateSession(updatedSession);
-
+            await updateSession(updatedSession);
             // Now update the source session by removing the player
             const sourceSession = sessions.value.find(s => s.id === lastRemovedFromSession.value);
             if (sourceSession) {
               const updatedSourcePlayers = sourceSession.players.filter(
                 p => p.id !== lastRemovedPlayer.value.id
               );
-
               const updatedSourceSession = {
                 ...sourceSession,
                 players: updatedSourcePlayers
               };
-
               console.log("Mise à jour de la session source:", lastRemovedFromSession.value);
               console.log("Pour supprimer le joueur:", lastRemovedPlayer.value.name);
               await sessionsStore.updateSession(updatedSourceSession);
             }
-
             // Reset tracking variables
             lastRemovedPlayer.value = null;
             lastRemovedFromSession.value = null;
@@ -348,11 +438,9 @@ export default {
               ...session,
               players: validPlayers
             };
-
             console.log("Mise à jour régulière avec joueurs:", validPlayers);
             await sessionsStore.updateSession(updatedSession);
           }
-
           console.log("Joueurs mis à jour pour la session :", sessionId);
           // Refresh sessions to get latest data
           await fetchSessions();
@@ -364,9 +452,18 @@ export default {
     return {
       terrains,
       sessions,
+      trainers,
+      players,
       selectedTerrain,
+      trainerSearchQuery,
+      playerSearchQuery,
+      selectedLevel,
+      selectedAge,
+      sessionLevels,
+      sessionAges,
       sortedTerrains,
       sessionsByDay,
+      showAllSessions,
       isMobile,
       isTablet,
       selectTerrain,
@@ -374,10 +471,12 @@ export default {
       handlePlayerRemoved,
       openFilter,
       deleteSession,
-      handleCoachUpdate
+      handleCoachUpdate,
+      closeFilterPopup,
+      showFilterPopup,
+      filterSessions,
     };
   },
-
 };
 </script>
 
@@ -410,6 +509,26 @@ export default {
 button:focus {
   outline: none;
   box-shadow: none;
+}
+
+button {
+  padding: 10px 16px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.popup-content h3 {
+  margin-bottom: 10px;
+}
+
+.popup-content select {
+  margin-bottom: 10px;
+}
+
+select:focus {
+  outline: none;
 }
 
 select {

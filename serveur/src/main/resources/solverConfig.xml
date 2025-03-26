@@ -51,7 +51,7 @@
             <entityTabuRatio>0.3</entityTabuRatio> <!-- 0.3 -->
         </acceptor>
         <forager>
-            <acceptedCountLimit>200</acceptedCountLimit> <!-- 500 -->
+            <acceptedCountLimit>500</acceptedCountLimit> <!-- 500 -->
             <finalistPodiumType>STRATEGIC_OSCILLATION_BY_LEVEL_ON_BEST_SCORE</finalistPodiumType>
         </forager>
     </localSearch>
@@ -63,10 +63,10 @@
         </termination>
         <acceptor>
             <entityTabuRatio>0.001</entityTabuRatio> <!-- 0.001 -->
-            <lateAcceptanceSize>5000</lateAcceptanceSize> <!-- 10000 -->
+            <lateAcceptanceSize>10000</lateAcceptanceSize> <!-- 10000 -->
         </acceptor>
         <forager>
-            <acceptedCountLimit>20</acceptedCountLimit> <!-- 50 -->
+            <acceptedCountLimit>50</acceptedCountLimit> <!-- 50 -->
             <finalistPodiumType>STRATEGIC_OSCILLATION_BY_LEVEL_ON_BEST_SCORE</finalistPodiumType>
         </forager>
     </localSearch>
