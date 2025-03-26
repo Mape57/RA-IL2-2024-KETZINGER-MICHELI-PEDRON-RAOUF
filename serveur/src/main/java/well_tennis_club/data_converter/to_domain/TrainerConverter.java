@@ -28,6 +28,9 @@ public class TrainerConverter {
 
 		boolean isPartTime = trainerEntity.isPartTime();
 
-		return new Trainer(id, agePreference, levelPreference, weeklyMinutes, availability, isPartTime);
+		String name = trainerEntity.getName();
+		String surname = trainerEntity.getSurname();
+
+		return new Trainer(id, name, surname, agePreference, levelPreference, weeklyMinutes, availability, isPartTime);
 	}
 }

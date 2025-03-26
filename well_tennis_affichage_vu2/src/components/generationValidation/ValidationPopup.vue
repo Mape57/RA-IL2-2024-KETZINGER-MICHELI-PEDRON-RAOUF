@@ -11,26 +11,15 @@
       <div>
         <div class="popup-header">
           <h2>Validation de la génération</h2>
-          <button @click="open=false" class="close-button">
-            <span class="material-symbols-outlined">close</span>
+          <button @click="open = false" class="material-symbols-outlined text-[#2F855A] text-4xl transition-transform transform hover:scale-110 hover:text-red-500">
+            close
           </button>
         </div>
 
         <div class="popup-content">
-          <div v-for="(justification, index) in justifications" :key="index">
-            <PlayerValidation
-                v-if="justification.type === 'PLAYER'"
-                :justification="justification"
-            />
-            <SessionValidation
-                v-else-if="justification.type === 'SESSION'"
-                :justification="justification"
-            />
-            <TrainerValidation
-                v-else-if="justification.type === 'TRAINER'"
-                :justification="justification"
-            />
-          </div>
+          <SessionValidation
+              v-for="(justification, index) in justifications" :key="index"
+              :justification="justification"/>
         </div>
       </div>
     </div>
@@ -39,9 +28,7 @@
 
 <script setup>
 import {ref, watch} from 'vue';
-import PlayerValidation from './PlayerValidation.vue';
 import SessionValidation from './SessionValidation.vue';
-import TrainerValidation from './TrainerValidation.vue';
 import useSolver from "../../useJs/useSolver.js";
 
 const open = ref(false);
@@ -54,7 +41,6 @@ watch(open, async (isOpen) => {
     justifications.value = await useSolver().solverJustifications();
   }
 });
-
 </script>
 
 <style>
@@ -69,10 +55,10 @@ watch(open, async (isOpen) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   > div {
-    width: 60%;
-    height: 70%;
+    width: 90%;
+    height: 90%;
     background-color: white;
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -98,7 +84,7 @@ watch(open, async (isOpen) => {
 }
 
 .popup-content {
-  padding: 1rem;
+  padding: 2rem 5% 1rem;
   overflow-y: auto;
   flex: 1;
 
@@ -132,7 +118,15 @@ watch(open, async (isOpen) => {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
   }
+}
+
+.divider-line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #e2e8f0;
 }
 
 .icon-placeholder {
@@ -186,7 +180,7 @@ watch(open, async (isOpen) => {
 
         &.smaller {
           justify-content: space-between;
-          gap: 1rem;
+          gap: 2rem;
           align-items: flex-end;
         }
 

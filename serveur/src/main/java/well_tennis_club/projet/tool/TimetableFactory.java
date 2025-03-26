@@ -81,10 +81,11 @@ public class TimetableFactory {
 	private static Session convertFrom(SessionEntity sessionEntity, Trainer trainer) {
 		UUID id = sessionEntity.getId();
 		UUID courtId = sessionEntity.getIdCourt().getId();
+		String courtName = sessionEntity.getIdCourt().getName();
 		DayOfWeek day = DayOfWeek.of(sessionEntity.getDayWeek());
 		LocalTime startTime = LocalTime.parse(sessionEntity.getStart());
 
-		return new Session(id, day, startTime, courtId, trainer);
+		return new Session(id, day, startTime, courtId, courtName, trainer);
 	}
 
 	private static List<Session> combineWithNoDuplicate(List<Session> baseList, List<Session> sessions) {

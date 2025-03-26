@@ -27,7 +27,8 @@ public class SessionEntity implements Serializable {
 
 	@Id
 	@Column(name = "id")
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	// FIXME removed for SolverController.saveTimetable to keep UUID from being regenerated
+	//  @GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 
 	@Column(name = "day_week")

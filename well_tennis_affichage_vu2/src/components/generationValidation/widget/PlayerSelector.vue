@@ -8,13 +8,18 @@
       </div>
       <span @click="$emit('update:checked', !checked)">
         <span>{{ player.name }} {{ player.surname }}</span>
-        <span>{{ player.birthday }}ans • {{ player.level }}</span>
+        <span class="divider-line"></span>
+        <span>{{ getSportsAge(player.birthday) }} ans • {{ player.level }}</span>
       </span>
     </div>
 </template>
 
 <script>
+
+import {getSportsAge} from "../../../functionality/conversionUtils.js";
+
 export default {
+  methods: {getSportsAge},
   props: {
     player: {
       type: Object,
@@ -25,6 +30,8 @@ export default {
       default: false
     }
   },
-  emits: ['update:checked']
+  emits: ['update:checked'],
 }
+
+
 </script>

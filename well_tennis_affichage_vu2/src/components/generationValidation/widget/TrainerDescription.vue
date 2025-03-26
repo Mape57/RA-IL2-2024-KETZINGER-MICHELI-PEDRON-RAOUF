@@ -17,6 +17,7 @@
 
       <span v-if="trainer" @click="toggleChecked">
         <span>{{ trainer.name }} {{ trainer.surname }} </span>
+        <span class="divider-line"></span>
         <span>{{ trainer.infLevel }} - {{ trainer.supLevel }} • {{ trainer.infAge }} - {{ trainer.supAge }}</span>
       </span>
       <span v-else>

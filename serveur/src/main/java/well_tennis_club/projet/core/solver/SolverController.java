@@ -30,11 +30,8 @@ import well_tennis_club.projet.core.trainer.service.TrainerService;
 import well_tennis_club.projet.tool.DataInsertion;
 import well_tennis_club.projet.tool.TimetableFactory;
 import well_tennis_club.timefold.domain.*;
-import well_tennis_club.timefold.solver.justifications.PlayerAvailabilityJustification;
-import well_tennis_club.timefold.solver.justifications.PlayerSingleSessionPerDayJustification;
-import well_tennis_club.timefold.solver.justifications.TrainerAvailabilityJustification;
-import well_tennis_club.timefold.solver.justifications.TrainerSessionOverlappingJustification;
 import well_tennis_club.timefold.solver.justifications.groupe.SessionJustification;
+import well_tennis_club.timefold.solver.justifications.groupe.SessionsJustification;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -61,9 +58,7 @@ public class SolverController {
 	private SessionService sessionService;
 
 	@Autowired
-	public SolverController(TimetableFactory timetableFactory, TimetableService timetableService,
-							PlayerService playerService, CourtService courtService, TrainerService trainerService,
-							SolverManager<Timetable, UUID> solverManager, SolutionManager<Timetable, HardSoftScore> solutionManager, SessionService sessionService) {
+	public SolverController(TimetableFactory timetableFactory, TimetableService timetableService, PlayerService playerService, CourtService courtService, TrainerService trainerService, SolverManager<Timetable, UUID> solverManager, SolutionManager<Timetable, HardSoftScore> solutionManager, SessionService sessionService) {
 		this.timetableFactory = timetableFactory;
 		this.timetableService = timetableService;
 		this.playerService = playerService;
@@ -75,11 +70,7 @@ public class SolverController {
 	}
 
 	@Operation(summary = "Start the timetable solver", description = "Start the timetable solver")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Successfully started"),
-			@ApiResponse(responseCode = "409", description = "Conflict - Timetable solver was already started"),
-			@ApiResponse(responseCode = "500", description = "Internal server error - Timetable solver was not started")
-	})
+	@ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully started"), @ApiResponse(responseCode = "409", description = "Conflict - Timetable solver was already started"), @ApiResponse(responseCode = "500", description = "Internal server error - Timetable solver was not started")})
 	@PostMapping
 	public ResponseEntity<String> startSolver() {
 		if (problemId != null) {
@@ -90,20 +81,15 @@ public class SolverController {
 
 		this.problemId = UUID.randomUUID();
 
-		solverManager.solveBuilder()
-				.withProblemId(problemId)
-				.withProblem(timetable)
-				.withBestSolutionConsumer(bestSolution -> {
-					System.out.println("New best solution found: " + bestSolution.getScore());
-					this.timetable = bestSolution;
-				})
-				.withFinalBestSolutionConsumer(finalBestSolution -> {
-					System.out.println("Final best solution found: " + finalBestSolution.getScore());
-					this.timetable = finalBestSolution;
-					this.problemId = null;
-					saveTimetable();
-				})
-				.run();
+		solverManager.solveBuilder().withProblemId(problemId).withProblem(timetable).withBestSolutionConsumer(bestSolution -> {
+			System.out.println("New best solution found: " + bestSolution.getScore());
+			this.timetable = bestSolution;
+		}).withFinalBestSolutionConsumer(finalBestSolution -> {
+			System.out.println("Final best solution found: " + finalBestSolution.getScore());
+			this.timetable = finalBestSolution;
+			this.problemId = null;
+			saveTimetable();
+		}).run();
 
 		return ResponseEntity.ok("Solver started");
 	}
@@ -134,74 +120,12 @@ public class SolverController {
 				ConstraintJustification justification = matchAnalysis.justification();
 
 				switch (justification) {
-					case SessionJustification sessionJustification -> {
-						Session session = sessionJustification.getSession();
-						SessionJustificationsDto sjd = sessionJustificationsDtos.computeIfAbsent(session, s -> {
-							List<PlayerSessionLink> psls = this.timetable.getPlayerSessionLinks().stream()
-									.filter(psl -> psl.getSession().equals(s))
-									.toList();
-							SessionEntity sessionEntity = from(s, psls);
-							return new SessionJustificationsDto(sessionEntity);
-						});
-						sjd.addJustification(sessionJustification.getDescription(), sessionJustification.getScore().toString());
-					}
-					case PlayerSingleSessionPerDayJustification playerJustification -> {
-						Player player = playerJustification.getPlayer();
-						PlayerJustificationsDto pjd = playerJustificationsDtos.computeIfAbsent(player, p -> {
-							PlayerEntity playerEntity = playerService.getPlayerById(player.getId());
-							return new PlayerJustificationsDto(playerEntity);
-						});
-
-						playerJustification.getSessions().forEach(session -> {
-							List<PlayerSessionLink> psls = this.timetable.getPlayerSessionLinks().stream()
-									.filter(psl -> psl.getSession().equals(session))
-									.toList();
-							SessionEntity sessionEntity = from(session, psls);
-							pjd.addSessionPerDay(sessionEntity);
-						});
-					}
-					case PlayerAvailabilityJustification playerJustification -> {
-						Player player = playerJustification.getPlayer();
-						PlayerJustificationsDto pjd = playerJustificationsDtos.computeIfAbsent(player, p -> {
-							PlayerEntity playerEntity = playerService.getPlayerById(player.getId());
-							return new PlayerJustificationsDto(playerEntity);
-						});
-
-						List<PlayerSessionLink> psls = this.timetable.getPlayerSessionLinks().stream()
-								.filter(psl -> psl.getSession().equals(playerJustification.getSession()))
-								.toList();
-						SessionEntity session = from(playerJustification.getSession(), psls);
-						pjd.addUnavailability(session);
-					}
-					case TrainerSessionOverlappingJustification trainerJustification -> {
-						Trainer trainer = trainerJustification.getSessionA().getTrainer();
-						TrainerJustificationsDto tjd = trainerJustificationsDtos.computeIfAbsent(trainer, t -> {
-							TrainerEntity trainerEntity = trainerService.getTrainerById(trainer.getId());
-							return new TrainerJustificationsDto(trainerEntity);
-						});
-
-						List<PlayerSessionLink> psls = this.timetable.getPlayerSessionLinks().stream()
-								.filter(psl -> psl.getSession().equals(trainerJustification.getSessionA()))
-								.toList();
-						SessionEntity session = from(trainerJustification.getSessionA(), psls);
-						tjd.addOverlappingSession(session);
-
-						psls = this.timetable.getPlayerSessionLinks().stream()
-								.filter(psl -> psl.getSession().equals(trainerJustification.getSessionB()))
-								.toList();
-						session = from(trainerJustification.getSessionB(), psls);
-						tjd.addOverlappingSession(session);
-					}
-					case TrainerAvailabilityJustification trainerJustification -> {
-						Trainer trainer = trainerJustification.getSession().getTrainer();
-						TrainerJustificationsDto tjd = trainerJustificationsDtos.computeIfAbsent(trainer, t -> {
-							TrainerEntity trainerEntity = trainerService.getTrainerById(trainer.getId());
-							return new TrainerJustificationsDto(trainerEntity);
-						});
-						SessionEntity session = sessionService.getSessionById(trainerJustification.getSession().getId());
-						tjd.addUnavailability(session);
-					}
+					case SessionJustification sessionJustification ->
+							addJustification(sessionJustificationsDtos, sessionJustification.getSession(), sessionJustification.getDescription(), sessionJustification.getScore());
+					case SessionsJustification sessionsJustification ->
+							sessionsJustification.getSessions().forEach(session -> addJustification(sessionJustificationsDtos, session, sessionsJustification.getDescription(), sessionsJustification.getScore()));
 					default -> {
+						System.out.println("Type de justification non pris en charge : " + justification);
 					}
 				}
 			});
@@ -215,6 +139,15 @@ public class SolverController {
 		return ResponseEntity.ok(justificationsDtos);
 	}
 
+	private void addJustification(Map<Session, SessionJustificationsDto> sessionJustificationsDtos, Session session, String description, HardSoftScore score) {
+		SessionJustificationsDto current_sjd = sessionJustificationsDtos.computeIfAbsent(session, s -> {
+			List<PlayerSessionLink> psls = this.timetable.getPlayerSessionLinks().stream().filter(psl -> psl.getSession().equals(s)).toList();
+			SessionEntity sessionEntity = from(s, psls);
+			return new SessionJustificationsDto(sessionEntity);
+		});
+		current_sjd.addJustification(description, score.toString());
+	}
+
 	public void saveTimetable() {
 		if (timetable == null) {
 			return;
@@ -222,13 +155,10 @@ public class SolverController {
 
 		Map<Session, List<PlayerSessionLink>> session_withPSLs = new HashMap<>();
 		for (PlayerSessionLink playerSessionLink : this.timetable.getPlayerSessionLinks()) {
-			session_withPSLs.computeIfAbsent(playerSessionLink.getSession(), session -> new ArrayList<>())
-					.add(playerSessionLink);
+			session_withPSLs.computeIfAbsent(playerSessionLink.getSession(), session -> new ArrayList<>()).add(playerSessionLink);
 		}
 
-		List<SessionEntity> sessionEntities = session_withPSLs.entrySet().stream()
-				.map(entry -> from(entry.getKey(), entry.getValue()))
-				.toList();
+		List<SessionEntity> sessionEntities = session_withPSLs.entrySet().stream().map(entry -> from(entry.getKey(), entry.getValue())).toList();
 
 		timetableService.saveAllSession(sessionEntities);
 	}

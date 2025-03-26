@@ -3,14 +3,13 @@ package well_tennis_club.timefold.solver.justifications;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
 import lombok.Getter;
 import well_tennis_club.timefold.domain.Session;
-import well_tennis_club.timefold.solver.justifications.groupe.TrainerJustification;
+import well_tennis_club.timefold.solver.justifications.groupe.SessionJustification;
 
 /**
  * Justification d'une contrainte de disponibilité d'un entraîneur non respectée.
  */
 @Getter
-public class TrainerAvailabilityJustification extends TrainerJustification {
-	private final Session session;
+public class TrainerAvailabilityJustification extends SessionJustification {
 	private final Integer sessionDuration;
 
 	public TrainerAvailabilityJustification(Session session, Integer sessionDuration, HardSoftScore score) {
@@ -18,14 +17,13 @@ public class TrainerAvailabilityJustification extends TrainerJustification {
 	}
 
 	public TrainerAvailabilityJustification(Session session, Integer sessionDuration, HardSoftScore score, String description) {
-		super(session.getTrainer(), score, description);
-		this.session = session;
+		super(session, score, description);
 		this.sessionDuration = sessionDuration;
 	}
 
 	private static String getDescription(Session session, Integer sessionDuration, HardSoftScore score) {
-		return String.format("Entraineur %s indisponible pour %s : %s",
-				session.getTrainer().getId(), session, score.toString());
+		return String.format("L'entraîneur %s %s n'est pas disponible.",
+				session.getTrainer().getName(), session.getTrainer().getSurname());
 	}
 
 	@Override

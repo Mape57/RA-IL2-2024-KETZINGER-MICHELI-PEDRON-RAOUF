@@ -18,15 +18,15 @@
         v-for="(player, index) in players"
         :key="index"
         :player="player"
-        :checked="checkedState[index]"
+        :checked="checkedPlayers[index]"
         @update:checked="updateChecked(index, $event)"
     ></PlayerSelector>
   </div>
 </template>
 
 <script>
-  import { computed, ref } from 'vue';
-  import PlayerSelector from "./PlayerSelector.vue";
+import { computed, watchEffect } from 'vue';
+import PlayerSelector from "./PlayerSelector.vue";
 
 export default {
   components: {PlayerSelector},
@@ -35,29 +35,34 @@ export default {
       type: Array,
       required: true,
     },
+    checkedPlayers: {
+      type: Array,
+      required: true
+    }
   },
-  setup(props) {
-    const checkedState = ref(props.players.map(() => true));
-
+  emits: ['update:checked-players'],
+  setup(props, { emit }) {
     const allChecked = computed(() => {
-      return checkedState.value.length > 0 && checkedState.value.every(checked => checked);
+      return props.checkedPlayers.length > 0 && props.checkedPlayers.every(checked => checked);
     });
 
     const someChecked = computed(() => {
-      return checkedState.value.some(checked => checked);
+      return props.checkedPlayers.some(checked => checked);
     });
 
     const toggleAll = () => {
       const newState = !allChecked.value;
-      checkedState.value = checkedState.value.map(() => newState);
+      const newCheckedStates = props.checkedPlayers.map(() => newState);
+      emit('update:checked-players', newCheckedStates);
     };
 
     const updateChecked = (index, checked) => {
-      checkedState.value[index] = checked;
+      const newCheckedStates = [...props.checkedPlayers];
+      newCheckedStates[index] = checked;
+      emit('update:checked-players', newCheckedStates);
     };
 
     return {
-      checkedState,
       allChecked,
       someChecked,
       toggleAll,

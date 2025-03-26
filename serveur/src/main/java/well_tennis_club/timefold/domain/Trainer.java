@@ -14,6 +14,8 @@ import java.util.UUID;
 @Setter
 public class Trainer {
 	private UUID id;
+	private String name;
+	private String surname;
 	private ValueRange agePreference;
 	private ValueRange levelPreference;
 	private ValueRange weeklyMinutes;
@@ -32,7 +34,14 @@ public class Trainer {
 		this.isPartTime = isPartTime;
 	}
 
-	@Override
+	public Trainer(UUID id, String name, String surname, ValueRange agePreference, ValueRange levelPreference, ValueRange weeklyMinutes, List<Timeslot> availability, boolean isPartTime) {
+		this(id, agePreference, levelPreference, weeklyMinutes, availability, isPartTime);
+		this.name = name;
+		this.surname = surname;
+	}
+
+
+		@Override
 	public boolean equals(Object o) {
 		if (o == null || getClass() != o.getClass()) return false;
 		Trainer trainer = (Trainer) o;

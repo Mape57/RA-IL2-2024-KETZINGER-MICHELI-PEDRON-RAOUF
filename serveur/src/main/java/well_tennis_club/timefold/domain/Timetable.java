@@ -78,7 +78,7 @@ public class Timetable {
 		for (TennisCourt tennisCourt : tennisCourts) {
 			for (Timeslot openingHour : tennisCourt.getOpeningHours()) {
 				for (int i = 0; i < openingHour.endTime().toSecondOfDay() - openingHour.startTime().toSecondOfDay(); i += MINIMUM_DURATION * 60) {
-					sessions.add(new Session(UUID.randomUUID(), openingHour.day(), openingHour.startTime().plusSeconds(i), tennisCourt.getId()));
+					sessions.add(new Session(UUID.randomUUID(), openingHour.day(), openingHour.startTime().plusSeconds(i), tennisCourt.getId(), tennisCourt.getName()));
 				}
 			}
 		}

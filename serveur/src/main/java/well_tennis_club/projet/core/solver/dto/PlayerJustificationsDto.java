@@ -30,6 +30,7 @@ public class PlayerJustificationsDto extends JustificationsDto {
 
 	public void addSessionPerDay(SessionEntity session) {
 		MinimizedSessionDto msd = MinimizedSessionMapper.INSTANCE.mapToDTO(session);
+		if (tooManySessionsPerDay.contains(msd)) return;
 		tooManySessionsPerDay.add(msd);
 	}
 }
