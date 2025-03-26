@@ -13,16 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import well_tennis_club.projet.core.player.dto.PlayerDto;
 import well_tennis_club.projet.core.session.dto.NewSessionDto;
 import well_tennis_club.projet.core.session.dto.SessionDto;
+import well_tennis_club.projet.core.session.dto.SessionPlayerDto;
 import well_tennis_club.projet.core.session.mapper.NewSessionMapperImpl;
 import well_tennis_club.projet.core.session.mapper.SessionMapper;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
 
 import java.net.URI;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("sessions")
@@ -58,6 +59,40 @@ public class SessionController {
 	public ResponseEntity<List<SessionDto>> getAllSessions() {
 		List<SessionDto> sessions = SessionMapper.INSTANCE.mapToListDTO(sessionService.getAllSessions());
 		return ResponseEntity.ok(sessions);
+	}
+
+	@Operation(
+			summary = "Retourne la liste de tous les joueurs avec leurs sessions",
+			description = "Retourne la liste de tous les joueurs avec leurs sessions",
+			security = @SecurityRequirement(name = "bearerAuth")
+	)
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "200",
+					description = "Recupération réussie",
+					content = @Content(
+							mediaType = "application/json",
+							array = @ArraySchema(schema = @Schema(implementation = SessionDto.class))
+					)
+			)
+	})
+	@GetMapping("/players")
+	public ResponseEntity<List<SessionPlayerDto>> getAllSessionForPlayers(){
+
+		List<SessionDto> allSessions = SessionMapper.INSTANCE.mapToListDTO(sessionService.getAllSessions());
+		Map<PlayerDto, List<SessionDto>> map = new HashMap<>();
+
+		for (SessionDto session : allSessions) {
+			for (PlayerDto player : session.getPlayers()) {
+				map.computeIfAbsent(player, k -> new ArrayList<>()).add(session);
+			}
+		}
+
+		List<SessionPlayerDto> response = map.entrySet().stream()
+				.map(entry -> new SessionPlayerDto(entry.getKey(), entry.getValue()))
+				.toList();
+
+		return ResponseEntity.ok(response);
 	}
 
 	// ========================= POST ========================= //
