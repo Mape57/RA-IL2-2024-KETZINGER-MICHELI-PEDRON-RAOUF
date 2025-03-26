@@ -7,13 +7,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import well_tennis_club.projet.core.player.dto.PlayerDto;
+import well_tennis_club.projet.core.player.mapper.PlayerMapper;
+import well_tennis_club.projet.core.player.service.PlayerService;
 import well_tennis_club.projet.core.session.dto.NewSessionDto;
 import well_tennis_club.projet.core.session.dto.SessionDto;
 import well_tennis_club.projet.core.session.dto.SessionPlayerDto;
@@ -21,6 +26,7 @@ import well_tennis_club.projet.core.session.mapper.NewSessionMapperImpl;
 import well_tennis_club.projet.core.session.mapper.SessionMapper;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
+import well_tennis_club.projet.tool.MailFactory;
 
 import java.net.URI;
 import java.util.*;
@@ -31,12 +37,18 @@ import java.util.*;
 @CrossOrigin
 public class SessionController {
 	private final SessionService sessionService;
+	private final PlayerService playerService;
 	private final NewSessionMapperImpl newSessionMapperImpl;
+	private final MailFactory mailFactory;
+	private final JavaMailSender mailSender;
 
 	@Autowired
-	public SessionController(SessionService sessionService, NewSessionMapperImpl newSessionMapperImpl) {
+	public SessionController(SessionService sessionService, NewSessionMapperImpl newSessionMapperImpl,PlayerService playerService,MailFactory mailFactory, JavaMailSender mailSender) {
 		this.sessionService = sessionService;
 		this.newSessionMapperImpl = newSessionMapperImpl;
+		this.playerService = playerService;
+		this.mailFactory = mailFactory;
+		this.mailSender = mailSender;
 	}
 
 	// ========================= GET ========================= //
@@ -62,8 +74,8 @@ public class SessionController {
 	}
 
 	@Operation(
-			summary = "Retourne la liste de tous les joueurs avec leurs sessions",
-			description = "Retourne la liste de tous les joueurs avec leurs sessions",
+			summary = "Envoie par mail le planning aux joueurs",
+			description = "Envoie par mail le planning aux joueurs",
 			security = @SecurityRequirement(name = "bearerAuth")
 	)
 	@ApiResponses(value = {
@@ -76,24 +88,33 @@ public class SessionController {
 					)
 			)
 	})
-	@GetMapping("/players")
-	public ResponseEntity<List<SessionPlayerDto>> getAllSessionForPlayers(){
+	@GetMapping("/sendMail")
+	public ResponseEntity<Boolean> sendMailToPlayer() {
+		try {
+			List<SessionDto> allSessions = SessionMapper.INSTANCE.mapToListDTO(sessionService.getAllSessions());
+			Map<PlayerDto, List<SessionDto>> map = new HashMap<>();
 
-		List<SessionDto> allSessions = SessionMapper.INSTANCE.mapToListDTO(sessionService.getAllSessions());
-		Map<PlayerDto, List<SessionDto>> map = new HashMap<>();
-
-		for (SessionDto session : allSessions) {
-			for (PlayerDto player : session.getPlayers()) {
-				map.computeIfAbsent(player, k -> new ArrayList<>()).add(session);
+			for (SessionDto session : allSessions) {
+				for (PlayerDto players : session.getPlayers()) {
+					map.computeIfAbsent(players, k -> new ArrayList<>()).add(session);
+				}
 			}
+
+			List<SessionPlayerDto> response = map.entrySet().stream()
+					.map(entry -> new SessionPlayerDto(entry.getKey(), entry.getValue()))
+					.toList();
+
+			for(SessionPlayerDto session : response){
+				MimeMessage message = mailFactory.constructPlanningMail(session);
+				mailSender.send(message);
+			}
+
+			return ResponseEntity.ok(true);
+		}catch (Exception e){
+			return ResponseEntity.ok(false);
 		}
-
-		List<SessionPlayerDto> response = map.entrySet().stream()
-				.map(entry -> new SessionPlayerDto(entry.getKey(), entry.getValue()))
-				.toList();
-
-		return ResponseEntity.ok(response);
 	}
+
 
 	// ========================= POST ========================= //
 	@Operation(

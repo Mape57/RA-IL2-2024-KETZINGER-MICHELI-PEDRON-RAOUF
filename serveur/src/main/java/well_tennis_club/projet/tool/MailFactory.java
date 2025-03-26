@@ -11,6 +11,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import well_tennis_club.projet.core.disponibility.dto.CreateDisponibilityDto;
 import well_tennis_club.projet.core.player.dto.PlayerInscriptionDto;
+import well_tennis_club.projet.core.session.dto.SessionDto;
+import well_tennis_club.projet.core.session.dto.SessionPlayerDto;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -158,6 +160,69 @@ public class MailFactory {
 			helper.setSubject(subject);
 			helper.setText(htmlBody, true);
 			helper.setTo(mail);
+			helper.setFrom(environment.getProperty("spring.mail.username"));
+			helper.addInline("logo", new ClassPathResource("images/wtc.png"));
+		} catch (MessagingException e) {
+			throw new RuntimeException(e);
+		}
+		return message;
+	}
+
+	public MimeMessage constructPlanningMail(SessionPlayerDto sessionPlayerDto) {
+		String player = sessionPlayerDto.getPlayer().getSurname() + " " + sessionPlayerDto.getPlayer().getName();
+		String subject = "Emploi du temps de " + player;
+
+		StringBuilder sessionsHtml = new StringBuilder();
+		sessionsHtml.append("<table style='width: 100%; border-collapse: collapse; margin-top: 10px;'>");
+		sessionsHtml.append("<tr style='background-color: #61815d; color: white;'>");
+		sessionsHtml.append("<th style='padding: 8px; text-align: left;'>Date</th>");
+		sessionsHtml.append("<th style='padding: 8px; text-align: left;'>Heure début</th>");
+		sessionsHtml.append("<th style='padding: 8px; text-align: left;'>Heure fin</th>");
+		sessionsHtml.append("<th style='padding: 8px; text-align: left;'>Terrain</th></tr>");
+
+		String[] joursSemaine = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
+
+		for (SessionDto session : sessionPlayerDto.getSessions()) {
+			sessionsHtml.append("<tr style='background-color: #ffffff;'>");
+			sessionsHtml.append("<td style='padding: 8px; border-bottom: 1px solid #ddd;'>")
+					.append(joursSemaine[session.getDayWeek()-1]).append("</td>");
+			sessionsHtml.append("<td style='padding: 8px; border-bottom: 1px solid #ddd;'>")
+					.append(session.getStart()).append("</td>");
+			sessionsHtml.append("<td style='padding: 8px; border-bottom: 1px solid #ddd;'>")
+					.append(session.getStop()).append("</td>");
+			sessionsHtml.append("<td style='padding: 8px; border-bottom: 1px solid #ddd;'>")
+					.append(session.getIdCourt().getName()).append("</td></tr>");
+		}
+		sessionsHtml.append("</table>");
+
+		String htmlBody = String.format("""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <table width="100%%" cellpadding="0" cellspacing="0" style="background-color: #61815d; padding: 20px;">
+                <tr>
+                    <td align="center">
+                        <img src="cid:logo" alt="WTC Logo" style="max-width: 100px; height: auto; vertical-align: middle; margin-right: 30px;">
+                        <h1 style="color: white; margin: 0; font-size: 32px; font-weight: bold; display: inline-block; vertical-align: middle;">Well Tennis Club</h1>
+                    </td>
+                </tr>
+            </table>
+            <div style="padding: 20px; background-color: #f8f9fa; border-radius: 5px; margin-top: 20px;">
+                <h2 style="color: #2c3e50;">Bonjour %s,</h2>
+                <p>Voici votre emploi du temps des sessions de tennis :</p>
+                <div style="background-color: #fff; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    %s
+                </div>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                <p style="color: #666;">Cordialement,<br>L'équipe du Well Tennis Club</p>
+            </div>
+        </div>
+        """, sessionPlayerDto.getPlayer().getName(), sessionsHtml);
+
+		MimeMessage message = mailSender.createMimeMessage();
+		try{
+			MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+			helper.setSubject(subject);
+			helper.setText(htmlBody, true);
+			helper.setTo(sessionPlayerDto.getPlayer().getEmail());
 			helper.setFrom(environment.getProperty("spring.mail.username"));
 			helper.addInline("logo", new ClassPathResource("images/wtc.png"));
 		} catch (MessagingException e) {
