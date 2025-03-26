@@ -140,4 +140,42 @@ public class CourtController {
 
 		return ResponseEntity.created(location).body(CourtMapper.INSTANCE.mapToDTO(court));
 	}
+
+	// ========================= DELETE ========================= //
+	@Operation(
+			summary = "Supprime un terrain de tennis",
+			description = "Supprime le terrain de tennis pour l'id spécifié",
+			security = @SecurityRequirement(name = "bearerAuth")
+	)
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "204",
+					description = "Suppression réussie"
+			),
+			@ApiResponse(
+					responseCode = "400",
+					description = "L'id fourni n'est pas un UUID",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			),
+			@ApiResponse(
+					responseCode = "404",
+					description = "Pas de terrain avec cet id",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			)
+	})
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteCourt(@PathVariable UUID id) {
+		int result = courtService.deleteById(id);
+		if (result == 0) {
+			throw new IdNotFoundException("Pas de terrain avec cet id");
+		} else {
+			return ResponseEntity.noContent().build();
+		}
+	}
 }
