@@ -1,6 +1,8 @@
 package well_tennis_club.projet.core.solver;
 
+import ai.timefold.solver.core.api.score.analysis.ScoreAnalysis;
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
+import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +19,7 @@ import well_tennis_club.projet.core.court.CourtService;
 import well_tennis_club.projet.core.player.entity.PlayerEntity;
 import well_tennis_club.projet.core.player.service.PlayerService;
 import well_tennis_club.projet.core.session.SessionEntity;
+import well_tennis_club.projet.core.session.SessionService;
 import well_tennis_club.projet.core.session_constraint.SessionConstraintEntity;
 import well_tennis_club.projet.core.solver.dto.JustificationsDto;
 import well_tennis_club.projet.core.solver.dto.PlayerJustificationsDto;
@@ -26,10 +29,12 @@ import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
 import well_tennis_club.projet.core.trainer.service.TrainerService;
 import well_tennis_club.projet.tool.DataInsertion;
 import well_tennis_club.projet.tool.TimetableFactory;
-import well_tennis_club.timefold.domain.PlayerSessionLink;
-import well_tennis_club.timefold.domain.Session;
-import well_tennis_club.timefold.domain.Timetable;
-import well_tennis_club.timefold.domain.Trainer;
+import well_tennis_club.timefold.domain.*;
+import well_tennis_club.timefold.solver.justifications.PlayerAvailabilityJustification;
+import well_tennis_club.timefold.solver.justifications.PlayerSingleSessionPerDayJustification;
+import well_tennis_club.timefold.solver.justifications.TrainerAvailabilityJustification;
+import well_tennis_club.timefold.solver.justifications.TrainerSessionOverlappingJustification;
+import well_tennis_club.timefold.solver.justifications.groupe.SessionJustification;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -53,11 +58,12 @@ public class SolverController {
 
 	private UUID problemId;
 	private Timetable timetable;
+	private SessionService sessionService;
 
 	@Autowired
 	public SolverController(TimetableFactory timetableFactory, TimetableService timetableService,
 							PlayerService playerService, CourtService courtService, TrainerService trainerService,
-							SolverManager<Timetable, UUID> solverManager, SolutionManager<Timetable, HardSoftScore> solutionManager) {
+							SolverManager<Timetable, UUID> solverManager, SolutionManager<Timetable, HardSoftScore> solutionManager, SessionService sessionService) {
 		this.timetableFactory = timetableFactory;
 		this.timetableService = timetableService;
 		this.playerService = playerService;
@@ -65,6 +71,7 @@ public class SolverController {
 		this.trainerService = trainerService;
 		this.solverManager = solverManager;
 		this.solutionManager = solutionManager;
+		this.sessionService = sessionService;
 	}
 
 	@Operation(summary = "Start the timetable solver", description = "Start the timetable solver")
@@ -114,31 +121,96 @@ public class SolverController {
 
 	@GetMapping("/justifications")
 	public ResponseEntity<List<JustificationsDto>> justifications() {
+		Map<Session, SessionJustificationsDto> sessionJustificationsDtos = new HashMap<>();
+		Map<Player, PlayerJustificationsDto> playerJustificationsDtos = new HashMap<>();
+		Map<Trainer, TrainerJustificationsDto> trainerJustificationsDtos = new HashMap<>();
+
+		ScoreAnalysis<HardSoftScore> scoreAnalysis = solutionManager.analyze(timetable);
+
+		scoreAnalysis.constraintMap().forEach((x, constraintAnalysis) -> {
+			if (constraintAnalysis.matches() == null) return;
+
+			constraintAnalysis.matches().forEach(matchAnalysis -> {
+				ConstraintJustification justification = matchAnalysis.justification();
+
+				switch (justification) {
+					case SessionJustification sessionJustification -> {
+						Session session = sessionJustification.getSession();
+						SessionJustificationsDto sjd = sessionJustificationsDtos.computeIfAbsent(session, s -> {
+							List<PlayerSessionLink> psls = this.timetable.getPlayerSessionLinks().stream()
+									.filter(psl -> psl.getSession().equals(s))
+									.toList();
+							SessionEntity sessionEntity = from(s, psls);
+							return new SessionJustificationsDto(sessionEntity);
+						});
+						sjd.addJustification(sessionJustification.getDescription(), sessionJustification.getScore().toString());
+					}
+					case PlayerSingleSessionPerDayJustification playerJustification -> {
+						Player player = playerJustification.getPlayer();
+						PlayerJustificationsDto pjd = playerJustificationsDtos.computeIfAbsent(player, p -> {
+							PlayerEntity playerEntity = playerService.getPlayerById(player.getId());
+							return new PlayerJustificationsDto(playerEntity);
+						});
+
+						playerJustification.getSessions().forEach(session -> {
+							List<PlayerSessionLink> psls = this.timetable.getPlayerSessionLinks().stream()
+									.filter(psl -> psl.getSession().equals(session))
+									.toList();
+							SessionEntity sessionEntity = from(session, psls);
+							pjd.addSessionPerDay(sessionEntity);
+						});
+					}
+					case PlayerAvailabilityJustification playerJustification -> {
+						Player player = playerJustification.getPlayer();
+						PlayerJustificationsDto pjd = playerJustificationsDtos.computeIfAbsent(player, p -> {
+							PlayerEntity playerEntity = playerService.getPlayerById(player.getId());
+							return new PlayerJustificationsDto(playerEntity);
+						});
+
+						List<PlayerSessionLink> psls = this.timetable.getPlayerSessionLinks().stream()
+								.filter(psl -> psl.getSession().equals(playerJustification.getSession()))
+								.toList();
+						SessionEntity session = from(playerJustification.getSession(), psls);
+						pjd.addUnavailability(session);
+					}
+					case TrainerSessionOverlappingJustification trainerJustification -> {
+						Trainer trainer = trainerJustification.getSessionA().getTrainer();
+						TrainerJustificationsDto tjd = trainerJustificationsDtos.computeIfAbsent(trainer, t -> {
+							TrainerEntity trainerEntity = trainerService.getTrainerById(trainer.getId());
+							return new TrainerJustificationsDto(trainerEntity);
+						});
+
+						List<PlayerSessionLink> psls = this.timetable.getPlayerSessionLinks().stream()
+								.filter(psl -> psl.getSession().equals(trainerJustification.getSessionA()))
+								.toList();
+						SessionEntity session = from(trainerJustification.getSessionA(), psls);
+						tjd.addOverlappingSession(session);
+
+						psls = this.timetable.getPlayerSessionLinks().stream()
+								.filter(psl -> psl.getSession().equals(trainerJustification.getSessionB()))
+								.toList();
+						session = from(trainerJustification.getSessionB(), psls);
+						tjd.addOverlappingSession(session);
+					}
+					case TrainerAvailabilityJustification trainerJustification -> {
+						Trainer trainer = trainerJustification.getSession().getTrainer();
+						TrainerJustificationsDto tjd = trainerJustificationsDtos.computeIfAbsent(trainer, t -> {
+							TrainerEntity trainerEntity = trainerService.getTrainerById(trainer.getId());
+							return new TrainerJustificationsDto(trainerEntity);
+						});
+						SessionEntity session = sessionService.getSessionById(trainerJustification.getSession().getId());
+						tjd.addUnavailability(session);
+					}
+					default -> {
+					}
+				}
+			});
+		});
+
 		List<JustificationsDto> justificationsDtos = new ArrayList<>();
-		TrainerEntity trainerEntity = trainerService.getTrainerByEmail("matheo.pedron214@gmail.com");
-
-		CourtEntity courtEntity = new CourtEntity();
-		courtEntity.setName("Terrain 1");
-
-		SessionEntity sessionEntity = new SessionEntity();
-		sessionEntity.setId(UUID.randomUUID());
-		sessionEntity.setDayWeek(1);
-		sessionEntity.setStart("10:00");
-		sessionEntity.setStop("11:00");
-		sessionEntity.setIdCourt(courtEntity);
-
-		TrainerJustificationsDto trainerJustificationsDto = new TrainerJustificationsDto(trainerEntity);
-		trainerJustificationsDto.addUnavailability(sessionEntity);
-		justificationsDtos.add(trainerJustificationsDto);
-
-		SessionJustificationsDto sessionJustificationsDto = new SessionJustificationsDto(sessionEntity);
-		sessionJustificationsDto.addJustification("Le niveau dépasse de 3.", "3 légères");
-		sessionJustificationsDto.addJustification("L'âge dépasse de 1 an.", "1 légère");
-		justificationsDtos.add(sessionJustificationsDto);
-
-		PlayerJustificationsDto playerJustificationsDto = new PlayerJustificationsDto(playerService.getAllPlayers().getFirst());
-		playerJustificationsDto.addSessionPerDay(sessionEntity);
-		justificationsDtos.add(playerJustificationsDto);
+		justificationsDtos.addAll(sessionJustificationsDtos.values());
+		justificationsDtos.addAll(playerJustificationsDtos.values());
+		justificationsDtos.addAll(trainerJustificationsDtos.values());
 
 		return ResponseEntity.ok(justificationsDtos);
 	}

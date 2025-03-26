@@ -125,7 +125,7 @@ public class DataInsertion {
 	public static class tennisCourts {
 		public static List<CourtEntity> small = List.of(
 				CourtEntityConverter.from("Terrain 1", List.of(
-						new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(14, 0))
+						new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(8, 0), LocalTime.of(8, 30))
 				))
 		);
 
@@ -196,7 +196,7 @@ public class DataInsertion {
 
 	public static class players {
 		public static List<PlayerEntity> small = List.of(
-				PlayerEntityConverter.from("player", "1", 25, 9, 1, timeslot.small.group_1, sessionConstraints.real),
+				PlayerEntityConverter.from("player", "1", 25, 9, 2, timeslot.small.group_1, sessionConstraints.real),
 				PlayerEntityConverter.from("player", "2", 25, 9, 1, timeslot.small.group_2, sessionConstraints.real),
 				PlayerEntityConverter.from("player", "3", 25, 9, 1, timeslot.small.group_2, sessionConstraints.real)
 		);

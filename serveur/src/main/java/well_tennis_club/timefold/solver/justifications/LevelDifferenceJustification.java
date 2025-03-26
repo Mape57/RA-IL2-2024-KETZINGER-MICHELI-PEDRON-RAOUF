@@ -1,21 +1,28 @@
 package well_tennis_club.timefold.solver.justifications;
 
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
+import lombok.Getter;
 import well_tennis_club.timefold.domain.Session;
+import well_tennis_club.timefold.solver.justifications.groupe.SessionJustification;
 
 /**
  * Justification d'une contrainte de différence de niveau dépassée.
  */
-public record LevelDifferenceJustification(Session session, Integer levelOverflow, HardSoftScore score,
-										   String description) implements ConstraintJustification {
+@Getter
+public class LevelDifferenceJustification extends SessionJustification {
+	private final Integer levelOverflow;
+
 	public LevelDifferenceJustification(Session session, Integer levelOverflow, HardSoftScore score) {
-		this(session, levelOverflow, score, getDescription(session, levelOverflow, score));
+		this(session, levelOverflow, score, getDescription(levelOverflow));
 	}
 
-	private static String getDescription(Session session, Integer levelOverflow, HardSoftScore score) {
-		return String.format("Dépassement de niveau (%d) pour %s : %s",
-				levelOverflow, session, score.toString());
+	public LevelDifferenceJustification(Session session, Integer levelOverflow, HardSoftScore score, String description) {
+		super(session, score, description);
+		this.levelOverflow = levelOverflow;
+	}
+
+	private static String getDescription(Integer levelOverflow) {
+		return String.format("La différence de niveau du groupe est trop grande de %d niveaux.", levelOverflow);
 	}
 
 	@Override

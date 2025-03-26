@@ -106,7 +106,7 @@ public final class SampleData {
 	public static class tennisCourts {
 		public static List<TennisCourt> small = List.of(
 				new TennisCourt("Terrain 1", List.of(
-						new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(14, 0))
+						new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(8, 30))
 				))
 		);
 
@@ -173,9 +173,9 @@ public final class SampleData {
 
 	public static class players {
 		public static List<Player> small = List.of(
-				new Player(25, 9, 1, timeslot.small.group_1, sessionConstraints.real),
-				new Player(25, 9, 1, timeslot.small.group_2, sessionConstraints.real),
-				new Player(25, 9, 1, timeslot.small.group_2, sessionConstraints.real)
+				new Player(25, 9, 1, timeslot.small.group_1, sessionConstraints.real.get(2)),
+				new Player(28, 9, 1, timeslot.small.group_2, sessionConstraints.real.get(2)),
+				new Player(25, 9, 1, timeslot.small.group_2, sessionConstraints.real.get(2))
 		);
 
 		public static List<Player> medium = List.of(

@@ -25,11 +25,13 @@ public class TrainerJustificationsDto extends JustificationsDto {
 
 	public void addUnavailability(SessionEntity session) {
 		MinimizedSessionDto msd = MinimizedSessionMapper.INSTANCE.mapToDTO(session);
+		if (unavailabilities.contains(msd)) return;
 		unavailabilities.add(msd);
 	}
 
 	public void addOverlappingSession(SessionEntity session) {
 		MinimizedSessionDto msd = MinimizedSessionMapper.INSTANCE.mapToDTO(session);
+		if (overlappingSessions.contains(msd)) return;
 		overlappingSessions.add(msd);
 	}
 }

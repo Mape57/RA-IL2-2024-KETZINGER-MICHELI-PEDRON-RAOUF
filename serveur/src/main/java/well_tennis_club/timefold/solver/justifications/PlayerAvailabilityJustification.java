@@ -1,17 +1,21 @@
 package well_tennis_club.timefold.solver.justifications;
 
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
+import lombok.Getter;
 import well_tennis_club.timefold.domain.PlayerSessionLink;
 import well_tennis_club.timefold.domain.Session;
+import well_tennis_club.timefold.solver.justifications.groupe.PlayerJustification;
 
 /**
  * Justification d'une contrainte de disponibilité de joueur non respectée.
  */
-public record PlayerAvailabilityJustification(PlayerSessionLink playerSessionLink, HardSoftScore score,
-											  String description) implements ConstraintJustification {
+@Getter
+public class PlayerAvailabilityJustification extends PlayerJustification {
+	private final Session session;
+
 	public PlayerAvailabilityJustification(PlayerSessionLink playerSessionLink, HardSoftScore score) {
-		this(playerSessionLink, score, getDescription(playerSessionLink, score));
+		super(playerSessionLink.getPlayer(), score, getDescription(playerSessionLink, score));
+		this.session = playerSessionLink.getSession();
 	}
 
 	private static String getDescription(PlayerSessionLink playerSessionLink, HardSoftScore score) {

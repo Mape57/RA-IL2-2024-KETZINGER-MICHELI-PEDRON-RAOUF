@@ -6,7 +6,6 @@ import org.jspecify.annotations.Nullable;
 import well_tennis_club.timefold.domain.PlayerSessionLink;
 import well_tennis_club.timefold.domain.Session;
 
-import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +13,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class SessionPerDayCollector implements UniConstraintCollector<PlayerSessionLink, List<Session>, List<DayOfWeek>> {
+public class SessionPerDayCollector implements UniConstraintCollector<PlayerSessionLink, List<Session>, List<Session>> {
 	@Override
 	public @NonNull Supplier<List<Session>> supplier() {
 		return ArrayList::new;
@@ -30,15 +29,17 @@ public class SessionPerDayCollector implements UniConstraintCollector<PlayerSess
 	}
 
 	@Override
-	public @Nullable Function<List<Session>, List<DayOfWeek>> finisher() {
+	public @Nullable Function<List<Session>, List<Session>> finisher() {
 		return sessions -> {
-			List<DayOfWeek> days = new ArrayList<>();
+			List<Session> days = new ArrayList<>();
 			for (int i = 0; i < sessions.size() - 1; i++) {
 				Session session = sessions.get(i);
 				for (int j = i + 1; j < sessions.size(); j++) {
 					Session otherSession = sessions.get(j);
 					if (Objects.equals(session.getDay(), otherSession.getDay())) {
-						days.add(session.getDay());
+						days.add(session);
+						days.add(otherSession);
+						break;
 					}
 				}
 			}

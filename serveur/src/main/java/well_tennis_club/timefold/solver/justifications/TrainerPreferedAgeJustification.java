@@ -1,21 +1,24 @@
 package well_tennis_club.timefold.solver.justifications;
 
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
+import lombok.Getter;
 import well_tennis_club.timefold.domain.Session;
+import well_tennis_club.timefold.solver.justifications.groupe.SessionJustification;
 
 /**
  * Justification d'une contrainte de préférence d'âge d'un entraîneur non respectée.
  */
-public record TrainerPreferedAgeJustification(Session session, Integer trainerAgeOverflow, HardSoftScore score,
-											  String description) implements ConstraintJustification {
+@Getter
+public class TrainerPreferedAgeJustification extends SessionJustification {
+	private final Integer trainerAgeOverflow;
+
 	public TrainerPreferedAgeJustification(Session session, Integer trainerAgeOverflow, HardSoftScore score) {
-		this(session, trainerAgeOverflow, score, getDescription(session, trainerAgeOverflow, score));
+		this(session, trainerAgeOverflow, score, "Les préférences d'âge de l'entraîneur ne sont pas respectées.");
 	}
 
-	private static String getDescription(Session session, Integer trainerAgeOverflow, HardSoftScore score) {
-		return String.format("Depassement age (+%d) de %s pour %s  : %s",
-				trainerAgeOverflow, session.getTrainer().getId(), session, score);
+	public TrainerPreferedAgeJustification(Session session, Integer trainerAgeOverflow, HardSoftScore score, String description) {
+		super(session, score, description);
+		this.trainerAgeOverflow = trainerAgeOverflow;
 	}
 
 	@Override
