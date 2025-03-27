@@ -16,9 +16,7 @@
         </button>
 
         <!-- Bouton "Valider la génération" -->
-        <ValidationPopup>
-
-        </ValidationPopup>
+        <ValidationPopup />
       <!-- Statut ou alerte (centré) -->
       <div v-if="statusMessage" class="flex items-center text-[#d97706] flex-1 justify-center tablet:order-2">
         <span class="material-symbols-outlined mr-1 text-lg">warning</span>
@@ -51,6 +49,7 @@
 import useSolver from "../../useJs/useSolver.js";
 import PlayerInfoView from "../vueInformations/PlayerInfoView.vue";
 import ValidationPopup from "../generationValidation/ValidationPopup.vue";
+import { useSessionsStore } from "../../store/useSessionsStore.js";
 
 export default {
   name: "BottomPanel",
@@ -59,6 +58,7 @@ export default {
     return {
       running: false,
       statusMessage: "",
+      sessionStore: useSessionsStore(),
       showValidationPopup: false,
     }
   },
@@ -75,9 +75,20 @@ export default {
     toggleValidationPopup() {
       this.showValidationPopup = true;
     },
-    sendSchedule() {
-      this.$emit("sendSchedule");
-    },
+    async sendSchedule() {
+      try {
+        const result = await this.sessionStore.sendSessionMails();
+        if (result === true) {
+          alert("Les mails ont été envoyés avec succès !");
+        } else {
+          alert("L'envoi des mails a échoué.");
+        }
+      } catch (error) {
+        alert("Erreur lors de l'envoi des mails.");
+        console.error(error);
+      }
+    }
+
   },
 };
 </script>

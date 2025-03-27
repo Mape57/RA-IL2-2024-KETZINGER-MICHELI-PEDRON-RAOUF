@@ -109,14 +109,14 @@
           </div>
           <div v-if="!localIsMobile && userRole === 'ROLE_ADMIN'" class="flex space-x-2 items-center">
             <span
-                class="material-symbols-outlined cursor-pointer small-icon text-green-600 hover:text-green-800"
+                class="material-symbols-outlined cursor-pointer small-icon text-black-600 hover:text-green-600"
                 title="Éditer cette contrainte"
                 @click.stop="editConstraint(constraint)"
             >
               edit
             </span>
                       <span
-                          class="material-symbols-outlined cursor-pointer small-icon text-red-600 hover:text-red-800"
+                          class="material-symbols-outlined cursor-pointer small-icon text-black-600 hover:text-red-600"
                           title="Supprimer cette contrainte"
                           @click.stop="deleteConstraint(constraint.id)"
                       >

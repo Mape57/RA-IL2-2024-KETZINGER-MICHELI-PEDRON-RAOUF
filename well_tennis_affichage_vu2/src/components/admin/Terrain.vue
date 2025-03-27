@@ -33,13 +33,13 @@
           </div>
           <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ROLE_ADMIN'">
               <span
-                  class="material-symbols-outlined small-icon cursor-pointer text-green-600 hover:text-green-800"
+                  class="material-symbols-outlined small-icon cursor-pointer text-black-600 hover:text-green-600"
                   title="Modifier le terrain"
                   @click.stop="editTerrain(terrain)"
               >edit</span>
 
             <span
-                class="material-symbols-outlined small-icon cursor-pointer text-red-600 hover:text-red-800"
+                class="material-symbols-outlined small-icon cursor-pointer text-black-600 hover:text-red-600"
                 title="Supprimer le terrain"
                 @click.stop="deleteTerrain(terrain.id)"
             >delete</span>
