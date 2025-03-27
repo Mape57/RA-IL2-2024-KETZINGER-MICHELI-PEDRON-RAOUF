@@ -27,11 +27,11 @@ export const useSessionsStore = defineStore("sessions", () => {
 	const updateSession = async (sessionData) => {
 		try {
 			if (!sessionData) {
-				console.error("❌ Erreur: session est null ou undefined");
+				console.error("Erreur: session est null ou undefined");
 				return null;
 			}
 			if (!sessionData.id) {
-				console.error("❌ Erreur: session.id est null ou undefined");
+				console.error("Erreur: session.id est null ou undefined");
 				return null;
 			}
 			// Ensure players array is never null
@@ -68,7 +68,7 @@ export const useSessionsStore = defineStore("sessions", () => {
 			console.log("✅ Session mise à jour :", response.data);
 			return response.data;
 		} catch (error) {
-				console.error("❌ Erreur lors de la mise à jour :", error.message);
+				console.error("Erreur lors de la mise à jour :", error.message);
 		}
 	};
 

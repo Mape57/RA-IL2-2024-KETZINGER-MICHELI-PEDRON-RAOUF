@@ -176,6 +176,7 @@
               @update-players="updateSessionsPlayers"
               @delete="deleteSession(session.id)"
               @update-coach="handleCoachUpdate"
+              @player-removed="handlePlayerRemoved"
           />
         </div>
       </div>
