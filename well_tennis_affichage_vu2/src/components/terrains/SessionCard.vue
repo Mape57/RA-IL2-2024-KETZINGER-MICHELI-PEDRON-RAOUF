@@ -86,7 +86,7 @@
       </div>
 
 
-      <div class="lg:w-[10%] flex justify-end" v-if="userRole === 'ADMIN'">
+      <div class="lg:w-[10%] flex justify-end" v-if="userRole === 'ROLE_ADMIN'">
         <button @click="$emit('delete')" class="delete-button">
           <span class="material-icons delete-icon">delete</span>
           <span class="delete-text">Supprimer</span>
@@ -119,7 +119,7 @@
         </span>
       </div>
 
-      <div class="mt-1 flex justify-end" v-if="userRole === 'ADMIN'">
+      <div class="mt-1 flex justify-end" v-if="userRole === 'ROLE_ADMIN'">
         <button @click="$emit('delete')" class="delete-button">
           <span class="material-icons delete-icon">delete</span>
           <span class="delete-text">Supprimer</span>

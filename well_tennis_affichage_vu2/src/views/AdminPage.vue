@@ -23,12 +23,12 @@
       <transition name="slide-fade">
         <LeftPanel v-if="showLeftPanel" class="mobile-left-panel" :isMobile="true" @close="toggleLeftPanel" />
       </transition>
-      <RightPanel class="mobile-right-panel" :userRole="'ADMIN'" :key="updateValue"/>
+      <RightPanel class="mobile-right-panel" :userRole="'ROLE_ADMIN'" :key="updateValue"/>
     </div>
 
     <div v-else class="flex w-full h-full flex-1">
-      <LeftPanel class="desktop-left-panel" :isMobile="false" :userRole="'ADMIN'" />
-      <RightPanel class="desktop-right-panel" :userRole="'ADMIN'" :key="updateValue"/>
+      <LeftPanel class="desktop-left-panel" :isMobile="false" :userRole="'ROLE_ADMIN'" />
+      <RightPanel class="desktop-right-panel" :userRole="'ROLE_ADMIN'" :key="updateValue"/>
     </div>
     <BottomPanel v-if="!isMobile" :statusMessage="statusMessage" @launch="handleLaunch" @updatePlayers="fetchPlayers"
                  @submitChanges="handleSubmitChanges" @sendSchedule="handleSendSchedule" class="aligned-bottom-panel" />  </div>

@@ -11,7 +11,7 @@
         <h3 class="font-bold text-lg trainer-title">Entraîneurs</h3>
       </div>
 
-      <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ADMIN'">
+      <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ROLE_ADMIN'">
           <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter" ref="addTrainerButton"
                 @click="addTrainer">
             person_add
@@ -57,7 +57,7 @@
 
 
       <TrainerInfoView
-          v-if="selectedTrainer && !isMobile && userRole === 'ADMIN'"
+          v-if="selectedTrainer && !isMobile && userRole === 'ROLE_ADMIN'"
           :trainer="selectedTrainer"
           @close="selectedTrainer = null"
           @delete="handleTrainerDeletion"
@@ -135,12 +135,12 @@ export default {
       this.selectedTrainer = this.selectedTrainer?.id === trainer.id ? null : trainer;
     },
     handleTrainerDeletion(deletedTrainerId) {
-      if (this.userRole !== "ADMIN") return;
+      if (this.userRole !== "ROLE_ADMIN") return;
       this.$emit('update:trainers', this.trainers.filter(trainer => trainer.id !== deletedTrainerId));
       this.selectedTrainer = null;
     },
     handleTrainerSave(savedTrainer) {
-      if (this.userRole !== "ADMIN") return;
+      if (this.userRole !== "ROLE_ADMIN") return;
       if (!savedTrainer || typeof savedTrainer !== "object") return;
       const index = this.trainers.findIndex(t => t.id === savedTrainer.id);
       if (index !== -1) {
@@ -166,7 +166,7 @@ export default {
       });
     },
     addTrainer() {
-      if (this.localIsMobile || this.userRole !== "ADMIN") return;
+      if (this.localIsMobile || this.userRole !== "ROLE_ADMIN") return;
       this.selectedTrainer = {
         id: null, // Pas encore défini
         name: "",

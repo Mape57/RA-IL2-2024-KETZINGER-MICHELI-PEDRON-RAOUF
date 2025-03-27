@@ -90,7 +90,7 @@ export default {
          // this.$router.push('/admin'); // Redirection après connexion
           if (userRole === "TRAINER") {
             this.$router.push('/trainer');
-          } else if (userRole === "ADMIN") {
+          } else if (userRole === "ROLE_ADMIN") {
             this.$router.push('/admin');
           } else {
             this.$router.push('/');

@@ -9,7 +9,7 @@
         <h3 class="font-bold text-lg terrain-title">Terrains</h3>
       </div>
 
-      <div v-if="!localIsMobile && userRole === 'ADMIN'">
+      <div v-if="!localIsMobile && userRole === 'ROLE_ADMIN'">
     <span
         class="material-symbols-outlined small-icon cursor-pointer text-black hover:text-green-800"
         title="Ajouter un terrain"
@@ -31,7 +31,7 @@
             </span>
             <h4 class="font-semibold terrain-sub-title">{{ terrain.name }}</h4>
           </div>
-          <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ADMIN'">
+          <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ROLE_ADMIN'">
               <span
                   class="material-symbols-outlined small-icon cursor-pointer text-green-600 hover:text-green-800"
                   title="Modifier le terrain"
@@ -231,7 +231,7 @@ export default {
     };
 
     const deleteSchedule = (id) => {
-      if (userRole.value !== "ADMIN") return;
+      if (userRole.value !== "ROLE_ADMIN") return;
       console.log("Suppression horaire ID :", id);
     };
 

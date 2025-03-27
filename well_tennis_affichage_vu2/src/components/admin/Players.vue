@@ -13,7 +13,7 @@
       </div>
 
       <!-- Boutons d'action -->
-      <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ADMIN'">
+      <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ROLE_ADMIN'">
   <span class="material-symbols-outlined small-icon cursor-pointer"
         title="Ajouter"
         ref="addPlayerButton"
@@ -62,7 +62,7 @@
 
       <!-- Affichage de PlayerInfoView -->
       <PlayerInfoView
-          v-if="selectedPlayer && !isMobile && userRole === 'ADMIN'"
+          v-if="selectedPlayer && !isMobile && userRole === 'ROLE_ADMIN'"
           :player="selectedPlayer"
           @close="selectedPlayer = null"
           @delete="handlePlayerDeletion"
@@ -157,7 +157,7 @@ export default {
       this.selectedPlayer = null; // Ferme l'affichage des détails
     },
     handlePlayerSave(savedPlayer) {
-      if (this.userRole !== "ADMIN") return;
+      if (this.userRole !== "ROLE_ADMIN") return;
       if (!savedPlayer || typeof savedPlayer !== "object") {
         console.error("Données invalides reçues dans handlePlayerSave :", savedPlayer);
         return;
@@ -189,7 +189,7 @@ export default {
 
 
     addPlayer() {
-      if (this.localIsMobile || this.userRole !== "ADMIN") return; // Empêche l'ajout de joueurs en mode mobile
+      if (this.localIsMobile || this.userRole !== "ROLE_ADMIN") return; // Empêche l'ajout de joueurs en mode mobile
       this.selectedPlayer = {
         id: null,
         name: "",

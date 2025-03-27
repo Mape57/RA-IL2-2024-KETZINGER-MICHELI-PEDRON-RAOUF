@@ -37,8 +37,8 @@
 import {ref} from 'vue';
 import TrainerDescription from "./widget/TrainerDescription.vue";
 import PlayersDescription from "./widget/PlayersDescription.vue";
-import useSessions from "../../useJs/useSessions.js";
 import {getDay, getFormattedScore} from "../../functionality/conversionUtils.js";
+import {useSessionsStore} from "../../store/useSessionsStore.js";
 
 export default {
   methods: {getFormattedScore, getDay},
@@ -52,40 +52,39 @@ export default {
       required: true,
     },
   },
-  setup(props) {
+  emits: ['session-handled'],
+  setup(props, ctx) {
     const trainerChecked = ref(true);
     const playerCheckedStates = ref(props.justification.session.players.map(() => true));
 
-    const updateSession = () => {
+    const updateSession = async () => {
       const sessionData = { ...props.justification.session };
+
+      sessionData.players = props.justification.session.players
+          .filter((_, index) => playerCheckedStates.value[index])
 
       if (!trainerChecked.value) {
         sessionData.idTrainer = null;
-      } else if (sessionData.idTrainer) {
-        sessionData.idTrainer = sessionData.idTrainer.id;
       }
 
-      sessionData.playerIds = props.justification.session.players
-          .filter((_, index) => playerCheckedStates.value[index])
-          .map(player => player.id);
-      sessionData.playerIds = sessionData.playerIds || [];
-
-      if (sessionData.idCourt && typeof sessionData.idCourt === 'object') {
-        sessionData.idCourt = sessionData.idCourt.id;
+      try {
+        await useSessionsStore().updateSession(sessionData);
+        console.log("Session updated successfully");
+        ctx.emit('session-handled', props.justification.session.id);
+      } catch (error) {
+        console.error("Failed to update session:", error);
       }
-
-      useSessions().updateSession(sessionData)
-          .then(() => console.log("Session updated successfully"))
-          .catch(error => console.error("Failed to update session:", error));
     };
 
-    const deleteSession = () => {
+    const deleteSession = async () => {
       if (confirm('Êtes-vous sûr de vouloir supprimer cette session ?')) {
-        useSessions().deleteSession(props.justification.session.id)
-            .then(() => {
-              console.log("Session supprimée avec succès");
-            })
-            .catch(error => console.error("Échec de la suppression de la session:", error));
+        try {
+          await useSessionsStore().deleteSession(props.justification.session.id);
+          console.log("Session supprimée avec succès");
+          ctx.emit('session-handled', props.justification.session.id);
+        } catch (error) {
+          console.error("Échec de la suppression de la session:", error);
+        }
       }
     };
 

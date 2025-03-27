@@ -12,7 +12,7 @@
             <h3 class="font-bold text-lg session-title">Séances</h3>
       </div>
 
-      <div class="flex space-x-2 justify-end w-full" v-if="!localIsMobile && userRole === 'ADMIN'">
+      <div class="flex space-x-2 justify-end w-full" v-if="!localIsMobile && userRole === 'ROLE_ADMIN'">
         <span class="material-symbols-outlined small-icon cursor-pointer" title="Ajouter" @click="showPopup = true">add</span>
       </div>
 
@@ -107,7 +107,7 @@
 
             <h4 class="font-semibold session-sub-title"> {{ constraint.infAge }} - {{ constraint.supAge }} ans</h4>
           </div>
-          <div v-if="!localIsMobile && userRole === 'ADMIN'" class="flex space-x-2 items-center">
+          <div v-if="!localIsMobile && userRole === 'ROLE_ADMIN'" class="flex space-x-2 items-center">
             <span
                 class="material-symbols-outlined cursor-pointer small-icon text-green-600 hover:text-green-800"
                 title="Éditer cette contrainte"

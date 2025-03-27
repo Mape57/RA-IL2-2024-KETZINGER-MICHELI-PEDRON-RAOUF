@@ -18,8 +18,10 @@
 
         <div class="popup-content">
           <SessionValidation
-              v-for="(justification, index) in justifications" :key="index"
-              :justification="justification"/>
+              v-for="justification in justifications"
+              :key="justification.session.id"
+              :justification="justification"
+              @session-handled="removeJustification" />
         </div>
       </div>
     </div>
@@ -41,6 +43,12 @@ watch(open, async (isOpen) => {
     justifications.value = await useSolver().solverJustifications();
   }
 });
+
+const removeJustification = (sessionId) => {
+  justifications.value = justifications.value.filter(
+      justification => justification.session.id !== sessionId
+  );
+};
 </script>
 
 <style>
@@ -157,7 +165,7 @@ watch(open, async (isOpen) => {
 }
 
 .validation {
-  padding: 0 1rem;
+  padding: 0 1rem 1.5rem;
 
   > h3 {
     font-size: 1.2rem;

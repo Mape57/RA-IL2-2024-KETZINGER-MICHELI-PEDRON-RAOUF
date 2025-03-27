@@ -29,7 +29,7 @@
       </div>
 
       <button
-          v-if="userRole === 'ADMIN' && !isMobile"
+          v-if="userRole === 'ROLE_ADMIN' && !isMobile"
           @click="selectTab('settings')"
           :class="{ active: selectedTab === 'settings' }"
           class="tab-button flex-grow flex items-center justify-center"
@@ -56,14 +56,14 @@
             :searchQuery="searchQuery"
             :isMobile="isMobile"
             :userRole="userRole"
-            @update:trainers="userRole === 'ADMIN' ? updateTrainers : () => {}"
+            @update:trainers="userRole === 'ROLE_ADMIN' ? updateTrainers : () => {}"
         />
         <Players
             :players="players"
             :searchQuery="searchQuery"
             :isMobile="isMobile"
             :userRole="userRole"
-            @update:players="userRole === 'ADMIN' ? updatePlayers : () => {}"
+            @update:players="userRole === 'ROLE_ADMIN' ? updatePlayers : () => {}"
         />
       </div>
 
