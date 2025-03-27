@@ -36,7 +36,7 @@
 
         </div>
         <div class="mb-2">
-          <span class="font-bold text-sm">Âge :</span> {{ ageGroup }} ans
+          <span class="font-bold text-sm">Âge :</span> {{ ageGroup }}
         </div>
         <div>
           <span class="font-bold text-sm">Niveau :</span> {{ skillLevel }}
@@ -105,7 +105,7 @@
           {{ coach }}
         </div>
         <div class="text-custom-color text-sm font-medium" @click="showInfo = !showInfo">
-          {{ showInfo ? (ageGroup + ' ans, Niveau: ' + skillLevel) : (startTime + ' - ' + endTime) }}
+          {{ showInfo ? (ageGroup + ', Niveau: ' + skillLevel) : (startTime + ' - ' + endTime) }}
         </div>
       </div>
 
