@@ -13,7 +13,7 @@ export default {
     deleteSession(id) {
         return apiService.delete(`/sessions/${id}`);
     },
-    getSessionForPlayer(id) {
-        return apiService.getData(`/sessions/players/${id}`);
+    getSessionSendMail(){
+        return apiService.getData("/sessions/sendMail");
     }
 };

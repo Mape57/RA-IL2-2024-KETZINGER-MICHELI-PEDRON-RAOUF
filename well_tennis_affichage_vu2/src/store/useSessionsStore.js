@@ -85,12 +85,24 @@ export const useSessionsStore = defineStore("sessions", () => {
 		}
 	};
 
+	const sendSessionMails = async () => {
+		try {
+			const response = await sessionsService.getSessionSendMail();
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de l'envoi des mails :", error);
+			throw error;
+		}
+	};
+
+
 	return {
 		sessions,
 		fetchSessions,
 		refreshSessions,
 		updateSession,
-		deleteSession
+		deleteSession,
+		sendSessionMails
 	};
 });
 
