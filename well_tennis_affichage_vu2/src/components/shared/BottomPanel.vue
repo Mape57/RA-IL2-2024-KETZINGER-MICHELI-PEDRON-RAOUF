@@ -48,7 +48,7 @@
 
 <script>
 import useSolver from "../../useJs/useSolver.js";
-import RightPanel from "../terrains/RightPanel.vue";
+import { useSessionsStore } from "../../store/useSessionsStore.js";
 
 export default {
   name: "BottomPanel",
@@ -56,6 +56,8 @@ export default {
     return {
       running: false,
       statusMessage: "",
+      sessionStore: useSessionsStore(),
+
     }
   },
   methods: {
@@ -77,9 +79,20 @@ export default {
         });
       });
     },
-    sendSchedule() {
-      this.$emit("sendSchedule");
-    },
+    async sendSchedule() {
+      try {
+        const result = await this.sessionStore.sendSessionMails();
+        if (result === true) {
+          alert("Les mails ont été envoyés avec succès !");
+        } else {
+          alert("L'envoi des mails a échoué.");
+        }
+      } catch (error) {
+        alert("Erreur lors de l'envoi des mails.");
+        console.error(error);
+      }
+    }
+
   },
 };
 </script>
