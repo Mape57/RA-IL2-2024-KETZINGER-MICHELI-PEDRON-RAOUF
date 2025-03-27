@@ -28,7 +28,7 @@ public class SessionService {
 		return sessionRepository.save(entity);
 	}
 
-	public int deleteById(UUID id) {
+	public List<SessionEntity> deleteById(UUID id) {
 		return sessionRepository.deleteSessionEntityById(id);
 	}
 

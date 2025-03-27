@@ -14,22 +14,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import well_tennis_club.projet.core.player.dto.PlayerDto;
-import well_tennis_club.projet.core.player.mapper.PlayerMapper;
+import well_tennis_club.projet.core.player.entity.PlayerEntity;
 import well_tennis_club.projet.core.player.service.PlayerService;
 import well_tennis_club.projet.core.session.dto.NewSessionDto;
 import well_tennis_club.projet.core.session.dto.SessionDto;
 import well_tennis_club.projet.core.session.dto.SessionPlayerDto;
 import well_tennis_club.projet.core.session.mapper.NewSessionMapperImpl;
 import well_tennis_club.projet.core.session.mapper.SessionMapper;
+import well_tennis_club.projet.core.solver.SolverController;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
 import well_tennis_club.projet.tool.MailFactory;
 
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("sessions")
@@ -43,7 +44,7 @@ public class SessionController {
 	private final JavaMailSender mailSender;
 
 	@Autowired
-	public SessionController(SessionService sessionService, NewSessionMapperImpl newSessionMapperImpl,PlayerService playerService,MailFactory mailFactory, JavaMailSender mailSender) {
+	public SessionController(SessionService sessionService, NewSessionMapperImpl newSessionMapperImpl, PlayerService playerService, MailFactory mailFactory, JavaMailSender mailSender) {
 		this.sessionService = sessionService;
 		this.newSessionMapperImpl = newSessionMapperImpl;
 		this.playerService = playerService;
@@ -104,13 +105,13 @@ public class SessionController {
 					.map(entry -> new SessionPlayerDto(entry.getKey(), entry.getValue()))
 					.toList();
 
-			for(SessionPlayerDto session : response){
+			for (SessionPlayerDto session : response) {
 				MimeMessage message = mailFactory.constructPlanningMail(session);
 				mailSender.send(message);
 			}
 
 			return ResponseEntity.ok(true);
-		}catch (Exception e){
+		} catch (Exception e) {
 			return ResponseEntity.ok(false);
 		}
 	}
@@ -196,6 +197,8 @@ public class SessionController {
 			session = newSessionMapperImpl.mapToEntity(sessionDto);
 			session.setId(id);
 			session = sessionService.updateSession(session);
+			// permet de ne pas afficher une justification déjà étudiée
+			SolverController.modifiedSession(session);
 			return ResponseEntity.ok(SessionMapper.INSTANCE.mapToDTO(session));
 		}
 	}
@@ -222,10 +225,11 @@ public class SessionController {
 	})
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteSession(@PathVariable UUID id) {
-		int result = sessionService.deleteById(id);
-		if (result == 0) {
+		SessionEntity session = sessionService.deleteById(id).getFirst();
+		if (session == null) {
 			throw new IdNotFoundException("Pas de session avec cet id");
 		} else {
+			SolverController.modifiedSession(session);
 			return ResponseEntity.noContent().build();
 		}
 	}

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface SessionRepository extends ListCrudRepository<SessionEntity, UUID> {
-	int deleteSessionEntityById(UUID id);
+	List<SessionEntity> deleteSessionEntityById(UUID id);
 
 	List<SessionEntity> findAllByIdTrainer(TrainerEntity trainer);
 }

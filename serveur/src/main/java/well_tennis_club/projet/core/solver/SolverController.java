@@ -6,8 +6,11 @@ import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
 import ai.timefold.solver.core.api.solver.SolutionManager;
 import ai.timefold.solver.core.api.solver.SolverManager;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,12 +24,11 @@ import well_tennis_club.projet.core.player.service.PlayerService;
 import well_tennis_club.projet.core.session.SessionEntity;
 import well_tennis_club.projet.core.session.SessionService;
 import well_tennis_club.projet.core.session_constraint.SessionConstraintEntity;
-import well_tennis_club.projet.core.solver.dto.JustificationsDto;
-import well_tennis_club.projet.core.solver.dto.PlayerJustificationsDto;
 import well_tennis_club.projet.core.solver.dto.SessionJustificationsDto;
-import well_tennis_club.projet.core.solver.dto.TrainerJustificationsDto;
 import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
 import well_tennis_club.projet.core.trainer.service.TrainerService;
+import well_tennis_club.projet.exception.SolverRequestOrderException;
+import well_tennis_club.projet.tool.ApiErrorResponse;
 import well_tennis_club.projet.tool.DataInsertion;
 import well_tennis_club.projet.tool.TimetableFactory;
 import well_tennis_club.timefold.domain.*;
@@ -56,6 +58,7 @@ public class SolverController {
 	private UUID problemId;
 	private Timetable timetable;
 	private SessionService sessionService;
+	private static List<UUID> updatedSessions = new ArrayList<>();
 
 	@Autowired
 	public SolverController(TimetableFactory timetableFactory, TimetableService timetableService, PlayerService playerService, CourtService courtService, TrainerService trainerService, SolverManager<Timetable, UUID> solverManager, SolutionManager<Timetable, HardSoftScore> solutionManager, SessionService sessionService) {
@@ -69,14 +72,32 @@ public class SolverController {
 		this.sessionService = sessionService;
 	}
 
-	@Operation(summary = "Start the timetable solver", description = "Start the timetable solver")
-	@ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully started"), @ApiResponse(responseCode = "409", description = "Conflict - Timetable solver was already started"), @ApiResponse(responseCode = "500", description = "Internal server error - Timetable solver was not started")})
+	@Operation(
+			summary = "Lance le solveur",
+			description = "Lance le solveur pour résoudre le problème de planification des sessions de tennis",
+			security = @SecurityRequirement(name = "bearerAuth")
+	)
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "200",
+					description = "Solveur lancé"
+			),
+			@ApiResponse(
+					responseCode = "409",
+					description = "Le solveur est déjà en cours d'exécution",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			)
+	})
 	@PostMapping
 	public ResponseEntity<String> startSolver() {
 		if (problemId != null) {
-			return ResponseEntity.status(409).body("Timetable solver was already started");
+			throw new SolverRequestOrderException("Le solveur est déjà en cours d'exécution");
 		}
 
+		updatedSessions.clear();
 		this.timetable = timetableFactory.createTimetable();
 
 		this.problemId = UUID.randomUUID();
@@ -91,25 +112,67 @@ public class SolverController {
 			saveTimetable();
 		}).run();
 
-		return ResponseEntity.ok("Solver started");
+		return ResponseEntity.ok("Solveur lancé");
 	}
 
+	@Operation(
+			summary = "Récupère le statut du solveur",
+			description = "Récupère le statut du solveur (non lancé, terminé, en cours)",
+			security = @SecurityRequirement(name = "bearerAuth")
+	)
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "200",
+					description = "Statut du solveur récupéré",
+					content = @Content(
+							mediaType = "text/plain",
+							schema = @Schema(type = "string", example = "Le solveur n'est pas lancé")
+					)
+			)
+	})
 	@GetMapping
 	public ResponseEntity<String> status() {
 		if (problemId == null && timetable == null) {
-			return ResponseEntity.ok("Solver not started");
+			return ResponseEntity.ok("Le solveur n'est pas lancé");
 		} else if (problemId == null) {
-			return ResponseEntity.ok("Solver finished, final score: " + timetable.getScore());
+			return ResponseEntity.ok("Le solveur est terminé, meilleur score: " + timetable.getScore());
 		} else {
-			return ResponseEntity.ok("Solver running, current score: " + timetable.getScore());
+			return ResponseEntity.ok("Le solveur est lancé, meilleur score actuel: " + timetable.getScore());
 		}
 	}
 
+	@Operation(
+			summary = "Récupère les justifications",
+			description = "Récupère les justifications des contraintes non respectées par le solveur",
+			security = @SecurityRequirement(name = "bearerAuth")
+	)
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "200",
+					description = "Justifications récupérées",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = SessionJustificationsDto.class)
+					)
+			),
+			@ApiResponse(
+					responseCode = "409",
+					description = "Le solveur n'est pas lancé",
+					content = @Content(
+							mediaType = "application/json",
+							schema = @Schema(implementation = ApiErrorResponse.class)
+					)
+			)
+	})
 	@GetMapping("/justifications")
-	public ResponseEntity<List<JustificationsDto>> justifications() {
+	public ResponseEntity<List<SessionJustificationsDto>> justifications() {
+		if (problemId == null && timetable == null) {
+			throw new SolverRequestOrderException("Le solveur n'est pas lancé.");
+		} else if (problemId != null) {
+			throw new SolverRequestOrderException("Le solveur est toujours en cours.");
+		}
+
 		Map<Session, SessionJustificationsDto> sessionJustificationsDtos = new HashMap<>();
-		Map<Player, PlayerJustificationsDto> playerJustificationsDtos = new HashMap<>();
-		Map<Trainer, TrainerJustificationsDto> trainerJustificationsDtos = new HashMap<>();
 
 		ScoreAnalysis<HardSoftScore> scoreAnalysis = solutionManager.analyze(timetable);
 
@@ -131,18 +194,20 @@ public class SolverController {
 			});
 		});
 
-		List<JustificationsDto> justificationsDtos = new ArrayList<>();
-		justificationsDtos.addAll(sessionJustificationsDtos.values());
-		justificationsDtos.addAll(playerJustificationsDtos.values());
-		justificationsDtos.addAll(trainerJustificationsDtos.values());
+		return ResponseEntity.ok(sessionJustificationsDtos.values().stream().toList());
+	}
 
-		return ResponseEntity.ok(justificationsDtos);
+	public static void modifiedSession(SessionEntity session) {
+		updatedSessions.add(session.getId());
 	}
 
 	private void addJustification(Map<Session, SessionJustificationsDto> sessionJustificationsDtos, Session session, String description, HardSoftScore score) {
+		if (updatedSessions.contains(session.getId())) return;
+
 		SessionJustificationsDto current_sjd = sessionJustificationsDtos.computeIfAbsent(session, s -> {
 			List<PlayerSessionLink> psls = this.timetable.getPlayerSessionLinks().stream().filter(psl -> psl.getSession().equals(s)).toList();
 			SessionEntity sessionEntity = from(s, psls);
+
 			return new SessionJustificationsDto(sessionEntity);
 		});
 		current_sjd.addJustification(description, score.toString());

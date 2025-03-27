@@ -9,12 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-public class SessionJustificationsDto extends JustificationsDto {
+public class SessionJustificationsDto {
 	private SessionDto session;
 	private Map<String, String> sessionJustifications = new HashMap<>();
 
 	public SessionJustificationsDto(SessionEntity session) {
-		super(Type.SESSION);
 		this.session = SessionMapper.INSTANCE.mapToDTO(session);
 	}
 
