@@ -21,6 +21,7 @@
               item-key="idtrainer"
               :sort="false"
               class="pr-1 coach-area"
+              @start="onDragStart"
               @add="onCoachDropped"
               :move="moveValidator"
           >
@@ -52,7 +53,8 @@
               item-key="id"
               :sort="false"
               class="pr-1 players-area"
-              @end="onDragEnd"
+              @start="onDragStart"
+              @end="onPlayerDragEnd"
               @add="onPlayerAdded"
               @remove="onPlayerRemoved"
           >
@@ -71,7 +73,8 @@
               item-key="id"
               :sort="false"
               class="pl-2 players-area"
-              @end="onDragEnd"
+              @start="onDragStart"
+              @end="onPlayerDragEnd"
               @add="onPlayerAdded"
               @remove="onPlayerRemoved"
           >
@@ -84,6 +87,36 @@
 
         </div>
       </div>
+
+
+      <div class="lg:w-[10%] flex items-center" v-if="userRole === 'ADMIN'">
+        <!-- Corbeille pour drag and drop - toujours présente mais visibilité conditionnelle -->
+        <div
+            class="trash-container"
+            :class="{ 'visible': isDragging }"
+        >
+        <VueDraggable
+            v-model = "trashItems"
+            class="trash-container"
+            :class="{ 'visible': isDragging }"
+            :group="{ name: 'trash', put: ['players', 'coach'] }"
+            item-key="idtrash"
+        :sort="false"
+        @add="onTrashDrop"
+        >
+          <div
+              v-for="(item, index) in trashItems"
+              :key="item.id || index"
+              class="trash-area"
+          >
+            <div class="trash-area">
+              <span class="material-icons trash-icon">delete_outline</span>
+            </div>
+          </div>
+        </VueDraggable>
+      </div>
+      </div>
+
 
 
       <div class="lg:w-[10%] flex justify-end" v-if="userRole === 'ROLE_ADMIN'">
@@ -138,7 +171,7 @@ import {watchEffect} from "vue";
 export default {
   components: {VueDraggable},
   name: "SessionCard",
-  emits: ["update-players", "delete", "player-removed","update-coach"],
+  emits: ["update-players", "delete", "player-removed","update-coach", "remove-coach"],
   props: {
     sessionId: String,
     startTime: {
@@ -176,6 +209,9 @@ export default {
       leftPlayers: [],
       rightPlayers: [],
       lastRemovedPlayer: null,
+      isDragging: false,
+      draggedItemType: null,
+      trashItems: [],
     };
   },
   mounted() {
@@ -212,25 +248,37 @@ export default {
       return true; // Autoriser tous les autres déplacements
     },
 
-    onDragEnd(evt) {
-      // Combine left and right players to get complete list
-      const updatedPlayers = [...this.leftPlayers, ...this.rightPlayers];
+    onDragStart(evt) {
+      this.isDragging = true;
+      this.draggedItemType = evt.from.className.includes('coach-area') ? 'coach' : 'player';
+    },
 
-      // Emit event with session ID and updated players
-      this.$emit('update-players', {
-        sessionId: this.sessionId,
-        players: updatedPlayers
-      });
+    onDragEnd() {
+      this.isDragging = false;
+    },
+
+    onPlayerDragEnd(evt) {
+      this.isDragging = false;
+
+      // Si le drop n'est pas dans la corbeille
+      if (!evt.to.classList.contains('trash-container')) {
+        const updatedPlayers = [...this.leftPlayers, ...this.rightPlayers];
+        this.$emit('update-players', {
+          sessionId: this.sessionId,
+          players: updatedPlayers
+        });
+      }
     },
 
     onPlayerAdded(evt) {
       console.log("Player added to session", this.sessionId);
-      const updatedPlayers = [...this.leftPlayers, ...this.rightPlayers];
-
-      this.$emit('update-players', {
-        sessionId: this.sessionId,
-        players: updatedPlayers
-      });
+      if (!evt.to.classList.contains('trash-container')) {
+        const updatedPlayers = [...this.leftPlayers, ...this.rightPlayers];
+        this.$emit('update-players', {
+          sessionId: this.sessionId,
+          players: updatedPlayers
+        });
+      }
     },
 
     onPlayerRemoved(evt) {
@@ -238,13 +286,10 @@ export default {
       const movedPlayerEl = evt.item;
       const playerIndex = evt.oldIndex;
 
-      // Store information about the removed player for tracking
       let removedPlayer;
       if (evt.from.className.includes('pr-1')) {
-        // Player was from leftPlayers
         removedPlayer = this.players[playerIndex];
       } else {
-        // Player was from rightPlayers
         const half = Math.ceil(this.players.length / 2);
         removedPlayer = this.players[half + playerIndex];
       }
@@ -256,9 +301,62 @@ export default {
         });
       }
     },
+    onTrashDrop(evt) {
+      console.log("Élément déposé dans la corbeille:", evt.from.className);
+
+      if (evt.from.classList.contains('coach-area')) {
+        console.log("Suppression de l'entraîneur pour la session:", this.sessionId);
+        this.$emit('update-coach', {
+          sessionId: this.sessionId,
+          coach: null
+        });
+        this.entraineur = [];
+      } else {
+        console.log("Début suppression joueur");
+
+        // Récupération directe de l'élément déposé
+        const draggedIndex = evt.oldIndex;
+        const isFromLeftSide = evt.from.classList.contains('pr-1');
+
+        // Détermine de quel côté provient le joueur
+        let playerToRemove = null;
+        let updatedPlayers = [];
+
+        if (isFromLeftSide) {
+          playerToRemove = this.leftPlayers[draggedIndex];
+          console.log("Joueur à supprimer (gauche):", playerToRemove);
+
+          // Créer une nouvelle liste sans le joueur
+          updatedPlayers = [...this.players].filter(p =>
+              !(p.id === playerToRemove.id)
+          );
+        } else {
+          playerToRemove = this.rightPlayers[draggedIndex];
+          console.log("Joueur à supprimer (droite):", playerToRemove);
+
+          // Créer une nouvelle liste sans le joueur
+          updatedPlayers = [...this.players].filter(p =>
+              !(p.id === playerToRemove.id)
+          );
+        }
+
+        console.log("Joueur supprimé:", playerToRemove?.id);
+        console.log("Liste mise à jour:", updatedPlayers);
+
+        // Vider immédiatement la corbeille pour le prochain drag
+        this.trashItems = [];
+
+        // Envoyer la liste mise à jour sans le joueur supprimé
+        this.$emit('update-players', {
+          sessionId: this.sessionId,
+          players: updatedPlayers
+        });
+      }
+
+      this.isDragging = false;
+    },
 
     onCoachDropped(evt) {
-      // Vérifier si l'élément déposé est bien un entraîneur
       if (evt.from.className.includes('trainer-list')) {
         let newCoach = null;
         newCoach = this.entraineur[0];
@@ -282,7 +380,6 @@ export default {
         }
       }
     }
-
   },
 };
 </script>
@@ -345,5 +442,43 @@ export default {
 
 .players-area {
   min-height: 2rem;
+}
+
+.trash-container {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  opacity: 0; /* Invisible par défaut */
+  transition: opacity 0.3s ease;
+}
+
+.trash-container.visible {
+  opacity: 1; /* Visible pendant le drag */
+}
+
+.trash-area {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border: 2px dashed #e3342f;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.trash-area:hover {
+  background-color: #ffebeb;
+  transform: scale(1.1);
+}
+
+.trash-icon {
+  color: #e3342f;
+  font-size: 24px;
 }
 </style>
