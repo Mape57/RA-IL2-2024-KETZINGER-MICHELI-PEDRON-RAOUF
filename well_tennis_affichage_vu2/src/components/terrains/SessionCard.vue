@@ -5,14 +5,15 @@
         v-if="!isMobile"
         class="session-card bg-gray-50 border border-gray-300 rounded-lg p-4 shadow-sm mb-4 flex lg:flex-row items-center"
     >
-      <div class="text-custom-color font-bold text-lg lg:w-[10%] text-center lg:border-r border-gray-800 lg:pr-4 mb-4 lg:mb-0 flex flex-col justify-center items-center">
+      <div
+          class="text-custom-color font-bold text-lg lg:w-[10%] text-center lg:border-r border-gray-800 lg:pr-4 mb-4 lg:mb-0 flex flex-col justify-center items-center">
         <p>{{ startTime }}</p>
         <p>{{ endTime }}</p>
       </div>
 
       <div class="w-[25%] h-[20%] lg:pl-2 mb-4 lg:mb-0 flex flex-col justify-center">
         <div class="mb-2">
-          <div class="font-bold text-sm">Entraîneur : </div>
+          <div class="font-bold text-sm">Entraîneur :</div>
 
 
           <VueDraggable
@@ -66,7 +67,6 @@
           </VueDraggable>
 
 
-
           <VueDraggable
               v-model="rightPlayers"
               :group="{ name: 'players', pull: true, put: true }"
@@ -89,34 +89,25 @@
       </div>
 
 
-      <div class="lg:w-[10%] flex items-center" v-if="userRole === 'ADMIN'">
-        <!-- Corbeille pour drag and drop - toujours présente mais visibilité conditionnelle -->
+      <div class="lg:w-[10%] flex justify-end" v-if="userRole === 'ROLE_ADMIN'">
         <div
             class="trash-container"
             :class="{ 'visible': isDragging }"
         >
-        <VueDraggable
-            v-model = "trashItems"
-            class="trash-container"
-            :class="{ 'visible': isDragging }"
-            :group="{ name: 'trash', put: ['players', 'coach'] }"
-            item-key="idtrash"
-        :sort="false"
-        @add="onTrashDrop"
-        >
-          <div
-              v-for="(item, index) in trashItems"
-              :key="item.id || index"
-              class="trash-area"
+          <VueDraggable
+              v-model="trashItems"
+              class="trash-draggable"
+          :group="{ name: 'trash', put: ['players', 'coach'] }"
+          item-key="idtrash"
+          :sort="false"
+          @add="onTrashDrop"
           >
-            <div class="trash-area">
-              <span class="material-icons trash-icon">delete_outline</span>
-            </div>
+          <div class="trash-area">
+            <span class="material-icons trash-icon">delete_outline</span>
           </div>
-        </VueDraggable>
+          </VueDraggable>
+        </div>
       </div>
-      </div>
-
 
 
       <div class="lg:w-[10%] flex justify-end" v-if="userRole === 'ROLE_ADMIN'">
@@ -152,14 +143,6 @@
         </span>
       </div>
 
-      <div class="mt-1 flex justify-end" v-if="userRole === 'ROLE_ADMIN'">
-        <button @click="$emit('delete')" class="delete-button">
-          <span class="material-icons delete-icon">delete</span>
-          <span class="delete-text">Supprimer</span>
-        </button>
-
-
-      </div>
     </div>
   </div>
 </template>
@@ -171,7 +154,7 @@ import {watchEffect} from "vue";
 export default {
   components: {VueDraggable},
   name: "SessionCard",
-  emits: ["update-players", "delete", "player-removed","update-coach", "remove-coach"],
+  emits: ["update-players", "delete", "player-removed", "update-coach", "remove-coach"],
   props: {
     sessionId: String,
     startTime: {
@@ -250,14 +233,14 @@ export default {
 
     onDragStart(evt) {
       this.isDragging = true;
+      console.log("bien en train de dragger");
       this.draggedItemType = evt.from.className.includes('coach-area') ? 'coach' : 'player';
     },
 
-    onDragEnd() {
-      this.isDragging = false;
-    },
+
 
     onPlayerDragEnd(evt) {
+      console.log("bien fini de dragger");
       this.isDragging = false;
 
       // Si le drop n'est pas dans la corbeille
@@ -283,7 +266,6 @@ export default {
 
     onPlayerRemoved(evt) {
       console.log("Player removed from session", this.sessionId);
-      const movedPlayerEl = evt.item;
       const playerIndex = evt.oldIndex;
 
       let removedPlayer;
@@ -435,7 +417,7 @@ export default {
   transition: background-color 0.2s;
 }
 
-.coach-area:empty, .coach-area.sortable-drag-active {
+.coach-area:empty {
   background-color: rgba(82, 131, 89, 0.1);
   border: 1px dashed #528359;
 }
@@ -451,7 +433,7 @@ export default {
   align-items: center;
   justify-content: center;
   margin-right: 8px;
-  opacity: 0; /* Invisible par défaut */
+  opacity: 0; /* Remplace O par 0 */
   transition: opacity 0.3s ease;
 }
 
@@ -460,16 +442,14 @@ export default {
 }
 
 .trash-area {
-  width: 40px;
-  height: 40px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f5f5f5;
+  background-color: #ffebeb;
   border: 2px dashed #e3342f;
-  transition: all 0.2s;
-  cursor: pointer;
 }
 
 .trash-area:hover {
