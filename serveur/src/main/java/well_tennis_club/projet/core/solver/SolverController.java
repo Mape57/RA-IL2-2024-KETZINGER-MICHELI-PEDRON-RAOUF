@@ -35,9 +35,12 @@ import well_tennis_club.timefold.domain.*;
 import well_tennis_club.timefold.solver.justifications.groupe.SessionJustification;
 import well_tennis_club.timefold.solver.justifications.groupe.SessionsJustification;
 
+import java.io.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 @Setter
 @Getter
@@ -141,6 +144,54 @@ public class SolverController {
 		}
 	}
 
+	@GetMapping("/rmpk")
+	public ResponseEntity<String> getTimetable() {
+		if (problemId == null && timetable == null) {
+			throw new SolverRequestOrderException("Le solveur n'est pas lancé.");
+		} else if (problemId != null) {
+			throw new SolverRequestOrderException("Le solveur est toujours en cours.");
+		} else {
+			try {
+				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+				GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(gzipOutputStream);
+				objectOutputStream.writeObject(timetable);
+				objectOutputStream.close();
+				String compressedTimetable = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+				return ResponseEntity.ok(compressedTimetable);
+			} catch (IOException e) {
+				System.out.println("Error compressing timetable: " + e.getMessage());
+				return ResponseEntity.status(500).body("Error compressing timetable");
+			}
+		}
+	}
+
+	@PostMapping("/rmpk")
+	public ResponseEntity<String> setTimetable(@RequestBody String compressedTimetable) {
+		if (problemId == null && this.timetable == null) {
+			try {
+				System.out.println("Setting timetable " + compressedTimetable);
+				byte[] compressedBytes = Base64.getDecoder().decode(compressedTimetable);
+				ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressedBytes);
+				GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
+				ObjectInputStream objectInputStream = new ObjectInputStream(gzipInputStream);
+				this.timetable = (Timetable) objectInputStream.readObject();
+				objectInputStream.close();
+				sessionService.deleteAll();
+				saveTimetable();
+
+				return ResponseEntity.ok("Timetable set");
+			} catch (IOException | ClassNotFoundException e) {
+				System.out.println("Error decompressing timetable: " + e.getMessage());
+				return ResponseEntity.status(500).body("Error decompressing timetable");
+			}
+		} else if (problemId != null) {
+			return ResponseEntity.ok("Solver is running");
+		} else {
+			return ResponseEntity.ok("Timetable already set");
+		}
+	}
+
 	@Operation(
 			summary = "Récupère les justifications",
 			description = "Récupère les justifications des contraintes non respectées par le solveur",
@@ -230,9 +281,9 @@ public class SolverController {
 
 	@GetMapping("/insertData")
 	public ResponseEntity<String> insertData() {
-		List<PlayerEntity> players = DataInsertion.players.real();
-		List<TrainerEntity> trainers = DataInsertion.trainers.real();
-		List<CourtEntity> courts = DataInsertion.tennisCourts.real;
+		List<PlayerEntity> players = DataInsertion.players.small;
+		List<TrainerEntity> trainers = DataInsertion.trainers.small;
+		List<CourtEntity> courts = DataInsertion.tennisCourts.small;
 		List<SessionConstraintEntity> sessionConstraints = DataInsertion.sessionConstraints.real;
 
 		timetableService.saveAllPlayer(players);

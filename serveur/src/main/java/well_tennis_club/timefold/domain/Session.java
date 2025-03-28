@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import well_tennis_club.timefold.tools.difficulty_comparator.SessionDifficultyComparator;
 
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
@@ -21,7 +22,7 @@ import java.util.UUID;
 @Setter
 @PlanningEntity(difficultyComparatorClass = SessionDifficultyComparator.class)
 @JsonIdentityInfo(scope = Session.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Session implements Comparable<Session> {
+public class Session implements Comparable<Session>, Serializable {
 	@PlanningId
 	private UUID id;
 

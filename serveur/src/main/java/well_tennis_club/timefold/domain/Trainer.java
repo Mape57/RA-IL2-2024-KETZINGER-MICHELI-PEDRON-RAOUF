@@ -5,6 +5,7 @@ import lombok.Setter;
 import well_tennis_club.timefold.data_structure.Timeslot;
 import well_tennis_club.timefold.data_structure.ValueRange;
 
+import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
@@ -12,7 +13,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class Trainer {
+public class Trainer implements Serializable {
 	private UUID id;
 	private String name;
 	private String surname;

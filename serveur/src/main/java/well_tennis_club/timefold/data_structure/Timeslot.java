@@ -1,5 +1,6 @@
 package well_tennis_club.timefold.data_structure;
 
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
@@ -11,7 +12,7 @@ import java.time.LocalTime;
  * @param startTime Heure de début
  * @param endTime   Heure de fin
  */
-public record Timeslot(DayOfWeek day, LocalTime startTime, LocalTime endTime) {
+public record Timeslot(DayOfWeek day, LocalTime startTime, LocalTime endTime) implements Serializable {
 	@Override
 	public String toString() {
 		return day + ":" + startTime + "-" + endTime;
