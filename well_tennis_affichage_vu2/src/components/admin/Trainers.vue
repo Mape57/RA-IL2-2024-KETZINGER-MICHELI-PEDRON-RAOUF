@@ -17,52 +17,61 @@
             person_add
           </span>
 
-    </div>
+      </div>
     </div>
 
     <!-- Contenu déroulant -->
     <div v-if="isOpen" class="mt-2">
-      <!-- En-têtes des colonnes -->
-      <div class="grid grid-cols-4 font-semibold text-gray-400 text-sm mb-2">
-        <div class="text-left">Nom</div>
-        <div class="text-left">Prénom</div>
-        <div class="text-left">Niveau Min•Max</div>
-        <div class="text-center">Âge Min•Max</div>
+      <div v-if="loading" class="flex justify-center items-center py-4">
+        <div class="loader"></div>
       </div>
+      <div v-else>
+        <!-- En-têtes des colonnes -->
+        <div class="grid grid-cols-4 font-semibold text-gray-400 text-sm mb-2">
+          <div class="text-left">Nom</div>
+          <div class="text-left">Prénom</div>
+          <div class="text-left">Niveau Min•Max</div>
+          <div class="text-center">Âge Min•Max</div>
+          <div class="text-center">Nb. heures</div>
+        </div>
 
-      <VueDraggable
-          v-model="filteredTrainers"
-          :group="{ name: 'trainers', pull: 'clone', put: false }"
-          item-key="id"
-          :sort="false"
-          @start="onDragStart"
-          @end="onDragEnd"
-          class="trainer-list"
-      >
+        <VueDraggable
+            v-model="filteredTrainers"
+            :group="{ name: 'trainers', pull: 'clone', put: false }"
+            item-key="id"
+            :sort="false"
+            @start="onDragStart"
+            @end="onDragEnd"
+            class="trainer-list"
+        >
 
 
-      <div v-for="trainer in filteredTrainers"
-           :key="trainer.id"
-           class="grid grid-cols-4 items-center py-1"
-           :class="{ 'cursor-pointer': !isMobile }"
-           :ref="'trainer-' + trainer.id"
-           @click="!isMobile && showTrainerInfo(trainer)">
-        <span>{{ trainer.name }}</span>
-        <span class="text-left">{{ trainer.surname }}</span>
-        <span class="text-left">{{ trainer.infLevel }} - {{ trainer.supLevel }}</span>
-        <span class="text-center">{{ trainer.infAge }} - {{ trainer.supAge }}</span>
+          <div v-for="trainer in filteredTrainers"
+               :key="trainer.id"
+               class="grid grid-cols-4 items-center py-1"
+               :class="{ 'cursor-pointer': !isMobile }"
+               :ref="'trainer-' + trainer.id"
+               @click="!isMobile && showTrainerInfo(trainer)">
+            <span>{{ trainer.name }}</span>
+            <span class="text-left">{{ trainer.surname }}</span>
+            <span class="text-left">{{ trainer.infLevel }} - {{ trainer.supLevel }}</span>
+            <span class="text-center">{{ trainer.infAge }} - {{ trainer.supAge }}</span>
+            <span class="text-center">{{
+                Math.round(trainer.weeklyMinutes / 60)
+              }} / {{ Math.round(trainer.infWeeklyMinutes / 60) }}</span>
+          </div>
+
+        </VueDraggable>
+
+
+        <TrainerInfoView
+            v-if="selectedTrainer && !isMobile && userRole === 'ROLE_ADMIN'"
+            :trainer="selectedTrainer"
+            @close="selectedTrainer = null"
+            @delete="handleTrainerDeletion"
+            @save="handleTrainerSave"
+        />
       </div>
-
-      </VueDraggable>
-
-
-      <TrainerInfoView
-          v-if="selectedTrainer && !isMobile && userRole === 'ROLE_ADMIN'"
-          :trainer="selectedTrainer"
-          @close="selectedTrainer = null"
-          @delete="handleTrainerDeletion"
-          @save="handleTrainerSave"
-      />
     </div>
   </div>
 
@@ -81,6 +90,10 @@ export default {
     isMobile: Boolean,
     userRole: String,
     searchQuery: String,
+    loading: {
+      type: Boolean,
+      default: false
+    },
   },
   setup() {
     const localIsMobile = ref(window.innerWidth < 768);
@@ -111,11 +124,11 @@ export default {
   },
   computed: {
     filteredTrainers() {
-    return this.trainers
-        .filter(trainer =>
-            trainer.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-            trainer.surname.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
+      return this.trainers
+          .filter(trainer =>
+              trainer.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+              trainer.surname.toLowerCase().includes(this.searchQuery.toLowerCase())
+          );
     },
   },
   methods: {
@@ -157,7 +170,7 @@ export default {
       this.$nextTick(() => {
         const newTrainerElement = this.$refs[`trainer-${savedTrainer.id}`]?.[0];
         if (newTrainerElement) {
-          newTrainerElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          newTrainerElement.scrollIntoView({behavior: "smooth", block: "center"});
 
           // Ajouter une classe temporaire pour l'effet de mise en valeur
           newTrainerElement.classList.add("highlighted");
@@ -219,7 +232,7 @@ export default {
 
 .grid {
   display: grid;
-  grid-template-columns: 2fr 1.7fr 1fr 1fr;
+  grid-template-columns: 2fr 1.7fr 1fr 1fr 1fr;
   gap: 0.5rem;
 }
 

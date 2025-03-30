@@ -19,11 +19,18 @@
           </div>
 
           <div class="popup-content">
+            <div v-if="isLoading" class="loader-container">
+              <div class="loader"></div>
+            </div>
             <SessionValidation
+                v-else
                 v-for="justification in justifications"
                 :key="justification.session.id"
                 :justification="justification"
                 @session-handled="removeJustification"/>
+            <p v-if="!isLoading && justifications.length === 0" class="no-results">
+              Aucune validation nécessaire
+            </p>
           </div>
         </div>
       </div>
@@ -37,13 +44,21 @@ import SessionValidation from './widget/SessionValidation.vue';
 import useSolver from "../../useJs/useSolver.js";
 
 const open = ref(false);
+const isLoading = ref(false);
 
 defineEmits(['close']);
 const justifications = ref([]);
 
 watch(open, async (isOpen) => {
   if (isOpen) {
-    justifications.value = await useSolver().solverJustifications();
+    isLoading.value = true;
+    try {
+      justifications.value = await useSolver().solverJustifications();
+    } catch (error) {
+      console.error("Erreur lors du chargement des justifications:", error);
+    } finally {
+      isLoading.value = false;
+    }
   }
 });
 
@@ -77,6 +92,22 @@ const removeJustification = (sessionId) => {
     flex-direction: column;
     overflow: hidden;
   }
+}
+
+
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #2F855A;
+}
+
+.no-results {
+  text-align: center;
+  color: #718096;
+  padding: 2rem 0;
 }
 
 .popup-header {
@@ -219,6 +250,37 @@ const removeJustification = (sessionId) => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 65px;
+  aspect-ratio: 1;
+  position: relative;
+}
+.loader:before,
+.loader:after {
+  content: "";
+  position: absolute;
+  border-radius: 50px;
+  box-shadow: 0 0 0 3px inset var(--accent);
+  animation: l5 2.5s infinite;
+}
+.loader:after {
+  animation-delay: -1.25s;
+  border-radius: 0;
+}
+@keyframes l5{
+  0%    {inset:0    35px 35px 0   }
+  12.5% {inset:0    35px 0    0   }
+  25%   {inset:35px 35px 0    0   }
+  37.5% {inset:35px 0    0    0   }
+  50%   {inset:35px 0    0    35px}
+  62.5% {inset:0    0    0    35px}
+  75%   {inset:0    0    35px 35px}
+  87.5% {inset:0    0    35px 0   }
+  100%  {inset:0    35px 35px 0   }
 }
 
 </style>
