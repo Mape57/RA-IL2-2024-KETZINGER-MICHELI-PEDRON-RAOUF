@@ -31,7 +31,10 @@ import well_tennis_club.projet.exception.SolverRequestOrderException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
 import well_tennis_club.projet.tool.DataInsertion;
 import well_tennis_club.projet.tool.TimetableFactory;
-import well_tennis_club.timefold.domain.*;
+import well_tennis_club.timefold.domain.PlayerSessionLink;
+import well_tennis_club.timefold.domain.Session;
+import well_tennis_club.timefold.domain.Timetable;
+import well_tennis_club.timefold.domain.Trainer;
 import well_tennis_club.timefold.solver.justifications.groupe.SessionJustification;
 import well_tennis_club.timefold.solver.justifications.groupe.SessionsJustification;
 
@@ -136,12 +139,19 @@ public class SolverController {
 	@GetMapping
 	public ResponseEntity<String> status() {
 		if (problemId == null && timetable == null) {
-			return ResponseEntity.ok("Le solveur n'est pas lancé");
+			return ResponseEntity.ok("STOPPED");
 		} else if (problemId == null) {
-			return ResponseEntity.ok("Le solveur est terminé, meilleur score: " + timetable.getScore());
+			return ResponseEntity.ok("OVER");
 		} else {
-			return ResponseEntity.ok("Le solveur est lancé, meilleur score actuel: " + timetable.getScore());
+			return ResponseEntity.ok("RUNNING");
 		}
+	}
+
+	@GetMapping("/ki")
+	public ResponseEntity<String> blankIt() {
+		stopSolver();
+		timetable = null;
+		return ResponseEntity.ok("STOPPED");
 	}
 
 	@GetMapping("/rmpk")
@@ -168,27 +178,25 @@ public class SolverController {
 
 	@PostMapping("/rmpk")
 	public ResponseEntity<String> setTimetable(@RequestBody String compressedTimetable) {
-		if (problemId == null && this.timetable == null) {
-			try {
-				System.out.println("Setting timetable " + compressedTimetable);
-				byte[] compressedBytes = Base64.getDecoder().decode(compressedTimetable);
-				ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressedBytes);
-				GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
-				ObjectInputStream objectInputStream = new ObjectInputStream(gzipInputStream);
-				this.timetable = (Timetable) objectInputStream.readObject();
-				objectInputStream.close();
-				sessionService.deleteAll();
-				saveTimetable();
+		if (problemId != null) {
+			throw new SolverRequestOrderException("Le solveur est toujours en cours.");
+		}
+		try {
+			System.out.println("Setting timetable " + compressedTimetable);
+			byte[] compressedBytes = Base64.getDecoder().decode(compressedTimetable);
+			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressedBytes);
+			GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
+			ObjectInputStream objectInputStream = new ObjectInputStream(gzipInputStream);
+			this.timetable = (Timetable) objectInputStream.readObject();
+			objectInputStream.close();
+			sessionService.deleteAll();
+			updatedSessions.clear();
+			saveTimetable();
 
-				return ResponseEntity.ok("Timetable set");
-			} catch (IOException | ClassNotFoundException e) {
-				System.out.println("Error decompressing timetable: " + e.getMessage());
-				return ResponseEntity.status(500).body("Error decompressing timetable");
-			}
-		} else if (problemId != null) {
-			return ResponseEntity.ok("Solver is running");
-		} else {
-			return ResponseEntity.ok("Timetable already set");
+			return ResponseEntity.ok("Timetable set");
+		} catch (IOException | ClassNotFoundException e) {
+			System.out.println("Error decompressing timetable: " + e.getMessage());
+			return ResponseEntity.status(500).body("Error decompressing timetable");
 		}
 	}
 
@@ -281,9 +289,9 @@ public class SolverController {
 
 	@GetMapping("/insertData")
 	public ResponseEntity<String> insertData() {
-		List<PlayerEntity> players = DataInsertion.players.small;
-		List<TrainerEntity> trainers = DataInsertion.trainers.small;
-		List<CourtEntity> courts = DataInsertion.tennisCourts.small;
+		List<PlayerEntity> players = DataInsertion.players.real();
+		List<TrainerEntity> trainers = DataInsertion.trainers.real();
+		List<CourtEntity> courts = DataInsertion.tennisCourts.real;
 		List<SessionConstraintEntity> sessionConstraints = DataInsertion.sessionConstraints.real;
 
 		timetableService.saveAllPlayer(players);

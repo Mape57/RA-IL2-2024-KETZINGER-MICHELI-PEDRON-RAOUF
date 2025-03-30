@@ -24,7 +24,7 @@
 <script>
 import LeftPanel from "../components/admin/LeftPanel.vue";
 import RightPanel from "../components/terrains/RightPanel.vue";
-import BottomPanel from "../components/shared/BottomPanel.vue";
+import BottomPanel from "../components/generationValidation/BottomPanel.vue";
 import usePlayers from "../useJs/usePlayers";
 import {watch} from "vue";
 

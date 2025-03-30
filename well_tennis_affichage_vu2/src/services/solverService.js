@@ -10,7 +10,7 @@ export default {
 	},
 
 	statusSolver() {
-		return apiService.getData('/solver/status');
+		return apiService.getData('/solver');
 	},
 
 	saveSolver() {
@@ -19,5 +19,17 @@ export default {
 
 	justifications() {
 		return apiService.getData('/solver/justifications');
-	}
+	},
+
+	rmpkGet() {
+		return apiService.getData('/solver/rmpk');
+	},
+
+	rmpkPost(data) {
+		return apiService.post('/solver/rmpk', data, {
+			headers: {
+				'Content-Type': 'text/plain',
+			},
+		});
+	},
 }

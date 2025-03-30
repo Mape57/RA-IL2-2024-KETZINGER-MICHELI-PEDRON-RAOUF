@@ -1,36 +1,39 @@
 <template>
   <button
+      class="button secondary"
       @click="open = true"
-      class="bg-white text-[#528359] py-1.5 px-3 rounded-md flex items-center border border-[#528359] text-sm hover:bg-[#e6f4eb] transition"
   >
-    <span class="material-symbols-outlined mr-1 text-base">rule_folder</span>
+    <span class="material-symbols-outlined">rule_folder</span>
     Valider la génération
   </button>
-  <Teleport to="body">
-    <div v-if="open" class="popup">
-      <div>
-        <div class="popup-header">
-          <h2>Validation de la génération</h2>
-          <button @click="open = false" class="material-symbols-outlined text-[#2F855A] text-4xl transition-transform transform hover:scale-110 hover:text-red-500">
-            close
-          </button>
-        </div>
 
-        <div class="popup-content">
-          <SessionValidation
-              v-for="justification in justifications"
-              :key="justification.session.id"
-              :justification="justification"
-              @session-handled="removeJustification" />
+  <Teleport to="body">
+    <Transition name="fade">
+      <div v-if="open" class="popup">
+        <div>
+          <div class="popup-header">
+            <h2>Validation de la génération</h2>
+            <button @click="open = false" class="button secondary red no-text" title="Fermer la popup">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div class="popup-content">
+            <SessionValidation
+                v-for="justification in justifications"
+                :key="justification.session.id"
+                :justification="justification"
+                @session-handled="removeJustification"/>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </Teleport>
 </template>
 
 <script setup>
 import {ref, watch} from 'vue';
-import SessionValidation from './SessionValidation.vue';
+import SessionValidation from './widget/SessionValidation.vue';
 import useSolver from "../../useJs/useSolver.js";
 
 const open = ref(false);
@@ -79,8 +82,8 @@ const removeJustification = (sessionId) => {
 .popup-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
+  align-items: flex-start;
+  padding: 1rem 1rem 1rem 1.5rem;
   border-bottom: 1px solid #e2e8f0;
 
   > h2 {
@@ -207,4 +210,15 @@ const removeJustification = (sessionId) => {
     }
   }
 }
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.4s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
 </style>
