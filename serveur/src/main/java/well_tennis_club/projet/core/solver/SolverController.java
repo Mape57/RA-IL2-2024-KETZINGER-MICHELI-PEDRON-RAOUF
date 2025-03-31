@@ -150,7 +150,7 @@ public class SolverController {
 	})
 	@GetMapping
 	public ResponseEntity<String> status() {
-		if (problemIds == null && timetables == null) {
+		if (problemIds == null && timetables == null && bestTimetable == null) {
 			return ResponseEntity.ok("STOPPED");
 		} else if (problemIds == null) {
 			return ResponseEntity.ok("OVER");
