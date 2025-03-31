@@ -64,16 +64,16 @@ public class SecurityConfig {
 								.requestMatchers(HttpMethod.GET, "/players").hasAnyRole("TRAINER", "ADMIN")
 								.requestMatchers(HttpMethod.GET, "/sessions").hasAnyRole("TRAINER", "ADMIN")
 								.anyRequest().hasRole("ADMIN"))
-				.cors(cors -> {
-				})
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.addFilterBefore(new JwtFilter(connectionService, jwtUtils), UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}
 
+
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://192.168.1.14:5173","http://172.20.64.1:5173"));
+		configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://192.168.1.14:5173","http://172.20.64.1:5173","http://localhost:3000"));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 		configuration.setAllowCredentials(true);
