@@ -168,8 +168,8 @@
               :startTime="session.start"
               :endTime="session.stop"
               :coach="session.idTrainer"
-              :ageGroup="calculateAgeGroup(session)"
-              :skillLevel="calculateSkillLevel(session)"
+              :ageGroup="getGroupAge(session.players)"
+              :skillLevel="getGroupLevel(session.players)"
               :players="session.players"
               :userRole="userRole"
               @update-players="updateSessionsPlayers"
@@ -195,12 +195,13 @@ import trainerService from "../../services/TrainersService";
 import playerService from "../../services/PlayersService";
 import usePlayers from "../../useJs/usePlayers.js";
 import useTrainers from "../../useJs/useTrainers.js";
-import {getSportsAge} from "../../functionality/conversionUtils.js";
+import {getGroupAge, getGroupLevel, getSportsAge} from "../../functionality/conversionUtils.js";
 
 
 
 export default {
   name: "RightPanel",
+  methods: {getGroupLevel, getGroupAge},
   components: {
     SessionCard,
   },
@@ -450,64 +451,6 @@ export default {
         }
     };
 
-    const calculateAgeGroup = (session) => {
-      if (session.players.length === 0) {
-        if (session.idTrainer) {
-          return session.idTrainer.infAge + " - " + session.idTrainer.supAge;
-        } else {
-          return "3 - 99";
-        }
-      }
-
-      const ages = session.players.map(player => getSportsAge(player.birthday));
-      const minAge = Math.min(...ages);
-      const maxAge = Math.max(...ages);
-
-      if (minAge >= 8 && maxAge <= 17) {
-        const x = 2 - (maxAge - minAge);
-        return `${Math.max(8, minAge -x)} - ${Math.min(maxAge + x, 17)}`;
-      }
-      else if (minAge >= 3 && maxAge <= 4) {
-        return "3 - 4";
-      }
-      else if (minAge >= 5 && maxAge <= 7) {
-        return "5 - 7";
-      }
-      else if (minAge >= 18 && maxAge <= 99) {
-        return "18 - 99";
-      } else {
-        return "3 - 99";
-      }
-    };
-
-    const calculateSkillLevel = (session) => {
-      if (session.players.length === 0) {
-        if (session.idTrainer) {
-          return session.idTrainer.infLevel + " - " + session.idTrainer.supLevel;
-        } else {
-          return "0 - 20";
-        }
-      }
-
-      const levels = session.players.map(player => player.level);
-      const minAge = Math.min(...levels);
-      const maxAge = Math.max(...levels);
-
-      if (minAge === maxAge) {
-        return `${minAge - 1} - ${maxAge + 1}`;
-      }
-      else if (levels.length === 2) {
-        return minAge + " - " + maxAge;
-      }
-      else {
-        if (session.idTrainer) {
-          return session.idTrainer.infLevel + " - " + session.idTrainer.supLevel;
-        } else {
-          return "0 - 20";
-        }
-      }
-    };
-
     return {
       terrains,
       sessions,
@@ -534,8 +477,6 @@ export default {
       closeFilterPopup,
       showFilterPopup,
       filterSessions,
-      calculateAgeGroup,
-      calculateSkillLevel,
     };
   },
 };

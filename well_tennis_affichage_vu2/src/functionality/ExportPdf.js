@@ -3,6 +3,7 @@ import "jspdf-autotable";
 import * as XLSX from "xlsx";
 import sessionsService from "../services/SessionService.js";
 import terrainService from "../services/TerrainService.js";
+import {getGroupAge, getGroupLevel} from "./conversionUtils.js";
 
 class ExportPdf {
     static async generateSessionsPdf() {
@@ -212,8 +213,8 @@ class ExportPdf {
 
 function afficherSession(doc, session, x, y, colWidth, getCoachColor) {
     const coach = session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : "Aucun entraîneur";
-    const ageGroup = session.idTrainer ? `${session.idTrainer.infAge}-${session.idTrainer.supAge} ans` : "Non spécifié";
-    const skillLevel = session.idTrainer ? `Niveau: ${session.idTrainer.infLevel}-${session.idTrainer.supLevel}` : "Non spécifié";
+    const ageGroup = session.players ? `${getGroupAge(session.players)} ans` : "Non spécifié";
+    const skillLevel = session.players ? `Niveau: ${getGroupLevel(session.players)}` : "Non spécifié";
     const ageLevel = `${ageGroup}, ${skillLevel}`;
     const time = `${session.start} - ${session.stop}`;
     let players = session.players.map(p => `${p.name} ${p.surname}`).join(", ");
