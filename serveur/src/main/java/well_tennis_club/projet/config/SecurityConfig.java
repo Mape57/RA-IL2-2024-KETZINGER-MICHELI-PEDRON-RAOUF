@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -50,7 +51,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, Environment environment) throws Exception {
 		return http
 				.csrf(AbstractHttpConfigurer::disable)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -64,16 +65,17 @@ public class SecurityConfig {
 								.requestMatchers(HttpMethod.GET, "/players").hasAnyRole("TRAINER", "ADMIN")
 								.requestMatchers(HttpMethod.GET, "/sessions").hasAnyRole("TRAINER", "ADMIN")
 								.anyRequest().hasRole("ADMIN"))
-				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				.cors(cors -> cors.configurationSource(corsConfigurationSource(environment)))
 				.addFilterBefore(new JwtFilter(connectionService, jwtUtils), UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}
 
 
 	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
+	public CorsConfigurationSource corsConfigurationSource(Environment environment) {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://192.168.1.14:5173","http://172.20.64.1:5173","http://localhost:3000"));
+		String baseUrl = environment.getProperty("base_url");
+		configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://192.168.1.14:5173","http://172.20.64.1:5173","http://localhost:3000", baseUrl == null ? "http://localhost:5173" : baseUrl));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 		configuration.setAllowCredentials(true);

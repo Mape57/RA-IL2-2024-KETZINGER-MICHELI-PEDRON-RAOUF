@@ -49,7 +49,7 @@ public class MailFactory {
 				        <p>Vous avez demandé la réinitialisation de votre mot de passe.</p>
 				        <p>Pour procéder au changement, veuillez cliquer sur le bouton ci-dessous :</p>
 				        <div style="text-align: center; margin: 30px 0;">
-				            <a href="%s:5173/change-password?token=%s"
+				            <a href="%s/change-password?token=%s"
 				               style="background-color: #61815d; color: white; padding: 12px 30px;
 				                      text-decoration: none; border-radius: 5px; display: inline-block;">
 				                Réinitialiser mon mot de passe
@@ -128,7 +128,7 @@ public class MailFactory {
 				        </div>
 				        <p>Pour confirmer votre inscription, veuillez cliquer sur le bouton ci-dessous :</p>
 				        <div style="text-align: center; margin: 30px 0;">
-				            <a href="%s:5173/email-validation?token=%s&player=%s"
+				            <a href="%s/email-validation?token=%s&player=%s"
 				               style="background-color: #61815d; color: white; padding: 12px 30px;
 				                      text-decoration: none; border-radius: 5px; display: inline-block;">
 				                Confirmer mon inscription
