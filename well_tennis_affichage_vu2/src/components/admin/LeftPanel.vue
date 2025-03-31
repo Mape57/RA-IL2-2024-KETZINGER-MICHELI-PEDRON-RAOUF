@@ -55,20 +55,14 @@
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
         <Trainers
-            :trainers="trainers"
             :searchQuery="searchQuery"
             :isMobile="isMobile"
             :userRole="userRole"
-            :loading="isLoadingTrainers"
-            @update:trainers="userRole === 'ROLE_ADMIN' ? updateTrainers : () => {}"
         />
         <Players
-            :players="players"
             :searchQuery="searchQuery"
             :isMobile="isMobile"
             :userRole="userRole"
-            :loading="isLoadingPlayers"
-            @update:players="userRole === 'ROLE_ADMIN' ? updatePlayers : () => {}"
         />
       </div>
 
@@ -140,11 +134,13 @@
 
 
 <script>
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import useTerrain from "../../useJs/useTerrain.js";
 import useLeftPanel from "../../useJs/useLeftPanel.js";
 import usePlayers from "../../useJs/usePlayers";
 import useSessionConstraint from "../../useJs/useSessionConstraint.js";
+import { usePlayersStore } from "../../store/usePlayersStore.js";
+import { useTrainersStore } from "../../store/useTrainersStore.js";
 import PlayersService from "../../services/PlayersService.js";
 import ExportService from "../../functionality/ExportService";
 import ImportService from "../../functionality/ImportService";
@@ -176,8 +172,9 @@ export default {
     const selectedPlayer = ref(null);
     const showPendingPlayers = ref(false);
     const terrainErrors = ref([]);
-    const isLoadingTrainers = ref(true);
-    const isLoadingPlayers = ref(true);
+    // We'll use the loading states from the stores
+    const playersStore = usePlayersStore();
+    const trainersStore = useTrainersStore();
 
 
     watch(() => props.isMobile, (newVal) => {
@@ -218,8 +215,12 @@ export default {
 
 
     const { terrains, fetchTerrains } = useTerrain();
-    const { trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers, updateTrainers } = useLeftPanel();
+    // We'll use searchQuery and selectedTab from useLeftPanel but players and trainers will come from the stores
+    const { searchQuery, selectedTab, selectTab } = useLeftPanel();
     const { pendingPlayers, fetchPendingPlayers } = usePlayers();
+    // Get references to the data from the stores
+    const players = computed(() => playersStore.players);
+    const trainers = computed(() => trainersStore.trainers);
 
     const validatePlayer = async (playerId) => {
       try {
@@ -241,27 +242,10 @@ export default {
       }
     };
 
-    const fetchTrainersWithLoading = async () => {
-      isLoadingTrainers.value = true;
-      try {
-        await fetchTrainers();
-      } finally {
-        isLoadingTrainers.value = false;
-      }
-    };
-
-    const fetchPlayersWithLoading = async () => {
-      isLoadingPlayers.value = true;
-      try {
-        await fetchPlayers();
-      } finally {
-        isLoadingPlayers.value = false;
-      }
-    };
-
     onMounted(() => {
-      fetchTrainersWithLoading();
-      fetchPlayersWithLoading();
+      // Fetch data from the stores
+      trainersStore.fetchTrainers();
+      playersStore.fetchPlayers();
       fetchTerrains();
     });
 
@@ -278,17 +262,13 @@ export default {
       selectedPlayer,
       terrainErrors,
       showPlayerDetails,
-      fetchTrainers,
-      fetchPlayers,
       selectTab,
-      updatePlayers,
-      updateTrainers,
       togglePendingPlayers,
       validatePlayer,
       updatePendingPlayers,
       getJourLabel,
-      isLoadingTrainers,
-      isLoadingPlayers,
+      playersStore,
+      trainersStore,
     };
   },
 

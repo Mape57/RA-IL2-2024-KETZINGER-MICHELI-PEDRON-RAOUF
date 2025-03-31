@@ -44,6 +44,7 @@
               item-key="idtrainer"
               :sort="false"
               class="pr-1 coach-area"
+              :class="{'drag-active': isDragging && draggedItemType === 'coach'}"
               @start="onDragStart"
               @add="onCoachDropped"
               :move="moveValidator"
@@ -76,6 +77,7 @@
               item-key="id"
               :sort="false"
               class="pr-1 players-area"
+              :class="{'players-drag-active': isDragging && draggedItemType === 'player'}"
               @start="onDragStart"
               @end="onPlayerDragEnd"
               @add="onPlayerAdded"
@@ -95,6 +97,7 @@
               item-key="id"
               :sort="false"
               class="pl-2 players-area"
+              :class="{'players-drag-active': isDragging && draggedItemType === 'player'}"
               @start="onDragStart"
               @end="onPlayerDragEnd"
               @add="onPlayerAdded"
@@ -133,10 +136,20 @@
 
 
       <div class="lg:w-[10%] flex justify-end" v-if="userRole === 'ROLE_ADMIN'">
-        <button @click="$emit('delete')" class="delete-button">
+        <button @click="showDeletePopup" class="delete-button">
           <span class="material-icons delete-icon">delete</span>
-          <span class="delete-text">Supprimer</span>
         </button>
+        
+        <!-- Confirmation delete Popup -->
+        <div v-if="showDeleteConfirmation" class="delete-confirmation-popup">
+          <div class="delete-confirmation-content">
+            <p>Êtes-vous sûr de vouloir supprimer cette session ?</p>
+            <div class="delete-confirmation-buttons">
+              <button @click="confirmDelete" class="confirm-delete-btn">Supprimer</button>
+              <button @click="cancelDelete" class="cancel-delete-btn">Annuler</button>
+            </div>
+          </div>
+        </div>
 
 
       </div>
@@ -233,6 +246,7 @@ export default {
       isDragging: false,
       draggedItemType: null,
       trashItems: [],
+      showDeleteConfirmation: false,
     };
   },
   mounted() {
@@ -363,18 +377,44 @@ export default {
       }
       return true; // Autoriser tous les autres déplacements
     },
+onDragStart(evt) {
+  this.isDragging = true;
+  // Check if it's a coach or player being dragged
+  if (evt.from.className.includes('coach-area')) {
+    this.draggedItemType = 'coach';
+  } else if (evt.from.className.includes('trainer-list')) {
+    this.draggedItemType = 'coach'; // Consider trainer-list drags as coach type
+  } else {
+    this.draggedItemType = 'player';
+  }
+  console.log("Type dragged:", this.draggedItemType);
+  
+  // Find all drop zones of the same type and apply highlight styling
+  this.highlightDropZones();
+},
 
-    onDragStart(evt) {
-      this.isDragging = true;
-      console.log("bien en train de dragger");
-      this.draggedItemType = evt.from.className.includes('coach-area') ? 'coach' : 'player';
-    },
+highlightDropZones() {
+  // This method is called when drag starts to apply highlighting to all valid drop zones
+  document.querySelectorAll('.coach-area').forEach(zone => {
+    if (this.draggedItemType === 'coach') {
+      zone.classList.add('drag-active');
+    }
+  });
+  
+  document.querySelectorAll('.players-area').forEach(zone => {
+    if (this.draggedItemType === 'player') {
+      zone.classList.add('players-drag-active');
+    }
+  });
+},
+
 
 
 
     onPlayerDragEnd(evt) {
       console.log("bien fini de dragger");
       this.isDragging = false;
+      this.removeDropZoneHighlights();
 
       // Si le drop n'est pas dans la corbeille
       if (!evt.to.classList.contains('trash-container')) {
@@ -469,6 +509,7 @@ export default {
       }
 
       this.isDragging = false;
+      this.removeDropZoneHighlights();
     },
 
     onCoachDropped(evt) {
@@ -494,6 +535,31 @@ export default {
           this.entraineur = [];
         }
       }
+    },
+    
+    removeDropZoneHighlights() {
+      // Remove all highlighting classes when drag ends
+      document.querySelectorAll('.coach-area').forEach(zone => {
+        zone.classList.remove('drag-active');
+      });
+      
+      document.querySelectorAll('.players-area').forEach(zone => {
+        zone.classList.remove('players-drag-active');
+      });
+    },
+    
+    // Delete confirmation methods
+    showDeletePopup() {
+      this.showDeleteConfirmation = true;
+    },
+    
+    confirmDelete() {
+      this.$emit('delete');
+      this.showDeleteConfirmation = false;
+    },
+    
+    cancelDelete() {
+      this.showDeleteConfirmation = false;
     }
   },
 };
@@ -557,6 +623,8 @@ export default {
 
 .players-area {
   min-height: 2rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
 }
 
 .trash-container {
@@ -593,6 +661,84 @@ export default {
 .trash-icon {
   color: #e3342f;
   font-size: 24px;
+}
+
+/* Drag and drop highlight styles */
+.drag-active {
+  background-color: rgba(82, 131, 89, 0.15);
+  border-radius: 8px;
+  border: 2px groove #528359;
+  transition: all 0.3s ease;
+}
+
+.players-drag-active {
+  background-color: rgba(82, 131, 89, 0.15);
+  border-radius: 6px;
+  border: 2px groove #528359;
+  padding: 4px;
+  min-height: 40px;
+  transition: all 0.3s ease;
+}
+
+/* Delete confirmation popup styles */
+.delete-confirmation-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.delete-confirmation-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+.delete-confirmation-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.confirm-delete-btn {
+  background-color: #e3342f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.confirm-delete-btn:hover {
+  background-color: #c42b26;
+}
+
+.cancel-delete-btn {
+  background-color: #528359;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.cancel-delete-btn:hover {
+  background-color: #4a5568;
 }
 </style>
 

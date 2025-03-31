@@ -78,7 +78,8 @@
 </template>
 
 <script>
-import {ref, onMounted, onUnmounted} from "vue";
+import {ref, onMounted, onUnmounted, computed} from "vue";
+import { useTrainersStore } from "../../store/useTrainersStore.js";
 import TrainerInfoView from "../vueInformations/TrainerInfoView.vue";
 import {VueDraggable} from "vue-draggable-plus";
 
@@ -86,16 +87,16 @@ export default {
   name: "Trainers",
   components: {VueDraggable, TrainerInfoView},
   props: {
-    trainers: Array,
     isMobile: Boolean,
     userRole: String,
     searchQuery: String,
-    loading: {
-      type: Boolean,
-      default: false
-    },
   },
   setup() {
+    const trainersStore = useTrainersStore();
+    
+    // Get the trainers and loading state from the store
+    const trainers = computed(() => trainersStore.trainers);
+    const loading = computed(() => trainersStore.loading);
     const localIsMobile = ref(window.innerWidth < 768);
 
     const updateIsMobile = () => {
@@ -105,6 +106,9 @@ export default {
     onMounted(() => {
       updateIsMobile();
       window.addEventListener("resize", updateIsMobile);
+      
+      // Fetch trainers data when component is mounted
+      trainersStore.fetchTrainers();
     });
 
     onUnmounted(() => {
@@ -112,6 +116,9 @@ export default {
     });
 
     return {
+      trainers,
+      loading,
+      trainersStore,
       localIsMobile,
     };
   },
@@ -147,36 +154,37 @@ export default {
       if (this.localIsMobile) return;
       this.selectedTrainer = this.selectedTrainer?.id === trainer.id ? null : trainer;
     },
-    handleTrainerDeletion(deletedTrainerId) {
+    async handleTrainerDeletion(deletedTrainerId) {
       if (this.userRole !== "ROLE_ADMIN") return;
-      this.$emit('update:trainers', this.trainers.filter(trainer => trainer.id !== deletedTrainerId));
+      await this.trainersStore.deleteTrainer(deletedTrainerId);
       this.selectedTrainer = null;
     },
-    handleTrainerSave(savedTrainer) {
+    async handleTrainerSave(savedTrainer) {
       if (this.userRole !== "ROLE_ADMIN") return;
       if (!savedTrainer || typeof savedTrainer !== "object") return;
-      const index = this.trainers.findIndex(t => t.id === savedTrainer.id);
-      if (index !== -1) {
-        // Mise à jour d'un joueur existant
-        this.trainers.splice(index, 1, savedTrainer);
-      } else {
-        // Ajout d'un nouveau joueur
-        this.trainers.push(savedTrainer);
-      }
-
-      // Émet la liste mise à jour au parent
-      this.$emit("update:trainers", [...this.trainers]);
-
-      this.$nextTick(() => {
-        const newTrainerElement = this.$refs[`trainer-${savedTrainer.id}`]?.[0];
-        if (newTrainerElement) {
-          newTrainerElement.scrollIntoView({behavior: "smooth", block: "center"});
-
-          // Ajouter une classe temporaire pour l'effet de mise en valeur
-          newTrainerElement.classList.add("highlighted");
-          setTimeout(() => newTrainerElement.classList.remove("highlighted"), 3000); // Retire l'effet après 3s
+      
+      try {
+        if (savedTrainer.id) {
+          // Update existing trainer
+          await this.trainersStore.updateTrainer(savedTrainer.id, savedTrainer);
+        } else {
+          // Create new trainer
+          savedTrainer = await this.trainersStore.createTrainer(savedTrainer);
         }
-      });
+
+        this.$nextTick(() => {
+          const newTrainerElement = this.$refs[`trainer-${savedTrainer.id}`]?.[0];
+          if (newTrainerElement) {
+            newTrainerElement.scrollIntoView({behavior: "smooth", block: "center"});
+
+            // Ajouter une classe temporaire pour l'effet de mise en valeur
+            newTrainerElement.classList.add("highlighted");
+            setTimeout(() => newTrainerElement.classList.remove("highlighted"), 3000); // Retire l'effet après 3s
+          }
+        });
+      } catch (error) {
+        console.error("Error saving trainer:", error);
+      }
     },
     addTrainer() {
       if (this.localIsMobile || this.userRole !== "ROLE_ADMIN") return;
