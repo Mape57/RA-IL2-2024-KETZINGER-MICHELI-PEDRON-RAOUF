@@ -44,6 +44,7 @@
               item-key="idtrainer"
               :sort="false"
               class="pr-1 coach-area"
+              :class="{'drag-active': isDragging && draggedItemType === 'coach'}"
               @start="onDragStart"
               @add="onCoachDropped"
               :move="moveValidator"
@@ -76,6 +77,7 @@
               item-key="id"
               :sort="false"
               class="pr-1 players-area"
+              :class="{'players-drag-active': isDragging && draggedItemType === 'player'}"
               @start="onDragStart"
               @end="onPlayerDragEnd"
               @add="onPlayerAdded"
@@ -95,6 +97,7 @@
               item-key="id"
               :sort="false"
               class="pl-2 players-area"
+              :class="{'players-drag-active': isDragging && draggedItemType === 'player'}"
               @start="onDragStart"
               @end="onPlayerDragEnd"
               @add="onPlayerAdded"
@@ -374,18 +377,44 @@ export default {
       }
       return true; // Autoriser tous les autres déplacements
     },
+onDragStart(evt) {
+  this.isDragging = true;
+  // Check if it's a coach or player being dragged
+  if (evt.from.className.includes('coach-area')) {
+    this.draggedItemType = 'coach';
+  } else if (evt.from.className.includes('trainer-list')) {
+    this.draggedItemType = 'coach'; // Consider trainer-list drags as coach type
+  } else {
+    this.draggedItemType = 'player';
+  }
+  console.log("Type dragged:", this.draggedItemType);
+  
+  // Find all drop zones of the same type and apply highlight styling
+  this.highlightDropZones();
+},
 
-    onDragStart(evt) {
-      this.isDragging = true;
-      console.log("bien en train de dragger");
-      this.draggedItemType = evt.from.className.includes('coach-area') ? 'coach' : 'player';
-    },
+highlightDropZones() {
+  // This method is called when drag starts to apply highlighting to all valid drop zones
+  document.querySelectorAll('.coach-area').forEach(zone => {
+    if (this.draggedItemType === 'coach') {
+      zone.classList.add('drag-active');
+    }
+  });
+  
+  document.querySelectorAll('.players-area').forEach(zone => {
+    if (this.draggedItemType === 'player') {
+      zone.classList.add('players-drag-active');
+    }
+  });
+},
+
 
 
 
     onPlayerDragEnd(evt) {
       console.log("bien fini de dragger");
       this.isDragging = false;
+      this.removeDropZoneHighlights();
 
       // Si le drop n'est pas dans la corbeille
       if (!evt.to.classList.contains('trash-container')) {
@@ -480,6 +509,7 @@ export default {
       }
 
       this.isDragging = false;
+      this.removeDropZoneHighlights();
     },
 
     onCoachDropped(evt) {
@@ -505,6 +535,17 @@ export default {
           this.entraineur = [];
         }
       }
+    },
+    
+    removeDropZoneHighlights() {
+      // Remove all highlighting classes when drag ends
+      document.querySelectorAll('.coach-area').forEach(zone => {
+        zone.classList.remove('drag-active');
+      });
+      
+      document.querySelectorAll('.players-area').forEach(zone => {
+        zone.classList.remove('players-drag-active');
+      });
     },
     
     // Delete confirmation methods
@@ -582,6 +623,8 @@ export default {
 
 .players-area {
   min-height: 2rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
 }
 
 .trash-container {
@@ -618,6 +661,23 @@ export default {
 .trash-icon {
   color: #e3342f;
   font-size: 24px;
+}
+
+/* Drag and drop highlight styles */
+.drag-active {
+  background-color: rgba(82, 131, 89, 0.15);
+  border-radius: 8px;
+  border: 2px groove #528359;
+  transition: all 0.3s ease;
+}
+
+.players-drag-active {
+  background-color: rgba(82, 131, 89, 0.15);
+  border-radius: 6px;
+  border: 2px groove #528359;
+  padding: 4px;
+  min-height: 40px;
+  transition: all 0.3s ease;
 }
 
 /* Delete confirmation popup styles */
