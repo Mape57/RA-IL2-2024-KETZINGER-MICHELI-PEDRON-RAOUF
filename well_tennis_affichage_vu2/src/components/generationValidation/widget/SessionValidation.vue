@@ -1,18 +1,22 @@
 <template>
   <div class="validation">
-    <h3>Validation de la session du {{ getDay(justification.session.dayWeek) }} de {{ justification.session.start }} à {{ justification.session.stop }} sur le {{ justification.session.idCourt.name }}</h3>
+    <h3>Validation de la session du {{ getDay(justification.session.dayWeek) }} de {{ justification.session.start }} à
+      {{ justification.session.stop }} sur le {{ justification.session.idCourt.name }}</h3>
     <div>
       <div class="validation-left">
         <div>
           <div v-for="(score, just) in justification.sessionJustifications" class="information-split smaller">
-            <p>{{ just }}</p><p class="score">{{ getFormattedScore(score) }}</p>
+            <p>{{ just }}</p>
+            <p class="score">{{ getFormattedScore(score) }}</p>
           </div>
         </div>
         <div class="session-buttons">
-          <button @click="updateSession" class="w-full bg-[#528359] text-white py-1.5 px-4 rounded-md hover:bg-[#456c4c] transition">
+          <button @click="updateSession"
+                  class="w-full bg-[#528359] text-white py-1.5 px-4 rounded-md hover:bg-[#456c4c] transition">
             Valider la session
           </button>
-          <button @click="deleteSession" class="w-full bg-white text-[#528359] border border-[#528359] py-1.5 px-4 rounded-md hover:bg-[#f0f0f0] transition">
+          <button @click="deleteSession"
+                  class="w-full bg-white text-[#528359] border border-[#528359] py-1.5 px-4 rounded-md hover:bg-[#f0f0f0] transition">
             Supprimer la session
           </button>
         </div>
@@ -35,10 +39,10 @@
 
 <script>
 import {ref} from 'vue';
-import TrainerDescription from "./widget/TrainerDescription.vue";
-import PlayersDescription from "./widget/PlayersDescription.vue";
-import {getDay, getFormattedScore} from "../../functionality/conversionUtils.js";
-import {useSessionsStore} from "../../store/useSessionsStore.js";
+import TrainerDescription from "./TrainerDescription.vue";
+import PlayersDescription from "./PlayersDescription.vue";
+import {getDay, getFormattedScore} from "../../../functionality/conversionUtils.js";
+import {useSessionsStore} from "../../../store/useSessionsStore.js";
 
 export default {
   methods: {getFormattedScore, getDay},
@@ -58,7 +62,7 @@ export default {
     const playerCheckedStates = ref(props.justification.session.players.map(() => true));
 
     const updateSession = async () => {
-      const sessionData = { ...props.justification.session };
+      const sessionData = {...props.justification.session};
 
       sessionData.players = props.justification.session.players
           .filter((_, index) => playerCheckedStates.value[index])
@@ -77,14 +81,12 @@ export default {
     };
 
     const deleteSession = async () => {
-      if (confirm('Êtes-vous sûr de vouloir supprimer cette session ?')) {
-        try {
-          await useSessionsStore().deleteSession(props.justification.session.id);
-          console.log("Session supprimée avec succès");
-          ctx.emit('session-handled', props.justification.session.id);
-        } catch (error) {
-          console.error("Échec de la suppression de la session:", error);
-        }
+      try {
+        await useSessionsStore().deleteSession(props.justification.session.id);
+        console.log("Session supprimée avec succès");
+        ctx.emit('session-handled', props.justification.session.id);
+      } catch (error) {
+        console.error("Échec de la suppression de la session:", error);
       }
     };
 

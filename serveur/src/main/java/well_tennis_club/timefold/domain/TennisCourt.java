@@ -3,12 +3,13 @@ package well_tennis_club.timefold.domain;
 import lombok.Getter;
 import well_tennis_club.timefold.data_structure.Timeslot;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Getter
-public class TennisCourt {
+public class TennisCourt implements Serializable {
 	private UUID id;
 	private String name;
 	private List<Timeslot> openingHours;

@@ -8,7 +8,7 @@ import well_tennis_club.projet.core.disponibility.entity.DisponibilityEntity;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface DisponibilityMapper {
 	DisponibilityMapper INSTANCE = Mappers.getMapper(DisponibilityMapper.class);
 

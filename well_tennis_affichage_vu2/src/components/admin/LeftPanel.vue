@@ -56,6 +56,7 @@
             :searchQuery="searchQuery"
             :isMobile="isMobile"
             :userRole="userRole"
+            :loading="isLoadingTrainers"
             @update:trainers="userRole === 'ROLE_ADMIN' ? updateTrainers : () => {}"
         />
         <Players
@@ -63,6 +64,7 @@
             :searchQuery="searchQuery"
             :isMobile="isMobile"
             :userRole="userRole"
+            :loading="isLoadingPlayers"
             @update:players="userRole === 'ROLE_ADMIN' ? updatePlayers : () => {}"
         />
       </div>
@@ -173,6 +175,8 @@ export default {
     const selectedPlayer = ref(null);
     const showPendingPlayers = ref(false);
     const terrainErrors = ref([]);
+    const isLoadingTrainers = ref(true);
+    const isLoadingPlayers = ref(true);
 
 
     watch(() => props.isMobile, (newVal) => {
@@ -235,9 +239,28 @@ export default {
         fetchPendingPlayers();
       }
     };
+
+    const fetchTrainersWithLoading = async () => {
+      isLoadingTrainers.value = true;
+      try {
+        await fetchTrainers();
+      } finally {
+        isLoadingTrainers.value = false;
+      }
+    };
+
+    const fetchPlayersWithLoading = async () => {
+      isLoadingPlayers.value = true;
+      try {
+        await fetchPlayers();
+      } finally {
+        isLoadingPlayers.value = false;
+      }
+    };
+
     onMounted(() => {
-      fetchTrainers();
-      fetchPlayers();
+      fetchTrainersWithLoading();
+      fetchPlayersWithLoading();
       fetchTerrains();
     });
 
@@ -263,6 +286,8 @@ export default {
       validatePlayer,
       updatePendingPlayers,
       getJourLabel,
+      isLoadingTrainers,
+      isLoadingPlayers,
     };
   },
 

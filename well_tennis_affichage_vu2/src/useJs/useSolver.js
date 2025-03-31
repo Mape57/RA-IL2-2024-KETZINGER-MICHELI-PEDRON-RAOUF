@@ -51,11 +51,33 @@ export default function useSolver() {
 		}
 	}
 
+	const rmpkGet = async () => {
+		try {
+			const response = await solverService.rmpkGet();
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de la récupération du rmpk :", error.response?.data || error.message);
+			throw error;
+		}
+	}
+
+	const rmpkPost = async (data) => {
+		try {
+			const response = await solverService.rmpkPost(data);
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de l'envoi du rmpk :", error.response?.data || error.message);
+			throw error;
+		}
+	}
+
 	return {
 		startSolver,
 		stopSolver,
 		statusSolver,
 		saveSolver,
-		solverJustifications
+		solverJustifications,
+		rmpkGet,
+		rmpkPost,
 	}
 }

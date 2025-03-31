@@ -12,8 +12,10 @@ import well_tennis_club.timefold.domain.*;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 public class TimetableFactory {
@@ -46,7 +48,11 @@ public class TimetableFactory {
 							.orElseThrow();
 					return convertFrom(sessionEntity, trainer);
 				})
-				.toList();
+				.collect(ArrayList::new, List::add, List::addAll);
+
+		Collections.shuffle(players);
+		Collections.shuffle(trainers);
+		Collections.shuffle(tennisCourts);
 
 		if (plannedSessions.isEmpty()) return new Timetable(players, trainers, tennisCourts);
 
@@ -63,8 +69,10 @@ public class TimetableFactory {
 							.findFirst()
 							.orElseThrow();
 					return new PlayerSessionLink(player, session);
-				}).toList();
+				}).collect(ArrayList::new, List::add, List::addAll);
 
+		Collections.shuffle(sessions);
+		Collections.shuffle(psls);
 		if (psls.isEmpty()) return new Timetable("WTC from sessions", players, trainers, sessions);
 		else return new Timetable("WTC from sessions and psls", players, trainers, sessions, psls);
 	}

@@ -8,13 +8,14 @@ import lombok.Getter;
 import lombok.Setter;
 import well_tennis_club.timefold.tools.difficulty_comparator.PSLDifficultyComparator;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
 @Getter
 @Setter
 @PlanningEntity(difficultyComparatorClass = PSLDifficultyComparator.class)
-public class PlayerSessionLink {
+public class PlayerSessionLink implements Serializable {
 	@PlanningId
 	private UUID id;
 

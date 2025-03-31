@@ -11,19 +11,25 @@
           <p>{{ startTime }}</p>
           <p>{{ endTime }}</p>
         </div>
-        <div v-else class="flex flex-col gap-2">
+        <div v-else ref="timeEditArea" class="flex flex-col gap-2">
           <input
             type="time"
             v-model="editableSession.start"
-            @change="validateAndUpdateTime"
             class="time-input border border-gray-300 rounded px-1 py-0.5 text-sm w-24"
           />
           <input
             type="time"
             v-model="editableSession.stop"
-            @change="validateAndUpdateTime"
             class="time-input border border-gray-300 rounded px-1 py-0.5 text-sm w-24"
           />
+          <div class="flex justify-center mt-2">
+            <button
+              @click="validateAndUpdateTime"
+              class="text-xs text-white bg-green-600 hover:bg-green-700 rounded px-4 py-1 w-full"
+            >
+              Enregistrer
+            </button>
+          </div>
         </div>
       </div>
 
@@ -252,12 +258,31 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.checkScreenSize);
+    document.removeEventListener('mousedown', this.handleClickOutside);
   },
   methods: {
+    handleClickOutside(event) {
+      const timeEditArea = this.$refs.timeEditArea;
+      if (this.isEditingTime && timeEditArea && !timeEditArea.contains(event.target)) {
+        // Reset to original values
+        this.editableSession.start = this.formatTimeForInput(this.startTime);
+        this.editableSession.stop = this.formatTimeForInput(this.endTime);
+        this.isEditingTime = false;
+        
+        // Remove event listener when editing is closed
+        document.removeEventListener('mousedown', this.handleClickOutside);
+      }
+    },
+    
     enableTimeEditing() {
       // Si l'utilisateur est un administrateur, activer le mode d'édition des horaires
       if (this.userRole === 'ROLE_ADMIN') {
         this.isEditingTime = true;
+        
+        // Add click outside listener
+        this.$nextTick(() => {
+          document.addEventListener('mousedown', this.handleClickOutside);
+        });
       }
     },
 

@@ -25,51 +25,58 @@
 
     <!-- Contenu déroulant -->
     <div v-if="isOpen" class="mt-2">
-      <!-- En-têtes des colonnes -->
-      <div class="grid grid-cols-4 font-semibold text-gray-400 text-sm mb-2">
-        <div class="text-left">Nom</div>
-        <div class="text-left">Prénom</div>
-        <div class="text-left">Âge</div>
-        <div class="text-center">Niveau</div>
+      <div v-if="loading" class="flex justify-center items-center py-4">
+        <div class="loader"></div>
       </div>
-
-      <VueDraggable
-          v-model="filteredPlayers"
-          :group="{ name: 'players', pull: 'clone', put: false }"
-          item-key="id"
-          :sort="false"
-          @start="onDragStart"
-          @end="onDragEnd"
-      >
-      <div
-          v-for="player in filteredPlayers"
-          :key="player.id"
-          class="grid grid-cols-4 items-center py-1"
-          :class="{ 'cursor-pointer': !isMobile }"
-          :ref="'player-' + player.id"
-          @click="!isMobile && showPlayerInfo(player)">
-
-          <!-- Nom du joueur -->
-          <span>{{ player.name }}</span>
-          <!-- Prénom du joueur -->
-          <span class="text-left">{{ player.surname }}</span>
-          <!-- Âge du joueur -->
-          <span class="text-left">{{ computeAge(player.birthday) || "N/A" }} ans</span>
-          <!-- Niveau du joueur -->
-          <span class="text-center">{{ player.level }}</span>
+      <div v-else>
+        <!-- En-têtes des colonnes -->
+        <div class="grid grid-cols-4 font-semibold text-gray-400 text-sm mb-2">
+          <div class="text-left">Nom</div>
+          <div class="text-left">Prénom</div>
+          <div class="text-left">Âge</div>
+          <div class="text-center">Niveau</div>
+          <div class="text-center">Sessions</div>
         </div>
-      </VueDraggable>
 
-      <!-- Affichage de PlayerInfoView -->
-      <PlayerInfoView
-          v-if="selectedPlayer && !isMobile && userRole === 'ROLE_ADMIN'"
-          :player="selectedPlayer"
-          @close="selectedPlayer = null"
-          @delete="handlePlayerDeletion"
-          @save="handlePlayerSave"
-      />
+        <VueDraggable
+            v-model="filteredPlayers"
+            :group="{ name: 'players', pull: 'clone', put: false }"
+            item-key="id"
+            :sort="false"
+            @start="onDragStart"
+            @end="onDragEnd"
+        >
+          <div
+              v-for="player in filteredPlayers"
+              :key="player.id"
+              class="grid grid-cols-4 items-center py-1"
+              :class="{ 'cursor-pointer': !isMobile }"
+              :ref="'player-' + player.id"
+              @click="!isMobile && showPlayerInfo(player)">
 
+            <!-- Nom du joueur -->
+            <span>{{ player.name }}</span>
+            <!-- Prénom du joueur -->
+            <span class="text-left">{{ player.surname }}</span>
+            <!-- Âge du joueur -->
+            <span class="text-left">{{ computeAge(player.birthday) || "N/A" }} ans</span>
+            <!-- Niveau du joueur -->
+            <span class="text-center">{{ player.level }}</span>
+            <span class="text-center">{{ player.numberOfSessions }} / {{ player.courses }}</span>
+          </div>
 
+        </VueDraggable>
+
+        <!-- Affichage de PlayerInfoView -->
+        <PlayerInfoView
+            v-if="selectedPlayer && !isMobile && userRole === 'ROLE_ADMIN'"
+            :player="selectedPlayer"
+            @close="selectedPlayer = null"
+            @delete="handlePlayerDeletion"
+            @save="handlePlayerSave"
+        />
+
+      </div>
     </div>
   </div>
 </template>
@@ -82,12 +89,16 @@ import {VueDraggable} from "vue-draggable-plus";
 
 export default {
   name: "Players",
-  components: {VueDraggable, PlayerInfoView },
+  components: {VueDraggable, PlayerInfoView},
   props: {
     players: Array,
     searchQuery: String,
     isMobile: Boolean,
     userRole: String,
+    loading: {
+      type: Boolean,
+      default: false
+    },
   },
   setup() {
     const {computeAge} = usePlayers();
@@ -105,7 +116,6 @@ export default {
     onUnmounted(() => {
       window.removeEventListener("resize", updateIsMobile);
     });
-
 
 
     return {
@@ -177,7 +187,7 @@ export default {
       this.$nextTick(() => {
         const newPlayerElement = this.$refs[`player-${savedPlayer.id}`]?.[0];
         if (newPlayerElement) {
-          newPlayerElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          newPlayerElement.scrollIntoView({behavior: "smooth", block: "center"});
 
           // Ajouter une classe temporaire pour l'effet de mise en valeur
           newPlayerElement.classList.add("highlighted");
@@ -235,7 +245,7 @@ export default {
 
 .grid {
   display: grid;
-  grid-template-columns: 2fr 1.7fr 1fr 1fr;
+  grid-template-columns: 2fr 1.7fr 1fr 1fr 1fr;
   gap: 0.8rem;
 }
 

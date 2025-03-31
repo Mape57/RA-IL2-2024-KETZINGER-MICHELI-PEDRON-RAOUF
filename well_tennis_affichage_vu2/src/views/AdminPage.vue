@@ -30,16 +30,15 @@
       <LeftPanel class="desktop-left-panel" :isMobile="false" :userRole="'ROLE_ADMIN'" />
       <RightPanel class="desktop-right-panel" :userRole="'ROLE_ADMIN'" :key="updateValue"/>
     </div>
-    <BottomPanel v-if="!isMobile" :statusMessage="statusMessage" @launch="handleLaunch" @updatePlayers="fetchPlayers"
-                 @submitChanges="handleSubmitChanges" @sendSchedule="handleSendSchedule" class="aligned-bottom-panel" />  </div>
+    <BottomPanel v-if="!isMobile" class="aligned-bottom-panel" />  </div>
 </template>
 
 <script>
 import LeftPanel from "../components/admin/LeftPanel.vue";
 import RightPanel from "../components/terrains/RightPanel.vue";
-import BottomPanel from "../components/shared/BottomPanel.vue";
 import usePlayers from "../useJs/usePlayers";
 import {watch} from "vue";
+import BottomPanel from "../components/generationValidation/BottomPanel.vue";
 
 export default {
   name: "AdminPage",

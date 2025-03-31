@@ -22,7 +22,7 @@ public class GroupSizeJustification extends SessionJustification {
 	}
 
 	private static String getDescription(Integer groupSizeDifference) {
-		return String.format("%d joueurs en trop dans le groupe.", groupSizeDifference);
+		return String.format("La taille du groupe n'est pas correcte (+/- %d joueur(s))", groupSizeDifference);
 	}
 
 	@Override

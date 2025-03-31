@@ -10,11 +10,12 @@ import lombok.Getter;
 import lombok.Setter;
 import well_tennis_club.timefold.data_structure.Timeslot;
 
+import java.io.Serializable;
 import java.util.*;
 
 @Getter
 @PlanningSolution
-public class Timetable {
+public class Timetable implements Serializable {
 	private String name;
 
 	public static final int MINIMUM_DURATION = 30;

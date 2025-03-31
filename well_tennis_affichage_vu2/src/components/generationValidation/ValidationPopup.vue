@@ -1,46 +1,64 @@
 <template>
   <button
+      class="button secondary"
       @click="open = true"
-      class="bg-white text-[#528359] py-1.5 px-3 rounded-md flex items-center border border-[#528359] text-sm hover:bg-[#e6f4eb] transition"
   >
-    <span class="material-symbols-outlined mr-1 text-base">rule_folder</span>
+    <span class="material-symbols-outlined">rule_folder</span>
     Valider la génération
   </button>
-  <Teleport to="body">
-    <div v-if="open" class="popup">
-      <div>
-        <div class="popup-header">
-          <h2>Validation de la génération</h2>
-          <button @click="open = false" class="material-symbols-outlined text-[#2F855A] text-4xl transition-transform transform hover:scale-110 hover:text-red-500">
-            close
-          </button>
-        </div>
 
-        <div class="popup-content">
-          <SessionValidation
-              v-for="justification in justifications"
-              :key="justification.session.id"
-              :justification="justification"
-              @session-handled="removeJustification" />
+  <Teleport to="body">
+    <Transition name="fade">
+      <div v-if="open" class="popup">
+        <div>
+          <div class="popup-header">
+            <h2>Validation de la génération</h2>
+            <button @click="open = false" class="button secondary red no-text" title="Fermer la popup">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div class="popup-content">
+            <div v-if="isLoading" class="loader-container">
+              <div class="loader"></div>
+            </div>
+            <SessionValidation
+                v-else
+                v-for="justification in justifications"
+                :key="justification.session.id"
+                :justification="justification"
+                @session-handled="removeJustification"/>
+            <p v-if="!isLoading && justifications.length === 0" class="no-results">
+              Aucune validation nécessaire
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </Teleport>
 </template>
 
 <script setup>
 import {ref, watch} from 'vue';
-import SessionValidation from './SessionValidation.vue';
+import SessionValidation from './widget/SessionValidation.vue';
 import useSolver from "../../useJs/useSolver.js";
 
 const open = ref(false);
+const isLoading = ref(false);
 
 defineEmits(['close']);
 const justifications = ref([]);
 
 watch(open, async (isOpen) => {
   if (isOpen) {
-    justifications.value = await useSolver().solverJustifications();
+    isLoading.value = true;
+    try {
+      justifications.value = await useSolver().solverJustifications();
+    } catch (error) {
+      console.error("Erreur lors du chargement des justifications:", error);
+    } finally {
+      isLoading.value = false;
+    }
   }
 });
 
@@ -76,11 +94,27 @@ const removeJustification = (sessionId) => {
   }
 }
 
+
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #2F855A;
+}
+
+.no-results {
+  text-align: center;
+  color: #718096;
+  padding: 2rem 0;
+}
+
 .popup-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
+  align-items: flex-start;
+  padding: 1rem 1rem 1rem 1.5rem;
   border-bottom: 1px solid #e2e8f0;
 
   > h2 {
@@ -207,4 +241,46 @@ const removeJustification = (sessionId) => {
     }
   }
 }
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.4s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 65px;
+  aspect-ratio: 1;
+  position: relative;
+}
+.loader:before,
+.loader:after {
+  content: "";
+  position: absolute;
+  border-radius: 50px;
+  box-shadow: 0 0 0 3px inset var(--accent);
+  animation: l5 2.5s infinite;
+}
+.loader:after {
+  animation-delay: -1.25s;
+  border-radius: 0;
+}
+@keyframes l5{
+  0%    {inset:0    35px 35px 0   }
+  12.5% {inset:0    35px 0    0   }
+  25%   {inset:35px 35px 0    0   }
+  37.5% {inset:35px 0    0    0   }
+  50%   {inset:35px 0    0    35px}
+  62.5% {inset:0    0    0    35px}
+  75%   {inset:0    0    35px 35px}
+  87.5% {inset:0    0    35px 0   }
+  100%  {inset:0    35px 35px 0   }
+}
+
 </style>
