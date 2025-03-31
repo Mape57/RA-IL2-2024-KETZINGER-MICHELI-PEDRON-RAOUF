@@ -82,7 +82,8 @@
 </template>
 
 <script>
-import {ref, onMounted, onUnmounted} from "vue";
+import {ref, onMounted, onUnmounted, computed} from "vue";
+import { usePlayersStore } from "../../store/usePlayersStore.js";
 import usePlayers from "../../useJs/usePlayers.js";
 import PlayerInfoView from "../vueInformations/PlayerInfoView.vue";
 import {VueDraggable} from "vue-draggable-plus";
@@ -91,17 +92,16 @@ export default {
   name: "Players",
   components: {VueDraggable, PlayerInfoView},
   props: {
-    players: Array,
     searchQuery: String,
     isMobile: Boolean,
     userRole: String,
-    loading: {
-      type: Boolean,
-      default: false
-    },
   },
   setup() {
-    const {computeAge} = usePlayers();
+    const playersStore = usePlayersStore();
+    const { computeAge } = usePlayers();
+    
+    const players = computed(() => playersStore.players);
+    const loading = computed(() => playersStore.loading);
 
     const localIsMobile = ref(window.innerWidth < 768);
 
@@ -111,6 +111,8 @@ export default {
     onMounted(() => {
       updateIsMobile();
       window.addEventListener("resize", updateIsMobile);
+      
+      playersStore.fetchPlayers();
     });
 
     onUnmounted(() => {
@@ -121,6 +123,9 @@ export default {
     return {
       computeAge,
       localIsMobile,
+      players,
+      loading,
+      playersStore,
     };
   },
 
@@ -161,39 +166,39 @@ export default {
       }
     },
 
-    handlePlayerDeletion(deletedPlayerId) {
-      const updatedPlayers = this.players.filter(player => player.id !== deletedPlayerId);
-      this.$emit('update:players', updatedPlayers); // Émet la liste mise à jour au parent
+    async handlePlayerDeletion(deletedPlayerId) {
+      await this.playersStore.deletePlayer(deletedPlayerId);
       this.selectedPlayer = null; // Ferme l'affichage des détails
     },
-    handlePlayerSave(savedPlayer) {
+    async handlePlayerSave(savedPlayer) {
       if (this.userRole !== "ROLE_ADMIN") return;
       if (!savedPlayer || typeof savedPlayer !== "object") {
         console.error("Données invalides reçues dans handlePlayerSave :", savedPlayer);
         return;
       }
-      const index = this.players.findIndex(player => player.id === savedPlayer.id);
-      if (index !== -1) {
-        // Mise à jour d'un joueur existant
-        this.players.splice(index, 1, savedPlayer);
-      } else {
-        // Ajout d'un nouveau joueur
-        this.players.push(savedPlayer);
-      }
-
-      // Émet la liste mise à jour au parent
-      this.$emit("update:players", [...this.players]);
-
-      this.$nextTick(() => {
-        const newPlayerElement = this.$refs[`player-${savedPlayer.id}`]?.[0];
-        if (newPlayerElement) {
-          newPlayerElement.scrollIntoView({behavior: "smooth", block: "center"});
-
-          // Ajouter une classe temporaire pour l'effet de mise en valeur
-          newPlayerElement.classList.add("highlighted");
-          setTimeout(() => newPlayerElement.classList.remove("highlighted"), 3000); // Retire l'effet après 3s
+      
+      try {
+        if (savedPlayer.id) {
+          // Update existing player
+          await this.playersStore.updatePlayer(savedPlayer.id, savedPlayer);
+        } else {
+          // Create new player
+          savedPlayer = await this.playersStore.createPlayer(savedPlayer);
         }
-      });
+        
+        this.$nextTick(() => {
+          const newPlayerElement = this.$refs[`player-${savedPlayer.id}`]?.[0];
+          if (newPlayerElement) {
+            newPlayerElement.scrollIntoView({behavior: "smooth", block: "center"});
+
+            // Ajouter une classe temporaire pour l'effet de mise en valeur
+            newPlayerElement.classList.add("highlighted");
+            setTimeout(() => newPlayerElement.classList.remove("highlighted"), 3000); // Retire l'effet après 3s
+          }
+        });
+      } catch (error) {
+        console.error("Error saving player:", error);
+      }
 
     },
 
