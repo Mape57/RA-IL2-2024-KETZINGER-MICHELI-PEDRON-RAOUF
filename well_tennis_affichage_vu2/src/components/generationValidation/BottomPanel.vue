@@ -1,5 +1,4 @@
 <template>
-  <div class="bottom-panel">
     <SolverStateEditor
         :solver-state="solverState"
         @solver-state-changed="handleSolverStateChange"
@@ -10,7 +9,6 @@
       <input type="file" accept=".rmpk" @change="uploadRmpk" class="hidden"/>
       Importer
     </label>
-  </div>
 </template>
 
 <script>
@@ -67,28 +65,11 @@ export default {
   --accent: #528359;
 }
 
-.bottom-panel {
-  position: fixed;
-  z-index: 10;
-  right: 1.37rem; /* Alignement avec le RightPanel */
-  bottom: 1vh;
-  width: 67%; /* Même largeur que le RightPanel */
-  background-color: white;
-
-  padding: 10px;
-  border-radius: 15px;
-  display: flex;
-  height: 60px;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-}
-
 .button {
   height: 100%;
   background-color: var(--accent);
   color: white;
-  border-radius: 8px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   transition: all 0.2s ease;

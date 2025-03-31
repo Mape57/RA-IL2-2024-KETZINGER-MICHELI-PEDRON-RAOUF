@@ -1,6 +1,5 @@
-
 <template>
-  <div class="right-panel rounded-lg shadow-md ">
+  <div class="right-panel-wrapper">
     <!-- Mode Mobile -->
     <div v-if="isMobile" class="flex flex-col h-full w-full overflow-x-hidden">
       <!-- Barre du haut pour le mobile -->
@@ -83,9 +82,9 @@
     </div>
 
     <!-- Mode Bureau -->
-    <div v-else class="flex flex-col flex-1 w-full h-full overflow-x-hidden">
-      <div class="flex items-center justify-center p-2 bg-white border-b border-gray-300 w-full overflow-x-hidden relative">
-        <div class="flex justify-center space-x-4">
+    <div v-else class="panel desktop">
+      <div class="toolbar desktop-toolbar">
+        <div class="tab-buttons">
           <button
               v-for="terrain in sortedTerrains"
               :key="terrain.id"
@@ -543,15 +542,20 @@ export default {
 </script>
 
 <style scoped>
-.right-panel {
-  background-color: white;
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: white;
+  border-bottom: 1px solid #ccc;
   position: relative;
-  overflow-y: auto;
-  margin-right: 1.37rem;
-  width: 67%;
-  height: 83vh;
-  margin-bottom: 4vh;
-  z-index: 100;
+}
+.desktop-toolbar {
+  justify-content: center;
+}
+.tab-buttons {
+  display: flex;
+  gap: 16px;
 }
 
 .tab-button {
@@ -639,84 +643,33 @@ body {
   scrollbar-width: thin;
 }
 
-@media (max-width: 768px) {
-  body {
-    font-size: 14px;
-  }
-
-  .right-panel {
-    padding: 1rem;
-    width: 100%;
-  }
-
-  .tab-button {
-    padding: 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  .content {
-    padding: 1rem;
-  }
-
-  select {
-    font-size: 1rem;
-  }
-
-  .material-symbols-outlined {
-    font-size: 1rem;
-  }
+.filter-popup h3 {
+  margin-bottom: 12px;
 }
 
-@media (min-width: 768px) and (max-width: 1024px) {
-  .right-panel {
-    width: 54%;
-    height: 80vh;
-    margin-left: auto;
-    margin-right: 2%;
-    margin-top: 17px;
-
-  }
-
-  .content {
-    padding: 1.5rem;
-  }
-
-  .tab-button {
-    padding: 0.75rem;
-    font-size: 1rem;
-  }
+.filter-fields input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
-@media (min-width: 800px) and (max-width: 809px) {
-  .right-panel {
-    width: 54%;
-    height: 83vh;
-    margin-left: auto;
-    margin-right: 2%;
-    margin-top: 17px;
-  }
-
-  .content {
-    padding: 1.5rem;
-  }
-
-  .tab-button {
-    padding: 0.75rem;
-    font-size: 1rem;
-  }
+.filter-footer button {
+  background-color: #528359;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-@media (min-width: 1024px) {
-  .right-panel {
-    width: 67%;
-    height: 90vh;
-    position: relative;
-    top: 0;
-    right: 0;
-    margin-left: auto;
-  }
-
+.panel.desktop {
+  position: relative;
+  z-index: 1000;
 }
+
+
 
 </style>
 
