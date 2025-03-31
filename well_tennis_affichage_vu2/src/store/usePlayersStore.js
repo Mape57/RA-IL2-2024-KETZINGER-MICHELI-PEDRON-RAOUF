@@ -93,15 +93,32 @@ export const usePlayersStore = defineStore("players", () => {
 			throw error;
 		}
 	};
+// Méthode pour incrémenter le nombre de sessions d'un joueur
+const incrementPlayerSessionCount = (playerId) => {
+	const playerIndex = players.value.findIndex((player) => player.id === playerId);
+	if (playerIndex !== -1) {
+		players.value[playerIndex].nombreDeSeances += 1;
+	}
+};
 
-	return {
-		players,
-		loading,
-		fetchPlayers,
-		fetchPlayersByIds,
-		getPlayerById,
-		createPlayer,
-		updatePlayer,
-		deletePlayer
-	};
+// Méthode pour décrémenter le nombre de sessions d'un joueur
+const decrementPlayerSessionCount = (playerId) => {
+	const playerIndex = players.value.findIndex((player) => player.id === playerId);
+	if (playerIndex !== -1 && players.value[playerIndex].nombreDeSeances > 0) {
+		players.value[playerIndex].nombreDeSeances -= 1;
+	}
+};
+
+return {
+	players,
+	loading,
+	fetchPlayers,
+	fetchPlayersByIds,
+	getPlayerById,
+	createPlayer,
+	updatePlayer,
+	deletePlayer,
+	incrementPlayerSessionCount,
+	decrementPlayerSessionCount
+};
 });

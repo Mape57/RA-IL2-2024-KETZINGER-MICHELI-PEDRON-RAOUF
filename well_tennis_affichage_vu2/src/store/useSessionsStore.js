@@ -36,20 +36,25 @@ export const useSessionsStore = defineStore("sessions", () => {
 			}
 			// Ensure players array is never null
 			const playersArray = sessionData.players || [];
-			// Extract UUIDs from player objects
-			const playerIds = playersArray
-				.map(p => {
-					// Si p est un objet avec un ID
-					if (typeof p === 'object' && p !== null && p.id) {
-						return p.id;
-					}
-					// Si p est déjà un UUID (string)
-					else if (typeof p === 'string') {
-						return p;
-					}
-					return null;
-				})
-				.filter(id => id !== null); // Éliminer les valeurs null
+			// Extract UUIDs from player objects and ensure uniqueness
+			const playerIds = [...new Set(
+				playersArray
+					.map(p => {
+						// Si p est un objet avec un ID
+						if (typeof p === 'object' && p !== null && p.id) {
+							return p.id;
+						}
+						// Si p est déjà un UUID (string)
+						else if (typeof p === 'string') {
+							return p;
+						}
+						return null;
+					})
+					.filter(id => id !== null) // Éliminer les valeurs null
+			)]; // Utilisation de Set pour éliminer les doublons d'IDs
+
+			console.log("PlayerIds après déduplication:", playerIds);
+			
 			// Nettoyage des données envoyées
 			const cleanedSession = {
 				id: sessionData.id,

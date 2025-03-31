@@ -5,6 +5,7 @@ import trainersService from "../services/TrainersService";
 export const useTrainersStore = defineStore("trainers", () => {
 	const trainers = ref([]);
 	const loading = ref(false);
+	const hoursInitialized = ref(false);
 
 	const fetchTrainers = async () => {
 		try {
@@ -114,6 +115,85 @@ export const useTrainersStore = defineStore("trainers", () => {
 		}
 	};
 
+	// Méthode pour incrémenter le nombre d'heures d'un entraîneur
+	const incrementTrainerHours = (trainerId, hours = 1) => {
+		const trainerIndex = trainers.value.findIndex((trainer) => trainer.id === trainerId);
+		if (trainerIndex !== -1) {
+			if (!trainers.value[trainerIndex].nombreHeures) {
+				trainers.value[trainerIndex].nombreHeures = 0;
+			}
+			trainers.value[trainerIndex].nombreHeures += hours;
+			console.log(`Coach ${trainers.value[trainerIndex].name} ${trainers.value[trainerIndex].surname}: heures incrémentées de ${hours}, nouveau total: ${trainers.value[trainerIndex].nombreHeures}`);
+		}
+	};
+
+	// Méthode pour décrémenter le nombre d'heures d'un entraîneur
+	const decrementTrainerHours = (trainerId, hours = 1) => {
+		const trainerIndex = trainers.value.findIndex((trainer) => trainer.id === trainerId);
+		if (trainerIndex !== -1 && trainers.value[trainerIndex].nombreHeures) {
+			trainers.value[trainerIndex].nombreHeures = Math.max(0, trainers.value[trainerIndex].nombreHeures - hours);
+			console.log(`Coach ${trainers.value[trainerIndex].name} ${trainers.value[trainerIndex].surname}: heures décrémentées de ${hours}, nouveau total: ${trainers.value[trainerIndex].nombreHeures}`);
+		}
+	};
+
+	// Méthode pour réinitialiser les heures d'un entraîneur
+	const resetTrainerHours = (trainerId) => {
+		const trainerIndex = trainers.value.findIndex((trainer) => trainer.id === trainerId);
+		if (trainerIndex !== -1) {
+			trainers.value[trainerIndex].nombreHeures = 0;
+		}
+	};
+
+	// Méthode pour calculer et mettre à jour les heures d'un entraîneur basé sur la durée d'une session
+	const updateTrainerHoursFromSession = (trainerId, startTime, endTime) => {
+		if (!trainerId || !startTime || !endTime) return;
+		
+		// Calculer la durée en heures
+		const start = new Date(`2000-01-01T${startTime}`);
+		const end = new Date(`2000-01-01T${endTime}`);
+		const durationHours = (end - start) / (1000 * 60 * 60);
+		
+		if (durationHours > 0) {
+			incrementTrainerHours(trainerId, durationHours);
+		}
+	};
+
+	// Méthode pour initialiser les heures des coachs en fonction des sessions
+	const initializeTrainerHours = (sessions) => {
+		if (!sessions || sessions.length === 0 || hoursInitialized.value) return;
+		
+		console.log("Initialisation des heures des coachs...");
+		
+		// Réinitialiser les heures de tous les coachs
+		trainers.value.forEach(trainer => {
+			if (trainer.nombreHeures === undefined) {
+				trainer.nombreHeures = 0;
+			} else {
+				trainer.nombreHeures = 0;
+			}
+		});
+		
+		// Calculer les heures pour chaque coach en fonction des sessions
+		sessions.forEach(session => {
+			if (session.idTrainer && session.start && session.stop) {
+				const trainerId = typeof session.idTrainer === 'object' ? session.idTrainer.id : session.idTrainer;
+				
+				if (trainerId) {
+					const start = new Date(`2000-01-01T${session.start}`);
+					const end = new Date(`2000-01-01T${session.stop}`);
+					const durationHours = (end - start) / (1000 * 60 * 60);
+					
+					if (durationHours > 0) {
+						incrementTrainerHours(trainerId, durationHours);
+					}
+				}
+			}
+		});
+		
+		hoursInitialized.value = true;
+		console.log("Initialisation des heures des coachs terminée");
+	};
+
 	return {
 		trainers,
 		loading,
@@ -124,6 +204,11 @@ export const useTrainersStore = defineStore("trainers", () => {
 		updateTrainer,
 		deleteTrainer,
 		resetPassword,
-		changePassword
+		changePassword,
+		initializeTrainerHours,
+		resetTrainerHours,
+		incrementTrainerHours,
+		decrementTrainerHours,
+		updateTrainerHoursFromSession
 	};
 });

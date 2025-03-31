@@ -186,20 +186,13 @@
   </div>
 </template>
 <script>
-import {ref, computed, onMounted, onUnmounted, watch} from "vue";
+import {ref, computed, onMounted, onUnmounted} from "vue";
 import SessionCard from "./SessionCard.vue";
 import useTerrains from "../../useJs/useTerrain.js";
 import { useSessionsStore } from "../../store/useSessionsStore.js";
 import { usePlayersStore } from "../../store/usePlayersStore.js";
 import { useTrainersStore } from "../../store/useTrainersStore.js";
 import { storeToRefs } from "pinia";
-import { useSessions } from "../../useJs/useSessions.js";
-import terrainService from "../../services/TerrainService";
-import sessionsService from "../../services/SessionService";
-import trainerService from "../../services/TrainersService";
-import playerService from "../../services/PlayersService";
-import usePlayers from "../../useJs/usePlayers.js";
-import useTrainers from "../../useJs/useTrainers.js";
 import {getSportsAge} from "../../functionality/conversionUtils.js";
 
 
@@ -338,11 +331,13 @@ export default {
     });
 
     // Chargement initial des données + gestion resize
-    onMounted(() => {
+    onMounted(async () => {
       fetchTerrains();
-      fetchSessions();
+      // Charger les sessions et les entraîneurs en parallèle
+      await Promise.all([fetchSessions(), fetchTrainers()]);
+      // Initialiser les heures des coachs une fois les données chargées
+      trainersStore.initializeTrainerHours(sessions.value);
       fetchPlayers();
-      fetchTrainers();
       window.addEventListener("resize", updateWindowSize);
     });
 
@@ -351,31 +346,66 @@ export default {
     });
 
     // Lorsqu'une session est modifiée (horaires)
-    const handleTimesUpdated = async ({ sessionId }) => {
+    const handleTimesUpdated = async ({ sessionId, oldStart, oldStop, newStart, newStop }) => {
       await fetchSessions();
       const updatedSession = sessions.value.find(s => s.id === sessionId);
       if (updatedSession) {
         const playerIds = updatedSession.players.map(p => p.id);
         const trainerId = updatedSession.idTrainer?.id;
+        
+        // Mise à jour des heures de l'entraîneur si concerné
+        if (trainerId && oldStart && oldStop && newStart && newStop) {
+          // Calculer l'ancienne durée
+          const oldStartTime = new Date(`2000-01-01T${oldStart}`);
+          const oldStopTime = new Date(`2000-01-01T${oldStop}`);
+          const oldDuration = (oldStopTime - oldStartTime) / (1000 * 60 * 60);
+          
+          // Calculer la nouvelle durée
+          const newStartTime = new Date(`2000-01-01T${newStart}`);
+          const newStopTime = new Date(`2000-01-01T${newStop}`);
+          const newDuration = (newStopTime - newStartTime) / (1000 * 60 * 60);
+          
+          // Ajuster les heures en fonction du changement
+          const hoursDiff = newDuration - oldDuration;
+          if (hoursDiff !== 0) {
+            if (hoursDiff > 0) {
+              trainersStore.incrementTrainerHours(trainerId, hoursDiff);
+            } else {
+              trainersStore.decrementTrainerHours(trainerId, Math.abs(hoursDiff));
+            }
+          }
+        }
+        
         if (playerIds.length > 0) await playersStore.fetchPlayersByIds(playerIds);
         if (trainerId) await trainersStore.fetchTrainersByIds([trainerId]);
       }
     };
-
-    // Suppression d'une session + mise à jour des joueurs/entraîneurs concernés
-    const deleteSession = async (sessionId) => {
-      try {
-        const sessionToDelete = sessions.value.find(s => s.id === sessionId);
-        const playerIds = sessionToDelete?.players.map(p => p.id) || [];
-        const trainerId = sessionToDelete?.idTrainer?.id;
-        await sessionsStore.deleteSession(sessionId);
-        await fetchSessions();
-        if (playerIds.length > 0) await playersStore.fetchPlayersByIds(playerIds);
-        if (trainerId) await trainersStore.fetchTrainersByIds([trainerId]);
-      } catch (error) {
-        console.error("Erreur lors de la suppression de la session:", error);
+// Suppression d'une session + mise à jour des joueurs/entraîneurs concernés
+const deleteSession = async (sessionId) => {
+  try {
+    const sessionToDelete = sessions.value.find(s => s.id === sessionId);
+    const playerIds = sessionToDelete?.players.map(p => p.id) || [];
+    const trainerId = sessionToDelete?.idTrainer?.id;
+    
+    // Si un entraîneur est associé à la session, décrémenter ses heures
+    if (trainerId && sessionToDelete.start && sessionToDelete.stop) {
+      const startTime = new Date(`2000-01-01T${sessionToDelete.start}`);
+      const stopTime = new Date(`2000-01-01T${sessionToDelete.stop}`);
+      const durationHours = (stopTime - startTime) / (1000 * 60 * 60);
+      
+      if (durationHours > 0) {
+        trainersStore.decrementTrainerHours(trainerId, durationHours);
       }
-    };
+    }
+    
+    await sessionsStore.deleteSession(sessionId);
+    await fetchSessions();
+    if (playerIds.length > 0) await playersStore.fetchPlayersByIds(playerIds);
+    if (trainerId) await trainersStore.fetchTrainersByIds([trainerId]);
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la session:", error);
+  }
+};
 
     //  Suivi des suppressions de joueurs pour gérer les transferts inter-sessions
     const lastRemovedPlayer = ref(null);
@@ -385,31 +415,63 @@ export default {
       if (data?.player?.id) {
         lastRemovedPlayer.value = data.player;
         lastRemovedFromSession.value = data.fromSessionId;
-        await playersStore.fetchPlayersByIds([data.player.id]);
+        
+        console.log(`Joueur ${data.player.id} supprimé de la session ${data.fromSessionId}`);
+        
+        // Attendre un court instant pour permettre au backend de traiter les modifications
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Recharger tous les joueurs pour avoir les compteurs à jour
+        await playersStore.fetchPlayers();
       }
     };
-
-    //  Mise à jour de l'entraîneur d'une session
-    const handleCoachUpdate = async ({ sessionId, coach }) => {
-      try {
-        const session = sessions.value.find(s => s.id === sessionId);
-        if (!session) return;
-        const trainerId = coach?.id || coach?.idtrainer || null;
-        const updatedSession = { ...session, idTrainer: trainerId };
-        await sessionsStore.updateSession(updatedSession);
-        await fetchSessions();
-        if (trainerId) {
-          await trainersStore.fetchTrainersByIds([trainerId]);
-          const updated = sessions.value.find(s => s.id === sessionId);
-          if (updated?.players.length > 0) {
-            const playerIds = updated.players.map(p => p.id);
-            await playersStore.fetchPlayersByIds(playerIds);
-          }
-        }
-      } catch (error) {
-        console.error("Erreur lors de la mise à jour de l'entraîneur :", error);
+  //  Mise à jour de l'entraîneur d'une session
+  const handleCoachUpdate = async ({ sessionId, coach, oldCoach }) => {
+  try {
+    const session = sessions.value.find(s => s.id === sessionId);
+    if (!session) return;
+    
+    const oldTrainerId = oldCoach?.id || null;
+    const newTrainerId = coach?.id || coach?.idtrainer || null;
+    const updatedSession = { ...session, idTrainer: newTrainerId };
+    
+    // Gestion du changement d'entraîneur pour leurs heures
+    if (session.start && session.stop) {
+      const startTime = new Date(`2000-01-01T${session.start}`);
+      const stopTime = new Date(`2000-01-01T${session.stop}`);
+      const durationHours = (stopTime - startTime) / (1000 * 60 * 60);
+      
+      // Si on supprime un entraîneur ou le remplace, décrémente ses heures
+      if (oldTrainerId && durationHours > 0) {
+        trainersStore.decrementTrainerHours(oldTrainerId, durationHours);
       }
-    };
+      
+      // Si on ajoute un entraîneur, incrémente ses heures
+      if (newTrainerId && durationHours > 0) {
+        trainersStore.incrementTrainerHours(newTrainerId, durationHours);
+      }
+    }
+    
+    await sessionsStore.updateSession(updatedSession);
+    await fetchSessions();
+    
+    // Mise à jour des données liées
+    if (oldTrainerId) {
+      await trainersStore.fetchTrainersByIds([oldTrainerId]);
+    }
+    
+    if (newTrainerId) {
+      await trainersStore.fetchTrainersByIds([newTrainerId]);
+      const updated = sessions.value.find(s => s.id === sessionId);
+      if (updated?.players.length > 0) {
+        const playerIds = updated.players.map(p => p.id);
+        await playersStore.fetchPlayersByIds(playerIds);
+      }
+    }
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de l'entraîneur :", error);
+  }
+};
 
     //  Mise à jour des joueurs d'une session (avec détection des transferts)
     const updateSessionsPlayers = async (data) => {
@@ -421,37 +483,71 @@ export default {
         if (!session) return;
 
         const validPlayers = players || [];
+        
+        // Vérification des doublons potentiels parmi les joueurs
+        const playerIds = validPlayers.map(p => p.id);
+        const uniquePlayerIds = [...new Set(playerIds)];
+        
+        console.log(`Session ${sessionId} - Joueurs à mettre à jour:`, playerIds);
+        console.log(`IDs uniques: ${uniquePlayerIds.length}/${playerIds.length}`);
+        
+        // Alerte si des doublons sont détectés
+        if (uniquePlayerIds.length !== playerIds.length) {
+          console.warn("ATTENTION: Doublons détectés dans la liste des joueurs!");
+          console.warn("IDs en double:", playerIds.filter((id, index) => playerIds.indexOf(id) !== index));
+        }
 
         if (lastRemovedFromSession.value && lastRemovedFromSession.value !== sessionId && lastRemovedPlayer.value) {
           //  Transfert détecté entre deux sessions
+          console.log("Transfert détecté:",
+            `Joueur ${lastRemovedPlayer.value.id} de session ${lastRemovedFromSession.value} vers session ${sessionId}`);
+          
           const updatedDestination = { ...session, players: validPlayers };
+          console.log("Mise à jour session destination:", sessionId, "avec joueurs:",
+                      updatedDestination.players.map(p => p.id));
+          
           await updateSession(updatedDestination);
+          
           const source = sessions.value.find(s => s.id === lastRemovedFromSession.value);
           if (source) {
             const updatedSourcePlayers = source.players.filter(p => p.id !== lastRemovedPlayer.value.id);
+            console.log("Mise à jour session source:", lastRemovedFromSession.value,
+                        "avec joueurs:", updatedSourcePlayers.map(p => p.id));
+            
             await sessionsStore.updateSession({ ...source, players: updatedSourcePlayers });
           }
           lastRemovedPlayer.value = null;
           lastRemovedFromSession.value = null;
         } else {
           //  Mise à jour classique
+          console.log("Mise à jour simple de la session:", sessionId,
+                      "avec joueurs:", validPlayers.map(p => p.id));
+          
           await updateSession({ ...session, players: validPlayers });
         }
 
+        // Attendre un court instant pour permettre au backend de traiter les modifications
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Recharger TOUTES les données pour s'assurer d'avoir des données à jour
+        console.log("Rechargement complet des données...");
         await fetchSessions();
-
+        
+        // Forcer le rechargement de TOUS les joueurs au lieu de seulement ceux de la session
+        // Cela garantit que les compteurs de sessions sont correctement mis à jour
+        await playersStore.fetchPlayers();
+        
+        // Recharger les données spécifiques de l'entraîneur si nécessaire
         const updatedSessionData = sessions.value.find(s => s.id === sessionId);
-        if (updatedSessionData) {
-          if (updatedSessionData.players.length > 0) {
-            const playerIds = updatedSessionData.players.map(p => p.id);
-            await playersStore.fetchPlayersByIds(playerIds);
-          }
-          if (updatedSessionData.idTrainer?.id) {
-            await trainersStore.fetchTrainersByIds([updatedSessionData.idTrainer.id]);
-          }
+        if (updatedSessionData && updatedSessionData.idTrainer?.id) {
+          await trainersStore.fetchTrainersByIds([updatedSessionData.idTrainer.id]);
         }
       } catch (error) {
         console.error("Erreur dans updateSessionsPlayers :", error);
+        
+        // Même en cas d'erreur, essayer de recharger les données pour rester cohérent
+        await fetchSessions();
+        await playersStore.fetchPlayers();
       }
     };
 

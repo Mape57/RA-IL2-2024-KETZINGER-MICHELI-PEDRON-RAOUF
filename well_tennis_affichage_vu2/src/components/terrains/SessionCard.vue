@@ -37,17 +37,18 @@
         <div class="mb-2">
           <div class="font-bold text-sm">Entraîneur :</div>
 
-
-          <VueDraggable
-              v-model="entraineur"
-              :group="{ name: 'coach', pull: false, put: ['trainers'] }"
-              item-key="idtrainer"
-              :sort="false"
-              class="pr-1 coach-area"
-              :class="{'drag-active': isDragging && draggedItemType === 'coach'}"
-              @start="onDragStart"
-              @add="onCoachDropped"
-              :move="moveValidator"
+<VueDraggable
+    v-model="entraineur"
+    :group="{ name: 'coach', pull: false, put: ['trainers'] }"
+    item-key="idtrainer"
+    :sort="false"
+    class="pr-1 coach-area"
+    :class="{'drag-active': isDragging && draggedItemType === 'coach'}"
+    @start="onDragStart"
+    @end="onCoachDragEnd"
+    @add="onCoachDropped"
+    :move="moveValidator"
+>
           >
             <div
                 v-if="entraineur.length"
@@ -126,6 +127,7 @@
           item-key="idtrash"
           :sort="false"
           @add="onTrashDrop"
+          @end="onTrashDragEnd"
           >
           <div class="trash-area">
             <span class="material-icons trash-icon">delete_outline</span>
@@ -186,6 +188,7 @@
 import {VueDraggable} from "vue-draggable-plus";
 import {watchEffect, ref, reactive} from "vue";
 import { useSessionsStore } from "../../store/useSessionsStore";
+import { usePlayersStore } from "../../store/usePlayersStore";
 
 export default {
   components: {VueDraggable},
@@ -222,6 +225,7 @@ export default {
   },
   setup(props) {
     const sessionsStore = useSessionsStore();
+    const playersStore = usePlayersStore();
     
     const isEditingTime = ref(false);
     const editableSession = reactive({
@@ -231,6 +235,7 @@ export default {
     
     return {
       sessionsStore,
+      playersStore,
       isEditingTime,
       editableSession
     };
@@ -353,10 +358,13 @@ export default {
         this.isEditingTime = false;
 
         // Émet un événement vers le parent pour signaler que les horaires ont été modifiés
+        // Inclut les anciens et nouveaux horaires pour pouvoir calculer la différence d'heures
         this.$emit('times-updated', {
           sessionId: this.sessionId,
-          start: this.editableSession.start,
-          stop: this.editableSession.stop
+          oldStart: this.startTime,
+          oldStop: this.endTime,
+          newStart: this.editableSession.start,
+          newStop: this.editableSession.stop
         });
       } catch (error) {
         // En cas d’erreur durant la mise à jour, afficher une alerte et loguer l’erreur
@@ -466,6 +474,8 @@ highlightDropZones() {
           coach: null
         });
         this.entraineur = [];
+        // Vider immédiatement la corbeille pour le coach
+        this.trashItems = [];
       } else {
         console.log("Début suppression joueur");
 
@@ -498,6 +508,9 @@ highlightDropZones() {
         console.log("Joueur supprimé:", playerToRemove?.id);
         console.log("Liste mise à jour:", updatedPlayers);
 
+        // Nous ne gérons plus la décrémentation localement car cela peut causer des erreurs
+        // Le backend mettra à jour le nombre de sessions et nous récupérerons les données à jour
+
         // Vider immédiatement la corbeille pour le prochain drag
         this.trashItems = [];
 
@@ -511,6 +524,26 @@ highlightDropZones() {
       this.isDragging = false;
       this.removeDropZoneHighlights();
     },
+    
+    onTrashDragEnd() {
+      console.log("Fin du drag dans la corbeille");
+      this.isDragging = false;
+      this.draggedItemType = null;
+      this.removeDropZoneHighlights();
+      
+      // S'assurer que la corbeille est vide
+      this.trashItems = [];
+    },
+    
+    onCoachDragEnd() {
+      console.log("Fin du drag d'un entraîneur");
+      this.isDragging = false;
+      this.draggedItemType = null;
+      this.removeDropZoneHighlights();
+      
+      // Vider la corbeille pour s'assurer qu'elle est prête pour le prochain drag
+      this.trashItems = [];
+    },
 
     onCoachDropped(evt) {
       if (evt.from.className.includes('trainer-list')) {
@@ -518,9 +551,11 @@ highlightDropZones() {
         newCoach = this.entraineur[0];
 
         if (newCoach && (newCoach.id)) {
+          // Inclure l'ancien coach dans l'événement pour permettre la mise à jour des heures
           this.$emit("update-coach", {
             sessionId: this.sessionId,
-            coach: newCoach
+            coach: newCoach,
+            oldCoach: this.coach
           });
 
           console.log("Coach ajouté à la session:", newCoach);
