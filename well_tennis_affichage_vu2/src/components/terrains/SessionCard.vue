@@ -133,10 +133,20 @@
 
 
       <div class="lg:w-[10%] flex justify-end" v-if="userRole === 'ROLE_ADMIN'">
-        <button @click="$emit('delete')" class="delete-button">
+        <button @click="showDeletePopup" class="delete-button">
           <span class="material-icons delete-icon">delete</span>
-          <span class="delete-text">Supprimer</span>
         </button>
+        
+        <!-- Confirmation delete Popup -->
+        <div v-if="showDeleteConfirmation" class="delete-confirmation-popup">
+          <div class="delete-confirmation-content">
+            <p>Êtes-vous sûr de vouloir supprimer cette session ?</p>
+            <div class="delete-confirmation-buttons">
+              <button @click="confirmDelete" class="confirm-delete-btn">Supprimer</button>
+              <button @click="cancelDelete" class="cancel-delete-btn">Annuler</button>
+            </div>
+          </div>
+        </div>
 
 
       </div>
@@ -233,6 +243,7 @@ export default {
       isDragging: false,
       draggedItemType: null,
       trashItems: [],
+      showDeleteConfirmation: false,
     };
   },
   mounted() {
@@ -494,6 +505,20 @@ export default {
           this.entraineur = [];
         }
       }
+    },
+    
+    // Delete confirmation methods
+    showDeletePopup() {
+      this.showDeleteConfirmation = true;
+    },
+    
+    confirmDelete() {
+      this.$emit('delete');
+      this.showDeleteConfirmation = false;
+    },
+    
+    cancelDelete() {
+      this.showDeleteConfirmation = false;
     }
   },
 };
@@ -593,6 +618,67 @@ export default {
 .trash-icon {
   color: #e3342f;
   font-size: 24px;
+}
+
+/* Delete confirmation popup styles */
+.delete-confirmation-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.delete-confirmation-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+.delete-confirmation-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.confirm-delete-btn {
+  background-color: #e3342f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.confirm-delete-btn:hover {
+  background-color: #c42b26;
+}
+
+.cancel-delete-btn {
+  background-color: #528359;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.cancel-delete-btn:hover {
+  background-color: #4a5568;
 }
 </style>
 
