@@ -61,8 +61,10 @@ public class SolverController {
 	private SolverManager<Timetable, UUID> solverManager;
 	private SolutionManager<Timetable, HardSoftScore> solutionManager;
 
-	private UUID problemId;
-	private Timetable timetable;
+	private static final int NB_SOLVER = 10;
+	private UUID[] problemIds;
+	private Timetable[] timetables;
+	private Timetable bestTimetable;
 	private SessionService sessionService;
 	private static List<UUID> updatedSessions = new ArrayList<>();
 
@@ -99,24 +101,34 @@ public class SolverController {
 	})
 	@PostMapping
 	public ResponseEntity<String> startSolver() {
-		if (problemId != null) {
+		if (problemIds != null) {
 			throw new SolverRequestOrderException("Le solveur est déjà en cours d'exécution");
 		}
 
 		updatedSessions.clear();
-		this.timetable = timetableFactory.createTimetable();
+		this.timetables = new Timetable[NB_SOLVER];
+		this.problemIds = new UUID[NB_SOLVER];
 
-		this.problemId = UUID.randomUUID();
+		for (int i = 0; i < NB_SOLVER; i++) {
+			this.timetables[i] = timetableFactory.createTimetable();
+			this.problemIds[i] = UUID.randomUUID();
 
-		solverManager.solveBuilder().withProblemId(problemId).withProblem(timetable).withBestSolutionConsumer(bestSolution -> {
-			System.out.println("New best solution found: " + bestSolution.getScore());
-			this.timetable = bestSolution;
-		}).withFinalBestSolutionConsumer(finalBestSolution -> {
-			System.out.println("Final best solution found: " + finalBestSolution.getScore());
-			this.timetable = finalBestSolution;
-			this.problemId = null;
-			saveTimetable();
-		}).run();
+			int finalI = i;
+			solverManager.solveBuilder().withProblemId(this.problemIds[i]).withProblem(this.timetables[i]).withBestSolutionConsumer(bestSolution -> {
+				System.out.println(finalI + " - New best solution found: " + bestSolution.getScore());
+				this.timetables[finalI] = bestSolution;
+			}).withFinalBestSolutionConsumer(finalBestSolution -> {
+				System.out.println(finalI + " - Final best solution found: " + finalBestSolution.getScore());
+				this.timetables[finalI] = finalBestSolution;
+				this.problemIds[finalI] = null;
+
+				if (Arrays.stream(problemIds).allMatch(Objects::isNull)) {
+					this.problemIds = null;
+					bestTimetable();
+					saveTimetable();
+				}
+			}).run();
+		}
 
 		return ResponseEntity.ok("Solveur lancé");
 	}
@@ -138,9 +150,9 @@ public class SolverController {
 	})
 	@GetMapping
 	public ResponseEntity<String> status() {
-		if (problemId == null && timetable == null) {
+		if (problemIds == null && timetables == null) {
 			return ResponseEntity.ok("STOPPED");
-		} else if (problemId == null) {
+		} else if (problemIds == null) {
 			return ResponseEntity.ok("OVER");
 		} else {
 			return ResponseEntity.ok("RUNNING");
@@ -150,22 +162,22 @@ public class SolverController {
 	@GetMapping("/ki")
 	public ResponseEntity<String> blankIt() {
 		stopSolver();
-		timetable = null;
+		timetables = null;
 		return ResponseEntity.ok("STOPPED");
 	}
 
 	@GetMapping("/rmpk")
 	public ResponseEntity<String> getTimetable() {
-		if (problemId == null && timetable == null) {
+		if (problemIds == null && timetables == null && bestTimetable == null) {
 			throw new SolverRequestOrderException("Le solveur n'est pas lancé.");
-		} else if (problemId != null) {
+		} else if (problemIds != null) {
 			throw new SolverRequestOrderException("Le solveur est toujours en cours.");
 		} else {
 			try {
 				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 				GZIPOutputStream gzipOutputStream = new GZIPOutputStream(byteArrayOutputStream);
 				ObjectOutputStream objectOutputStream = new ObjectOutputStream(gzipOutputStream);
-				objectOutputStream.writeObject(timetable);
+				objectOutputStream.writeObject(bestTimetable);
 				objectOutputStream.close();
 				String compressedTimetable = Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
 				return ResponseEntity.ok(compressedTimetable);
@@ -178,7 +190,7 @@ public class SolverController {
 
 	@PostMapping("/rmpk")
 	public ResponseEntity<String> setTimetable(@RequestBody String compressedTimetable) {
-		if (problemId != null) {
+		if (problemIds != null) {
 			throw new SolverRequestOrderException("Le solveur est toujours en cours.");
 		}
 		try {
@@ -187,7 +199,7 @@ public class SolverController {
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressedBytes);
 			GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
 			ObjectInputStream objectInputStream = new ObjectInputStream(gzipInputStream);
-			this.timetable = (Timetable) objectInputStream.readObject();
+			this.bestTimetable = (Timetable) objectInputStream.readObject();
 			objectInputStream.close();
 			sessionService.deleteAll();
 			updatedSessions.clear();
@@ -225,15 +237,15 @@ public class SolverController {
 	})
 	@GetMapping("/justifications")
 	public ResponseEntity<List<SessionJustificationsDto>> justifications() {
-		if (problemId == null && timetable == null) {
+		if (problemIds == null && timetables == null && bestTimetable == null) {
 			throw new SolverRequestOrderException("Le solveur n'est pas lancé.");
-		} else if (problemId != null) {
+		} else if (problemIds != null) {
 			throw new SolverRequestOrderException("Le solveur est toujours en cours.");
 		}
 
 		Map<Session, SessionJustificationsDto> sessionJustificationsDtos = new HashMap<>();
 
-		ScoreAnalysis<HardSoftScore> scoreAnalysis = solutionManager.analyze(timetable);
+		ScoreAnalysis<HardSoftScore> scoreAnalysis = solutionManager.analyze(bestTimetable);
 
 		scoreAnalysis.constraintMap().forEach((x, constraintAnalysis) -> {
 			if (constraintAnalysis.matches() == null) return;
@@ -264,7 +276,7 @@ public class SolverController {
 		if (updatedSessions.contains(session.getId())) return;
 
 		SessionJustificationsDto current_sjd = sessionJustificationsDtos.computeIfAbsent(session, s -> {
-			List<PlayerSessionLink> psls = this.timetable.getPlayerSessionLinks().stream().filter(psl -> psl.getSession().equals(s)).toList();
+			List<PlayerSessionLink> psls = this.bestTimetable.getPlayerSessionLinks().stream().filter(psl -> psl.getSession().equals(s)).toList();
 			SessionEntity sessionEntity = from(s, psls);
 
 			return new SessionJustificationsDto(sessionEntity);
@@ -273,18 +285,24 @@ public class SolverController {
 	}
 
 	public void saveTimetable() {
-		if (timetable == null) {
+		if (this.bestTimetable == null) {
 			return;
 		}
 
 		Map<Session, List<PlayerSessionLink>> session_withPSLs = new HashMap<>();
-		for (PlayerSessionLink playerSessionLink : this.timetable.getPlayerSessionLinks()) {
+		for (PlayerSessionLink playerSessionLink : this.bestTimetable.getPlayerSessionLinks()) {
 			session_withPSLs.computeIfAbsent(playerSessionLink.getSession(), session -> new ArrayList<>()).add(playerSessionLink);
 		}
 
 		List<SessionEntity> sessionEntities = session_withPSLs.entrySet().stream().map(entry -> from(entry.getKey(), entry.getValue())).toList();
 
 		timetableService.saveAllSession(sessionEntities);
+	}
+
+	private void bestTimetable() {
+		System.out.println("Best timetable found: " + Arrays.stream(timetables).map(t -> t.getScore().toString()).toList());
+		this.bestTimetable = Arrays.stream(timetables).max(Comparator.comparing(t -> t.getScore().softScore() + t.getScore().hardScore() * 10)).get();
+		System.out.println("Keeping: " + this.bestTimetable.getScore());
 	}
 
 	@GetMapping("/insertData")
@@ -347,12 +365,16 @@ public class SolverController {
 	@Deprecated(forRemoval = true)
 	@GetMapping("/stop")
 	public ResponseEntity<String> stopSolver() {
-		if (problemId == null) {
+		if (problemIds == null) {
 			return ResponseEntity.status(404).body("Solver not started");
 		}
 
-		solverManager.terminateEarly(problemId);
-		problemId = null;
+		for (int i = 0; i < NB_SOLVER; i++) {
+			if (problemIds[i] != null) {
+				solverManager.terminateEarly(problemIds[i]);
+			}
+		}
+		problemIds = null;
 
 		return ResponseEntity.ok("Solver stopped");
 	}
