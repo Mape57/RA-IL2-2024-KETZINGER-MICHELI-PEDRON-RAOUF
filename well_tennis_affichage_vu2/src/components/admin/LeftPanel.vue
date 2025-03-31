@@ -1,8 +1,11 @@
 <template>
   <div
-      :class="['left-panel', localIsMobile ? 'w-[55%]' : isTablet ? 'w-[40%]' : 'w-[30%]']"
-      class="fixed top-5 left-5 bg-white rounded-lg shadow-md h-[97vh] p-6 flex flex-col ">
-    <!-- Bouton de fermeture -->
+      :class="[
+    localIsMobile ? 'w-[55%]' : isTablet ? 'w-[40%]' : 'w-[30%]'
+  ]"
+      class="bg-white rounded-lg shadow-md pt-6 px-6 flex flex-col overflow-hidden w-full h-full"
+  >
+  <!-- Bouton de fermeture -->
     <button v-if="localIsMobile" @click="$emit('close')" class="close-button">
       <span class="material-symbols-outlined">close</span>
     </button>
@@ -142,8 +145,6 @@ import PlayersService from "../../services/PlayersService.js";
 import ExportService from "../../functionality/ExportService";
 import ImportService from "../../functionality/ImportService";
 import ExportPdf from "../../functionality/ExportPdf";
-
-
 import Players from "./Players.vue";
 import Trainers from "./Trainers.vue";
 import Terrains from "./Terrain.vue";
@@ -389,15 +390,6 @@ export default {
   scrollbar-width: thin;
 }
 
-.left-panel {
-  position: fixed;
-  z-index: 1000;
-  background: white;
-  border-radius: 8px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  box-sizing: border-box;
-}
 
 .tabs {
   display: flex;
@@ -508,22 +500,6 @@ export default {
   color: #3a6242;
 }
 
-@media (max-width: 768px) {
-  .left-panel {
-    width: 55%;
-    left: 7.5%;
-  }
-  .tab-button span:nth-child(2) {
-    display: none;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1024px) {
-  .left-panel {
-    width: 40%;
-    left: 2%;
-  }
-}
 
 </style>
 
