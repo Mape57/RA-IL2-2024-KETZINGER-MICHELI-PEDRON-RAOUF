@@ -7,8 +7,24 @@
     >
       <div
           class="text-custom-color font-bold text-lg lg:w-[10%] text-center lg:border-r border-gray-800 lg:pr-4 mb-4 lg:mb-0 flex flex-col justify-center items-center">
-        <p>{{ startTime }}</p>
-        <p>{{ endTime }}</p>
+        <div v-if="!isEditingTime" @click="enableTimeEditing" class="cursor-pointer hover:bg-gray-100 p-1 rounded">
+          <p>{{ startTime }}</p>
+          <p>{{ endTime }}</p>
+        </div>
+        <div v-else class="flex flex-col gap-2">
+          <input
+            type="time"
+            v-model="editableSession.start"
+            @change="validateAndUpdateTime"
+            class="time-input border border-gray-300 rounded px-1 py-0.5 text-sm w-24"
+          />
+          <input
+            type="time"
+            v-model="editableSession.stop"
+            @change="validateAndUpdateTime"
+            class="time-input border border-gray-300 rounded px-1 py-0.5 text-sm w-24"
+          />
+        </div>
       </div>
 
       <div class="w-[25%] h-[20%] lg:pl-2 mb-4 lg:mb-0 flex flex-col justify-center">
@@ -149,12 +165,13 @@
 
 <script>
 import {VueDraggable} from "vue-draggable-plus";
-import {watchEffect} from "vue";
+import {watchEffect, ref, reactive} from "vue";
+import { useSessionsStore } from "../../store/useSessionsStore";
 
 export default {
   components: {VueDraggable},
   name: "SessionCard",
-  emits: ["update-players", "delete", "player-removed", "update-coach", "remove-coach"],
+  emits: ["update-players", "delete", "player-removed", "update-coach", "remove-coach", "times-updated"],
   props: {
     sessionId: String,
     startTime: {
@@ -184,6 +201,21 @@ export default {
     },
     userRole: String,
   },
+  setup(props) {
+    const sessionsStore = useSessionsStore();
+    
+    const isEditingTime = ref(false);
+    const editableSession = reactive({
+      start: '',
+      stop: ''
+    });
+    
+    return {
+      sessionsStore,
+      isEditingTime,
+      editableSession
+    };
+  },
   data() {
     return {
       entraineur: [],
@@ -212,12 +244,88 @@ export default {
       } else {
         this.entraineur = [];
       }
+      
+      // Initialize editable session with current times
+      this.editableSession.start = this.formatTimeForInput(this.startTime);
+      this.editableSession.stop = this.formatTimeForInput(this.endTime);
     });
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.checkScreenSize);
   },
   methods: {
+    enableTimeEditing() {
+      // Si l'utilisateur est un administrateur, activer le mode d'édition des horaires
+      if (this.userRole === 'ROLE_ADMIN') {
+        this.isEditingTime = true;
+      }
+    },
+
+    formatTimeForInput(timeString) {
+      // Retourne directement la chaîne d'heure sans modification
+      // (peut être étendu pour un formatage plus complexe si nécessaire)
+      return timeString;
+    },
+
+    validateAndUpdateTime() {
+      // Vérifie que l'heure de fin est bien après l'heure de début
+      if (this.editableSession.start >= this.editableSession.stop) {
+        alert("L'heure de fin doit être après l'heure de début");
+
+        // Réinitialise les valeurs aux horaires d'origine en cas d'erreur
+        this.editableSession.start = this.formatTimeForInput(this.startTime);
+        this.editableSession.stop = this.formatTimeForInput(this.endTime);
+        return;
+      }
+
+      // Si la validation est correcte, procéder à la mise à jour de la session
+      this.updateSessionTimes();
+    },
+
+    async updateSessionTimes() {
+      try {
+        // Recherche la session actuelle dans le store à partir de son ID
+        const currentSession = this.sessionsStore.sessions.find(s => s.id === this.sessionId);
+
+        // Si la session n'existe pas, afficher une erreur et interrompre le processus
+        if (!currentSession) {
+          console.error("Session introuvable :", this.sessionId);
+          return;
+        }
+
+        // Création d’un nouvel objet session avec les horaires mis à jour
+        const sessionData = {
+          ...currentSession,
+          id: this.sessionId,
+          start: this.editableSession.start,
+          stop: this.editableSession.stop,
+          // On conserve les joueurs et l'entraîneur actuels
+          players: this.players,
+          idTrainer: this.coach
+        };
+
+        // Envoi de la session mise à jour au backend via le store
+        await this.sessionsStore.updateSession(sessionData);
+
+        // Affiche une confirmation dans la console
+        console.log("Horaires de la session mis à jour avec succès");
+
+        // Sortie du mode d'édition
+        this.isEditingTime = false;
+
+        // Émet un événement vers le parent pour signaler que les horaires ont été modifiés
+        this.$emit('times-updated', {
+          sessionId: this.sessionId,
+          start: this.editableSession.start,
+          stop: this.editableSession.stop
+        });
+      } catch (error) {
+        // En cas d’erreur durant la mise à jour, afficher une alerte et loguer l’erreur
+        console.error("Erreur lors de la mise à jour des horaires :", error);
+        alert("Une erreur est survenue lors de la mise à jour des horaires");
+      }
+    },
+
     checkScreenSize() {
       this.isMobile = window.innerWidth <= 1024;
     },
@@ -460,5 +568,12 @@ export default {
 .trash-icon {
   color: #e3342f;
   font-size: 24px;
+}
+</style>
+
+<style>
+.time-input::-webkit-calendar-picker-indicator {
+  background-color: transparent;
+  cursor: pointer;
 }
 </style>
