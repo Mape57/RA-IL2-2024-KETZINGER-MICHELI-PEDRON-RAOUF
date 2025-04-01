@@ -39,7 +39,7 @@
 
           <VueDraggable
               v-model="entraineur"
-              :group="{ name: 'coach', pull: 'clone', put: ['trainers'] }"
+              :group="{ name: 'coach', pull: true, put: ['trainers', 'coach'] }"
               item-key="idtrainer"
               :sort="false"
               class="pr-1 coach-area"
@@ -380,7 +380,10 @@ export default {
       // Si on essaie de déposer dans la zone coach, vérifier que c'est bien un entraîneur
       if (evt.to.classList.contains('coach-area')) {
         // Vérifier que l'élément vient du groupe "trainers"
-        return evt.from.className.includes('trainer-list');
+        return (
+        evt.from.className.includes('trainer-list') ||
+        evt.from.className.includes('coach-area')
+      );
       }
       return true; // Autoriser tous les autres déplacements
     },
@@ -543,7 +546,7 @@ export default {
     },
 
     onCoachDropped(evt) {
-      if (evt.from.className.includes('trainer-list')) {
+      if (evt.from.className.includes('trainer-list' ) || evt.from.className.includes('coach-area')) {
         let newCoach = null;
         newCoach = this.entraineur[0];
 
