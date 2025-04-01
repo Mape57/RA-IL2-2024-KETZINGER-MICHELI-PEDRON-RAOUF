@@ -43,6 +43,10 @@ public class PlayerInscriptionDto implements Serializable {
 	@Email(message = "L'email (email) doit avoir un format valide")
 	private String email;
 
+	@Schema(name = "phone")
+	@NotNull(message = "Le téléphone (phone) est obligatoire")
+	private String phone;
+
 	@Valid
 	private List<CreateDisponibilityDto> disponibilities;
 }

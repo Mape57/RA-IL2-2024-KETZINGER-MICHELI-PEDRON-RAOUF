@@ -45,7 +45,7 @@ public class PlayerDto implements Serializable {
 	@Schema(name = "level", example = "19")
 	@NotNull(message = "Le niveau (level) est obligatoire")
 	@Min(value = 0, message = "Le niveau (level) ne doit pas être inférieur à 0")
-	@Max(value = 19, message = "Le niveau (level) ne doit pas être supérieur à 19")
+	@Max(value = 30, message = "Le niveau (level) ne doit pas être supérieur à 30")
 	private Long level;
 
 	@Schema(name = "email", example = "example@mail.fr")
@@ -56,6 +56,10 @@ public class PlayerDto implements Serializable {
 	@Schema(name = "validate", example = "true")
 	@NotNull(message = "La validation (validate) est obligatoire")
 	private Boolean validate;
+
+	@Schema(name = "phone", example = "0554433221")
+	@NotNull(message = "Le téléphone (phone) est obligatoire")
+	private String phone;
 
 	private List<DisponibilityDto> disponibilities;
 
