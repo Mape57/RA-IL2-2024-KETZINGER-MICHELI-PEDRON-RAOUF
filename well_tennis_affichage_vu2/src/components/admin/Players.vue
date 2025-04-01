@@ -45,6 +45,7 @@
             :sort="false"
             @start="onDragStart"
             @end="onDragEnd"
+            class="player-list"
         >
           <div
               v-for="player in filteredPlayers"
@@ -231,6 +232,20 @@ export default {
 
 
 <style scoped>
+.player-list li, .player-list > div {
+  cursor: grab;
+  transition: background-color 0.2s;
+}
+
+.player-list li:hover, .player-list > div:hover {
+  background-color: rgba(82, 131, 89, 0.1);
+}
+
+.player-list li:active, .player-list > div:active {
+  cursor: grabbing;
+}
+
+
 .players-hover {
   transition: color 0.2s ease-in-out;
 }
