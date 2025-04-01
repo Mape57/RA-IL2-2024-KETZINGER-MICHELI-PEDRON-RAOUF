@@ -64,6 +64,7 @@ public class SecurityConfig {
 								.requestMatchers(HttpMethod.GET, "/courts").hasAnyRole("TRAINER", "ADMIN")
 								.requestMatchers(HttpMethod.GET, "/players").hasAnyRole("TRAINER", "ADMIN")
 								.requestMatchers(HttpMethod.GET, "/sessions").hasAnyRole("TRAINER", "ADMIN")
+								.requestMatchers(HttpMethod.GET,"/constraints").hasAnyRole("TRAINER", "ADMIN")
 								.anyRequest().hasRole("ADMIN"))
 				.cors(cors -> cors.configurationSource(corsConfigurationSource(environment)))
 				.addFilterBefore(new JwtFilter(connectionService, jwtUtils), UsernamePasswordAuthenticationFilter.class)
