@@ -178,7 +178,6 @@ public class MailFactory {
 		sessionsHtml.append("<th style='padding: 8px; text-align: left;'>Date</th>");
 		sessionsHtml.append("<th style='padding: 8px; text-align: left;'>Heure début</th>");
 		sessionsHtml.append("<th style='padding: 8px; text-align: left;'>Heure fin</th>");
-		sessionsHtml.append("<th style='padding: 8px; text-align: left;'>Terrain</th></tr>");
 
 		String[] joursSemaine = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
 
@@ -190,8 +189,6 @@ public class MailFactory {
 					.append(session.getStart()).append("</td>");
 			sessionsHtml.append("<td style='padding: 8px; border-bottom: 1px solid #ddd;'>")
 					.append(session.getStop()).append("</td>");
-			sessionsHtml.append("<td style='padding: 8px; border-bottom: 1px solid #ddd;'>")
-					.append(session.getIdCourt().getName()).append("</td></tr>");
 		}
 		sessionsHtml.append("</table>");
 
