@@ -13,19 +13,19 @@
         </div>
         <div v-else ref="timeEditArea" class="flex flex-col gap-2">
           <input
-            type="time"
-            v-model="editableSession.start"
-            class="time-input border border-gray-300 rounded px-1 py-0.5 text-sm w-24"
+              type="time"
+              v-model="editableSession.start"
+              class="time-input border border-gray-300 rounded px-1 py-0.5 text-sm w-24"
           />
           <input
-            type="time"
-            v-model="editableSession.stop"
-            class="time-input border border-gray-300 rounded px-1 py-0.5 text-sm w-24"
+              type="time"
+              v-model="editableSession.stop"
+              class="time-input border border-gray-300 rounded px-1 py-0.5 text-sm w-24"
           />
           <div class="flex justify-center mt-2">
             <button
-              @click="validateAndUpdateTime"
-              class="text-xs text-white bg-green-600 hover:bg-green-700 rounded px-4 py-1 w-full"
+                @click="validateAndUpdateTime"
+                class="text-xs text-white bg-green-600 hover:bg-green-700 rounded px-4 py-1 w-full"
             >
               Enregistrer
             </button>
@@ -37,19 +37,18 @@
         <div class="mb-2">
           <div class="font-bold text-sm">Entraîneur :</div>
 
-<VueDraggable
-    v-model="entraineur"
-    :group="{ name: 'coach', pull: false, put: ['trainers'] }"
-    item-key="idtrainer"
-    :sort="false"
-    class="pr-1 coach-area"
-    :class="{'drag-active': isDragging && draggedItemType === 'coach'}"
-    @start="onDragStart"
-    @end="onCoachDragEnd"
-    @add="onCoachDropped"
-    :move="moveValidator"
->
-          >
+          <VueDraggable
+              v-model="entraineur"
+              :group="{ name: 'coach', pull: 'clone', put: ['trainers'] }"
+              item-key="idtrainer"
+              :sort="false"
+              class="pr-1 coach-area"
+              :class="{'drag-active': isDragging && draggedItemType === 'coach'}"
+              @start="onDragStart"
+              @end="onCoachDragEnd"
+              @add="onCoachDropped"
+              :move="moveValidator"
+            >
             <div
                 v-if="entraineur.length"
                 :key="entraineur[0].id"
@@ -123,15 +122,15 @@
           <VueDraggable
               v-model="trashItems"
               class="trash-draggable"
-          :group="{ name: 'trash', put: ['players', 'coach'] }"
-          item-key="idtrash"
-          :sort="false"
-          @add="onTrashDrop"
-          @end="onTrashDragEnd"
+              :group="{ name: 'trash', put: ['players', 'coach'] }"
+              item-key="idtrash"
+              :sort="false"
+              @add="onTrashDrop"
+              @end="onTrashDragEnd"
           >
-          <div class="trash-area">
-            <span class="material-icons trash-icon">delete_outline</span>
-          </div>
+            <div class="trash-area">
+              <span class="material-icons trash-icon">delete_outline</span>
+            </div>
           </VueDraggable>
         </div>
       </div>
@@ -141,7 +140,7 @@
         <button @click="showDeletePopup" class="delete-button">
           <span class="material-icons delete-icon">delete</span>
         </button>
-        
+
         <!-- Confirmation delete Popup -->
         <div v-if="showDeleteConfirmation" class="delete-confirmation-popup">
           <div class="delete-confirmation-content">
@@ -187,8 +186,8 @@
 <script>
 import {VueDraggable} from "vue-draggable-plus";
 import {watchEffect, ref, reactive} from "vue";
-import { useSessionsStore } from "../../store/useSessionsStore";
-import { usePlayersStore } from "../../store/usePlayersStore";
+import {useSessionsStore} from "../../store/useSessionsStore";
+import {usePlayersStore} from "../../store/usePlayersStore";
 
 export default {
   components: {VueDraggable},
@@ -226,13 +225,13 @@ export default {
   setup(props) {
     const sessionsStore = useSessionsStore();
     const playersStore = usePlayersStore();
-    
+
     const isEditingTime = ref(false);
     const editableSession = reactive({
       start: '',
       stop: ''
     });
-    
+
     return {
       sessionsStore,
       playersStore,
@@ -269,7 +268,7 @@ export default {
       } else {
         this.entraineur = [];
       }
-      
+
       // Initialize editable session with current times
       this.editableSession.start = this.formatTimeForInput(this.startTime);
       this.editableSession.stop = this.formatTimeForInput(this.endTime);
@@ -287,17 +286,17 @@ export default {
         this.editableSession.start = this.formatTimeForInput(this.startTime);
         this.editableSession.stop = this.formatTimeForInput(this.endTime);
         this.isEditingTime = false;
-        
+
         // Remove event listener when editing is closed
         document.removeEventListener('mousedown', this.handleClickOutside);
       }
     },
-    
+
     enableTimeEditing() {
       // Si l'utilisateur est un administrateur, activer le mode d'édition des horaires
       if (this.userRole === 'ROLE_ADMIN') {
         this.isEditingTime = true;
-        
+
         // Add click outside listener
         this.$nextTick(() => {
           document.addEventListener('mousedown', this.handleClickOutside);
@@ -385,38 +384,36 @@ export default {
       }
       return true; // Autoriser tous les autres déplacements
     },
-onDragStart(evt) {
-  this.isDragging = true;
-  // Check if it's a coach or player being dragged
-  if (evt.from.className.includes('coach-area')) {
-    this.draggedItemType = 'coach';
-  } else if (evt.from.className.includes('trainer-list')) {
-    this.draggedItemType = 'coach'; // Consider trainer-list drags as coach type
-  } else {
-    this.draggedItemType = 'player';
-  }
-  console.log("Type dragged:", this.draggedItemType);
-  
-  // Find all drop zones of the same type and apply highlight styling
-  this.highlightDropZones();
-},
+    onDragStart(evt) {
+      this.isDragging = true;
+      // Check if it's a coach or player being dragged
+      if (evt.from.className.includes('coach-area')) {
+        this.draggedItemType = 'coach';
+      } else if (evt.from.className.includes('trainer-list')) {
+        this.draggedItemType = 'coach'; // Consider trainer-list drags as coach type
+      } else {
+        this.draggedItemType = 'player';
+      }
+      console.log("Type dragged:", this.draggedItemType);
 
-highlightDropZones() {
-  // This method is called when drag starts to apply highlighting to all valid drop zones
-  document.querySelectorAll('.coach-area').forEach(zone => {
-    if (this.draggedItemType === 'coach') {
-      zone.classList.add('drag-active');
-    }
-  });
-  
-  document.querySelectorAll('.players-area').forEach(zone => {
-    if (this.draggedItemType === 'player') {
-      zone.classList.add('players-drag-active');
-    }
-  });
-},
+      // Find all drop zones of the same type and apply highlight styling
+      this.highlightDropZones();
+    },
 
+    highlightDropZones() {
+      // This method is called when drag starts to apply highlighting to all valid drop zones
+      document.querySelectorAll('.coach-area').forEach(zone => {
+        if (this.draggedItemType === 'coach') {
+          zone.classList.add('drag-active');
+        }
+      });
 
+      document.querySelectorAll('.players-area').forEach(zone => {
+        if (this.draggedItemType === 'player') {
+          zone.classList.add('players-drag-active');
+        }
+      });
+    },
 
 
     onPlayerDragEnd(evt) {
@@ -524,23 +521,23 @@ highlightDropZones() {
       this.isDragging = false;
       this.removeDropZoneHighlights();
     },
-    
+
     onTrashDragEnd() {
       console.log("Fin du drag dans la corbeille");
       this.isDragging = false;
       this.draggedItemType = null;
       this.removeDropZoneHighlights();
-      
+
       // S'assurer que la corbeille est vide
       this.trashItems = [];
     },
-    
+
     onCoachDragEnd() {
       console.log("Fin du drag d'un entraîneur");
       this.isDragging = false;
       this.draggedItemType = null;
       this.removeDropZoneHighlights();
-      
+
       // Vider la corbeille pour s'assurer qu'elle est prête pour le prochain drag
       this.trashItems = [];
     },
@@ -571,28 +568,28 @@ highlightDropZones() {
         }
       }
     },
-    
+
     removeDropZoneHighlights() {
       // Remove all highlighting classes when drag ends
       document.querySelectorAll('.coach-area').forEach(zone => {
         zone.classList.remove('drag-active');
       });
-      
+
       document.querySelectorAll('.players-area').forEach(zone => {
         zone.classList.remove('players-drag-active');
       });
     },
-    
+
     // Delete confirmation methods
     showDeletePopup() {
       this.showDeleteConfirmation = true;
     },
-    
+
     confirmDelete() {
       this.$emit('delete');
       this.showDeleteConfirmation = false;
     },
-    
+
     cancelDelete() {
       this.showDeleteConfirmation = false;
     }

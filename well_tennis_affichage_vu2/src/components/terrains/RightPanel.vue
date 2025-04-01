@@ -189,19 +189,11 @@
 import {ref, computed, onMounted, onUnmounted} from "vue";
 import SessionCard from "./SessionCard.vue";
 import useTerrains from "../../useJs/useTerrain.js";
-import { useSessionsStore } from "../../store/useSessionsStore.js";
-import { usePlayersStore } from "../../store/usePlayersStore.js";
-import { useTrainersStore } from "../../store/useTrainersStore.js";
-import { storeToRefs } from "pinia";
-import { useSessions } from "../../useJs/useSessions.js";
-import terrainService from "../../services/TerrainService";
-import sessionsService from "../../services/SessionService";
-import trainerService from "../../services/TrainersService";
-import playerService from "../../services/PlayersService";
-import usePlayers from "../../useJs/usePlayers.js";
-import useTrainers from "../../useJs/useTrainers.js";
+import {useSessionsStore} from "../../store/useSessionsStore.js";
+import {usePlayersStore} from "../../store/usePlayersStore.js";
+import {useTrainersStore} from "../../store/useTrainersStore.js";
+import {storeToRefs} from "pinia";
 import {getGroupAge, getGroupLevel, getSportsAge} from "../../functionality/conversionUtils.js";
-import {getSportsAge} from "../../functionality/conversionUtils.js";
 
 
 
@@ -223,9 +215,9 @@ export default {
     const trainersStore = useTrainersStore();
 
     // Références réactives extraites des stores
-    const { sessions } = storeToRefs(sessionsStore);
-    const { players } = storeToRefs(playersStore);
-    const { trainers } = storeToRefs(trainersStore);
+    const {sessions} = storeToRefs(sessionsStore);
+    const {players} = storeToRefs(playersStore);
+    const {trainers} = storeToRefs(trainersStore);
 
     // Méthodes pour récupérer les données
     const fetchSessions = sessionsStore.fetchSessions;
@@ -234,7 +226,7 @@ export default {
     const fetchTrainers = trainersStore.fetchTrainers;
 
     // Terrains récupérés via un composable
-    const { terrains, fetchTerrains } = useTerrains();
+    const {terrains, fetchTerrains} = useTerrains();
 
     // États de filtres et UI
     const selectedTerrain = ref(null);
@@ -251,7 +243,7 @@ export default {
 
     // Tri alphabétique des terrains
     const sortedTerrains = computed(() => {
-      return terrains.value.slice().sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+      return terrains.value.slice().sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
     });
 
     // Sessions regroupées par jour de la semaine + filtres appliqués
@@ -304,7 +296,8 @@ export default {
     const closeFilterPopup = () => {
       showFilterPopup.value = false;
     };
-    const filterSessions = () => {}; // placeholder
+    const filterSessions = () => {
+    }; // placeholder
 
     // Réinitialiser tous les filtres
     const showAllSessions = () => {
@@ -355,7 +348,7 @@ export default {
     });
 
     // Lorsqu'une session est modifiée (horaires)
-    const handleTimesUpdated = async ({ sessionId, oldStart, oldStop, newStart, newStop }) => {
+    const handleTimesUpdated = async ({sessionId, oldStart, oldStop, newStart, newStop}) => {
       await fetchSessions();
       const updatedSession = sessions.value.find(s => s.id === sessionId);
       if (updatedSession) {
@@ -390,31 +383,31 @@ export default {
       }
     };
 // Suppression d'une session + mise à jour des joueurs/entraîneurs concernés
-const deleteSession = async (sessionId) => {
-  try {
-    const sessionToDelete = sessions.value.find(s => s.id === sessionId);
-    const playerIds = sessionToDelete?.players.map(p => p.id) || [];
-    const trainerId = sessionToDelete?.idTrainer?.id;
+    const deleteSession = async (sessionId) => {
+      try {
+        const sessionToDelete = sessions.value.find(s => s.id === sessionId);
+        const playerIds = sessionToDelete?.players.map(p => p.id) || [];
+        const trainerId = sessionToDelete?.idTrainer?.id;
 
-    // Si un entraîneur est associé à la session, décrémenter ses heures
-    if (trainerId && sessionToDelete.start && sessionToDelete.stop) {
-      const startTime = new Date(`2000-01-01T${sessionToDelete.start}`);
-      const stopTime = new Date(`2000-01-01T${sessionToDelete.stop}`);
-      const durationHours = (stopTime - startTime) / (1000 * 60 * 60);
+        // Si un entraîneur est associé à la session, décrémenter ses heures
+        if (trainerId && sessionToDelete.start && sessionToDelete.stop) {
+          const startTime = new Date(`2000-01-01T${sessionToDelete.start}`);
+          const stopTime = new Date(`2000-01-01T${sessionToDelete.stop}`);
+          const durationHours = (stopTime - startTime) / (1000 * 60 * 60);
 
-      if (durationHours > 0) {
-        trainersStore.decrementTrainerHours(trainerId, durationHours);
+          if (durationHours > 0) {
+            trainersStore.decrementTrainerHours(trainerId, durationHours);
+          }
+        }
+
+        await sessionsStore.deleteSession(sessionId);
+        await fetchSessions();
+        if (playerIds.length > 0) await playersStore.fetchPlayersByIds(playerIds);
+        if (trainerId) await trainersStore.fetchTrainersByIds([trainerId]);
+      } catch (error) {
+        console.error("Erreur lors de la suppression de la session:", error);
       }
-    }
-
-    await sessionsStore.deleteSession(sessionId);
-    await fetchSessions();
-    if (playerIds.length > 0) await playersStore.fetchPlayersByIds(playerIds);
-    if (trainerId) await trainersStore.fetchTrainersByIds([trainerId]);
-  } catch (error) {
-    console.error("Erreur lors de la suppression de la session:", error);
-  }
-};
+    };
 
     //  Suivi des suppressions de joueurs pour gérer les transferts inter-sessions
     const lastRemovedPlayer = ref(null);
@@ -434,57 +427,57 @@ const deleteSession = async (sessionId) => {
         await playersStore.fetchPlayers();
       }
     };
-  //  Mise à jour de l'entraîneur d'une session
-  const handleCoachUpdate = async ({ sessionId, coach, oldCoach }) => {
-  try {
-    const session = sessions.value.find(s => s.id === sessionId);
-    if (!session) return;
+    //  Mise à jour de l'entraîneur d'une session
+    const handleCoachUpdate = async ({sessionId, coach, oldCoach}) => {
+      try {
+        const session = sessions.value.find(s => s.id === sessionId);
+        if (!session) return;
 
-    const oldTrainerId = oldCoach?.id || null;
-    const newTrainerId = coach?.id || coach?.idtrainer || null;
-    const updatedSession = { ...session, idTrainer: newTrainerId };
+        const oldTrainerId = oldCoach?.id || null;
+        const newTrainerId = coach?.id || coach?.idtrainer || null;
+        const updatedSession = {...session, idTrainer: newTrainerId};
 
-    // Gestion du changement d'entraîneur pour leurs heures
-    if (session.start && session.stop) {
-      const startTime = new Date(`2000-01-01T${session.start}`);
-      const stopTime = new Date(`2000-01-01T${session.stop}`);
-      const durationHours = (stopTime - startTime) / (1000 * 60 * 60);
+        // Gestion du changement d'entraîneur pour leurs heures
+        if (session.start && session.stop) {
+          const startTime = new Date(`2000-01-01T${session.start}`);
+          const stopTime = new Date(`2000-01-01T${session.stop}`);
+          const durationHours = (stopTime - startTime) / (1000 * 60 * 60);
 
-      // Si on supprime un entraîneur ou le remplace, décrémente ses heures
-      if (oldTrainerId && durationHours > 0) {
-        trainersStore.decrementTrainerHours(oldTrainerId, durationHours);
+          // Si on supprime un entraîneur ou le remplace, décrémente ses heures
+          if (oldTrainerId && durationHours > 0) {
+            trainersStore.decrementTrainerHours(oldTrainerId, durationHours);
+          }
+
+          // Si on ajoute un entraîneur, incrémente ses heures
+          if (newTrainerId && durationHours > 0) {
+            trainersStore.incrementTrainerHours(newTrainerId, durationHours);
+          }
+        }
+
+        await sessionsStore.updateSession(updatedSession);
+        await fetchSessions();
+
+        // Mise à jour des données liées
+        if (oldTrainerId) {
+          await trainersStore.fetchTrainersByIds([oldTrainerId]);
+        }
+
+        if (newTrainerId) {
+          await trainersStore.fetchTrainersByIds([newTrainerId]);
+          const updated = sessions.value.find(s => s.id === sessionId);
+          if (updated?.players.length > 0) {
+            const playerIds = updated.players.map(p => p.id);
+            await playersStore.fetchPlayersByIds(playerIds);
+          }
+        }
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour de l'entraîneur :", error);
       }
-
-      // Si on ajoute un entraîneur, incrémente ses heures
-      if (newTrainerId && durationHours > 0) {
-        trainersStore.incrementTrainerHours(newTrainerId, durationHours);
-      }
-    }
-
-    await sessionsStore.updateSession(updatedSession);
-    await fetchSessions();
-
-    // Mise à jour des données liées
-    if (oldTrainerId) {
-      await trainersStore.fetchTrainersByIds([oldTrainerId]);
-    }
-
-    if (newTrainerId) {
-      await trainersStore.fetchTrainersByIds([newTrainerId]);
-      const updated = sessions.value.find(s => s.id === sessionId);
-      if (updated?.players.length > 0) {
-        const playerIds = updated.players.map(p => p.id);
-        await playersStore.fetchPlayersByIds(playerIds);
-      }
-    }
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour de l'entraîneur :", error);
-  }
-};
+    };
 
     //  Mise à jour des joueurs d'une session (avec détection des transferts)
     const updateSessionsPlayers = async (data) => {
-      const { sessionId, players } = data || {};
+      const {sessionId, players} = data || {};
       if (!sessionId) return;
 
       try {
@@ -509,11 +502,11 @@ const deleteSession = async (sessionId) => {
         if (lastRemovedFromSession.value && lastRemovedFromSession.value !== sessionId && lastRemovedPlayer.value) {
           //  Transfert détecté entre deux sessions
           console.log("Transfert détecté:",
-            `Joueur ${lastRemovedPlayer.value.id} de session ${lastRemovedFromSession.value} vers session ${sessionId}`);
+              `Joueur ${lastRemovedPlayer.value.id} de session ${lastRemovedFromSession.value} vers session ${sessionId}`);
 
-          const updatedDestination = { ...session, players: validPlayers };
+          const updatedDestination = {...session, players: validPlayers};
           console.log("Mise à jour session destination:", sessionId, "avec joueurs:",
-                      updatedDestination.players.map(p => p.id));
+              updatedDestination.players.map(p => p.id));
 
           await updateSession(updatedDestination);
 
@@ -521,18 +514,18 @@ const deleteSession = async (sessionId) => {
           if (source) {
             const updatedSourcePlayers = source.players.filter(p => p.id !== lastRemovedPlayer.value.id);
             console.log("Mise à jour session source:", lastRemovedFromSession.value,
-                        "avec joueurs:", updatedSourcePlayers.map(p => p.id));
+                "avec joueurs:", updatedSourcePlayers.map(p => p.id));
 
-            await sessionsStore.updateSession({ ...source, players: updatedSourcePlayers });
+            await sessionsStore.updateSession({...source, players: updatedSourcePlayers});
           }
           lastRemovedPlayer.value = null;
           lastRemovedFromSession.value = null;
         } else {
           //  Mise à jour classique
           console.log("Mise à jour simple de la session:", sessionId,
-                      "avec joueurs:", validPlayers.map(p => p.id));
+              "avec joueurs:", validPlayers.map(p => p.id));
 
-          await updateSession({ ...session, players: validPlayers });
+          await updateSession({...session, players: validPlayers});
         }
 
         // Attendre un court instant pour permettre au backend de traiter les modifications
@@ -602,9 +595,11 @@ const deleteSession = async (sessionId) => {
   border-bottom: 1px solid #ccc;
   position: relative;
 }
+
 .desktop-toolbar {
   justify-content: center;
 }
+
 .tab-buttons {
   display: flex;
   gap: 16px;
@@ -720,7 +715,6 @@ body {
   position: relative;
   z-index: 1000;
 }
-
 
 
 </style>
