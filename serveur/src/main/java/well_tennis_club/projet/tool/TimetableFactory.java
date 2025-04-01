@@ -6,6 +6,7 @@ import well_tennis_club.projet.core.DEPRECATED_participation.ParticipationServic
 import well_tennis_club.projet.core.session.SessionEntity;
 import well_tennis_club.projet.core.session.SessionService;
 import well_tennis_club.projet.core.solver.TimetableService;
+import well_tennis_club.projet.exception.SolverRequestOrderException;
 import well_tennis_club.timefold.data_structure.SessionConstraint;
 import well_tennis_club.timefold.domain.*;
 
@@ -84,6 +85,7 @@ public class TimetableFactory {
 				return;
 			}
 		}
+		throw new SolverRequestOrderException("Aucune contrainte de session ne correspond pour le joueur : " + player.getName() + " " + player.getSurname());
 	}
 
 	private static Session convertFrom(SessionEntity sessionEntity, Trainer trainer) {

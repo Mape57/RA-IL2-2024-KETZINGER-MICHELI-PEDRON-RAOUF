@@ -15,7 +15,7 @@
     </div>
 
     <div v-else class="flex w-full h-full flex-1">
-      <LeftPanel class="desktop-left-panel" :isMobile="false" :userRole="'TRAINER'" />
+      <LeftPanel class="desktop-left-panel" :isMobile="false" :userRole="'ROLE_TRAINER'" />
       <RightPanel class="desktop-right-panel" />
     </div>
   </div>

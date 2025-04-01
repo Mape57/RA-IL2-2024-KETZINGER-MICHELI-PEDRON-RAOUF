@@ -111,6 +111,10 @@ export default {
   &.red {
     color: #E53E3E;
 
+    &.secondary {
+      border: 1px solid #E53E3E;
+    }
+
     &:hover {
       background-color: #fff5f5;
     }

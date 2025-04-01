@@ -65,7 +65,7 @@ router.beforeEach((to, from, next) => {
 
     if (to.meta.requiresAuth && !isAuthenticated) {
         next("/"); // Redirige vers la page de connexion si non authentifié
-    } else if (to.name === "Trainer" && userRole !== "TRAINER") {
+    } else if (to.name === "Trainer" && userRole !== "ROLE_TRAINER") {
         next("/"); // Redirige vers la page d'accueil si ce n'est pas un trainer
     } else {
         next(); // Continue la navigation

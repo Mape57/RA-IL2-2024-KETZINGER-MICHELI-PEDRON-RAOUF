@@ -88,7 +88,7 @@ export default {
           sessionStorage.setItem("role", response.role);
            const userRole = response.role.toUpperCase();
          // this.$router.push('/admin'); // Redirection après connexion
-          if (userRole === "TRAINER") {
+          if (userRole === "ROLE_TRAINER") {
             this.$router.push('/trainer');
           } else if (userRole === "ROLE_ADMIN") {
             this.$router.push('/admin');
