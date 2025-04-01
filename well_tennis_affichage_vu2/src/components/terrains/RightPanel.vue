@@ -170,9 +170,9 @@
               :startTime="session.start"
               :endTime="session.stop"
               :coach="session.idTrainer"
-              :ageGroup="calculateAgeGroup(session)"
+              :ageGroup="getGroupAge(session.players)"
+              :skillLevel="getGroupLevel(session.players)"
               @times-updated="handleTimesUpdated"
-              :skillLevel="calculateSkillLevel(session)"
               :players="session.players"
               :userRole="userRole"
               @update-players="updateSessionsPlayers"
@@ -193,12 +193,21 @@ import { useSessionsStore } from "../../store/useSessionsStore.js";
 import { usePlayersStore } from "../../store/usePlayersStore.js";
 import { useTrainersStore } from "../../store/useTrainersStore.js";
 import { storeToRefs } from "pinia";
+import { useSessions } from "../../useJs/useSessions.js";
+import terrainService from "../../services/TerrainService";
+import sessionsService from "../../services/SessionService";
+import trainerService from "../../services/TrainersService";
+import playerService from "../../services/PlayersService";
+import usePlayers from "../../useJs/usePlayers.js";
+import useTrainers from "../../useJs/useTrainers.js";
+import {getGroupAge, getGroupLevel, getSportsAge} from "../../functionality/conversionUtils.js";
 import {getSportsAge} from "../../functionality/conversionUtils.js";
 
 
 
 export default {
   name: "RightPanel",
+  methods: {getGroupLevel, getGroupAge},
   components: {
     SessionCard,
   },
@@ -352,19 +361,19 @@ export default {
       if (updatedSession) {
         const playerIds = updatedSession.players.map(p => p.id);
         const trainerId = updatedSession.idTrainer?.id;
-        
+
         // Mise à jour des heures de l'entraîneur si concerné
         if (trainerId && oldStart && oldStop && newStart && newStop) {
           // Calculer l'ancienne durée
           const oldStartTime = new Date(`2000-01-01T${oldStart}`);
           const oldStopTime = new Date(`2000-01-01T${oldStop}`);
           const oldDuration = (oldStopTime - oldStartTime) / (1000 * 60 * 60);
-          
+
           // Calculer la nouvelle durée
           const newStartTime = new Date(`2000-01-01T${newStart}`);
           const newStopTime = new Date(`2000-01-01T${newStop}`);
           const newDuration = (newStopTime - newStartTime) / (1000 * 60 * 60);
-          
+
           // Ajuster les heures en fonction du changement
           const hoursDiff = newDuration - oldDuration;
           if (hoursDiff !== 0) {
@@ -375,7 +384,7 @@ export default {
             }
           }
         }
-        
+
         if (playerIds.length > 0) await playersStore.fetchPlayersByIds(playerIds);
         if (trainerId) await trainersStore.fetchTrainersByIds([trainerId]);
       }
@@ -386,18 +395,18 @@ const deleteSession = async (sessionId) => {
     const sessionToDelete = sessions.value.find(s => s.id === sessionId);
     const playerIds = sessionToDelete?.players.map(p => p.id) || [];
     const trainerId = sessionToDelete?.idTrainer?.id;
-    
+
     // Si un entraîneur est associé à la session, décrémenter ses heures
     if (trainerId && sessionToDelete.start && sessionToDelete.stop) {
       const startTime = new Date(`2000-01-01T${sessionToDelete.start}`);
       const stopTime = new Date(`2000-01-01T${sessionToDelete.stop}`);
       const durationHours = (stopTime - startTime) / (1000 * 60 * 60);
-      
+
       if (durationHours > 0) {
         trainersStore.decrementTrainerHours(trainerId, durationHours);
       }
     }
-    
+
     await sessionsStore.deleteSession(sessionId);
     await fetchSessions();
     if (playerIds.length > 0) await playersStore.fetchPlayersByIds(playerIds);
@@ -415,12 +424,12 @@ const deleteSession = async (sessionId) => {
       if (data?.player?.id) {
         lastRemovedPlayer.value = data.player;
         lastRemovedFromSession.value = data.fromSessionId;
-        
+
         console.log(`Joueur ${data.player.id} supprimé de la session ${data.fromSessionId}`);
-        
+
         // Attendre un court instant pour permettre au backend de traiter les modifications
         await new Promise(resolve => setTimeout(resolve, 200));
-        
+
         // Recharger tous les joueurs pour avoir les compteurs à jour
         await playersStore.fetchPlayers();
       }
@@ -430,36 +439,36 @@ const deleteSession = async (sessionId) => {
   try {
     const session = sessions.value.find(s => s.id === sessionId);
     if (!session) return;
-    
+
     const oldTrainerId = oldCoach?.id || null;
     const newTrainerId = coach?.id || coach?.idtrainer || null;
     const updatedSession = { ...session, idTrainer: newTrainerId };
-    
+
     // Gestion du changement d'entraîneur pour leurs heures
     if (session.start && session.stop) {
       const startTime = new Date(`2000-01-01T${session.start}`);
       const stopTime = new Date(`2000-01-01T${session.stop}`);
       const durationHours = (stopTime - startTime) / (1000 * 60 * 60);
-      
+
       // Si on supprime un entraîneur ou le remplace, décrémente ses heures
       if (oldTrainerId && durationHours > 0) {
         trainersStore.decrementTrainerHours(oldTrainerId, durationHours);
       }
-      
+
       // Si on ajoute un entraîneur, incrémente ses heures
       if (newTrainerId && durationHours > 0) {
         trainersStore.incrementTrainerHours(newTrainerId, durationHours);
       }
     }
-    
+
     await sessionsStore.updateSession(updatedSession);
     await fetchSessions();
-    
+
     // Mise à jour des données liées
     if (oldTrainerId) {
       await trainersStore.fetchTrainersByIds([oldTrainerId]);
     }
-    
+
     if (newTrainerId) {
       await trainersStore.fetchTrainersByIds([newTrainerId]);
       const updated = sessions.value.find(s => s.id === sessionId);
@@ -483,14 +492,14 @@ const deleteSession = async (sessionId) => {
         if (!session) return;
 
         const validPlayers = players || [];
-        
+
         // Vérification des doublons potentiels parmi les joueurs
         const playerIds = validPlayers.map(p => p.id);
         const uniquePlayerIds = [...new Set(playerIds)];
-        
+
         console.log(`Session ${sessionId} - Joueurs à mettre à jour:`, playerIds);
         console.log(`IDs uniques: ${uniquePlayerIds.length}/${playerIds.length}`);
-        
+
         // Alerte si des doublons sont détectés
         if (uniquePlayerIds.length !== playerIds.length) {
           console.warn("ATTENTION: Doublons détectés dans la liste des joueurs!");
@@ -501,19 +510,19 @@ const deleteSession = async (sessionId) => {
           //  Transfert détecté entre deux sessions
           console.log("Transfert détecté:",
             `Joueur ${lastRemovedPlayer.value.id} de session ${lastRemovedFromSession.value} vers session ${sessionId}`);
-          
+
           const updatedDestination = { ...session, players: validPlayers };
           console.log("Mise à jour session destination:", sessionId, "avec joueurs:",
                       updatedDestination.players.map(p => p.id));
-          
+
           await updateSession(updatedDestination);
-          
+
           const source = sessions.value.find(s => s.id === lastRemovedFromSession.value);
           if (source) {
             const updatedSourcePlayers = source.players.filter(p => p.id !== lastRemovedPlayer.value.id);
             console.log("Mise à jour session source:", lastRemovedFromSession.value,
                         "avec joueurs:", updatedSourcePlayers.map(p => p.id));
-            
+
             await sessionsStore.updateSession({ ...source, players: updatedSourcePlayers });
           }
           lastRemovedPlayer.value = null;
@@ -522,21 +531,21 @@ const deleteSession = async (sessionId) => {
           //  Mise à jour classique
           console.log("Mise à jour simple de la session:", sessionId,
                       "avec joueurs:", validPlayers.map(p => p.id));
-          
+
           await updateSession({ ...session, players: validPlayers });
         }
 
         // Attendre un court instant pour permettre au backend de traiter les modifications
         await new Promise(resolve => setTimeout(resolve, 200));
-        
+
         // Recharger TOUTES les données pour s'assurer d'avoir des données à jour
         console.log("Rechargement complet des données...");
         await fetchSessions();
-        
+
         // Forcer le rechargement de TOUS les joueurs au lieu de seulement ceux de la session
         // Cela garantit que les compteurs de sessions sont correctement mis à jour
         await playersStore.fetchPlayers();
-        
+
         // Recharger les données spécifiques de l'entraîneur si nécessaire
         const updatedSessionData = sessions.value.find(s => s.id === sessionId);
         if (updatedSessionData && updatedSessionData.idTrainer?.id) {
@@ -544,63 +553,13 @@ const deleteSession = async (sessionId) => {
         }
       } catch (error) {
         console.error("Erreur dans updateSessionsPlayers :", error);
-        
+
         // Même en cas d'erreur, essayer de recharger les données pour rester cohérent
         await fetchSessions();
         await playersStore.fetchPlayers();
       }
     };
 
-    //  Calcul de la tranche d’âge à partir des joueurs d’une session
-    const calculateAgeGroup = (session) => {
-      if (session.players.length === 0) {
-        return session.idTrainer
-            ? session.idTrainer.infAge + " - " + session.idTrainer.supAge
-            : "3 - 99";
-      }
-
-      const ages = session.players.map(player => getSportsAge(player.birthday));
-      const minAge = Math.min(...ages);
-      const maxAge = Math.max(...ages);
-
-      if (minAge >= 8 && maxAge <= 17) {
-        const x = 2 - (maxAge - minAge);
-        return `${Math.max(8, minAge - x)} - ${Math.min(maxAge + x, 17)}`;
-      } else if (minAge >= 3 && maxAge <= 4) {
-        return "3 - 4";
-      } else if (minAge >= 5 && maxAge <= 7) {
-        return "5 - 7";
-      } else if (minAge >= 18 && maxAge <= 99) {
-        return "18 - 99";
-      } else {
-        return "3 - 99";
-      }
-    };
-
-    //  Calcul du niveau global d’une session
-    const calculateSkillLevel = (session) => {
-      if (session.players.length === 0) {
-        return session.idTrainer
-            ? session.idTrainer.infLevel + " - " + session.idTrainer.supLevel
-            : "0 - 20";
-      }
-
-      const levels = session.players.map(player => player.level);
-      const minAge = Math.min(...levels);
-      const maxAge = Math.max(...levels);
-
-      if (minAge === maxAge) {
-        return `${minAge - 1} - ${maxAge + 1}`;
-      } else if (levels.length === 2) {
-        return `${minAge} - ${maxAge}`;
-      } else {
-        return session.idTrainer
-            ? session.idTrainer.infLevel + " - " + session.idTrainer.supLevel
-            : "0 - 20";
-      }
-    };
-
-    // Retour des données et méthodes exposées au template
     return {
       terrains,
       sessions,
@@ -627,8 +586,6 @@ const deleteSession = async (sessionId) => {
       closeFilterPopup,
       showFilterPopup,
       filterSessions,
-      calculateAgeGroup,
-      calculateSkillLevel,
       handleTimesUpdated,
     };
   },

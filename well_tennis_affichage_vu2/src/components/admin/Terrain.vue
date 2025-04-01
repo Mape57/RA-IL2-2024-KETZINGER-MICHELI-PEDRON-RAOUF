@@ -247,7 +247,7 @@ export default {
       terrainForm.value.times.splice(index, 1);
     };
 
-    const convertDay = (num) => daysOfWeek[num] || "Jour inconnu";
+    const convertDay = (num) => daysOfWeek[num - 1] || "Jour inconnu";
 
     const sortedTerrains = computed(() =>
         terrains.value.slice().sort((a, b) => a.name.localeCompare(b.name))

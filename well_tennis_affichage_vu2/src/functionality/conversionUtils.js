@@ -43,3 +43,33 @@ export function getFormattedScore(score) {
 
 	return formattedScore;
 }
+
+export function getGroupAge(players) {
+	if (players.length === 0) {
+		return "Pas de joueurs";
+	}
+
+	const ages = players.map(player => getSportsAge(player.birthday));
+	const minAge = Math.min(...ages);
+	const maxAge = Math.max(...ages);
+
+	if (minAge === maxAge) {
+		return `${minAge}`;
+	}
+	return `${minAge} - ${maxAge}`;
+}
+
+export function getGroupLevel(players) {
+	if (players.length === 0) {
+		return "Pas de joueurs";
+	}
+
+	const levels = players.map(player => player.level);
+	const minLevel = Math.min(...levels);
+	const maxLevel = Math.max(...levels);
+
+	if (minLevel === maxLevel) {
+		return `${minLevel}`;
+	}
+	return `${minLevel} - ${maxLevel}`;
+}
