@@ -5,6 +5,11 @@ services:
     build:
       context: ./serveur
       dockerfile: Dockerfile
+      args:
+        EMAIL: ${EMAIL}
+        PASSWORD: ${PASSWORD}
+        TRAINER_EMAIL: ${TRAINER_EMAIL}
+        BASE_URL: ${BASE_URL}
     ports:
       - 8080:8080
     depends_on:
