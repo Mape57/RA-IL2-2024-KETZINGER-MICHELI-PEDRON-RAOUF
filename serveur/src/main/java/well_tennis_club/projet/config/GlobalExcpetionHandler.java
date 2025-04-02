@@ -98,11 +98,11 @@ public class GlobalExcpetionHandler {
 	@ExceptionHandler(InvalidTokenException.class)
 	public ResponseEntity<ApiErrorResponse> handleInvalidTokenException(InvalidTokenException ex) {
 		ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
-		apiErrorResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+		apiErrorResponse.setStatus(HttpStatus.FORBIDDEN.value());
 		apiErrorResponse.setMessage("Token invalide");
 		apiErrorResponse.setDescription(ex.getMessage());
 
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiErrorResponse);
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiErrorResponse);
 	}
 
 	@ExceptionHandler(IdNotFoundException.class)
