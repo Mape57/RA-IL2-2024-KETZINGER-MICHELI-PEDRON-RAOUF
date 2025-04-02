@@ -19,6 +19,9 @@ public class PlayerEntityConverter {
 		playerEntity.setCourses((long) weeklySession);
 		playerEntity.setLevel((long) level);
 		playerEntity.setEmail(UUID.randomUUID() + "@mail.fr");
+		playerEntity.setPhone("0123456789");
+		playerEntity.setPhone2("0123456789");
+		playerEntity.setPhoto(true);
 		playerEntity.setValidate(true);
 		if (availability == null) availability = List.of();
 		playerEntity.setDisponibilities(availability.stream().map(DisponibilityEntityConverter::from).toList());

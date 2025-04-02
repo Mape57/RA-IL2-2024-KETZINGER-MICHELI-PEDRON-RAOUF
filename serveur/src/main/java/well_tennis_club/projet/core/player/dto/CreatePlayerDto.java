@@ -52,6 +52,13 @@ public class CreatePlayerDto {
 	@NotBlank(message = "Le téléphone (phone) est obligatoire")
 	private String phone;
 
+	@Schema(name = "phone2",example = "0606060606")
+	private String phone2;
+
+	@Schema(name = "photo",example = "true")
+	@NotNull(message = "La photo (photo) est obligatoire")
+	private boolean photo;
+
 	@Schema(name = "validate", example = "true")
 	@NotNull(message = "La validation (validate) est obligatoire")
 	private Boolean validate;

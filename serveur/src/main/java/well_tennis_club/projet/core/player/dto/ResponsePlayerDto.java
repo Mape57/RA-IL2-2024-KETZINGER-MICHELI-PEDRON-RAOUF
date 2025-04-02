@@ -47,6 +47,12 @@ public class ResponsePlayerDto implements Serializable {
 	@Schema(name = "phone", example = "0606060606")
 	private String phone;
 
+	@Schema(name = "phone2", example = "0606060606")
+	private String phone2;
+
+	@Schema(name="photo",example = "true")
+	private boolean photo;
+
 	private List<DisponibilityDto> disponibilities;
 
 	@Override
