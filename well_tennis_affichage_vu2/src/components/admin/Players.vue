@@ -278,11 +278,11 @@ export default {
 }
 
 .rotate-270 {
-  transform: rotate(0deg);
+  transform: rotate(-90deg);
 }
 
 .rotate-0 {
-  transform: rotate(-90deg);
+  transform: rotate(0deg);
 }
 
 .border-b {
