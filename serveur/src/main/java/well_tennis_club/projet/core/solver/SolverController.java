@@ -313,6 +313,11 @@ public class SolverController {
 		System.out.println("Keeping: " + this.bestTimetable.getScore());
 	}
 
+	@Operation(
+			summary = "Insère les données",
+			description = "Insère les données de test dans la base de données",
+			security = @SecurityRequirement(name = "bearerAuth")
+	)
 	@GetMapping("/insertData")
 	public ResponseEntity<String> insertData() {
 		List<PlayerEntity> players = DataInsertion.players.real();

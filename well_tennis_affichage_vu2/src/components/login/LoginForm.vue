@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-white flex justify-center items-center shadow-md p-4 lg:p-0 lg:w-[760px] h-auto lg:h-[510px]">
+  <div class="w-full bg-white flex justify-center items-center shadow-md p-4 lg:p-0 lg:w-[760px] h-auto lg:h-[710px]">
     <div class="text-center w-full lg:w-auto">
       <h1 class="text-[#1A4220] text-2xl lg:text-4xl font-bold mb-6 lg:mb-8">Well Tennis Club</h1>
       <form class="space-y-3" @submit.prevent="Connectlogin">
