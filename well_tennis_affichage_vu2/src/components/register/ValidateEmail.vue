@@ -12,13 +12,11 @@
         Vous pouvez maintenant quitter cette page.
       </div>
 
-      <button
-          @click="validateInscription"
-          class="w-full h-[50px] bg-[#528359] text-white text-base rounded-lg shadow-md py-3 hover:bg-[#456c4c] transition"
-          :disabled="loading"
-      >
+      <label class="button">
+        <input type="button" @click="validateInscription">
+        <span class="material-symbols-outlined">check</span>
         {{ loading ? 'Validation en cours...' : 'Valider mon inscription' }}
-      </button>
+      </label>
     </div>
   </div>
 </template>
@@ -63,18 +61,18 @@ export default {
       this.error = null;
 
 
-      await inscriptionService.validateEmail(this.token, this.playerData)
-          .then(response => {
-            this.success = true;
-          })
-          .catch(e => {
-            this.error = "Erreur lors de la validation de l'inscription. Veuillez réessayer.";
-            console.error("Erreur de validation:" + e);
-          });
-      this.loading = false;
+      try {
+        await inscriptionService.validateEmail(this.token, this.playerData);
+        this.success = true;
+      } catch (error) {
+        this.error = "Erreur lors de la validation de l'inscription. Veuillez réessayer.";
+        console.error("Erreur de validation:", error);
+      } finally {
+        this.loading = false;
+      }
     }
   }
-  }
+};
 </script>
 
 <style scoped>
