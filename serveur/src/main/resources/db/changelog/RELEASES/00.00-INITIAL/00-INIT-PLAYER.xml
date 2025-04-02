@@ -34,6 +34,9 @@
             <column name="phone" type="varchar(200)">
                 <constraints nullable="false"/>
             </column>
+            <column name="phone2" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
             <column name="photo" type="boolean">
                 <constraints nullable="false"/>
             </column>
