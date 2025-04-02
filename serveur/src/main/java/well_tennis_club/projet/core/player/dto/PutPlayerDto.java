@@ -56,5 +56,9 @@ public class PutPlayerDto implements Serializable {
 	@NotNull(message = "Le téléphone (phone) est obligatoire")
 	private String phone;
 
+	@Schema(name = "photo",example = "true")
+	@NotNull(message = "La photo (photo) est obligatoire")
+	private boolean photo;
+
 	private List<PutDisponibilityDto> disponibilities;
 }
