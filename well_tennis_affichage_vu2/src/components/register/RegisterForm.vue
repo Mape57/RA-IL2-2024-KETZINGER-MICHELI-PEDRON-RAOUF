@@ -92,6 +92,24 @@
         </div>
       </div>
 
+      <div>
+        <label for="numero2" class="block text-sm font-medium text-gray-600">Numéro de téléphone 2</label>
+        <div class="flex space-x-2">
+          <select v-model="form.prefixe" class="w-1/3 border border-gray-300 rounded-md p-2">
+            <option value="+33">+33 (FR)</option>
+            <!-- Ajoute d'autres préfixes ici si nécessaire -->
+          </select>
+          <input
+              v-model="form.numero2"
+              id="numero2"
+              type="tel"
+              required
+              class="w-2/3 border border-gray-300 rounded-md p-2"
+              placeholder="6 12 34 56 78"
+          />
+        </div>
+      </div>
+
 
       <!-- Autorisation photo -->
       <div class="text-sm text-gray-600">
@@ -261,20 +279,20 @@ export default {
     const isLoading = ref(false);
 
     const validateAndSubmit = async () => {
-      const { nom, prenom, age, email, confirmEmail, numero, prefixe, acceptPhoto, acceptTerms, disponibilites, cours } = form.value;
+      const { nom, prenom, age, email, confirmEmail, numero, numero2, prefixe, acceptPhoto, acceptTerms, disponibilites, cours } = form.value;
 
       // Champs obligatoires
-      if (!nom || !prenom || !age || !email || !confirmEmail || !numero || disponibilites.length === 0) {
+      if (!nom || !prenom || !age || !email || !confirmEmail || !numero || !numero2 || disponibilites.length === 0) {
         return alert("Veuillez remplir tous les champs obligatoires.");
       }
 
       // Numéro de téléphone FR mobile (06 ou 07)
       const cleanedNumber = numero.replace(/\D/g, ''); // enlève espaces et tirets
-      if (!/^0[67]\d{8}$/.test(cleanedNumber)) {
-        return alert("Le numéro doit commencer par 06 ou 07 et contenir exactement 10 chiffres.");
+      if (!/^[67]\d{8}$/.test(cleanedNumber)) {
+        return alert("Le numéro doit commencer par 6 ou 7 et contenir exactement 9 chiffres.");
       }
-      if (cleanedNumber.length !== 10) {
-        return alert("Le numéro de téléphone doit contenir exactement 10 chiffres.");
+      if (cleanedNumber.length !== 9) {
+        return alert("Le numéro de téléphone doit contenir exactement 9 chiffres.");
       }
       const fullNumber = prefixe + cleanedNumber;
 
