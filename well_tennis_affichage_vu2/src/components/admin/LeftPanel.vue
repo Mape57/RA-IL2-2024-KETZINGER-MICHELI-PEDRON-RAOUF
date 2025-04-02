@@ -82,13 +82,13 @@
       </div>
 
       <label class="menu-item cursor-pointer">
-        <span class="material-symbols-outlined mr-2">download</span>
+        <span class="material-symbols-outlined mr-2">Database_Upload</span>
         Insérer les données (.xlsx)
         <input type="file" accept=".xlsx, .xls" @change="importCSV" class="hidden" />
       </label>
 
       <button class="menu-item" @click="downloadCSV">
-        <span class="material-symbols-outlined mr-2">Database_Upload</span>
+        <span class="material-symbols-outlined mr-2">download</span>
         Télécharger les données (.xlsx)
       </button>
 
