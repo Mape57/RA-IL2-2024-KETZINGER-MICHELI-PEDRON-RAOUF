@@ -90,7 +90,7 @@
               <div class="flex gap-2 mb-1 items-center">
                 <select v-model="time.dayWeek" class="input-style w-full">
                   <option disabled value="">-- Jour --</option>
-                  <option v-for="(day, idx) in daysOfWeek" :key="idx" :value="idx">{{ day }}</option>
+                  <option v-for="(day, idx) in daysOfWeek" :key="idx + 1" :value="idx + 1">{{ day }}</option>
                 </select>
                 <input type="time" v-model="time.start" class="input-style w-full" />
                 <input type="time" v-model="time.stop" class="input-style w-full" />

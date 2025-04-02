@@ -140,11 +140,44 @@ export default {
     filteredPlayers() {
       return this.players
           .filter(player => player.validate === true)
-          .filter(player =>
-              player.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-              player.surname.toLowerCase().includes(this.searchQuery.toLowerCase())
-          );
-    },
+          .filter(player => {
+            const searchLower = this.searchQuery.toLowerCase();
+            return player.name.toLowerCase().includes(searchLower) ||
+                player.surname.toLowerCase().includes(searchLower);
+          })
+          .sort((a, b) => {
+            const diffA = a.courses - a.numberOfSessions;
+            const diffB = b.courses - b.numberOfSessions;
+
+            // Compare name and surname when values are equal
+            const compareNames = () => {
+              const nameCompare = a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+              return nameCompare !== 0 ? nameCompare :
+                  a.surname.toLowerCase().localeCompare(b.surname.toLowerCase());
+            };
+
+            // Negative values (overused sessions)
+            if (diffA < 0 && diffB < 0) {
+              return diffA === diffB ? compareNames() : diffA - diffB;
+            }
+
+            // Sort negative before non-negative
+            if (diffA < 0) return -1;
+            if (diffB < 0) return 1;
+
+            // Positive values (remaining sessions)
+            if (diffA > 0 && diffB > 0) {
+              return diffA === diffB ? compareNames() : diffB - diffA;
+            }
+
+            // Sort positive before zero
+            if (diffA > 0) return -1;
+            if (diffB > 0) return 1;
+
+            // Equal values (zero)
+            return compareNames();
+          });
+    }
   },
   methods: {
     toggleAccordion(event) {
