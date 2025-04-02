@@ -3,7 +3,7 @@
     <!-- Conteneur principal -->
     <div class="flex justify-between items-center py-2 border-b">
       <div class="flex items-center terrain-hover cursor-pointer" @click="toggleAccordion">
-    <span :class="{ 'rotate-180': isOpen }" class="material-symbols-outlined terrain-arrow transition-transform duration-300 mr-2">
+    <span :class="{ 'rotate-180': !isOpen }" class="material-symbols-outlined terrain-arrow transition-transform duration-300 mr-2">
       expand_more
     </span>
         <h3 class="font-bold text-lg terrain-title">Terrains</h3>
@@ -25,7 +25,7 @@
         <div class="flex justify-between items-center cursor-pointer py-1 terrain-sub-hover"
              @click="toggleTerrain(terrain.id)">
           <div class="flex items-center">
-            <span :class="{ 'rotate-180': openTerrains.includes(terrain.id) }"
+            <span :class="{ 'rotate-180': !openTerrains.includes(terrain.id) }"
                   class="material-symbols-outlined terrain-sub-arrow transition-transform duration-300 mr-2 small-icon">
                    expand_more
             </span>
@@ -311,7 +311,7 @@ export default {
 }
 
 .rotate-180 {
-  transform: rotate(180deg);
+  transform: rotate(270deg);
 }
 
 .small-icon {

@@ -4,7 +4,7 @@
          @click="toggleAccordion"
     >
       <div class="flex items-center trainer-hover">
-       <span :class="{ 'rotate-180': isOpen }"
+       <span :class="[isOpen ? 'rotate-0' : 'rotate-270']"
              class="material-symbols-outlined trainer-arrow transition-transform duration-300 mr-2">
         expand_more
        </span>
@@ -253,10 +253,13 @@ export default {
   font-size: 18px;
 }
 
-.rotate-180 {
-  transform: rotate(180deg);
+.rotate-270 {
+  transform: rotate(0deg);
 }
 
+.rotate-0 {
+  transform: rotate(-90deg);
+}
 .border-b {
   border-bottom: 1px solid #e2e8f0;
 }
