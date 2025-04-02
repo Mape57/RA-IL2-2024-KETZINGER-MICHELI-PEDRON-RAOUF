@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-white flex justify-center items-center shadow-md p-4 lg:p-0 lg:w-[760px] h-auto lg:h-[510px]">
+  <div class="w-full bg-white flex justify-center items-center shadow-md p-4 lg:p-0 lg:w-[760px] h-auto lg:h-[710px]">
     <div v-if="showForm" class="text-center w-full lg:w-auto">
       <h1 class="text-[#1A4220] text-xl lg:text-2xl font-bold mb-4 lg:mb-6">Well Tennis Club</h1>
       <p class="text-gray-600 text-sm lg:text-base mb-4">
