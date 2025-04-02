@@ -52,5 +52,9 @@ public class PutPlayerDto implements Serializable {
 	@NotNull(message = "La validation (validate) est obligatoire")
 	private Boolean validate;
 
+	@Schema(name = "phone", example = "0601020304")
+	@NotNull(message = "Le téléphone (phone) est obligatoire")
+	private String phone;
+
 	private List<PutDisponibilityDto> disponibilities;
 }

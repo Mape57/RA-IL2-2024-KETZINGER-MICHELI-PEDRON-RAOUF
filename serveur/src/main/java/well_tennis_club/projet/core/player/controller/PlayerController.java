@@ -272,7 +272,7 @@ public class PlayerController {
 					description = "Suppression réussie"
 			)
 	})
-	@DeleteMapping
+	@DeleteMapping("/confirm")
 	public ResponseEntity<Void> deleteAllPlayers() {
 		sessionService.deleteAll();
 		playerService.deleteAll();

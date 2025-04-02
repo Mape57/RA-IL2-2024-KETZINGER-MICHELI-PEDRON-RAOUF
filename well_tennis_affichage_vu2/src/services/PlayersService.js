@@ -27,7 +27,7 @@ export default {
 	},
 
 	deleteAllPlayers() {
-		return apiService.delete('/players');
+		return apiService.delete('/players/confirm');
 	}
 
 };
