@@ -8,7 +8,8 @@
       </div>
 
       <div v-if="success" class="mb-4 text-green-600">
-        Votre compte a été validé avec succès!
+        Votre compte a été validé avec succès!<br>
+        Vous pouvez maintenant quitter cette page.
       </div>
 
       <button
@@ -58,24 +59,27 @@ export default {
   methods: {
     async validateInscription() {
       if (this.loading || this.success) return;
-
       this.loading = true;
       this.error = null;
 
-      try {
-        await inscriptionService.validateEmail(this.token, this.playerData);
-        this.success = true;
-        // Redirect to login page after 2 seconds
-        setTimeout(() => {
-          this.$router.push('/');
-        }, 2000);
-      } catch (error) {
-        this.error = "Erreur lors de la validation de l'inscription. Veuillez réessayer.";
-        console.error("Erreur de validation:", error);
-      } finally {
-        this.loading = false;
-      }
+
+      await inscriptionService.validateEmail(this.token, this.playerData)
+          .then(response => {
+            this.success = true;
+          })
+          .catch(e => {
+            this.error = "Erreur lors de la validation de l'inscription. Veuillez réessayer.";
+            console.error("Erreur de validation:" + e);
+          });
+      this.loading = false;
     }
   }
-};
+  }
 </script>
+
+<style scoped>
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+</style>
