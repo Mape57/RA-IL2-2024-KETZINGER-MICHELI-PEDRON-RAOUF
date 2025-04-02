@@ -71,6 +71,16 @@ export default function useSolver() {
 		}
 	}
 
+	const kiGet = async () => {
+		try {
+			const response = await solverService.kiGet();
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de la récupération du ki :", error.response?.data || error.message);
+			throw error;
+		}
+	}
+
 	return {
 		startSolver,
 		stopSolver,
@@ -79,5 +89,6 @@ export default function useSolver() {
 		solverJustifications,
 		rmpkGet,
 		rmpkPost,
+		kiGet
 	}
 }

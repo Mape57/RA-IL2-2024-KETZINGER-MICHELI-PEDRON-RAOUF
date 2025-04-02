@@ -24,17 +24,17 @@ export default function useTrainers() {
 	};
 
 
-	// Mettre à jour un joueur existant
+	// Mettre à jour un entraineur existant
 	const updateTrainer = async (trainer) => {
 		try {
 
 			const response = await trainersService.updateTrainer(trainer.id, trainer);
-			// Met à jour la liste des joueurs localement
+			// Met à jour la liste des entraineurs localement
 			const index = trainers.value.findIndex((p) => p.id === trainer.id);
 			if (index !== -1) {
 				trainers.value[index] = response.data;
 			}
-			console.log("Joueur mis à jour :", response.data);
+			console.log("Entraineur mis à jour :", response.data);
 			return response.data;
 		} catch (error) {
 			if (error.response) {
@@ -51,7 +51,7 @@ export default function useTrainers() {
 
 			const response = await trainersService.createTrainer(trainer);
 			trainers.value.push(response.data);
-			console.log("Joueur créé :", response.data);
+			console.log("Entraineur créé :", response.data);
 			return response.data;
 		} catch (error) {
 			console.error("Erreur lors de la création :", error);

@@ -110,7 +110,14 @@ public class SolverController {
 		this.problemIds = new UUID[NB_SOLVER];
 
 		for (int i = 0; i < NB_SOLVER; i++) {
-			this.timetables[i] = timetableFactory.createTimetable();
+			try {
+				this.timetables[i] = timetableFactory.createTimetable();
+			} catch (SolverRequestOrderException e) {
+				this.timetables = null;
+				this.problemIds = null;
+				this.bestTimetable = null;
+				throw new SolverRequestOrderException(e.getMessage());
+			}
 			this.problemIds[i] = UUID.randomUUID();
 
 			int finalI = i;
@@ -163,6 +170,7 @@ public class SolverController {
 	public ResponseEntity<String> blankIt() {
 		stopSolver();
 		timetables = null;
+		this.bestTimetable = null;
 		return ResponseEntity.ok("STOPPED");
 	}
 
@@ -305,6 +313,11 @@ public class SolverController {
 		System.out.println("Keeping: " + this.bestTimetable.getScore());
 	}
 
+	@Operation(
+			summary = "Insère les données",
+			description = "Insère les données de test dans la base de données",
+			security = @SecurityRequirement(name = "bearerAuth")
+	)
 	@GetMapping("/insertData")
 	public ResponseEntity<String> insertData() {
 		List<PlayerEntity> players = DataInsertion.players.real();
