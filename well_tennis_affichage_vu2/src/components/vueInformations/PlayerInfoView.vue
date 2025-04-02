@@ -49,9 +49,24 @@
                 </label>
               </div>
 
+              <div class="input-group">
+                <span>Temps de travail par semaine (en minutes)</span>
+                <label class="input">
+                  <span>N°1</span>
+                  <input type="text" v-model="editablePlayer.phone" required
+                         placeholder="Téléphone 1"/>
+                </label>
+
+                <label class="input">
+                  <span>N°2</span>
+                  <input type="text" v-model="editablePlayer.phone2"
+                         placeholder="Téléphone 2"/>
+                </label>
+              </div>
+
               <label class="input top-label">
-                <span>Niveau (1-20)</span>
-                <input type="number" v-model="editablePlayer.level" min="1" max="20" required/>
+                <span>Niveau (0-30)</span>
+                <input type="number" v-model="editablePlayer.level" min="0" max="30" required/>
               </label>
 
               <label class="input top-label">
@@ -234,7 +249,7 @@ export default {
         return false;
       }
       return (
-          editablePlayer.value.level >= 1 && editablePlayer.value.level <= 20 &&
+          editablePlayer.value.level >= 0 && editablePlayer.value.level <= 30 &&
           editablePlayer.value.courses >= 1 && editablePlayer.value.courses <= 3
       );
     };

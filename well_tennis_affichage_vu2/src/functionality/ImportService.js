@@ -146,7 +146,7 @@ class ImportService {
                 minWeeklyMinutes: parseInt(get("Minutes Hebdo Min") || 0, 10),
                 maxWeeklyMinutes: parseInt(get("Minutes Hebdo Max") || 0, 10),
                 email: get("Email") || "",
-                isPartTime: (get("Temps partiel") || "").toString().toLowerCase() === "oui",
+                isPartTime: (get("Vacataire") || "").toString().toLowerCase() === "oui",
                 isAdmin: (get("Admin") || "").toString().toLowerCase() === "oui",
             };
         }).filter(Boolean);

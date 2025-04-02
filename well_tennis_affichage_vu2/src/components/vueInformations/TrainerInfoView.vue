@@ -84,7 +84,7 @@
                   <span class="material-symbols-outlined">
                     {{ editableTrainer.partTime ? 'check_box' : 'check_box_outline_blank' }}
                   </span>
-                  <span>Temps partiel</span>
+                  <span>Vacataire</span>
                 </label>
 
                 <label class="checkbox">
