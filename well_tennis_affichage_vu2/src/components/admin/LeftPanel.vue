@@ -3,10 +3,10 @@
       :class="[
     localIsMobile ? 'w-[55%]' : isTablet ? 'w-[40%]' : 'w-[30%]'
   ]"
-      class="bg-white rounded-lg shadow-md pt-6 px-6 flex flex-col overflow-hidden w-full h-full"
+      class="bg-white rounded-lg shadow-md p-4 md:p-6 flex flex-col overflow-hidden w-full h-full"
   >
   <!-- Bouton de fermeture -->
-    <button v-if="localIsMobile" @click="$emit('close')" class="close-button">
+    <button v-if="localIsMobile && isVisible" @click="$emit('close')" class="close-button">
       <span class="material-symbols-outlined">close</span>
     </button>
 
@@ -184,6 +184,7 @@ export default {
   props: {
     isMobile: Boolean,
     userRole: String,
+    isVisible: Boolean,
   },
   setup(props) {
     const localIsMobile = ref(props.isMobile);
@@ -399,15 +400,17 @@ export default {
 
 
     async deleteAllPlayers() {
-      if (confirm("Êtes-vous sûr de vouloir supprimer tous les joueurs ?")) {
-        try {
-          await PlayersService.deleteAllPlayers(); // Suppression via l'API
-          this.players = []; // Mise à jour de la liste après suppression
-          alert("Tous les joueurs ont été supprimés avec succès !");
-        } catch (error) {
-          console.error("Erreur lors de la suppression des joueurs :", error);
-          alert("Une erreur s'est produite lors de la suppression.");
-        }
+      try {
+        await PlayersService.deleteAllPlayers();
+        this.players = [];
+        this.popupMessage = "Tous les joueurs ont été supprimés avec succès !";
+        this.popupType = "success";
+        this.showPopup = true;
+      } catch (error) {
+        console.error("Erreur lors de la suppression des joueurs :", error);
+        this.popupMessage = "Une erreur s'est produite lors de la suppression.";
+        this.popupType = "error";
+        this.showPopup = true;
       }
     },
     checkScreenSize() {

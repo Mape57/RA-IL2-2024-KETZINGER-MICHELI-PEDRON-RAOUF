@@ -91,12 +91,12 @@
               v-for="terrain in sortedTerrains"
               :key="terrain.id"
               @click="selectTerrain(terrain.id)"
-              :class="{ active: selectedTerrain === terrain.id }"
-              class="tab-button"
+              :class="['terrain-tab', { active: selectedTerrain === terrain.id }]"
           >
             {{ terrain.name }}
           </button>
         </div>
+
 
         <div class="absolute right-5">
           <button
@@ -108,54 +108,6 @@
           </button>
         </div>
 
-        <teleport to="body">
-          <div
-              v-if="showFilterPopup"
-              class="fixed top-[65px] right-[40px] w-80 bg-white shadow-lg rounded-xl p-4 z-[9999] border border-gray-200"
-          >
-            <h3 class="text-lg font-semibold text-gray-800 mb-3">Filtrer Sessions</h3>
-
-            <div class="space-y-3">
-              <input
-                  type="text"
-                  v-model="trainerSearchQuery"
-                  @input="filterSessions"
-                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="Nom de l'entraîneur"
-              />
-              <input
-                  type="text"
-                  v-model="playerSearchQuery"
-                  @input="filterSessions"
-                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="Nom du joueur"
-              />
-              <input
-                  type="number"
-                  v-model="selectedLevel"
-                  @input="filterSessions"
-                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="Niveau"
-              />
-              <input
-                  type="number"
-                  v-model="selectedAge"
-                  @input="filterSessions"
-                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="Âge"
-              />
-            </div>
-
-            <div class="flex justify-end mt-4">
-              <button
-                  @click="showAllSessions"
-                  class="px-4 py-1 rounded-md text-white bg-green-700 hover:bg-green-800 text-sm"
-              >
-                Réinitialiser
-              </button>
-            </div>
-          </div>
-        </teleport>
 
       </div>
 
@@ -184,8 +136,87 @@
       </div>
     </div>
   </div>
+  <teleport to="body">
+    <div v-if="showFilterPopup">
+      <!-- Overlay cliquable -->
+      <div
+          class="fixed inset-0 z-[9998]"
+          @click="closeFilterPopup"
+      ></div>
+
+      <!-- Popup filtre -->
+      <div
+          :class="[
+        'fixed bg-white shadow-lg rounded-lg z-[9999] border border-gray-200',
+         isMobile
+         ? 'top-[60px] right-4 w-[75%] max-w-[230px] p-2'
+         : 'top-[65px] right-[40px] w-80 p-4'
+      ]"
+          @click.stop
+      >
+        <button
+            v-if="isMobile"
+            @click="closeFilterPopup"
+            class="absolute -top-1 right-1 text-gray-500 hover:text-red-500 text-lg"
+        >
+          <span class="material-symbols-outlined text-base">close</span>
+        </button>
+
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">Filtrer les sessions</h3>
+
+        <div class="space-y-3">
+          <input
+              type="text"
+              v-model="trainerSearchQuery"
+              @input="filterSessions"
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+              placeholder="Nom de l'entraîneur"
+          />
+          <input
+              type="text"
+              v-model="playerSearchQuery"
+              @input="filterSessions"
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+              placeholder="Nom du joueur"
+          />
+          <input
+              type="number"
+              v-model="selectedLevel"
+              @input="filterSessions"
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+              placeholder="Niveau"
+          />
+          <input
+              type="number"
+              v-model="selectedAge"
+              @input="filterSessions"
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+              placeholder="Âge"
+          />
+        </div>
+
+        <div class="flex justify-end mt-4">
+          <button
+              @click="showAllSessions"
+              :class="[
+                'rounded-md text-white bg-green-700 hover:bg-green-800 transition',
+                isMobile ? 'text-[10px] px-1.5 py-[2px] leading-none' : 'text-sm px-4 py-1'
+              ]"
+
+
+          >
+            Réinitialiser
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </teleport>
+
 </template>
+
 <script>
+
 import {ref, computed, onMounted, onUnmounted} from "vue";
 import SessionCard from "./SessionCard.vue";
 import useTerrains from "../../useJs/useTerrain.js";
@@ -621,18 +652,37 @@ export default {
   gap: 16px;
 }
 
-.tab-button {
-  color: gray;
-  font-weight: bold;
-  padding: 0.5rem 1rem;
+.terrain-tab {
+  background: none;
+  border: none;
   border-bottom: 2px solid transparent;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #4a5568;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.2s ease;
 }
 
-.tab-button.active {
-  color: #528359;
-  border-bottom: 2px solid #528359;
+.terrain-tab:hover {
+  color: #2f855a;
+}
+
+.terrain-tab.active {
+  color: #2f855a;
+  border-bottom: 2px solid #2f855a;
+  border-radius: 0;
+}
+
+.terrain-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: grey;
+  border-radius: 9999px;
 }
 
 button:focus {
@@ -730,6 +780,17 @@ body {
 .panel.desktop {
   position: relative;
   z-index: 1000;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: white;
+  border-bottom: 1px solid #ccc;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 
