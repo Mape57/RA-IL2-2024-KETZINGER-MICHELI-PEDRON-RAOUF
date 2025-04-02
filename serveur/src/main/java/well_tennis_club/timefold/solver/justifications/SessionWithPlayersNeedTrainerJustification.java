@@ -1,21 +1,21 @@
 package well_tennis_club.timefold.solver.justifications;
 
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
+import lombok.Getter;
 import well_tennis_club.timefold.domain.Session;
+import well_tennis_club.timefold.solver.justifications.groupe.SessionJustification;
 
 /**
  * Justification d'une contrainte de session avec des joueurs mais pas d'entraîneur.
  */
-public record SessionWithPlayersNeedTrainerJustification(Session session, HardSoftScore score,
-														 String description) implements ConstraintJustification {
+@Getter
+public class SessionWithPlayersNeedTrainerJustification extends SessionJustification {
 	public SessionWithPlayersNeedTrainerJustification(Session session, HardSoftScore score) {
-		this(session, score, getDescription(session, score));
+		this(session, score, "Pas d'entraîneur pour la session.");
 	}
 
-	private static String getDescription(Session session, HardSoftScore score) {
-		return String.format("Joueurs sans entraineur pour %s : %s",
-				session, score.toString());
+	public SessionWithPlayersNeedTrainerJustification(Session session, HardSoftScore score, String description) {
+		super(session, score, description);
 	}
 
 	@Override

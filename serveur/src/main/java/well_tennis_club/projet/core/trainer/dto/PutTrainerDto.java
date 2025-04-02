@@ -27,13 +27,13 @@ public class PutTrainerDto {
 	@Schema(name = "supLevel", example = "5")
 	@NotNull(message = "Le niveau minimum (supLevel) est obligatoire")
 	@Min(value = 0, message = "Le niveau maximum (supLevel) ne doit pas être inférieur a 0")
-	@Max(value = 19, message = "Le niveau maximum (supLevel) ne doit pas être supérieur a 19")
+	@Max(value = 30, message = "Le niveau maximum (supLevel) ne doit pas être supérieur a 19")
 	private int supLevel;
 
 	@Schema(name = "infLevel", example = "3")
 	@NotNull(message = "Le niveau maximum (infLevel) est obligatoire")
 	@Min(value = 0, message = "Le niveau minimum (infLevel) ne doit pas être inférieur a 0")
-	@Max(value = 19, message = "Le niveau minimum (infLevel) ne doit pas être supérieur a 19")
+	@Max(value = 30, message = "Le niveau minimum (infLevel) ne doit pas être supérieur a 19")
 	private int infLevel;
 
 	@Schema(name = "supAge", example = "50")

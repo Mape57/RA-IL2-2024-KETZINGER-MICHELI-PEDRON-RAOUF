@@ -13,4 +13,7 @@ export default {
     deleteSession(id) {
         return apiService.delete(`/sessions/${id}`);
     },
+    getSessionSendMail(){
+        return apiService.getData("/sessions/sendMail");
+    }
 };

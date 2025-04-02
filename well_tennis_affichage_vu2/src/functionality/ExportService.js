@@ -65,7 +65,7 @@ class ExportService {
                 "Minutes Hebdo Min": trainer.infWeeklyMinutes || "N/A",
                 "Minutes Hebdo Max": trainer.supWeeklyMinutes || "N/A",
                 Email: trainer.email || "N/A",
-                "Temps partiel": trainer.partTime ? "Oui" : "Non",
+                "Vacataire": trainer.partTime ? "Oui" : "Non",
                 Admin: trainer.admin ? "Oui" : "Non",
             }));
 

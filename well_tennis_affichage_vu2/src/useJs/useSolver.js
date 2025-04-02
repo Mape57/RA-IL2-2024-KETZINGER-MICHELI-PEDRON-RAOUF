@@ -41,10 +41,54 @@ export default function useSolver() {
 		}
 	}
 
+	const solverJustifications = async () => {
+		try {
+			const response = await solverService.justifications();
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de la récupération des justifications du solveur :", error.response?.data || error.message);
+			throw error;
+		}
+	}
+
+	const rmpkGet = async () => {
+		try {
+			const response = await solverService.rmpkGet();
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de la récupération du rmpk :", error.response?.data || error.message);
+			throw error;
+		}
+	}
+
+	const rmpkPost = async (data) => {
+		try {
+			const response = await solverService.rmpkPost(data);
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de l'envoi du rmpk :", error.response?.data || error.message);
+			throw error;
+		}
+	}
+
+	const kiGet = async () => {
+		try {
+			const response = await solverService.kiGet();
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de la récupération du ki :", error.response?.data || error.message);
+			throw error;
+		}
+	}
+
 	return {
 		startSolver,
 		stopSolver,
 		statusSolver,
-		saveSolver
+		saveSolver,
+		solverJustifications,
+		rmpkGet,
+		rmpkPost,
+		kiGet
 	}
 }

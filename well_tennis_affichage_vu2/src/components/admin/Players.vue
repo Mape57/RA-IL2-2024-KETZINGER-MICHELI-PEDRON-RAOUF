@@ -13,7 +13,7 @@
       </div>
 
       <!-- Boutons d'action -->
-      <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ADMIN'">
+      <div class="flex space-x-2" v-if="!localIsMobile && userRole === 'ROLE_ADMIN'">
   <span class="material-symbols-outlined small-icon cursor-pointer"
         title="Ajouter"
         ref="addPlayerButton"
@@ -25,63 +25,84 @@
 
     <!-- Contenu déroulant -->
     <div v-if="isOpen" class="mt-2">
-      <!-- En-têtes des colonnes -->
-      <div class="grid grid-cols-4 font-semibold text-gray-400 text-sm mb-2">
-        <div class="text-left">Nom</div>
-        <div class="text-left">Prénom</div>
-        <div class="text-left">Âge</div>
-        <div class="text-center">Niveau</div>
+      <div v-if="loading" class="flex justify-center items-center py-4">
+        <div class="loader"></div>
       </div>
+      <div v-else>
+        <!-- En-têtes des colonnes -->
+        <div class="grid grid-cols-4 font-semibold text-gray-400 text-sm mb-2">
+          <div class="text-left">Nom</div>
+          <div class="text-left">Prénom</div>
+          <div class="text-left">Âge</div>
+          <div class="text-center">Niveau</div>
+          <div class="text-center">Sessions</div>
+        </div>
 
-      <div
-          v-for="player in filteredPlayers"
-          :key="player.id"
-          class="grid grid-cols-4 items-center py-1"
-          :class="{ 'cursor-pointer': !isMobile }"
-          :ref="'player-' + player.id"
-          @click="!isMobile && showPlayerInfo(player)"
-      >
+        <VueDraggable
+            v-model="filteredPlayers"
+            :group="{ name: 'players', pull: 'clone', put: false }"
+            item-key="id"
+            :sort="false"
+            @start="onDragStart"
+            @end="onDragEnd"
+            class="player-list"
+        >
+          <div
+              v-for="player in filteredPlayers"
+              :key="player.id"
+              class="grid grid-cols-4 items-center py-1"
+              :class="{ 'cursor-pointer': !isMobile }"
+              :ref="'player-' + player.id"
+              @click="!isMobile && showPlayerInfo(player)">
 
-        <!-- Nom du joueur -->
-        <span>{{ player.name }}</span>
-        <!-- Prénom du joueur -->
-        <span class="text-left">{{ player.surname }}</span>
-        <!-- Âge du joueur -->
-        <span class="text-left">{{ computeAge(player.birthday) || "N/A" }} ans</span>
-        <!-- Niveau du joueur -->
-        <span class="text-center">{{ player.level }}</span>
+            <!-- Nom du joueur -->
+            <span>{{ player.name }}</span>
+            <!-- Prénom du joueur -->
+            <span class="text-left">{{ player.surname }}</span>
+            <!-- Âge du joueur -->
+            <span class="text-left">{{ computeAge(player.birthday) || "N/A" }} ans</span>
+            <!-- Niveau du joueur -->
+            <span class="text-center">{{ player.level }}</span>
+            <span class="text-center">{{ player.numberOfSessions }} / {{ player.courses }}</span>
+          </div>
+
+        </VueDraggable>
+
+        <!-- Affichage de PlayerInfoView -->
+        <PlayerInfoView
+            v-if="selectedPlayer && !isMobile && userRole === 'ROLE_ADMIN'"
+            :player="selectedPlayer"
+            @close="selectedPlayer = null"
+            @delete="handlePlayerDeletion"
+            @save="handlePlayerSave"
+        />
+
       </div>
-
-      <!-- Affichage de PlayerInfoView -->
-      <PlayerInfoView
-          v-if="selectedPlayer && !isMobile && userRole === 'ADMIN'"
-          :player="selectedPlayer"
-          @close="selectedPlayer = null"
-          @delete="handlePlayerDeletion"
-          @save="handlePlayerSave"
-      />
-
-
     </div>
   </div>
 </template>
 
 <script>
-import {ref, onMounted, onUnmounted} from "vue";
+import {ref, onMounted, onUnmounted, computed} from "vue";
+import { usePlayersStore } from "../../store/usePlayersStore.js";
 import usePlayers from "../../useJs/usePlayers.js";
 import PlayerInfoView from "../vueInformations/PlayerInfoView.vue";
+import {VueDraggable} from "vue-draggable-plus";
 
 export default {
   name: "Players",
-  components: {PlayerInfoView},
+  components: {VueDraggable, PlayerInfoView},
   props: {
-    players: Array,
     searchQuery: String,
     isMobile: Boolean,
     userRole: String,
   },
   setup() {
-    const {computeAge} = usePlayers();
+    const playersStore = usePlayersStore();
+    const { computeAge } = usePlayers();
+    
+    const players = computed(() => playersStore.players);
+    const loading = computed(() => playersStore.loading);
 
     const localIsMobile = ref(window.innerWidth < 768);
 
@@ -91,21 +112,29 @@ export default {
     onMounted(() => {
       updateIsMobile();
       window.addEventListener("resize", updateIsMobile);
+      
+      playersStore.fetchPlayers();
     });
 
     onUnmounted(() => {
       window.removeEventListener("resize", updateIsMobile);
     });
 
+
     return {
       computeAge,
       localIsMobile,
+      players,
+      loading,
+      playersStore,
     };
   },
+
   data() {
     return {
       isOpen: true,
       selectedPlayer: null,
+      draggedPlayer: null, // Stocke le joueur en cours de drag
     };
   },
   computed: {
@@ -138,45 +167,45 @@ export default {
       }
     },
 
-    handlePlayerDeletion(deletedPlayerId) {
-      const updatedPlayers = this.players.filter(player => player.id !== deletedPlayerId);
-      this.$emit('update:players', updatedPlayers); // Émet la liste mise à jour au parent
+    async handlePlayerDeletion(deletedPlayerId) {
+      await this.playersStore.deletePlayer(deletedPlayerId);
       this.selectedPlayer = null; // Ferme l'affichage des détails
     },
-    handlePlayerSave(savedPlayer) {
-      if (this.userRole !== "ADMIN") return;
+    async handlePlayerSave(savedPlayer) {
+      if (this.userRole !== "ROLE_ADMIN") return;
       if (!savedPlayer || typeof savedPlayer !== "object") {
         console.error("Données invalides reçues dans handlePlayerSave :", savedPlayer);
         return;
       }
-      const index = this.players.findIndex(player => player.id === savedPlayer.id);
-      if (index !== -1) {
-        // Mise à jour d'un joueur existant
-        this.players.splice(index, 1, savedPlayer);
-      } else {
-        // Ajout d'un nouveau joueur
-        this.players.push(savedPlayer);
-      }
-
-      // Émet la liste mise à jour au parent
-      this.$emit("update:players", [...this.players]);
-
-      this.$nextTick(() => {
-        const newPlayerElement = this.$refs[`player-${savedPlayer.id}`]?.[0];
-        if (newPlayerElement) {
-          newPlayerElement.scrollIntoView({ behavior: "smooth", block: "center" });
-
-          // Ajouter une classe temporaire pour l'effet de mise en valeur
-          newPlayerElement.classList.add("highlighted");
-          setTimeout(() => newPlayerElement.classList.remove("highlighted"), 3000); // Retire l'effet après 3s
+      
+      try {
+        if (savedPlayer.id) {
+          // Update existing player
+          await this.playersStore.updatePlayer(savedPlayer.id, savedPlayer);
+        } else {
+          // Create new player
+          savedPlayer = await this.playersStore.createPlayer(savedPlayer);
         }
-      });
+        
+        this.$nextTick(() => {
+          const newPlayerElement = this.$refs[`player-${savedPlayer.id}`]?.[0];
+          if (newPlayerElement) {
+            newPlayerElement.scrollIntoView({behavior: "smooth", block: "center"});
+
+            // Ajouter une classe temporaire pour l'effet de mise en valeur
+            newPlayerElement.classList.add("highlighted");
+            setTimeout(() => newPlayerElement.classList.remove("highlighted"), 3000); // Retire l'effet après 3s
+          }
+        });
+      } catch (error) {
+        console.error("Error saving player:", error);
+      }
 
     },
 
 
     addPlayer() {
-      if (this.localIsMobile || this.userRole !== "ADMIN") return; // Empêche l'ajout de joueurs en mode mobile
+      if (this.localIsMobile || this.userRole !== "ROLE_ADMIN") return; // Empêche l'ajout de joueurs en mode mobile
       this.selectedPlayer = {
         id: null,
         name: "",
@@ -188,12 +217,35 @@ export default {
         disponibilities: [],
       };
     },
+    onDragStart(event) {
+      console.log('start')
+      this.draggedPlayer = event.item.element;
+    },
+    onDragEnd() {
+      console.log('update')
+      this.$emit("player-dragged", this.draggedPlayer);
+      this.draggedPlayer = null;
+    }
   },
 };
 </script>
 
 
 <style scoped>
+.player-list li, .player-list > div {
+  cursor: grab;
+  transition: background-color 0.2s;
+}
+
+.player-list li:hover, .player-list > div:hover {
+  background-color: rgba(82, 131, 89, 0.1);
+}
+
+.player-list li:active, .player-list > div:active {
+  cursor: grabbing;
+}
+
+
 .players-hover {
   transition: color 0.2s ease-in-out;
 }
@@ -213,7 +265,7 @@ export default {
 
 .grid {
   display: grid;
-  grid-template-columns: 2fr 1.7fr 1fr 1fr;
+  grid-template-columns: 2fr 1.7fr 1fr 1fr 1fr;
   gap: 0.8rem;
 }
 

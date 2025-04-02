@@ -2,7 +2,7 @@ import apiService from "./apiService.js";
 
 export default {
 	startSolver() {
-		return apiService.post('/solver');
+		return apiService.post('/solver', {});
 	},
 
 	stopSolver() {
@@ -10,10 +10,30 @@ export default {
 	},
 
 	statusSolver() {
-		return apiService.getData('/solver/status');
+		return apiService.getData('/solver');
 	},
 
 	saveSolver() {
 		return apiService.getData('/solver/save');
 	},
+
+	justifications() {
+		return apiService.getData('/solver/justifications');
+	},
+
+	rmpkGet() {
+		return apiService.getData('/solver/rmpk');
+	},
+
+	rmpkPost(data) {
+		return apiService.post('/solver/rmpk', data, {
+			headers: {
+				'Content-Type': 'text/plain',
+			},
+		});
+	},
+
+	kiGet() {
+		return apiService.getData('/solver/ki');
+	}
 }

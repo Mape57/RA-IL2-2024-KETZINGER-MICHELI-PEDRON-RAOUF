@@ -30,7 +30,7 @@
                     v-model="selectedPlayer.level"
                     type="range"
                     min="1"
-                    max="20"
+                    max="30"
                     step="1"
                     class="level-slider"
                 />

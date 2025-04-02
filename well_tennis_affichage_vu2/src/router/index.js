@@ -6,6 +6,7 @@ import Register from "../views/Register.vue";
 import {accountService as authService} from "../services/authService.js";
 import ValidateEmail from "../components/register/ValidateEmail.vue";
 import TrainerPage from '../views/TrainerPage.vue';
+import ChangePassword from "../components/login/ChangePassword.vue";
 
 const routes = [
     {
@@ -45,7 +46,12 @@ const routes = [
 		path: '/email-validation', // Route pour la page de validation de l'email
 		name: 'ValidateEmail',
 		component: ValidateEmail,
-	}
+	},
+    {
+        path: "/change-password", // Route pour la page de changement de mot de passe
+        name: "ChangePassword",
+        component: ChangePassword
+    }
 ];
 
 const router = createRouter({
@@ -59,7 +65,7 @@ router.beforeEach((to, from, next) => {
 
     if (to.meta.requiresAuth && !isAuthenticated) {
         next("/"); // Redirige vers la page de connexion si non authentifié
-    } else if (to.name === "Trainer" && userRole !== "TRAINER") {
+    } else if (to.name === "Trainer" && userRole !== "ROLE_TRAINER") {
         next("/"); // Redirige vers la page d'accueil si ce n'est pas un trainer
     } else {
         next(); // Continue la navigation

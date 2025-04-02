@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import well_tennis_club.timefold.tools.difficulty_comparator.SessionDifficultyComparator;
 
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
@@ -21,11 +22,12 @@ import java.util.UUID;
 @Setter
 @PlanningEntity(difficultyComparatorClass = SessionDifficultyComparator.class)
 @JsonIdentityInfo(scope = Session.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Session implements Comparable<Session> {
+public class Session implements Comparable<Session>, Serializable {
 	@PlanningId
 	private UUID id;
 
 	private UUID tennisCourt;
+	private String tennisCourtName;
 	private DayOfWeek day;
 	private LocalTime startTime;
 
@@ -47,9 +49,19 @@ public class Session implements Comparable<Session> {
 		this.trainer = trainer;
 	}
 
+	public Session(UUID id, DayOfWeek day, LocalTime startTime, UUID tennisCourt, String tennisCourtName) {
+		this(id, day, startTime, tennisCourt);
+		this.tennisCourtName = tennisCourtName;
+	}
+
+	public Session(UUID id, DayOfWeek day, LocalTime startTime, UUID tennisCourt, String tennisCourtName, Trainer trainer) {
+		this(id, day, startTime, tennisCourt, trainer);
+		this.tennisCourtName = tennisCourtName;
+	}
+
 	@Override
 	public String toString() {
-		return tennisCourt.toString() + " le " + getDayString() + " à " + startTime;
+		return tennisCourtName + " le " + getDayString() + " à " + startTime;
 	}
 
 	/**

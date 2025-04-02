@@ -11,18 +11,17 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import well_tennis_club.projet.core.trainer.dto.CreateTrainerDto;
-import well_tennis_club.projet.core.trainer.dto.PasswordResetDto;
-import well_tennis_club.projet.core.trainer.dto.PutTrainerDto;
-import well_tennis_club.projet.core.trainer.dto.TrainerDto;
+import well_tennis_club.projet.core.session.SessionEntity;
+import well_tennis_club.projet.core.session.SessionService;
+import well_tennis_club.projet.core.trainer.dto.*;
 import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
 import well_tennis_club.projet.core.trainer.mapper.CreateTrainerMapper;
 import well_tennis_club.projet.core.trainer.mapper.PutTrainerMapper;
+import well_tennis_club.projet.core.trainer.mapper.ResponseTrainerMapper;
 import well_tennis_club.projet.core.trainer.mapper.TrainerMapper;
 import well_tennis_club.projet.core.trainer.service.ResetTokenService;
 import well_tennis_club.projet.core.trainer.service.TrainerService;
@@ -46,14 +45,18 @@ public class TrainerController {
 	private final MailFactory mailFactory;
 	private final JavaMailSender mailSender;
 	private final PasswordEncoder passwordEncoder;
+	private final SessionService sessionService;
+	private final ResponseTrainerMapper responseTrainerMapper;
 
 	@Autowired
-	public TrainerController(TrainerService trainerService, ResetTokenService resetTokenService, MailFactory mailFactory, JavaMailSender mailSender, PasswordEncoder passwordEncoder) {
+	public TrainerController(TrainerService trainerService, ResetTokenService resetTokenService, MailFactory mailFactory, JavaMailSender mailSender, PasswordEncoder passwordEncoder, SessionService sessionService, ResponseTrainerMapper responseTrainerMapper) {
 		this.trainerService = trainerService;
 		this.resetTokenService = resetTokenService;
 		this.mailFactory = mailFactory;
 		this.mailSender = mailSender;
 		this.passwordEncoder = passwordEncoder;
+		this.sessionService = sessionService;
+		this.responseTrainerMapper = responseTrainerMapper;
 	}
 
 	// ========================= GET ========================= //
@@ -73,9 +76,9 @@ public class TrainerController {
 			)
 	})
 	@GetMapping
-	public ResponseEntity<List<TrainerDto>> getAllTrainers() {
+	public ResponseEntity<List<ResponseTrainerDto>> getAllTrainers() {
 		List<TrainerEntity> list = trainerService.getAllTrainers();
-		return ResponseEntity.ok(TrainerMapper.INSTANCE.mapToListDTO(list));
+		return ResponseEntity.ok(responseTrainerMapper.mapToListDTO(list));
 	}
 
 	@Operation(
@@ -109,12 +112,12 @@ public class TrainerController {
 			)
 	})
 	@GetMapping("/{id}")
-	public ResponseEntity<TrainerDto> getTrainer(@PathVariable UUID id) {
+	public ResponseEntity<ResponseTrainerDto> getTrainer(@PathVariable UUID id) {
 		TrainerEntity trainer = trainerService.getTrainerById(id);
 		if (trainer == null) {
 			throw new IdNotFoundException("Pas d'entraîneur avec cet id");
 		} else {
-			return ResponseEntity.ok(TrainerMapper.INSTANCE.mapToDTO(trainer));
+			return ResponseEntity.ok(responseTrainerMapper.mapToDTO(trainer));
 		}
 	}
 
@@ -143,7 +146,7 @@ public class TrainerController {
 			)
 	})
 	@PostMapping
-	public ResponseEntity<TrainerDto> createTrainer(@Valid @RequestBody CreateTrainerDto trainerDto) {
+	public ResponseEntity<ResponseTrainerDto> createTrainer(@Valid @RequestBody CreateTrainerDto trainerDto) {
 		TrainerEntity trainer = CreateTrainerMapper.INSTANCE.mapToEntity(trainerDto);
 
 		// le mot de passe est généré aléatoirement (l'entraineur devra le changer avec la reinitalisation)
@@ -157,7 +160,7 @@ public class TrainerController {
 				.buildAndExpand(trainer.getId())
 				.toUri();
 
-		return ResponseEntity.created(location).body(TrainerMapper.INSTANCE.mapToDTO(trainer));
+		return ResponseEntity.created(location).body(responseTrainerMapper.mapToDTO(trainer));
 	}
 
 	// ========================= PUT ========================= //
@@ -193,7 +196,7 @@ public class TrainerController {
 			)
 	})
 	@PutMapping("/{id}")
-	public ResponseEntity<TrainerDto> updateTrainer(@PathVariable UUID id, @Valid @RequestBody PutTrainerDto trainerDto) {
+	public ResponseEntity<ResponseTrainerDto> updateTrainer(@PathVariable UUID id, @Valid @RequestBody PutTrainerDto trainerDto) {
 		TrainerEntity oldTrainer = trainerService.getTrainerById(id);
 		if (oldTrainer == null) {
 			throw new IdNotFoundException("Pas d'entraineur avec cet id");
@@ -202,7 +205,7 @@ public class TrainerController {
 			trainer.setId(id);
 			trainer.setPassword(oldTrainer.getPassword());
 			trainer = trainerService.updateTrainer(trainer);
-			return ResponseEntity.ok(TrainerMapper.INSTANCE.mapToDTO(trainer));
+			return ResponseEntity.ok(responseTrainerMapper.mapToDTO(trainer));
 		}
 	}
 
@@ -235,6 +238,17 @@ public class TrainerController {
 	})
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteTrainer(@PathVariable UUID id) {
+		TrainerEntity trainer = trainerService.getTrainerById(id);
+		if (trainer != null) {
+			List<SessionEntity> sessions = sessionService.getSessionsByTrainer(trainer);
+			if(sessions != null && !sessions.isEmpty()){
+				for (SessionEntity session : sessions) {
+					session.setIdTrainer(null);
+					sessionService.updateSession(session);
+				}
+				}
+		}
+
 		int result = trainerService.deleteById(id);
 		if (result == 0) {
 			throw new IdNotFoundException("Pas d'entraîneur avec cet id");
@@ -262,8 +276,9 @@ public class TrainerController {
 					)
 			)
 	})
-	@PostMapping("/resetPassword")
+	@PostMapping("/reset-password")
 	public ResponseEntity<Void> resetPassword(@RequestBody String trainerMail) {
+		System.out.println("Received mail: '" + trainerMail + "'");
 		TrainerEntity trainer = trainerService.getTrainerByEmail(trainerMail);
 		if (trainer == null) {
 			throw new IdNotFoundException("Pas d'entraîneur avec cet email");
@@ -301,7 +316,7 @@ public class TrainerController {
 					)
 			)
 	})
-	@PatchMapping("/changePassword")
+	@PatchMapping("/change-password")
 	public ResponseEntity<Void> changePassword(@RequestBody PasswordResetDto passwordResetDto) {
 		if (!passwordResetDto.getPassword().equals(passwordResetDto.getConfirmPassword())) {
 			throw new PasswordNotMatching("Les mots de passe ne correspondent pas");

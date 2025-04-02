@@ -40,13 +40,24 @@ public class CreatePlayerDto {
 	@Schema(name = "level", example = "19")
 	@NotNull(message = "Le niveau (level) est obligatoire")
 	@Min(value = 0, message = "Le niveau (level) ne doit pas être inférieur à 0")
-	@Max(value = 19, message = "Le niveau (level) ne doit pas être supérieur à 19")
+	@Max(value = 30, message = "Le niveau (level) ne doit pas être supérieur à 19")
 	private Long level;
 
 	@Schema(name = "email", example = "example@mail.fr")
 	@NotBlank(message = "L'email (email) est obligatoire")
 	@Email(message = "L'email (email) doit avoir un format valide")
 	private String email;
+
+	@Schema(name = "phone",example = "0606060606")
+	@NotBlank(message = "Le téléphone (phone) est obligatoire")
+	private String phone;
+
+	@Schema(name = "phone2",example = "0606060606")
+	private String phone2;
+
+	@Schema(name = "photo",example = "true")
+	@NotNull(message = "La photo (photo) est obligatoire")
+	private boolean photo;
 
 	@Schema(name = "validate", example = "true")
 	@NotNull(message = "La validation (validate) est obligatoire")

@@ -23,8 +23,10 @@ public class PlayerConverter {
 		LocalDate birthDate = parseBirthDate(playerEntity.getBirthday());
 		int level = playerEntity.getLevel().intValue();
 		int sessionPerWeek = playerEntity.getCourses().intValue();
+		String name = playerEntity.getName();
+		String surname = playerEntity.getSurname();
 		List<Timeslot> availability = playerEntity.getDisponibilities().stream().map(TimeslotConverter::from).toList();
-		return new Player(id, birthDate, level, sessionPerWeek, availability, null);
+		return new Player(id, name, surname, birthDate, level, sessionPerWeek, availability, null);
 	}
 
 	private static LocalDate parseBirthDate(String birthDate) {

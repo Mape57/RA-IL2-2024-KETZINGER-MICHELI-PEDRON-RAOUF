@@ -10,10 +10,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import well_tennis_club.projet.exception.FailedAuthException;
-import well_tennis_club.projet.exception.IdNotFoundException;
-import well_tennis_club.projet.exception.InvalidTokenException;
-import well_tennis_club.projet.exception.PasswordNotMatching;
+import well_tennis_club.projet.exception.*;
 import well_tennis_club.projet.tool.ApiErrorResponse;
 
 import java.sql.SQLException;
@@ -101,11 +98,11 @@ public class GlobalExcpetionHandler {
 	@ExceptionHandler(InvalidTokenException.class)
 	public ResponseEntity<ApiErrorResponse> handleInvalidTokenException(InvalidTokenException ex) {
 		ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
-		apiErrorResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+		apiErrorResponse.setStatus(HttpStatus.FORBIDDEN.value());
 		apiErrorResponse.setMessage("Token invalide");
 		apiErrorResponse.setDescription(ex.getMessage());
 
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiErrorResponse);
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiErrorResponse);
 	}
 
 	@ExceptionHandler(IdNotFoundException.class)
@@ -133,6 +130,16 @@ public class GlobalExcpetionHandler {
 		ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
 		apiErrorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
 		apiErrorResponse.setMessage("Mot de passe incorrect");
+		apiErrorResponse.setDescription(ex.getMessage());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiErrorResponse);
+	}
+
+	@ExceptionHandler(SolverRequestOrderException.class)
+	public ResponseEntity<ApiErrorResponse> handleSolverRequestOrderException(SolverRequestOrderException ex) {
+		ApiErrorResponse apiErrorResponse = new ApiErrorResponse();
+		apiErrorResponse.setStatus(HttpStatus.CONFLICT.value());
+		apiErrorResponse.setMessage("Erreur d'ordre d'utilisation des requètes du solveur");
 		apiErrorResponse.setDescription(ex.getMessage());
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiErrorResponse);

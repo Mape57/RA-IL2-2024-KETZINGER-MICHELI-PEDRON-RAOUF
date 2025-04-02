@@ -1,8 +1,11 @@
 <template>
   <div
-      :class="['left-panel', localIsMobile ? 'w-[55%]' : isTablet ? 'w-[40%]' : 'w-[30%]']"
-      class="fixed top-5 left-5 bg-white rounded-lg shadow-md h-[97vh] p-6 flex flex-col ">
-    <!-- Bouton de fermeture -->
+      :class="[
+    localIsMobile ? 'w-[55%]' : isTablet ? 'w-[40%]' : 'w-[30%]'
+  ]"
+      class="bg-white rounded-lg shadow-md pt-6 px-6 flex flex-col overflow-hidden w-full h-full"
+  >
+  <!-- Bouton de fermeture -->
     <button v-if="localIsMobile" @click="$emit('close')" class="close-button">
       <span class="material-symbols-outlined">close</span>
     </button>
@@ -29,7 +32,7 @@
       </div>
 
       <button
-          v-if="userRole === 'ADMIN' && !isMobile"
+          v-if="userRole === 'ROLE_ADMIN' && !isMobile"
           @click="selectTab('settings')"
           :class="{ active: selectedTab === 'settings' }"
           class="tab-button flex-grow flex items-center justify-center"
@@ -52,17 +55,14 @@
       <!-- Onglet Données -->
       <div v-if="selectedTab === 'data'">
         <Trainers
-            :trainers="trainers"
-            :isMobile="isMobile"
-            :userRole="userRole"
-            @update:trainers="userRole === 'ADMIN' ? updateTrainers : () => {}"
-        />
-        <Players
-            :players="players"
             :searchQuery="searchQuery"
             :isMobile="isMobile"
             :userRole="userRole"
-            @update:players="userRole === 'ADMIN' ? updatePlayers : () => {}"
+        />
+        <Players
+            :searchQuery="searchQuery"
+            :isMobile="isMobile"
+            :userRole="userRole"
         />
       </div>
 
@@ -88,6 +88,13 @@
           Importer Données et Contraintes - format CSV
           <input type="file" accept=".xlsx, .xls" @change="importCSV" class="hidden" />
         </label>
+
+        <div v-if="terrainErrors.length" class="bg-red-100 text-red-800 p-4 rounded mb-4">
+          <p class="font-semibold mb-2">Erreurs détectées lors de l'import :</p>
+          <ul class="list-disc list-inside text-sm">
+            <li v-for="(err, index) in terrainErrors" :key="index">{{ err }}</li>
+          </ul>
+        </div>
 
         <div class="py-2 font-bold text-gray-700 flex items-center">
           <span class="material-symbols-outlined mr-2">download</span>
@@ -127,17 +134,17 @@
 
 
 <script>
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import useTerrain from "../../useJs/useTerrain.js";
 import useLeftPanel from "../../useJs/useLeftPanel.js";
 import usePlayers from "../../useJs/usePlayers";
 import useSessionConstraint from "../../useJs/useSessionConstraint.js";
+import { usePlayersStore } from "../../store/usePlayersStore.js";
+import { useTrainersStore } from "../../store/useTrainersStore.js";
 import PlayersService from "../../services/PlayersService.js";
 import ExportService from "../../functionality/ExportService";
 import ImportService from "../../functionality/ImportService";
 import ExportPdf from "../../functionality/ExportPdf";
-
-
 import Players from "./Players.vue";
 import Trainers from "./Trainers.vue";
 import Terrains from "./Terrain.vue";
@@ -164,6 +171,11 @@ export default {
     const isTablet = ref(false);
     const selectedPlayer = ref(null);
     const showPendingPlayers = ref(false);
+    const terrainErrors = ref([]);
+    // We'll use the loading states from the stores
+    const playersStore = usePlayersStore();
+    const trainersStore = useTrainersStore();
+
 
     watch(() => props.isMobile, (newVal) => {
       localIsMobile.value = newVal;
@@ -203,8 +215,12 @@ export default {
 
 
     const { terrains, fetchTerrains } = useTerrain();
-    const { trainers, players, searchQuery, selectedTab, fetchTrainers, fetchPlayers, selectTab, updatePlayers, updateTrainers } = useLeftPanel();
+    // We'll use searchQuery and selectedTab from useLeftPanel but players and trainers will come from the stores
+    const { searchQuery, selectedTab, selectTab } = useLeftPanel();
     const { pendingPlayers, fetchPendingPlayers } = usePlayers();
+    // Get references to the data from the stores
+    const players = computed(() => playersStore.players);
+    const trainers = computed(() => trainersStore.trainers);
 
     const validatePlayer = async (playerId) => {
       try {
@@ -225,9 +241,11 @@ export default {
         fetchPendingPlayers();
       }
     };
+
     onMounted(() => {
-      fetchTrainers();
-      fetchPlayers();
+      // Fetch data from the stores
+      trainersStore.fetchTrainers();
+      playersStore.fetchPlayers();
       fetchTerrains();
     });
 
@@ -242,16 +260,15 @@ export default {
       showPendingPlayers,
       terrains,
       selectedPlayer,
+      terrainErrors,
       showPlayerDetails,
-      fetchTrainers,
-      fetchPlayers,
       selectTab,
-      updatePlayers,
-      updateTrainers,
       togglePendingPlayers,
       validatePlayer,
       updatePendingPlayers,
       getJourLabel,
+      playersStore,
+      trainersStore,
     };
   },
 
@@ -269,9 +286,18 @@ export default {
         return;
       }
       try {
-        await ImportService.importExcel(file);
+        const result = await ImportService.importExcel(file);
+        this.terrainErrors = result.terrainErrors || [];
+        if (this.terrainErrors.length > 0) {
+          this.selectTab('settings');
+        }
+
       } catch (error) {
         console.error("Erreur lors de l'importation :", error);
+        this.terrainErrors = [
+          "Une erreur est survenue pendant l'importation.",
+          error.message || ""
+        ];
       }
     },
 
@@ -364,15 +390,6 @@ export default {
   scrollbar-width: thin;
 }
 
-.left-panel {
-  position: fixed;
-  z-index: 1000;
-  background: white;
-  border-radius: 8px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  box-sizing: border-box;
-}
 
 .tabs {
   display: flex;
@@ -483,22 +500,6 @@ export default {
   color: #3a6242;
 }
 
-@media (max-width: 768px) {
-  .left-panel {
-    width: 55%;
-    left: 7.5%;
-  }
-  .tab-button span:nth-child(2) {
-    display: none;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1024px) {
-  .left-panel {
-    width: 40%;
-    left: 2%;
-  }
-}
 
 </style>
 

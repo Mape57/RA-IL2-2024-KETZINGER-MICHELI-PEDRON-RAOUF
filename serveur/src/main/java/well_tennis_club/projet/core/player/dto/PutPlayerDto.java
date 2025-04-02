@@ -40,7 +40,7 @@ public class PutPlayerDto implements Serializable {
 	@Schema(name = "level", example = "19")
 	@NotNull(message = "Le niveau (level) est obligatoire")
 	@Min(value = 0, message = "Le niveau (level) ne doit pas être inférieur à 0")
-	@Max(value = 19, message = "Le niveau (level) ne doit pas être supérieur à 19")
+	@Max(value = 30, message = "Le niveau (level) ne doit pas être supérieur à 19")
 	private Long level;
 
 	@Schema(name = "email", example = "example@mail.fr")
@@ -51,6 +51,17 @@ public class PutPlayerDto implements Serializable {
 	@Schema(name = "validate", example = "true")
 	@NotNull(message = "La validation (validate) est obligatoire")
 	private Boolean validate;
+
+	@Schema(name = "phone", example = "0601020304")
+	@NotNull(message = "Le téléphone (phone) est obligatoire")
+	private String phone;
+
+	@Schema(name = "phone2", example = "0601020304")
+	private String phone2;
+
+	@Schema(name = "photo",example = "true")
+	@NotNull(message = "La photo (photo) est obligatoire")
+	private boolean photo;
 
 	private List<PutDisponibilityDto> disponibilities;
 }

@@ -2,13 +2,14 @@ package well_tennis_club.timefold.data_structure;
 
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Classe représentant une plage de valeur
  */
 @Getter
-public class ValueRange {
+public class ValueRange implements Serializable {
 	private final Integer min;
 	private final Integer max;
 

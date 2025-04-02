@@ -31,6 +31,15 @@
             <column name="validate" type="boolean">
                 <constraints nullable="false"/>
             </column>
+            <column name="phone" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone2" type="varchar(200)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="photo" type="boolean">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>

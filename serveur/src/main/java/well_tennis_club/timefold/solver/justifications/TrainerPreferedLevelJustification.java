@@ -1,21 +1,24 @@
 package well_tennis_club.timefold.solver.justifications;
 
 import ai.timefold.solver.core.api.score.buildin.hardsoft.HardSoftScore;
-import ai.timefold.solver.core.api.score.stream.ConstraintJustification;
+import lombok.Getter;
 import well_tennis_club.timefold.domain.Session;
+import well_tennis_club.timefold.solver.justifications.groupe.SessionJustification;
 
 /**
  * Justification d'une contrainte de préférence de niveau d'un entraîneur non respectée.
  */
-public record TrainerPreferedLevelJustification(Session session, Integer trainerLevelOverflow, HardSoftScore score,
-												String description) implements ConstraintJustification {
+@Getter
+public class TrainerPreferedLevelJustification extends SessionJustification {
+	private final Integer trainerLevelOverflow;
+
 	public TrainerPreferedLevelJustification(Session session, Integer trainerLevelOverflow, HardSoftScore score) {
-		this(session, trainerLevelOverflow, score, getDescription(session, trainerLevelOverflow, score));
+		this(session, trainerLevelOverflow, score, "Les préférences de niveau de l'entraîneur ne sont pas respectées.");
 	}
 
-	private static String getDescription(Session session, Integer trainerLevelOverflow, HardSoftScore score) {
-		return String.format("Depassement de niveau (+%d) de %s pour %s : %s",
-				trainerLevelOverflow, session.getTrainer().getId(), session, score);
+	public TrainerPreferedLevelJustification(Session session, Integer trainerLevelOverflow, HardSoftScore score, String description) {
+		super(session, score, description);
+		this.trainerLevelOverflow = trainerLevelOverflow;
 	}
 
 	@Override

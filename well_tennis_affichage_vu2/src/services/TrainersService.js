@@ -22,4 +22,16 @@ export default {
 	deleteTrainer(id) {
 		return apiService.delete(`/trainers/${id}`);
 	},
+
+	resetPassword(email) {
+		return apiService.post('/trainers/reset-password', email, {
+				headers: {
+					'Content-Type': 'text/plain',
+				},
+			});
+	},
+
+	changePassword(data) {
+		return apiService.patch('/trainers/change-password', data);
+	},
 };

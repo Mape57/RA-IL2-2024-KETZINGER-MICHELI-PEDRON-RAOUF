@@ -21,6 +21,7 @@ import well_tennis_club.timefold.domain.Player;
 import well_tennis_club.timefold.domain.TennisCourt;
 import well_tennis_club.timefold.domain.Trainer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -42,22 +43,22 @@ public class TimetableService {
 
 	public List<Player> getAllPlayers() {
 		List<PlayerEntity> playerEntities = playerRepository.findAll();
-		return playerEntities.stream().map(PlayerConverter::from).toList();
+		return playerEntities.stream().map(PlayerConverter::from).collect(ArrayList::new, List::add, List::addAll);
 	}
 
 	public List<Trainer> getAllTrainers() {
 		List<TrainerEntity> trainerEntities = trainerRepository.findAll();
-		return trainerEntities.stream().map(TrainerConverter::from).toList();
+		return trainerEntities.stream().map(TrainerConverter::from).collect(ArrayList::new, List::add, List::addAll);
 	}
 
 	public List<TennisCourt> getAllTennisCourts() {
 		List<CourtEntity> courtEntities = courtRepository.findAll();
-		return courtEntities.stream().map(TennisCourtConverter::from).toList();
+		return courtEntities.stream().map(TennisCourtConverter::from).collect(ArrayList::new, List::add, List::addAll);
 	}
 
 	public List<SessionConstraint> getAllSessionConstraints() {
 		List<SessionConstraintEntity> sessionConstraintEntities = sessionConstraintService.getAllConstraints();
-		return sessionConstraintEntities.stream().map(SessionConstraintConverter::from).toList();
+		return sessionConstraintEntities.stream().map(SessionConstraintConverter::from).collect(ArrayList::new, List::add, List::addAll);
 	}
 
 	public void saveAllPlayer(List<PlayerEntity> players) {

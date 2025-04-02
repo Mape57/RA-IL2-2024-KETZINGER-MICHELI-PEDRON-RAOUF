@@ -8,6 +8,7 @@ import lombok.Setter;
 import well_tennis_club.timefold.data_structure.SessionConstraint;
 import well_tennis_club.timefold.data_structure.Timeslot;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -17,9 +18,11 @@ import java.util.UUID;
 @Getter
 @Setter
 @JsonIdentityInfo(scope = Player.class, generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Player {
+public class Player implements Serializable {
 	@PlanningId
 	private UUID id;
+	private String name;
+	private String surname;
 	private int age;
 	private int sessionPerWeek;
 	private int level;
@@ -36,6 +39,12 @@ public class Player {
 		this.sessionPerWeek = sessionPerWeek;
 		this.availability = availability;
 		this.sessionConstraint = sessionConstraint;
+	}
+
+	public Player(UUID id, String name, String surname, LocalDate birthDate, int level, int sessionPerWeek, List<Timeslot> availability, SessionConstraint sessionConstraint) {
+		this(id, birthDate, level, sessionPerWeek, availability, sessionConstraint);
+		this.name = name;
+		this.surname = surname;
 	}
 
 	public Player(int age, int level, int sessionPerWeek, List<Timeslot> availability, List<SessionConstraint> sessionConstraints) {

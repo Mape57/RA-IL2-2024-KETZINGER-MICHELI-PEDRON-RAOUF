@@ -6,14 +6,17 @@ import well_tennis_club.projet.core.DEPRECATED_participation.ParticipationServic
 import well_tennis_club.projet.core.session.SessionEntity;
 import well_tennis_club.projet.core.session.SessionService;
 import well_tennis_club.projet.core.solver.TimetableService;
+import well_tennis_club.projet.exception.SolverRequestOrderException;
 import well_tennis_club.timefold.data_structure.SessionConstraint;
 import well_tennis_club.timefold.domain.*;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 public class TimetableFactory {
@@ -46,7 +49,11 @@ public class TimetableFactory {
 							.orElseThrow();
 					return convertFrom(sessionEntity, trainer);
 				})
-				.toList();
+				.collect(ArrayList::new, List::add, List::addAll);
+
+		Collections.shuffle(players);
+		Collections.shuffle(trainers);
+		Collections.shuffle(tennisCourts);
 
 		if (plannedSessions.isEmpty()) return new Timetable(players, trainers, tennisCourts);
 
@@ -63,8 +70,10 @@ public class TimetableFactory {
 							.findFirst()
 							.orElseThrow();
 					return new PlayerSessionLink(player, session);
-				}).toList();
+				}).collect(ArrayList::new, List::add, List::addAll);
 
+		Collections.shuffle(sessions);
+		Collections.shuffle(psls);
 		if (psls.isEmpty()) return new Timetable("WTC from sessions", players, trainers, sessions);
 		else return new Timetable("WTC from sessions and psls", players, trainers, sessions, psls);
 	}
@@ -76,15 +85,17 @@ public class TimetableFactory {
 				return;
 			}
 		}
+		throw new SolverRequestOrderException("Aucune contrainte de session ne correspond pour le joueur : " + player.getName() + " " + player.getSurname());
 	}
 
 	private static Session convertFrom(SessionEntity sessionEntity, Trainer trainer) {
 		UUID id = sessionEntity.getId();
 		UUID courtId = sessionEntity.getIdCourt().getId();
+		String courtName = sessionEntity.getIdCourt().getName();
 		DayOfWeek day = DayOfWeek.of(sessionEntity.getDayWeek());
 		LocalTime startTime = LocalTime.parse(sessionEntity.getStart());
 
-		return new Session(id, day, startTime, courtId, trainer);
+		return new Session(id, day, startTime, courtId, courtName, trainer);
 	}
 
 	private static List<Session> combineWithNoDuplicate(List<Session> baseList, List<Session> sessions) {

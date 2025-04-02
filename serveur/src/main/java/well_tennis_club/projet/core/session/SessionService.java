@@ -2,6 +2,8 @@ package well_tennis_club.projet.core.session;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import well_tennis_club.projet.core.player.entity.PlayerEntity;
+import well_tennis_club.projet.core.trainer.entity.TrainerEntity;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +29,7 @@ public class SessionService {
 		return sessionRepository.save(entity);
 	}
 
-	public int deleteById(UUID id) {
+	public List<SessionEntity> deleteById(UUID id) {
 		return sessionRepository.deleteSessionEntityById(id);
 	}
 
@@ -38,4 +40,10 @@ public class SessionService {
 	public SessionEntity getSessionById(UUID id) {
 		return sessionRepository.findById(id).orElse(null);
 	}
+
+	public List<SessionEntity> getSessionsContaining(PlayerEntity player) {
+		return sessionRepository.findSessionEntitiesByPlayersContaining(List.of(player));
+	}
+
+	public List<SessionEntity> getSessionsByTrainer(TrainerEntity trainer) {return sessionRepository.findAllByIdTrainer(trainer);}
 }

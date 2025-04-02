@@ -31,6 +31,7 @@ public class SessionMappingHelper {
 
 	@Named(value = "trainerFromId")
 	public TrainerEntity trainerFromId(UUID idTrainer) {
+		if (idTrainer == null) return null;
 		return trainerRepository.findById(idTrainer)
 				.orElseThrow(() -> new IdNotFoundException("Pas d'entraineur avec cet id"));
 	}

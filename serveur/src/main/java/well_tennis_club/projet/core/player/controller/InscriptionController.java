@@ -106,7 +106,7 @@ public class InscriptionController {
 					)
 			),
 			@ApiResponse(
-					responseCode = "401",
+					responseCode = "403",
 					description = "Le token n'est pas valide",
 					content = @Content(
 							mediaType = "application/json",

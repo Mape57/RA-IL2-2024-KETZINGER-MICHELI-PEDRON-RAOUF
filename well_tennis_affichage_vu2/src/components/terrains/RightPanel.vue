@@ -1,6 +1,5 @@
-
 <template>
-  <div class="right-panel rounded-lg shadow-md ">
+  <div class="right-panel-wrapper">
     <!-- Mode Mobile -->
     <div v-if="isMobile" class="flex flex-col h-full w-full overflow-x-hidden">
       <!-- Barre du haut pour le mobile -->
@@ -34,6 +33,7 @@
               :startTime="session.start"
               :endTime="session.stop"
               :coach="session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : 'Aucun entraîneur'"
+              @times-updated="handleTimesUpdated"
               :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge} ` : 'N/A'"
               :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
               :players="session.players.map(player => `${player.name} ${player.surname}`)"
@@ -73,6 +73,7 @@
               :startTime="session.start"
               :endTime="session.stop"
               :coach="session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : 'Aucun entraîneur'"
+              @times-updated="handleTimesUpdated"
               :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge}` : 'N/A'"
               :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
               :players="session.players.map(player => `${player.name} ${player.surname}`)"
@@ -83,9 +84,9 @@
     </div>
 
     <!-- Mode Bureau -->
-    <div v-else class="flex flex-col flex-1 w-full h-full overflow-x-hidden">
-      <div class="flex items-center justify-center p-2 bg-white border-b border-gray-300 w-full overflow-x-hidden">
-        <div class="flex justify-center space-x-4">
+    <div v-else class="panel desktop">
+      <div class="toolbar desktop-toolbar">
+        <div class="tab-buttons">
           <button
               v-for="terrain in sortedTerrains"
               :key="terrain.id"
@@ -106,6 +107,56 @@
             <span class="material-symbols-outlined text-base ml-1">tune</span>
           </button>
         </div>
+
+        <teleport to="body">
+          <div
+              v-if="showFilterPopup"
+              class="fixed top-[65px] right-[40px] w-80 bg-white shadow-lg rounded-xl p-4 z-[9999] border border-gray-200"
+          >
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Filtrer Sessions</h3>
+
+            <div class="space-y-3">
+              <input
+                  type="text"
+                  v-model="trainerSearchQuery"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Nom de l'entraîneur"
+              />
+              <input
+                  type="text"
+                  v-model="playerSearchQuery"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Nom du joueur"
+              />
+              <input
+                  type="number"
+                  v-model="selectedLevel"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Niveau"
+              />
+              <input
+                  type="number"
+                  v-model="selectedAge"
+                  @input="filterSessions"
+                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+                  placeholder="Âge"
+              />
+            </div>
+
+            <div class="flex justify-end mt-4">
+              <button
+                  @click="showAllSessions"
+                  class="px-4 py-1 rounded-md text-white bg-green-700 hover:bg-green-800 text-sm"
+              >
+                Réinitialiser
+              </button>
+            </div>
+          </div>
+        </teleport>
+
       </div>
 
       <!-- Contenu principal -->
@@ -115,13 +166,19 @@
           <SessionCard
               v-for="session in sessions"
               :key="session.id"
+              :sessionId="session.id"
               :startTime="session.start"
               :endTime="session.stop"
-              :coach="session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : 'Aucun entraîneur'"
-              :ageGroup="session.idTrainer ? `${session.idTrainer.infAge} - ${session.idTrainer.supAge}` : 'N/A'"
-              :skillLevel="session.idTrainer ? `${session.idTrainer.infLevel} - ${session.idTrainer.supLevel}` : 'N/A'"
-              :players="session.players.map(player => `${player.name} ${player.surname}`)"
+              :coach="session.idTrainer"
+              :ageGroup="getGroupAge(session.players)"
+              :skillLevel="getGroupLevel(session.players)"
+              @times-updated="handleTimesUpdated"
+              :players="session.players"
               :userRole="userRole"
+              @update-players="updateSessionsPlayers"
+              @delete="deleteSession(session.id)"
+              @update-coach="handleCoachUpdate"
+              @player-removed="handlePlayerRemoved"
           />
         </div>
       </div>
@@ -129,13 +186,27 @@
   </div>
 </template>
 <script>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import {ref, computed, onMounted, onUnmounted, watch} from "vue";
 import SessionCard from "./SessionCard.vue";
+import useTerrains from "../../useJs/useTerrain.js";
+import { useSessionsStore } from "../../store/useSessionsStore.js";
+import { usePlayersStore } from "../../store/usePlayersStore.js";
+import { useTrainersStore } from "../../store/useTrainersStore.js";
+import { storeToRefs } from "pinia";
+import { useSessions } from "../../useJs/useSessions.js";
 import terrainService from "../../services/TerrainService";
 import sessionsService from "../../services/SessionService";
+import trainerService from "../../services/TrainersService";
+import playerService from "../../services/PlayersService";
+import usePlayers from "../../useJs/usePlayers.js";
+import useTrainers from "../../useJs/useTrainers.js";
+import {getGroupAge, getGroupLevel, getSportsAge} from "../../functionality/conversionUtils.js";
+
+
 
 export default {
   name: "RightPanel",
+  methods: {getGroupLevel, getGroupAge},
   components: {
     SessionCard,
   },
@@ -145,36 +216,69 @@ export default {
     userRole: String,
   },
   setup() {
-    const terrains = ref([]);
-    const sessions = ref([]);
+    // Importation des stores Pinia
+    const sessionsStore = useSessionsStore();
+    const playersStore = usePlayersStore();
+    const trainersStore = useTrainersStore();
+
+    // Références réactives extraites des stores
+    const { sessions } = storeToRefs(sessionsStore);
+    const { players } = storeToRefs(playersStore);
+    const { trainers } = storeToRefs(trainersStore);
+
+    // Méthodes pour récupérer les données
+    const fetchSessions = sessionsStore.fetchSessions;
+    const updateSession = sessionsStore.updateSession;
+    const fetchPlayers = playersStore.fetchPlayers;
+    const fetchTrainers = trainersStore.fetchTrainers;
+
+    // Terrains récupérés via un composable
+    const { terrains, fetchTerrains } = useTerrains();
+
+    // États de filtres et UI
     const selectedTerrain = ref(null);
+    const trainerSearchQuery = ref("");
+    const playerSearchQuery = ref("");
+    const selectedLevel = ref(null);
+    const selectedAge = ref(null);
+    const showFilterPopup = ref(false);
     const windowWidth = ref(window.innerWidth);
 
-    // Détection du mode mobile
+    // Détection responsive
     const isMobile = computed(() => windowWidth.value < 768);
     const isTablet = computed(() => windowWidth.value >= 768 && windowWidth.value < 1024);
 
-    // Trie les terrains par ordre alphabétique
+    // Tri alphabétique des terrains
     const sortedTerrains = computed(() => {
       return terrains.value.slice().sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
     });
 
-    // Sessions groupées par jour
+    // Sessions regroupées par jour de la semaine + filtres appliqués
     const sessionsByDay = computed(() => {
       const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-      const groupedSessions = Object.fromEntries(daysOfWeek.map((day) => [day, []]));
+      const groupedSessions = Object.fromEntries(daysOfWeek.map(day => [day, []]));
 
-      if (!selectedTerrain.value) return groupedSessions;
+      // Si aucun terrain n’est sélectionné, on prend le premier disponible
+      if (!selectedTerrain.value && sortedTerrains.value.length > 0) {
+        selectedTerrain.value = sortedTerrains.value[0]?.id || null;
+      }
+
+      if (!sessions.value || sessions.value.length === 0) return groupedSessions;
 
       sessions.value
           .filter((session) => session.idCourt?.id === selectedTerrain.value)
+          .filter((session) => !trainerSearchQuery.value || session.idTrainer?.name.toLowerCase().includes(trainerSearchQuery.value.toLowerCase()) || session.idTrainer?.surname.toLowerCase().includes(trainerSearchQuery.value.toLowerCase()))
+          .filter((session) => !playerSearchQuery.value || session.players.some(player => player.name.toLowerCase().includes(playerSearchQuery.value.toLowerCase()) || player.surname.toLowerCase().includes(playerSearchQuery.value.toLowerCase())))
+          .filter((session) => !selectedLevel.value || (session.idTrainer?.infLevel <= selectedLevel.value && session.idTrainer?.supLevel >= selectedLevel.value))
+          .filter((session) => !selectedAge.value || (session.idTrainer?.infAge <= selectedAge.value && session.idTrainer?.supAge >= selectedAge.value))
           .forEach((session) => {
-            const dayIndex = session.dayWeek - 1; // Convertit 1-7 en index 0-6
+            const dayIndex = session.dayWeek - 1;
             if (daysOfWeek[dayIndex]) {
               groupedSessions[daysOfWeek[dayIndex]].push(session);
             }
           });
 
+      // Tri des sessions dans chaque journée par heure de début
       Object.keys(groupedSessions).forEach(day => {
         groupedSessions[day].sort((a, b) => a.start.localeCompare(b.start));
       });
@@ -182,38 +286,64 @@ export default {
       return groupedSessions;
     });
 
-
-    // Récupération des terrains et sessions depuis l'API
-    const loadTerrainsAndSessions = async () => {
-      try {
-        const [terrainResponse, sessionResponse] = await Promise.all([
-          terrainService.getAllTerrain(),
-          sessionsService.getAllSessions(),
-        ]);
-
-        terrains.value = terrainResponse.data;
-        sessions.value = sessionResponse.data;
-
-
-        selectedTerrain.value = sortedTerrains.value[0]?.id || null;
-      } catch (error) {
-        console.error("Erreur lors du chargement des données :", error);
-      }
-    };
-
-
-    // Sélectionne un terrain
+    // Sélection d’un terrain
     const selectTerrain = (id) => {
       selectedTerrain.value = id;
     };
 
-    // Met à jour la taille de l'écran
+    // Mise à jour de la largeur de l'écran
     const updateWindowSize = () => {
       windowWidth.value = window.innerWidth;
     };
 
+    // Affichage / Masquage du panneau de filtres
+    const openFilter = () => {
+      showFilterPopup.value = !showFilterPopup.value;
+    };
+    const closeFilterPopup = () => {
+      showFilterPopup.value = false;
+    };
+    const filterSessions = () => {}; // placeholder
+
+    // Réinitialiser tous les filtres
+    const showAllSessions = () => {
+      trainerSearchQuery.value = "";
+      playerSearchQuery.value = "";
+      selectedLevel.value = null;
+      selectedAge.value = null;
+    };
+
+    // Niveaux de sessions (pour les filtres)
+    const sessionLevels = computed(() => {
+      const levels = new Set();
+      sessions.value.forEach(session => {
+        if (session.idTrainer) {
+          levels.add(JSON.stringify({
+            infLevel: session.idTrainer.infLevel,
+            supLevel: session.idTrainer.supLevel
+          }));
+        }
+      });
+      return Array.from(levels).map(level => JSON.parse(level)).sort((a, b) => a.infLevel - b.infLevel);
+    });
+
+    // Tranches d'âge détectées dans les sessions
+    const sessionAges = computed(() => {
+      const ages = new Set();
+      sessions.value.forEach(session => {
+        if (session.idTrainer) {
+          ages.add(session.idTrainer.age);
+        }
+      });
+      return Array.from(ages).sort((a, b) => a - b);
+    });
+
+    // Chargement initial des données + gestion resize
     onMounted(() => {
-      loadTerrainsAndSessions();
+      fetchTerrains();
+      fetchSessions();
+      fetchPlayers();
+      fetchTrainers();
       window.addEventListener("resize", updateWindowSize);
     });
 
@@ -221,30 +351,159 @@ export default {
       window.removeEventListener("resize", updateWindowSize);
     });
 
+    // Lorsqu'une session est modifiée (horaires)
+    const handleTimesUpdated = async ({ sessionId }) => {
+      await fetchSessions();
+      const updatedSession = sessions.value.find(s => s.id === sessionId);
+      if (updatedSession) {
+        const playerIds = updatedSession.players.map(p => p.id);
+        const trainerId = updatedSession.idTrainer?.id;
+        if (playerIds.length > 0) await playersStore.fetchPlayersByIds(playerIds);
+        if (trainerId) await trainersStore.fetchTrainersByIds([trainerId]);
+      }
+    };
+
+    // Suppression d'une session + mise à jour des joueurs/entraîneurs concernés
+    const deleteSession = async (sessionId) => {
+      try {
+        const sessionToDelete = sessions.value.find(s => s.id === sessionId);
+        const playerIds = sessionToDelete?.players.map(p => p.id) || [];
+        const trainerId = sessionToDelete?.idTrainer?.id;
+        await sessionsStore.deleteSession(sessionId);
+        await fetchSessions();
+        if (playerIds.length > 0) await playersStore.fetchPlayersByIds(playerIds);
+        if (trainerId) await trainersStore.fetchTrainersByIds([trainerId]);
+      } catch (error) {
+        console.error("Erreur lors de la suppression de la session:", error);
+      }
+    };
+
+    //  Suivi des suppressions de joueurs pour gérer les transferts inter-sessions
+    const lastRemovedPlayer = ref(null);
+    const lastRemovedFromSession = ref(null);
+
+    const handlePlayerRemoved = async (data) => {
+      if (data?.player?.id) {
+        lastRemovedPlayer.value = data.player;
+        lastRemovedFromSession.value = data.fromSessionId;
+        await playersStore.fetchPlayersByIds([data.player.id]);
+      }
+    };
+
+    //  Mise à jour de l'entraîneur d'une session
+    const handleCoachUpdate = async ({ sessionId, coach }) => {
+      try {
+        const session = sessions.value.find(s => s.id === sessionId);
+        if (!session) return;
+        const trainerId = coach?.id || coach?.idtrainer || null;
+        const updatedSession = { ...session, idTrainer: trainerId };
+        await sessionsStore.updateSession(updatedSession);
+        await fetchSessions();
+        if (trainerId) {
+          await trainersStore.fetchTrainersByIds([trainerId]);
+          const updated = sessions.value.find(s => s.id === sessionId);
+          if (updated?.players.length > 0) {
+            const playerIds = updated.players.map(p => p.id);
+            await playersStore.fetchPlayersByIds(playerIds);
+          }
+        }
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour de l'entraîneur :", error);
+      }
+    };
+
+    //  Mise à jour des joueurs d'une session (avec détection des transferts)
+    const updateSessionsPlayers = async (data) => {
+      const { sessionId, players } = data || {};
+      if (!sessionId) return;
+
+      try {
+        const session = sessions.value.find(s => s.id === sessionId);
+        if (!session) return;
+
+        const validPlayers = players || [];
+
+        if (lastRemovedFromSession.value && lastRemovedFromSession.value !== sessionId && lastRemovedPlayer.value) {
+          //  Transfert détecté entre deux sessions
+          const updatedDestination = { ...session, players: validPlayers };
+          await updateSession(updatedDestination);
+          const source = sessions.value.find(s => s.id === lastRemovedFromSession.value);
+          if (source) {
+            const updatedSourcePlayers = source.players.filter(p => p.id !== lastRemovedPlayer.value.id);
+            await sessionsStore.updateSession({ ...source, players: updatedSourcePlayers });
+          }
+          lastRemovedPlayer.value = null;
+          lastRemovedFromSession.value = null;
+        } else {
+          //  Mise à jour classique
+          await updateSession({ ...session, players: validPlayers });
+        }
+
+        await fetchSessions();
+
+        const updatedSessionData = sessions.value.find(s => s.id === sessionId);
+        if (updatedSessionData) {
+          if (updatedSessionData.players.length > 0) {
+            const playerIds = updatedSessionData.players.map(p => p.id);
+            await playersStore.fetchPlayersByIds(playerIds);
+          }
+          if (updatedSessionData.idTrainer?.id) {
+            await trainersStore.fetchTrainersByIds([updatedSessionData.idTrainer.id]);
+          }
+        }
+      } catch (error) {
+        console.error("Erreur dans updateSessionsPlayers :", error);
+      }
+    };
+
     return {
       terrains,
       sessions,
+      trainers,
+      players,
       selectedTerrain,
+      trainerSearchQuery,
+      playerSearchQuery,
+      selectedLevel,
+      selectedAge,
+      sessionLevels,
+      sessionAges,
       sortedTerrains,
       sessionsByDay,
+      showAllSessions,
       isMobile,
       isTablet,
       selectTerrain,
+      updateSessionsPlayers,
+      handlePlayerRemoved,
+      openFilter,
+      deleteSession,
+      handleCoachUpdate,
+      closeFilterPopup,
+      showFilterPopup,
+      filterSessions,
+      handleTimesUpdated,
     };
   },
 };
 </script>
 
+
 <style scoped>
-.right-panel {
-  background-color: white;
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: white;
+  border-bottom: 1px solid #ccc;
   position: relative;
-  overflow-y: auto;
-  margin-right: 1.37rem;
-  width: 67%;
-  height: 83vh;
-  margin-bottom: 4vh;
-  z-index: 100;
+}
+.desktop-toolbar {
+  justify-content: center;
+}
+.tab-buttons {
+  display: flex;
+  gap: 16px;
 }
 
 .tab-button {
@@ -264,6 +523,26 @@ export default {
 button:focus {
   outline: none;
   box-shadow: none;
+}
+
+button {
+  padding: 10px 16px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.popup-content h3 {
+  margin-bottom: 10px;
+}
+
+.popup-content select {
+  margin-bottom: 10px;
+}
+
+select:focus {
+  outline: none;
 }
 
 select {
@@ -312,84 +591,33 @@ body {
   scrollbar-width: thin;
 }
 
-@media (max-width: 768px) {
-  body {
-    font-size: 14px;
-  }
-
-  .right-panel {
-    padding: 1rem;
-    width: 100%;
-  }
-
-  .tab-button {
-    padding: 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  .content {
-    padding: 1rem;
-  }
-
-  select {
-    font-size: 1rem;
-  }
-
-  .material-symbols-outlined {
-    font-size: 1rem;
-  }
+.filter-popup h3 {
+  margin-bottom: 12px;
 }
 
-@media (min-width: 768px) and (max-width: 1024px) {
-  .right-panel {
-    width: 54%;
-    height: 80vh;
-    margin-left: auto;
-    margin-right: 2%;
-    margin-top: 17px;
-
-  }
-
-  .content {
-    padding: 1.5rem;
-  }
-
-  .tab-button {
-    padding: 0.75rem;
-    font-size: 1rem;
-  }
+.filter-fields input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
-@media (min-width: 800px) and (max-width: 809px) {
-  .right-panel {
-    width: 54%;
-    height: 83vh;
-    margin-left: auto;
-    margin-right: 2%;
-    margin-top: 17px;
-  }
-
-  .content {
-    padding: 1.5rem;
-  }
-
-  .tab-button {
-    padding: 0.75rem;
-    font-size: 1rem;
-  }
+.filter-footer button {
+  background-color: #528359;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-@media (min-width: 1024px) {
-  .right-panel {
-    width: 67%;
-    height: 90vh;
-    position: relative;
-    top: 0;
-    right: 0;
-    margin-left: auto;
-  }
-
+.panel.desktop {
+  position: relative;
+  z-index: 1000;
 }
+
+
 
 </style>
 

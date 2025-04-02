@@ -17,12 +17,12 @@ import well_tennis_club.projet.core.DEPRECATED_participation.ParticipationServic
 import well_tennis_club.projet.core.player.dto.CreatePlayerDto;
 import well_tennis_club.projet.core.player.dto.PlayerDto;
 import well_tennis_club.projet.core.player.dto.PutPlayerDto;
+import well_tennis_club.projet.core.player.dto.ResponsePlayerDto;
 import well_tennis_club.projet.core.player.entity.PlayerEntity;
 import well_tennis_club.projet.core.player.mapper.CreatePlayerMapper;
-import well_tennis_club.projet.core.player.mapper.PlayerMapper;
 import well_tennis_club.projet.core.player.mapper.PutPlayerMapper;
+import well_tennis_club.projet.core.player.mapper.ResponsePlayerMapperImpl;
 import well_tennis_club.projet.core.player.service.PlayerService;
-import well_tennis_club.projet.core.session.SessionRepository;
 import well_tennis_club.projet.core.session.SessionService;
 import well_tennis_club.projet.exception.IdNotFoundException;
 import well_tennis_club.projet.tool.ApiErrorResponse;
@@ -39,12 +39,14 @@ public class PlayerController {
 	private final PlayerService playerService;
 	private final ParticipationService participationService;
 	private final SessionService sessionService;
+	private final ResponsePlayerMapperImpl responsePlayerMapperImpl;
 
 	@Autowired
-	public PlayerController(PlayerService playerService, ParticipationService participationService, SessionService sessionService) {
+	public PlayerController(PlayerService playerService, ParticipationService participationService, SessionService sessionService, ResponsePlayerMapperImpl responsePlayerMapperImpl) {
 		this.playerService = playerService;
 		this.participationService = participationService;
 		this.sessionService = sessionService;
+		this.responsePlayerMapperImpl = responsePlayerMapperImpl;
 	}
 
 	// ========================= GET ========================= //
@@ -72,10 +74,9 @@ public class PlayerController {
 			)
 	})
 	@GetMapping
-	// TODO retourner une version minimum du joueur ?? (validation constraint dans le front va marcher ?)
-	public ResponseEntity<List<PlayerDto>> getPlayerValidate(@RequestParam boolean validate) {
+	public ResponseEntity<List<ResponsePlayerDto>> getPlayerValidate(@RequestParam boolean validate) {
 		List<PlayerEntity> playerEntities = playerService.getPlayerValidate(validate);
-		List<PlayerDto> players = PlayerMapper.INSTANCE.mapToListDTO(playerEntities);
+		List<ResponsePlayerDto> players = responsePlayerMapperImpl.mapToListDTO(playerEntities);
 		return ResponseEntity.ok(players);
 	}
 
@@ -112,12 +113,13 @@ public class PlayerController {
 			)
 	})
 	@GetMapping("/{id}")
-	public ResponseEntity<PlayerDto> getPlayer(@PathVariable UUID id) {
-		PlayerDto player = PlayerMapper.INSTANCE.mapToDTO(playerService.getPlayerById(id));
+	public ResponseEntity<ResponsePlayerDto> getPlayer(@PathVariable UUID id) {
+		PlayerEntity player = playerService.getPlayerById(id);
 		if (player == null) {
 			throw new IdNotFoundException("Pas de joueur avec cet id");
 		} else {
-			return ResponseEntity.ok(player);
+			ResponsePlayerDto playerDto = responsePlayerMapperImpl.mapToDTO(player);
+			return ResponseEntity.ok(playerDto);
 		}
 	}
 
@@ -154,7 +156,7 @@ public class PlayerController {
 			),
 	})
 	@PostMapping
-	public ResponseEntity<PlayerDto> createPlayer(@Valid @RequestBody CreatePlayerDto playerDto) {
+	public ResponseEntity<ResponsePlayerDto> createPlayer(@Valid @RequestBody CreatePlayerDto playerDto) {
 		PlayerEntity player = CreatePlayerMapper.INSTANCE.mapToEntity(playerDto);
 		player = playerService.createPlayer(player);
 
@@ -164,7 +166,7 @@ public class PlayerController {
 				.buildAndExpand(player.getId())
 				.toUri();
 
-		return ResponseEntity.created(location).body(PlayerMapper.INSTANCE.mapToDTO(player));
+		return ResponseEntity.created(location).body(responsePlayerMapperImpl.mapToDTO(player));
 	}
 
 	// ========================= PUT ========================= //
@@ -208,7 +210,7 @@ public class PlayerController {
 			),
 	})
 	@PutMapping("/{id}")
-	public ResponseEntity<PlayerDto> updatePlayer(@PathVariable UUID id, @Valid @RequestBody PutPlayerDto playerDto) {
+	public ResponseEntity<ResponsePlayerDto> updatePlayer(@PathVariable UUID id, @Valid @RequestBody PutPlayerDto playerDto) {
 		PlayerEntity player = playerService.getPlayerById(id);
 		if (player == null) {
 			throw new IdNotFoundException("Pas de joueur avec cet id");
@@ -216,7 +218,7 @@ public class PlayerController {
 			player = PutPlayerMapper.INSTANCE.mapToEntity(playerDto);
 			player.setId(id);
 			player = playerService.updatePlayer(player);
-			return ResponseEntity.ok(PlayerMapper.INSTANCE.mapToDTO(player));
+			return ResponseEntity.ok(responsePlayerMapperImpl.mapToDTO(player));
 		}
 	}
 
@@ -270,7 +272,7 @@ public class PlayerController {
 					description = "Suppression réussie"
 			)
 	})
-	@DeleteMapping
+	@DeleteMapping("/confirm")
 	public ResponseEntity<Void> deleteAllPlayers() {
 		sessionService.deleteAll();
 		playerService.deleteAll();

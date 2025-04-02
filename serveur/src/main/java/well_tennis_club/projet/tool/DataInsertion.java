@@ -125,7 +125,7 @@ public class DataInsertion {
 	public static class tennisCourts {
 		public static List<CourtEntity> small = List.of(
 				CourtEntityConverter.from("Terrain 1", List.of(
-						new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(14, 0))
+						new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(8, 0), LocalTime.of(8, 30))
 				))
 		);
 
@@ -148,7 +148,7 @@ public class DataInsertion {
 	public static class timeslot {
 		public static class small {
 			public static List<Timeslot> group_1 = List.of(
-					new Timeslot(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(12, 0))
+					new Timeslot(DayOfWeek.THURSDAY, LocalTime.of(8, 0), LocalTime.of(12, 0))
 			);
 
 			public static List<Timeslot> group_2 = List.of(
@@ -196,9 +196,9 @@ public class DataInsertion {
 
 	public static class players {
 		public static List<PlayerEntity> small = List.of(
-				PlayerEntityConverter.from("player", "1", 25, 9, 1, timeslot.small.group_1, sessionConstraints.real),
-				PlayerEntityConverter.from("player", "2", 25, 9, 1, timeslot.small.group_2, sessionConstraints.real),
-				PlayerEntityConverter.from("player", "3", 25, 9, 1, timeslot.small.group_2, sessionConstraints.real)
+				PlayerEntityConverter.from("player", "1", 15, 9, 2, timeslot.small.group_1, sessionConstraints.real),
+				PlayerEntityConverter.from("player", "2", 18, 9, 1, timeslot.small.group_2, sessionConstraints.real),
+				PlayerEntityConverter.from("player", "3", 15, 9, 1, timeslot.small.group_2, sessionConstraints.real)
 		);
 
 		public static List<PlayerEntity> medium = List.of(

@@ -2,6 +2,7 @@ package well_tennis_club.timefold.data_structure;
 
 import well_tennis_club.timefold.domain.Timetable;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -14,7 +15,7 @@ public record SessionConstraint(
 		Integer ageDifference,
 		Integer levelDifference,
 		Integer duration
-) {
+) implements Serializable {
 	/**
 	 * Constructeur de la contrainte d'une session.
 	 *
@@ -44,7 +45,7 @@ public record SessionConstraint(
 		if (ageDifference == null) ageDifference = 100;
 		else if (ageDifference < 0) ageDifference = 0;
 
-		if (levelDifference == null) levelDifference = 20;
+		if (levelDifference == null) levelDifference = 30;
 		else if (levelDifference < 0) levelDifference = 0;
 
 		if (duration == null || duration < Timetable.MINIMUM_DURATION) duration = Timetable.MINIMUM_DURATION;

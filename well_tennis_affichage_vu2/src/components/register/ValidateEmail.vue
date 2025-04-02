@@ -8,16 +8,15 @@
       </div>
 
       <div v-if="success" class="mb-4 text-green-600">
-        Votre compte a été validé avec succès!
+        Votre compte a été validé avec succès!<br>
+        Vous pouvez maintenant quitter cette page.
       </div>
 
-      <button
-          @click="validateInscription"
-          class="w-full h-[50px] bg-[#528359] text-white text-base rounded-lg shadow-md py-3 hover:bg-[#456c4c] transition"
-          :disabled="loading"
-      >
+      <label class="button">
+        <input type="button" @click="validateInscription">
+        <span class="material-symbols-outlined">check</span>
         {{ loading ? 'Validation en cours...' : 'Valider mon inscription' }}
-      </button>
+      </label>
     </div>
   </div>
 </template>
@@ -58,17 +57,13 @@ export default {
   methods: {
     async validateInscription() {
       if (this.loading || this.success) return;
-
       this.loading = true;
       this.error = null;
+
 
       try {
         await inscriptionService.validateEmail(this.token, this.playerData);
         this.success = true;
-        // Redirect to login page after 2 seconds
-        setTimeout(() => {
-          this.$router.push('/');
-        }, 2000);
       } catch (error) {
         this.error = "Erreur lors de la validation de l'inscription. Veuillez réessayer.";
         console.error("Erreur de validation:", error);
@@ -79,3 +74,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+</style>

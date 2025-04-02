@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-page min-h-screen flex flex-col w-full">
+  <div class="admin-page">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <!-- Bouton du menu hamburger -->
@@ -23,23 +23,34 @@
       <transition name="slide-fade">
         <LeftPanel v-if="showLeftPanel" class="mobile-left-panel" :isMobile="true" @close="toggleLeftPanel" />
       </transition>
-      <RightPanel class="mobile-right-panel" :userRole="'ADMIN'" :key="updateValue"/>
+      <RightPanel class="mobile-right-panel" :userRole="'ROLE_ADMIN'" :key="updateValue"/>
     </div>
 
-    <div v-else class="flex w-full h-full flex-1">
-      <LeftPanel class="desktop-left-panel" :isMobile="false" :userRole="'ADMIN'" />
-      <RightPanel class="desktop-right-panel" :userRole="'ADMIN'" :key="updateValue"/>
+    <div class="main-layout">
+      <div class="left-panel full-height">
+        <LeftPanel :isMobile="isMobile" :userRole="'ROLE_ADMIN'" />
+      </div>
+      <div class="right-panel full-height">
+
+      <div class="right-scrollable">
+          <RightPanel :isMobile="isMobile" :userRole="'ROLE_ADMIN'" :key="updateValue" />
+        </div>
+        <div class="bottom-panel">
+          <BottomPanel :isMobile="isMobile" :userRole="'ROLE_ADMIN'" />
+        </div>
+      </div>
     </div>
-    <BottomPanel v-if="!isMobile" :statusMessage="statusMessage" @launch="handleLaunch" @updatePlayers="fetchPlayers"
-                 @submitChanges="handleSubmitChanges" @sendSchedule="handleSendSchedule" class="aligned-bottom-panel" />  </div>
+  </div>
+
+
 </template>
 
 <script>
 import LeftPanel from "../components/admin/LeftPanel.vue";
 import RightPanel from "../components/terrains/RightPanel.vue";
-import BottomPanel from "../components/shared/BottomPanel.vue";
 import usePlayers from "../useJs/usePlayers";
 import {watch} from "vue";
+import BottomPanel from "../components/generationValidation/BottomPanel.vue";
 
 export default {
   name: "AdminPage",
@@ -107,14 +118,15 @@ export default {
 <style scoped>
 
 .admin-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 10px;
+  box-sizing: border-box;
   background: #eaf1ee;
 }
 
-.desktop-right-panel
-{
-  margin-top : 1.2rem;
-}
-/* Bouton menu hamburger */
 .menu-button {
   position: fixed;
   top: 15px;
@@ -165,7 +177,6 @@ export default {
   width: 100%;
   transition: background 0.3s ease;
 }
-
 .menu-contextual button:hover {
   background: #f0f0f0;
 }
@@ -200,8 +211,65 @@ export default {
   box-sizing: border-box;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s ease;
+.main-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  gap: 10px;
+  height: 100%;
 }
+
+.left-panel {
+  margin-bottom: 10px;
+  width: 35%;
+  height: calc(100% - 10px);
+  max-width: 500px;
+  min-width: 320px;
+  background: white;
+  overflow-y: auto;
+  border-radius: 8px;
+}
+
+.full-height {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 8px;
+  position: relative;
+  gap: 10px;
+}
+
+.right-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  background: white;
+  border-radius: 8px;
+  max-height: calc(100vh - 70px - 10px - 10px);
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+}
+
+.bottom-panel {
+  height: 70px;
+  padding: 10px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
 </style>
 
