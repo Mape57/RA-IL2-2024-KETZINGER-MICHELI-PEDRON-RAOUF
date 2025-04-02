@@ -137,7 +137,6 @@
 import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import useTerrain from "../../useJs/useTerrain.js";
 import useLeftPanel from "../../useJs/useLeftPanel.js";
-import usePlayers from "../../useJs/usePlayers";
 import useSessionConstraint from "../../useJs/useSessionConstraint.js";
 import { usePlayersStore } from "../../store/usePlayersStore.js";
 import { useTrainersStore } from "../../store/useTrainersStore.js";
@@ -217,7 +216,7 @@ export default {
     const { terrains, fetchTerrains } = useTerrain();
     // We'll use searchQuery and selectedTab from useLeftPanel but players and trainers will come from the stores
     const { searchQuery, selectedTab, selectTab } = useLeftPanel();
-    const { pendingPlayers, fetchPendingPlayers } = usePlayers();
+    const { pendingPlayers, fetchPendingPlayers } = usePlayersStore();
     // Get references to the data from the stores
     const players = computed(() => playersStore.players);
     const trainers = computed(() => trainersStore.trainers);

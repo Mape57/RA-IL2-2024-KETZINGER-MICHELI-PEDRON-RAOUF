@@ -156,7 +156,6 @@ export default {
     },
     async handleTrainerDeletion(deletedTrainerId) {
       if (this.userRole !== "ROLE_ADMIN") return;
-      await this.trainersStore.deleteTrainer(deletedTrainerId);
       this.selectedTrainer = null;
     },
     async handleTrainerSave(savedTrainer) {
@@ -262,13 +261,26 @@ export default {
 }
 
 ::v-deep(.highlighted) {
-  background-color: yellow;
-  transition: background-color 1s ease-in-out;
+  animation: highlightEffect 2s ease-out;
 }
 
 
-::v-deep(.highlighted:hover) {
-  background-color: lightyellow; /* Reste subtil au survol */
+@keyframes highlightEffect {
+  0% {
+    color: #2F855A;
+    font-weight: bold;
+    transform: scale(1.02);
+  }
+  70% {
+    color: #2F855A;
+    font-weight: bold;
+    transform: scale(1.01);
+  }
+  100% {
+    color: inherit;
+    font-weight: normal;
+    transform: scale(1);
+  }
 }
 
 /* Ajout de styles pour indiquer les éléments glissables */
