@@ -100,7 +100,7 @@
             <div class="right">
               <span class="section-title">Disponibilités (uniquement en période de 30 minutes)</span>
               <div class="availability-row" v-for="(slot, index) in editableTrainer.disponibilities" :key="index">
-                <label class="button secondary black no-text">
+                <label class="button secondary red no-text">
                   <input type="button" class="hidden" @click="removeAvailability(index)"/>
                   <span class="material-symbols-outlined">remove</span>
                 </label>
@@ -118,7 +118,7 @@
                 <span class="green-bold">à</span>
                 <input type="time" v-model="slot.close" class="input" required/>
               </div>
-              <label class="button secondary black no-text">
+              <label class="button secondary no-text">
                 <input type="button" class="hidden" @click="addAvailability"/>
                 <span class="material-symbols-outlined">add</span>
               </label>
