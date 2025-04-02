@@ -442,6 +442,11 @@ export default {
           sessionId: this.sessionId,
           players: updatedPlayers
         });
+        
+        // Forcer un rafraîchissement des sessions après l'ajout d'un joueur
+        setTimeout(() => {
+          this.sessionsStore.refreshSessions();
+        }, 300);
       }
     },
 
@@ -469,13 +474,22 @@ export default {
 
       if (evt.from.classList.contains('coach-area')) {
         console.log("Suppression de l'entraîneur pour la session:", this.sessionId);
+        const oldCoach = this.coach; // Enregistrer le coach actuel avant de le supprimer
+        
         this.$emit('update-coach', {
           sessionId: this.sessionId,
-          coach: null
+          coach: null,
+          oldCoach: oldCoach // Passer l'ancien coach pour la mise à jour des heures
         });
+        
         this.entraineur = [];
         // Vider immédiatement la corbeille pour le coach
         this.trashItems = [];
+        
+        // Forcer un rafraîchissement des sessions juste après avoir supprimé un coach
+        setTimeout(() => {
+          this.sessionsStore.refreshSessions();
+        }, 300); // Attendre que le backend ait eu le temps de traiter
       } else {
         console.log("Début suppression joueur");
 
@@ -519,6 +533,11 @@ export default {
           sessionId: this.sessionId,
           players: updatedPlayers
         });
+
+          // Forcer un rafraîchissement des sessions après suppression d'un joueur
+          setTimeout(() => {
+            this.sessionsStore.refreshSessions();
+          }, 300); // Attendre que le backend ait eu le temps de traiter
       }
 
       this.isDragging = false;
@@ -550,15 +569,27 @@ export default {
         let newCoach = null;
         newCoach = this.entraineur[0];
 
-        if (newCoach && (newCoach.id)) {
+        if (newCoach && (newCoach.id || newCoach.idtrainer)) {
+          // Make sure the coach object has a valid ID for backend persistence
+          const coachToSend = {
+            id: newCoach.id || newCoach.idtrainer,
+            name: newCoach.name,
+            surname: newCoach.surname
+          };
+          
           // Inclure l'ancien coach dans l'événement pour permettre la mise à jour des heures
           this.$emit("update-coach", {
             sessionId: this.sessionId,
-            coach: newCoach,
+            coach: coachToSend,
             oldCoach: this.coach
           });
 
-          console.log("Coach ajouté à la session:", newCoach);
+          console.log("Coach ajouté à la session avec ID:", coachToSend.id);
+          
+          // Forcer un rafraîchissement des sessions après l'ajout d'un coach
+          setTimeout(() => {
+            this.sessionsStore.refreshSessions();
+          }, 300);
         } else {
           console.warn("Coach drop event doesn't contain valid coach data", evt);
         }

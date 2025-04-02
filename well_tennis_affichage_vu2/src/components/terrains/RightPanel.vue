@@ -430,12 +430,28 @@ export default {
     //  Mise à jour de l'entraîneur d'une session
     const handleCoachUpdate = async ({sessionId, coach, oldCoach}) => {
       try {
+        console.log("Mise à jour du coach pour la session:", sessionId);
+        console.log("Ancien coach:", oldCoach);
+        console.log("Nouveau coach:", coach);
+        
         const session = sessions.value.find(s => s.id === sessionId);
-        if (!session) return;
+        if (!session) {
+          console.error("Session introuvable:", sessionId);
+          return;
+        }
 
         const oldTrainerId = oldCoach?.id || null;
+        // Get the proper ID from the coach object, considering different property names
         const newTrainerId = coach?.id || coach?.idtrainer || null;
-        const updatedSession = {...session, idTrainer: newTrainerId};
+        
+        console.log("Ancien coach ID:", oldTrainerId);
+        console.log("Nouveau coach ID:", newTrainerId);
+        
+        // Create a properly formatted session object for the backend update
+        const updatedSession = {
+            ...session,
+            idTrainer: newTrainerId
+        };
 
         // Gestion du changement d'entraîneur pour leurs heures
         if (session.start && session.stop) {
