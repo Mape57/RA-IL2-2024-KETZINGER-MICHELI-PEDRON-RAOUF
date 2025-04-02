@@ -55,7 +55,6 @@ class ImportService {
                         return;
                     }
 
-                    alert("Importation terminée avec succès.");
                     resolve({ players, terrains, terrainErrors: [] });
 
                 } catch (error) {
