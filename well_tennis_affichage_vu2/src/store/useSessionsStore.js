@@ -36,20 +36,39 @@ export const useSessionsStore = defineStore("sessions", () => {
 			}
 			// Ensure players array is never null
 			const playersArray = sessionData.players || [];
-			// Extract UUIDs from player objects
-			const playerIds = playersArray
-				.map(p => {
-					// Si p est un objet avec un ID
-					if (typeof p === 'object' && p !== null && p.id) {
-						return p.id;
-					}
-					// Si p est déjà un UUID (string)
-					else if (typeof p === 'string') {
-						return p;
-					}
-					return null;
-				})
-				.filter(id => id !== null); // Éliminer les valeurs null
+			// Extract UUIDs from player objects and ensure uniqueness
+			const playerIds = [...new Set(
+				playersArray
+					.map(p => {
+						// Si p est un objet avec un ID
+						if (typeof p === 'object' && p !== null && p.id) {
+							return p.id;
+						}
+						// Si p est déjà un UUID (string)
+						else if (typeof p === 'string') {
+							return p;
+						}
+						return null;
+					})
+					.filter(id => id !== null) // Éliminer les valeurs null
+			)]; // Utilisation de Set pour éliminer les doublons d'IDs
+
+			console.log("PlayerIds après déduplication:", playerIds);
+			
+			// Traitement spécial pour l'entraîneur (idTrainer)
+			let trainerId = null;
+			if (sessionData.idTrainer) {
+				// Si idTrainer est un objet, extraire son ID
+				if (typeof sessionData.idTrainer === 'object') {
+					trainerId = sessionData.idTrainer.id || sessionData.idTrainer.idtrainer;
+					console.log("Trainer ID extrait de l'objet:", trainerId);
+				} else {
+					// Si c'est déjà un ID (string/number)
+					trainerId = sessionData.idTrainer;
+					console.log("Trainer ID déjà sous forme primitive:", trainerId);
+				}
+			}
+			
 			// Nettoyage des données envoyées
 			const cleanedSession = {
 				id: sessionData.id,
@@ -60,15 +79,20 @@ export const useSessionsStore = defineStore("sessions", () => {
 				idTrainer: sessionData.idTrainer ? (typeof sessionData.idTrainer === 'object' ? sessionData.idTrainer.id : sessionData.idTrainer) : null,
 				playerIds: playerIds // IMPORTANT: Utiliser playerIds (et non players)
 			};
+			
+			console.log("Envoi de la session mise à jour au backend:", cleanedSession);
 			const response = await sessionsService.updateSession(cleanedSession.id, cleanedSession);
-			const index = sessions.value.findIndex((s) => s.id === sessionData.id);
-			if (index !== -1) {
-				sessions.value[index] = response.data;
-			}
+
+			// Forcer un rechargement complet depuis le backend pour s'assurer d'avoir les données à jour
+			await fetchSessions();
+
 			console.log("✅ Session mise à jour :", response.data);
 			return response.data;
 		} catch (error) {
-				console.error("Erreur lors de la mise à jour :", error.message);
+			console.error("Erreur lors de la mise à jour :", error.message);
+			// En cas d'erreur, recharger quand même les données pour rester cohérent
+			await fetchSessions();
+			return null;
 		}
 	};
 

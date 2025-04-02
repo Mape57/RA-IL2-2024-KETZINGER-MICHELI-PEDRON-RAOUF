@@ -40,7 +40,7 @@ public class CreatePlayerDto {
 	@Schema(name = "level", example = "19")
 	@NotNull(message = "Le niveau (level) est obligatoire")
 	@Min(value = 0, message = "Le niveau (level) ne doit pas être inférieur à 0")
-	@Max(value = 19, message = "Le niveau (level) ne doit pas être supérieur à 19")
+	@Max(value = 30, message = "Le niveau (level) ne doit pas être supérieur à 19")
 	private Long level;
 
 	@Schema(name = "email", example = "example@mail.fr")

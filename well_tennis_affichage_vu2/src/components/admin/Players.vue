@@ -85,7 +85,6 @@
 <script>
 import {ref, onMounted, onUnmounted, computed} from "vue";
 import { usePlayersStore } from "../../store/usePlayersStore.js";
-import usePlayers from "../../useJs/usePlayers.js";
 import PlayerInfoView from "../vueInformations/PlayerInfoView.vue";
 import {VueDraggable} from "vue-draggable-plus";
 
@@ -99,7 +98,7 @@ export default {
   },
   setup() {
     const playersStore = usePlayersStore();
-    const { computeAge } = usePlayers();
+    const { computeAge } = usePlayersStore();
     
     const players = computed(() => playersStore.players);
     const loading = computed(() => playersStore.loading);
@@ -168,7 +167,7 @@ export default {
     },
 
     async handlePlayerDeletion(deletedPlayerId) {
-      await this.playersStore.deletePlayer(deletedPlayerId);
+      if (this.userRole !== "ROLE_ADMIN") return;
       this.selectedPlayer = null; // Ferme l'affichage des détails
     },
     async handlePlayerSave(savedPlayer) {
@@ -310,6 +309,20 @@ export default {
     font-weight: normal;
     transform: scale(1);
   }
+}
+
+/* Ajout de styles pour indiquer les éléments glissables */
+.trainer-list li, .trainer-list > div {
+  cursor: grab;
+  transition: background-color 0.2s;
+}
+
+.trainer-list li:hover, .trainer-list > div:hover {
+  background-color: rgba(82, 131, 89, 0.1);
+}
+
+.trainer-list li:active, .trainer-list > div:active {
+  cursor: grabbing;
 }
 
 </style>

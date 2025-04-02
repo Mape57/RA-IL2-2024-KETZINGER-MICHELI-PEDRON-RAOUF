@@ -52,8 +52,8 @@
 <script>
 import LeftPanel from "../components/admin/LeftPanel.vue";
 import RightPanel from "../components/terrains/RightPanel.vue";
-import usePlayers from "../useJs/usePlayers";
 import { watch } from "vue";
+import {usePlayersStore} from "../store/usePlayersStore.js";
 
 export default {
   name: "TrainerPage",
@@ -69,7 +69,7 @@ export default {
     };
   },
   setup() {
-    const { fetchPlayers } = usePlayers();
+    const { fetchPlayers } = usePlayersStore();
     return { fetchPlayers };
   },
   methods: {

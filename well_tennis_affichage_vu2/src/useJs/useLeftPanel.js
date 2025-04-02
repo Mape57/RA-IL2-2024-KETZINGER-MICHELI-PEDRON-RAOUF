@@ -1,12 +1,11 @@
-// src/composables/useLeftPanel.js
 import { ref } from "vue";
-import useTrainers from "./useTrainers.js";
-import usePlayers from "./usePlayers.js";
+import {useTrainersStore} from "../store/useTrainersStore.js";
+import {usePlayersStore} from "../store/usePlayersStore.js";
 
 export default function useLeftPanel() {
 	// États
-	const { trainers, fetchTrainers, deleteTrainer } = useTrainers();
-	const { players, fetchPlayers, deletePlayer } = usePlayers();
+	const { trainers, fetchTrainers, deleteTrainer } = useTrainersStore();
+	const { players, fetchPlayers, deletePlayer } = usePlayersStore();
 	const selectedTab = ref("data");
 	const searchQuery = ref("");
 

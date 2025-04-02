@@ -65,7 +65,7 @@
 
 <script>
 import { ref, nextTick } from "vue";
-import usePlayers from "../../useJs/usePlayers.js";
+import {usePlayersStore} from "../../store/usePlayersStore.js";
 
 export default {
   props: {
@@ -75,7 +75,7 @@ export default {
     },
   },
   setup() {
-    const { validatePlayer } = usePlayers();
+    const { validatePlayer } = usePlayersStore();
     const selectedPlayer = ref(null);
 
     const validateAndClose = async (playerId) => {
