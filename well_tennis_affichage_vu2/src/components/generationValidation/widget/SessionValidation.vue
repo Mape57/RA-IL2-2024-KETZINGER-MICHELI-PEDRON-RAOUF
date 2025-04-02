@@ -100,7 +100,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .session-buttons {
   display: flex;
   flex-direction: row;
@@ -110,5 +110,17 @@ export default {
 .score {
   text-wrap: nowrap;
   font-weight: bold;
+}
+
+.session-content {
+  > * {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  > *:last-child {
+    border-bottom: none;
+  }
 }
 </style>

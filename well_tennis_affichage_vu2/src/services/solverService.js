@@ -32,4 +32,8 @@ export default {
 			},
 		});
 	},
+
+	kiGet() {
+		return apiService.getData('/solver/ki');
+	}
 }

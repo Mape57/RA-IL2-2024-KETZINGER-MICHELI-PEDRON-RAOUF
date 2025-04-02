@@ -13,6 +13,10 @@
         <div>
           <div class="popup-header">
             <h2>Validation de la génération</h2>
+            <button @click="kiSolver" class="button secondary" title="Fermer la popup">
+              <span class="material-symbols-outlined">delete_forever</span>
+              Valider l'ensemble des éléments
+            </button>
             <button @click="open = false" class="button secondary red no-text" title="Fermer la popup">
               <span class="material-symbols-outlined">close</span>
             </button>
@@ -46,7 +50,7 @@ import useSolver from "../../useJs/useSolver.js";
 const open = ref(false);
 const isLoading = ref(false);
 
-defineEmits(['close']);
+const emit = defineEmits(['close', 'state-changed']);
 const justifications = ref([]);
 
 watch(open, async (isOpen) => {
@@ -67,6 +71,17 @@ const removeJustification = (sessionId) => {
       justification => justification.session.id !== sessionId
   );
 };
+
+const kiSolver = async () => {
+  try {
+    const response = await useSolver().kiGet();
+    justifications.value = [];
+    emit('state-changed', 'STOPPED');
+    console.log("KI Solver response:", response);
+  } catch (error) {
+    console.error("Erreur lors de la récupération du ki:", error);
+  }
+};
 </script>
 
 <style>
@@ -82,7 +97,7 @@ const removeJustification = (sessionId) => {
   align-items: center;
   justify-content: center;
 
-  > div {
+  > * {
     width: 90%;
     height: 90%;
     background-color: white;
@@ -116,8 +131,10 @@ const removeJustification = (sessionId) => {
   align-items: flex-start;
   padding: 1rem 1rem 1rem 1.5rem;
   border-bottom: 1px solid #e2e8f0;
+  gap: 20px;
 
   > h2 {
+    flex: 1;
     font-size: 1.5rem;
     font-weight: bold;
     color: #2F855A;
@@ -129,16 +146,6 @@ const removeJustification = (sessionId) => {
   padding: 2rem 5% 1rem;
   overflow-y: auto;
   flex: 1;
-
-  > * {
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  > *:last-child {
-    border-bottom: none;
-  }
 }
 
 .selecteur {

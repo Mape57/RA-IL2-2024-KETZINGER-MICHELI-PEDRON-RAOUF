@@ -1,79 +1,96 @@
 <template>
-  <transition name="fade">
-    <div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center p-6">
-      <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl relative">
-        <button class="close-button absolute top-2 right-2" @click="$emit('close')">✕</button>
-        <h3 class="text-2xl font-bold text-gray-700 mb-6 text-center">{{ isEditing ? "Modification du joueur" : "Ajouter d'un joueur" }}</h3>
-
-        <form class="grid grid-cols-2 gap-8" @submit.prevent="savePlayer">
-          <div class="space-y-4">
-            <div>
-              <label class="block font-semibold text-gray-700">Nom :</label>
-              <input type="text" v-model="editablePlayer.name" class="input-field" required />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Prénom :</label>
-              <input type="text" v-model="editablePlayer.surname" class="input-field" required />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Email :</label>
-              <input type="email" v-model="editablePlayer.email" class="input-field" required />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Date de naissance :</label>
-              <input type="date" v-model="editablePlayer.birthday" class="input-field" required />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Âge sportif :</label>
-              <p class="text-gray-600">{{ computeAge(editablePlayer.birthday) }} ans</p>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block font-semibold text-gray-700">Niveau (1-20) :</label>
-                <input type="number" v-model="editablePlayer.level" min="1" max="20" class="input-field" required />
-              </div>
-
-              <div>
-                <label class="block font-semibold text-gray-700">Nombre de cours :</label>
-                <input type="number" v-model="editablePlayer.courses" min="1" max="3" class="input-field" required />
-              </div>
-            </div>
+  <Teleport to="body">
+    <transition name="fade">
+      <div class="popup">
+        <form @submit.prevent="savePlayer">
+          <div class="popup-header">
+            <h2>{{ isEditing ? "Modification du joueur" : "Ajouter d'un joueur" }}</h2>
+            <label class="button secondary" title="Sauvegarder le joueur">
+              <input type="submit" class="hidden"/>
+              <span class="material-symbols-outlined">save</span>
+              Sauvegarder
+            </label>
+            <label class="button secondary red" title="Supprimer le joueur" v-if="isEditing">
+              <input type="button" class="hidden" @click="deletePlayerHandler"/>
+              <span class="material-symbols-outlined">delete</span>
+              Supprimer
+            </label>
+            <label class="button secondary red no-text" title="Annuler les modifications">
+              <input type="button" class="hidden" @click="$emit('close')"/>
+              <span class="material-symbols-outlined">close</span>
+            </label>
           </div>
+          <div class="popup-content">
+            <div class="left">
+              <label class="input top-label">
+                <span>Nom</span>
+                <input type="text" v-model="editablePlayer.name" required/>
+              </label>
 
-          <div class="space-y-4">
-            <label class="block font-semibold text-gray-700">Disponibilités :</label>
-            <div class="availability-container">
-              <div v-for="(slot, index) in editablePlayer.disponibilities" :key="index" class="availability-row">
-                <select v-model="slot.dayWeek" class="day-select" required>
-                  <option value="1">Lundi</option>
-                  <option value="2">Mardi</option>
-                  <option value="3">Mercredi</option>
-                  <option value="4">Jeudi</option>
-                  <option value="5">Vendredi</option>
-                  <option value="6">Samedi</option>
-                  <option value="7">Dimanche</option>
+              <label class="input top-label">
+                <span>Prénom</span>
+                <input type="text" v-model="editablePlayer.surname" required/>
+              </label>
+
+              <label class="input top-label">
+                <span>Email</span>
+                <input type="email" v-model="editablePlayer.email" required/>
+              </label>
+
+              <div class="input-group">
+                <span>Date de naissance</span>
+                <label class="input">
+                  <input type="date" v-model="editablePlayer.birthday" required/>
+                </label>
+
+                <label class="input">
+                  <span>soit</span>
+                  <input type="text" :value="computeAge(editablePlayer.birthday) + ' ans'" readonly/>
+                </label>
+              </div>
+
+              <label class="input top-label">
+                <span>Niveau (1-20)</span>
+                <input type="number" v-model="editablePlayer.level" min="1" max="20" required/>
+              </label>
+
+              <label class="input top-label">
+                <span>Nombre de cours</span>
+                <input type="number" v-model="editablePlayer.courses" min="1" max="3" required/>
+              </label>
+            </div>
+
+            <div class="right">
+              <span class="section-title">Disponibilités (uniquement en période de 30 minutes)</span>
+              <div class="availability-row" v-for="(slot, index) in editablePlayer.disponibilities" :key="index">
+                <label class="button secondary red no-text">
+                  <input type="button" class="hidden" @click="removeAvailability(index)"/>
+                  <span class="material-symbols-outlined">remove</span>
+                </label>
+                <select v-model="slot.dayWeek" class="input" required>
+                  <option value=1>Lundi</option>
+                  <option value=2>Mardi</option>
+                  <option value=3>Mercredi</option>
+                  <option value=4>Jeudi</option>
+                  <option value=5>Vendredi</option>
+                  <option value=6>Samedi</option>
+                  <option value=7>Dimanche</option>
                 </select>
-                <input type="time" v-model="slot.open" class="time-input" required />
-                <input type="time" v-model="slot.close" class="time-input" required />
-                <span class="delete-icon" @click="removeAvailability(index)">🗑️</span>
+                <span class="green-bold">de</span>
+                <input type="time" v-model="slot.open" class="input" required/>
+                <span class="green-bold">à</span>
+                <input type="time" v-model="slot.close" class="input" required/>
               </div>
-              <button type="button" @click="addAvailability" class="add-row">➕ Ajouter une disponibilité</button>
+              <label class="button secondary no-text">
+                <input type="button" class="hidden" @click="addAvailability"/>
+                <span class="material-symbols-outlined">add</span>
+              </label>
             </div>
-          </div>
-
-          <div class="col-span-2 flex justify-end space-x-4 mt-6">
-            <button type="button" @click="deletePlayerHandler" class="del-button">Supprimer</button>
-            <button type="submit" class="save-button">Enregistrer</button>
           </div>
         </form>
       </div>
-    </div>
-  </transition>
+    </transition>
+  </Teleport>
 </template>
 
 <script>
@@ -97,9 +114,8 @@ export default {
   },
   setup(props, {emit}) {
     const sessionsStore = useSessionsStore();
-    const { sessions } = storeToRefs(sessionsStore);
+    const {sessions} = storeToRefs(sessionsStore);
     const refreshSessions = sessionsStore.refreshSessions;
-
 
 
     const {computeAge, updatePlayer, createPlayer, deletePlayer} = usePlayers();
@@ -127,7 +143,6 @@ export default {
           editablePlayer.value = {...newVal, disponibilities: [...(newVal.disponibilities || [])]};
         }
     );
-
 
 
     const addAvailability = async () => {
@@ -193,7 +208,6 @@ export default {
         }
 
 
-
         emit("save", savedPlayer);
         emit("close");
       } catch (error) {
@@ -224,7 +238,6 @@ export default {
           editablePlayer.value.courses >= 1 && editablePlayer.value.courses <= 3
       );
     };
-
 
 
     const validateUniqueDisponibilities = () => {
@@ -271,8 +284,6 @@ export default {
     };
 
 
-
-
     const isTimeValid = (time) => {
       const [hours, minutes] = time.split(":").map(Number);
       return minutes === 0 || minutes === 30;
@@ -292,7 +303,6 @@ export default {
     };
 
 
-
     return {
       computeAge,
       deletePlayerHandler,
@@ -306,138 +316,97 @@ export default {
 </script>
 
 <style scoped>
+.popup-content {
+  display: flex;
 
-.fixed.inset-0 {
-  z-index: 1000 !important;
+  > * {
+    flex: 1;
+  }
 }
 
-/* Pop-up */
-.bg-white.p-8.rounded-lg.shadow-xl {
-  z-index: 1100 !important;
-  max-height: 90vh;
-  overflow-y: auto;
+.green-bold {
+  color: var(--accent);
+  font-weight: bold;
 }
 
-/* Champs de texte */
-.input-field {
-  width: 100%;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  transition: border 0.3s ease;
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: #2F855A;
-  box-shadow: 0 0 5px rgba(47, 133, 90, 0.5);
-}
-
-/* 📆 Disponibilités */
-.availability-container {
+.left {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  min-height: 300px;
-  max-height: 430px;
-  overflow-y: auto;
+  gap: 1rem;
 }
 
-.availability-row {
+.right {
+  padding-left: 2rem;
+
+  .section-title {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  .availability-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    align-items: center;
+
+    select.input,
+    input[type="time"].input {
+      height: 2rem;
+      padding: 0 0.5rem;
+      border: none;
+      box-shadow: 0 1px 0 var(--accent);
+      transition: all 0.2s ease;
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 3px 0 var(--accent);
+      }
+    }
+
+    select.input {
+      flex: 2;
+    }
+
+    input[type="time"].input {
+      flex: 1;
+    }
+
+  }
+
+  .button {
+    height: 2rem;
+    aspect-ratio: 1;
+  }
+}
+
+.input-group {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background: white;
-}
+  flex-wrap: wrap;
+  flex-direction: row;
+  column-gap: 1rem;
 
-.day-select, .time-input {
-  flex: 1;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
+  > span {
+    flex-basis: 100%;
+    font-weight: bold;
+  }
 
-/* Supprimer une disponibilité */
-.delete-icon {
-  font-size: 20px;
-  color: #d9534f;
-  cursor: pointer;
-}
+  > * {
+    flex: 1;
+  }
 
-.delete-icon:hover {
-  color: #c82333;
-}
+  > .input {
+    flex: 2;
+    display: flex;
+    gap: 1rem;
 
-/* Ajouter une disponibilité */
-.add-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #2F855A;
-  color: white;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
+    > span {
+      color: var(--accent);
+    }
 
-.add-row:hover {
-  background: #256f46;
-}
-
-button {
-  padding: 10px 16px;
-  font-size: 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.del-button {
-  background-color: #c82333;
-  color: white;
-}
-
-.del-button:hover {
-  background-color: #a81c28;
-}
-
-.save-button {
-  background-color: #2F855A;
-  color: white;
-}
-
-.save-button:hover {
-  background-color: #256f46;
-}
-
-.close-button {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  cursor: pointer;
-  transition: color 0.3s ease, transform 0.2s ease;
-}
-
-.close-button:hover {
-  color: #c82333;
-  transform: scale(1.2);
-}
-
-
-@media (max-width: 1024px) {
-  .grid-cols-2 {
-    grid-template-columns: 1fr;
+    > input {
+      flex: 1;
+    }
   }
 }
 </style>
