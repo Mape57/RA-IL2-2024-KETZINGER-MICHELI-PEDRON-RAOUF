@@ -109,7 +109,6 @@ class ExportService {
             XLSX.utils.book_append_sheet(workbook, sessionsSheet, "Contraintes de session");
 
             XLSX.writeFile(workbook, "donnees.xlsx");
-            alert("Téléchargement réussi !");
         } catch (error) {
             console.error("Erreur lors de l'exportation :", error);
         }
