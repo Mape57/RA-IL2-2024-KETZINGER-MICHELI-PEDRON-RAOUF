@@ -1,74 +1,110 @@
 <template>
-  <transition name="fade">
-    <div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center p-6">
-      <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl relative">
-        <button class="close-button absolute top-2 right-2" @click="$emit('close')">✕</button>
-        <h3 class="text-2xl font-bold text-gray-700 mb-6 text-center">{{ isEditing ? "Modifier l'Entraîneur" : "Ajouter un Entraîneur" }}</h3>
-
-        <form class="grid grid-cols-2 gap-8" @submit.prevent="saveTrainer">
-          <div class="space-y-4">
-            <div>
-              <label class="block font-semibold text-gray-700">Nom :</label>
-              <input type="text" v-model="editableTrainer.name" class="input-field" required />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Prénom :</label>
-              <input type="text" v-model="editableTrainer.surname" class="input-field" required />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Email :</label>
-              <input type="email" v-model="editableTrainer.email" class="input-field" required />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Niveau max d'enseignement :</label>
-              <input type="number" v-model="editableTrainer.supLevel" class="input-field" required min="1" />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Niveau min d'enseignement :</label>
-              <input type="number" v-model="editableTrainer.infLevel" class="input-field" required min="1" />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Âge max encadré :</label>
-              <input type="number" v-model="editableTrainer.supAge" class="input-field" required min="1" />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Âge min encadré :</label>
-              <input type="number" v-model="editableTrainer.infAge" class="input-field" required min="1" />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Minutes max d'enseignement par semaine :</label>
-              <input type="number" v-model="editableTrainer.supWeeklyMinutes" class="input-field" required min="1" />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Minutes min d'enseignement par semaine :</label>
-              <input type="number" v-model="editableTrainer.infWeeklyMinutes" class="input-field" required min="1" />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Temps partiel :</label>
-              <input type="checkbox" v-model="editableTrainer.partTime" class="checkbox-input" />
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-700">Administrateur :</label>
-              <input type="checkbox" v-model="editableTrainer.admin" class="checkbox-input" />
-            </div>
-
+  <Teleport to="body">
+    <transition name="fade">
+      <div class="popup">
+        <form @submit.prevent="saveTrainer">
+          <div class="popup-header">
+            <h2>{{ isEditing ? "Modifier l'Entraîneur" : "Ajouter un Entraîneur" }}</h2>
+            <label class="button secondary" title="Sauvegarder l'entraîneur">
+              <input type="submit" class="hidden"/>
+              <span class="material-symbols-outlined">save</span>
+              Sauvegarder
+            </label>
+            <label class="button secondary red" title="Supprimer l'entraîneur" v-if="isEditing">
+              <input type="button" class="hidden" @click="deleteTrainerHandler"/>
+              <span class="material-symbols-outlined">delete</span>
+              Supprimer
+            </label>
+            <label class="button secondary red no-text" title="Annuler les modifications">
+              <input type="button" class="hidden" @click="$emit('close')"/>
+              <span class="material-symbols-outlined">close</span>
+            </label>
           </div>
 
-          <div class="flex flex-col space-y-4 h-full">
-            <label class="block font-semibold text-gray-700">Disponibilités :</label>
-            <div class="availability-container">
-              <div v-for="(slot, index) in editableTrainer.disponibilities" :key="index" class="availability-row">
-                <select v-model="slot.dayWeek" class="day-select" required>
+          <div class="popup-content">
+            <div class="left">
+              <label class="input top-label">
+                <span>Nom</span>
+                <input type="text" v-model="editableTrainer.name" required/>
+              </label>
+
+              <label class="input top-label">
+                <span>Prénom</span>
+                <input type="text" v-model="editableTrainer.surname" required/>
+              </label>
+
+              <label class="input top-label">
+                <span>Email</span>
+                <input type="email" v-model="editableTrainer.email" required/>
+              </label>
+
+              <div class="input-group">
+                <span>Préférences de niveau</span>
+                <label class="input">
+                  <span>de</span>
+                  <input type="number" v-model="editableTrainer.infLevel" required min="0" placeholder="minimum"/>
+                </label>
+
+                <label class="input">
+                  <span>à</span>
+                  <input type="number" v-model="editableTrainer.supLevel" required min="0" placeholder="maximum"/>
+                </label>
+              </div>
+
+              <div class="input-group">
+                <span>Préférences d'âge</span>
+                <label class="input">
+                  <span>de</span>
+                  <input type="number" v-model="editableTrainer.infAge" required min="1" placeholder="minimum"/>
+                </label>
+
+                <label class="input">
+                  <span>à</span>
+                  <input type="number" v-model="editableTrainer.supAge" required min="1" placeholder="maximum"/>
+                </label>
+              </div>
+
+              <div class="input-group">
+                <span>Temps de travail par semaine (en minutes)</span>
+                <label class="input">
+                  <span>de</span>
+                  <input type="number" v-model="editableTrainer.infWeeklyMinutes" required min="0"
+                         placeholder="minimum"/>
+                </label>
+
+                <label class="input">
+                  <span>à</span>
+                  <input type="number" v-model="editableTrainer.supWeeklyMinutes" required min="0"
+                         placeholder="maximum"/>
+                </label>
+              </div>
+              <div class="input-group">
+                <label class="checkbox">
+                  <input type="checkbox" v-model="editableTrainer.partTime" class="hidden"/>
+                  <span class="material-symbols-outlined">
+                    {{ editableTrainer.partTime ? 'check_box' : 'check_box_outline_blank' }}
+                  </span>
+                  <span>Temps partiel</span>
+                </label>
+
+                <label class="checkbox">
+                  <input type="checkbox" v-model="editableTrainer.admin" class="hidden"/>
+                  <span class="material-symbols-outlined">
+                    {{ editableTrainer.admin ? 'check_box' : 'check_box_outline_blank' }}
+                  </span>
+                  <span>Administrateur</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="right">
+              <span class="section-title">Disponibilités (uniquement en période de 30 minutes)</span>
+              <div class="availability-row" v-for="(slot, index) in editableTrainer.disponibilities" :key="index">
+                <label class="button secondary black no-text">
+                  <input type="button" class="hidden" @click="removeAvailability(index)"/>
+                  <span class="material-symbols-outlined">remove</span>
+                </label>
+                <select v-model="slot.dayWeek" class="input" required>
                   <option value=1>Lundi</option>
                   <option value=2>Mardi</option>
                   <option value=3>Mercredi</option>
@@ -77,22 +113,21 @@
                   <option value=6>Samedi</option>
                   <option value=7>Dimanche</option>
                 </select>
-                <input type="time" v-model="slot.open" class="time-input" required />
-                <input type="time" v-model="slot.close" class="time-input" required />
-                <span class="delete-icon" @click="removeAvailability(index)">🗑️</span>
+                <span class="green-bold">de</span>
+                <input type="time" v-model="slot.open" class="input" required/>
+                <span class="green-bold">à</span>
+                <input type="time" v-model="slot.close" class="input" required/>
               </div>
-              <button type="button" @click="addAvailability" class="add-row">➕ Ajouter une disponibilité</button>
+              <label class="button secondary black no-text">
+                <input type="button" class="hidden" @click="addAvailability"/>
+                <span class="material-symbols-outlined">add</span>
+              </label>
             </div>
-          </div>
-
-          <div class="col-span-2 flex justify-end space-x-4 mt-6">
-            <button type="button" @click="deleteTrainerHandler" class="button-danger">Supprimer</button>
-            <button type="submit" class="button-primary">Enregistrer</button>
           </div>
         </form>
       </div>
-    </div>
-  </transition>
+    </transition>
+  </Teleport>
 </template>
 
 <script>
@@ -117,6 +152,7 @@ export default {
 
     const editableTrainer = ref({...props.trainer, disponibilities: [...(props.trainer.disponibilities || [])]});
 
+    console.log("editableTrainer", editableTrainer);
     const deleteTrainerHandler = async () => {
       const confirmDelete = confirm("Êtes-vous sûr de vouloir supprimer ce coach ?");
       if (!confirmDelete) return;
@@ -183,7 +219,7 @@ export default {
         }
 
 
-        const TrainerData = { ...editableTrainer.value };
+        const TrainerData = {...editableTrainer.value};
 
 
         let savedTrainer;
@@ -211,7 +247,6 @@ export default {
     //       editableTrainer.value.courses >= 1 && editableTrainer.value.courses <= 3
     //   );
     // };
-
 
 
     const validateUniqueDisponibilities = () => {
@@ -283,159 +318,98 @@ export default {
 </script>
 
 <style scoped>
-/* Overlay du pop-up */
-.fixed.inset-0 {
-  z-index: 1000 !important;
+.popup-content {
+  display: flex;
+
+  > * {
+    flex: 1;
+  }
 }
 
-/* Contenu de la boîte modale */
-.bg-white.p-8.rounded-lg.shadow-xl {
-  z-index: 1100 !important;
-  max-height: 90vh;
-  overflow-y: auto;
+.green-bold {
+  color: var(--accent);
+  font-weight: bold;
 }
 
-/* Champs de texte */
-.input-field {
-  width: 100%;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  transition: border 0.3s ease;
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: #528359;
-  box-shadow: 0 0 5px rgba(47, 133, 90, 0.5);
-}
-
-/* Disponibilités */
-.availability-container {
+.left {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  max-height: 200px;
-  overflow-y: auto;
-  padding-right: 10px;
+  gap: 1rem;
 }
 
-/* Liste des disponibilités */
-.availability-row {
+.right {
+  padding-left: 2rem;
+
+  .section-title {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  .availability-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    align-items: center;
+
+    select.input,
+    input[type="time"].input {
+      height: 2rem;
+      padding: 0 0.5rem;
+      border: none;
+      box-shadow: 0 1px 0 var(--accent);
+      transition: all 0.2s ease;
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 3px 0 var(--accent);
+      }
+    }
+
+    select.input {
+      flex: 2;
+    }
+
+    input[type="time"].input {
+      flex: 1;
+    }
+
+  }
+
+  .button {
+    height: 2rem;
+    aspect-ratio: 1;
+  }
+}
+
+.input-group {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background: white;
-}
+  flex-wrap: wrap;
+  flex-direction: row;
+  column-gap: 1rem;
 
-.day-select, .time-input {
-  flex: 1;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-
-/* Supprimer une disponibilité */
-.delete-icon {
-  font-size: 20px;
-  color: #d9534f;
-  cursor: pointer;
-}
-
-.delete-icon:hover {
-  color: #c82333;
-}
-
-/* Ajouter une disponibilité */
-.add-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #528359;
-  color: white;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.add-row:hover {
-  background: #3e6c46;
-}
-
-/* Boutons */
-.button-primary {
-  background-color: #528359;
-  color: white;
-  padding: 10px 16px;
-  font-size: 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.button-primary:hover {
-  background-color: #3e6c46;
-}
-
-.button-danger {
-  background-color: #c82333;
-  color: white;
-  padding: 10px 16px;
-  font-size: 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.button-danger:hover {
-  background-color: #a81c28;
-}
-
-.close-button {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  cursor: pointer;
-  transition: color 0.3s ease, transform 0.2s ease;
-}
-
-.close-button:hover {
-  color: #c82333;
-  transform: scale(1.2);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
+  > span {
+    flex-basis: 100%;
+    font-weight: bold;
   }
-  to {
-    opacity: 1;
-    transform: scale(1);
+
+  > * {
+    flex: 1;
+  }
+
+  > .input {
+    flex: 2;
+    display: flex;
+    gap: 1rem;
+
+    > span {
+      color: var(--accent);
+    }
+
+    > input {
+      flex: 1;
+    }
   }
 }
 
-.bg-white.p-8.rounded-lg.shadow-xl {
-  z-index: 1100 !important;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: fadeIn 0.2s ease-out;
-}
-
-@media (max-width: 1024px) {
-  .grid-cols-2 {
-    grid-template-columns: 1fr;
-  }
-}
 </style>

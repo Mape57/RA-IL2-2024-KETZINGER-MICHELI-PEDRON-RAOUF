@@ -97,7 +97,7 @@ const kiSolver = async () => {
   align-items: center;
   justify-content: center;
 
-  > div {
+  > * {
     width: 90%;
     height: 90%;
     background-color: white;
@@ -146,16 +146,6 @@ const kiSolver = async () => {
   padding: 2rem 5% 1rem;
   overflow-y: auto;
   flex: 1;
-
-  > * {
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  > *:last-child {
-    border-bottom: none;
-  }
 }
 
 .selecteur {

@@ -1,14 +1,14 @@
 <template>
-    <SolverStateEditor
-        :solver-state="solverState"
-        @solver-state-changed="handleSolverStateChange"
-    />
-    <span class="divider-line"></span>
-    <label class="button secondary" title="Importer une génération">
-      <span class="material-symbols-outlined">upload</span>
-      <input type="file" accept=".rmpk" @change="uploadRmpk" class="hidden"/>
-      Importer
-    </label>
+  <SolverStateEditor
+      :solver-state="solverState"
+      @solver-state-changed="handleSolverStateChange"
+  />
+  <span class="divider-line"></span>
+  <label class="button secondary" title="Importer une génération">
+    <span class="material-symbols-outlined">upload</span>
+    <input type="file" accept=".rmpk" @change="uploadRmpk" class="hidden"/>
+    Importer
+  </label>
 </template>
 
 <script>
@@ -73,6 +73,7 @@ export default {
   display: flex;
   align-items: center;
   transition: all 0.2s ease;
+  border: 1px solid var(--accent);
   cursor: pointer;
 
   &:hover {
@@ -99,10 +100,6 @@ export default {
     background-color: white;
     color: var(--accent);
 
-    &:not(.no-text) {
-      border: 1px solid var(--accent);
-    }
-
     &:hover {
       background-color: #e6f4eb;
     }
@@ -120,8 +117,68 @@ export default {
     }
   }
 
+  &.black {
+    color: black;
+    border: 1px solid black;
+
+
+    &:hover {
+      background-color: #f7fafc;
+    }
+  }
+
   > input {
     display: none;
+  }
+}
+
+.input {
+  width: 100%;
+  cursor: text;
+  transition-duration: .1s;
+
+  > span {
+    transition-duration: .1s;
+    font-weight: bold;
+  }
+
+  > input {
+    box-shadow: 0 1px 0 var(--accent);
+    transition-duration: .1s;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 3px 0 var(--accent);
+    }
+  }
+
+  &.top-label {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #345e3b;
+  }
+
+  .material-symbols-outlined {
+    font-size: 1.5rem;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  > span:not(.material-symbols-outlined) {
+    font-size: 1rem;
   }
 }
 </style>
