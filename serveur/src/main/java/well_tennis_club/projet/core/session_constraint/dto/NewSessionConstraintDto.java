@@ -31,7 +31,7 @@ public class NewSessionConstraintDto {
 
 	@Schema(name = "sup_level", example = "10")
 	@NotNull(message = "Le niveau maximum (sup_level) est obligatoire")
-	@Max(value = 20, message = "Le niveau maximum (sup_level) doit être inférieur ou égal à 20")
+	@Max(value = 30, message = "Le niveau maximum (sup_level) doit être inférieur ou égal à 30")
 	private int supLevel;
 
 	@Schema(name = "inf_group", example = "2")

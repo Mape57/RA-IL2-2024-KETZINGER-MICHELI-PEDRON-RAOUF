@@ -45,7 +45,7 @@ public record SessionConstraint(
 		if (ageDifference == null) ageDifference = 100;
 		else if (ageDifference < 0) ageDifference = 0;
 
-		if (levelDifference == null) levelDifference = 20;
+		if (levelDifference == null) levelDifference = 30;
 		else if (levelDifference < 0) levelDifference = 0;
 
 		if (duration == null || duration < Timetable.MINIMUM_DURATION) duration = Timetable.MINIMUM_DURATION;
