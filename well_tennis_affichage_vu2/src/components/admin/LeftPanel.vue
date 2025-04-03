@@ -126,10 +126,16 @@
       </button>
 
         <!-- Liste des inscrits en attente -->
-        <PlayerNot v-if="showPendingPlayers" :pendingPlayers="pendingPlayers" @update:pendingPlayers="updatePendingPlayers" />
+      <PlayerNot
+          v-if="showPendingPlayers"
+          :pendingPlayers="playersStore.pendingPlayers"
+          @update:pendingPlayers="updatePendingPlayers"
+      />
 
 
-      </div>
+
+
+    </div>
     </div>
     <PopupMessage
         v-if="showPopup"
@@ -168,8 +174,6 @@ import ConfirmDialog from "../../components/ConfirmDialog.vue";
 import { useSessionsStore } from "../../store/useSessionsStore";
 
 
-
-
 export default {
   name: "LeftPanel",
   components: {
@@ -192,9 +196,11 @@ export default {
     const selectedPlayer = ref(null);
     const showPendingPlayers = ref(false);
     const terrainErrors = ref([]);
-    // We'll use the loading states from the stores
     const playersStore = usePlayersStore();
+    const fetchPendingPlayers = playersStore.fetchPendingPlayers;
     const trainersStore = useTrainersStore();
+    const pendingPlayers = computed(() => playersStore.pendingPlayers);
+
 
 
     watch(() => props.isMobile, (newVal) => {
@@ -216,7 +222,7 @@ export default {
     });
 
     const updatePendingPlayers = (updatedList) => {
-      pendingPlayers.value = updatedList;
+      playersStore.pendingPlayers = updatedList;
     };
 
 
@@ -237,7 +243,6 @@ export default {
     const { terrains, fetchTerrains } = useTerrain();
     // We'll use searchQuery and selectedTab from useLeftPanel but players and trainers will come from the stores
     const { searchQuery, selectedTab, selectTab } = useLeftPanel();
-    const { pendingPlayers, fetchPendingPlayers } = usePlayersStore();
     // Get references to the data from the stores
     const players = computed(() => playersStore.players);
     const trainers = computed(() => trainersStore.trainers);
@@ -245,9 +250,10 @@ export default {
     const validatePlayer = async (playerId) => {
       try {
         await PlayersService.updatePlayer(playerId, { validate: true });
-        pendingPlayers.value = pendingPlayers.value.filter(player => player.id !== playerId);
-        selectedPlayer.value = null; // Fermer la modale après validation
+        playersStore.pendingPlayers = playersStore.pendingPlayers.filter(player => player.id !== playerId);
+        selectedPlayer.value = null;
       } catch (error) {
+        console.error("Erreur lors de la validation :", error);
       }
     };
 
