@@ -297,11 +297,28 @@ export default {
       if (!sessions.value || sessions.value.length === 0) return groupedSessions;
 
       sessions.value
+          .map((session) => {
+            const playersAge = [];
+            session.players.forEach((player) => {
+              const age = getSportsAge(player.birthday);
+              playersAge.push(age);
+            });
+            session.minAge = Math.min(...playersAge);
+            session.maxAge = Math.max(...playersAge);
+
+            const playersLevel = [];
+            session.players.forEach((player) => {
+              playersLevel.push(player.level);
+            });
+            session.minLevel = Math.min(...playersLevel);
+            session.maxLevel = Math.max(...playersLevel);
+            return session;
+          })
           .filter((session) => session.idCourt?.id === selectedTerrain.value)
           .filter((session) => !trainerSearchQuery.value || session.idTrainer?.name.toLowerCase().includes(trainerSearchQuery.value.toLowerCase()) || session.idTrainer?.surname.toLowerCase().includes(trainerSearchQuery.value.toLowerCase()))
           .filter((session) => !playerSearchQuery.value || session.players.some(player => player.name.toLowerCase().includes(playerSearchQuery.value.toLowerCase()) || player.surname.toLowerCase().includes(playerSearchQuery.value.toLowerCase())))
-          .filter((session) => !selectedLevel.value || (session.idTrainer?.infLevel <= selectedLevel.value && session.idTrainer?.supLevel >= selectedLevel.value))
-          .filter((session) => !selectedAge.value || (session.idTrainer?.infAge <= selectedAge.value && session.idTrainer?.supAge >= selectedAge.value))
+          .filter((session) => !selectedLevel.value || (session.minLevel <= selectedLevel.value && session.maxLevel >= selectedLevel.value))
+          .filter((session) => !selectedAge.value || (session.minAge <= selectedAge.value && session.maxAge >= selectedAge.value))
           .forEach((session) => {
             const dayIndex = session.dayWeek - 1;
             if (daysOfWeek[dayIndex]) {

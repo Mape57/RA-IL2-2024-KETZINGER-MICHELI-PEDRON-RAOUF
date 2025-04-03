@@ -10,7 +10,7 @@
               <span class="material-symbols-outlined">save</span>
               Sauvegarder
             </label>
-            <label class="button secondary red" title="Supprimer l'entraîneur" v-if="isEditing">
+            <label class="button secondary red" title="Supprimer l'entraîneur" v-if="isEditing && (('brandt' !== editableTrainer.name.toLowerCase() && 'pierre' !== editableTrainer.surname.toLowerCase()) || ('admin' !== editableTrainer.name.toLowerCase() && 'admin' !== editableTrainer.surname.toLowerCase()))">
               <input type="button" class="hidden" @click="deleteTrainerHandler"/>
               <span class="material-symbols-outlined">delete</span>
               Supprimer
