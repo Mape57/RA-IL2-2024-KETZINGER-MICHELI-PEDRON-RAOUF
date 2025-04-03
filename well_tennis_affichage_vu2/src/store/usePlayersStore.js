@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
 import {ref} from "vue";
 import playersService from "../services/PlayersService";
+import PlayersService from "../services/PlayersService";
 
 export const usePlayersStore = defineStore("players", () => {
 	const players = ref([]);
