@@ -57,8 +57,8 @@
             <span class="text-left">{{ trainer.infLevel }} - {{ trainer.supLevel }}</span>
             <span class="text-center">{{ trainer.infAge }} - {{ trainer.supAge }}</span>
             <span class="text-center">{{
-                Math.round(trainer.weeklyMinutes / 60)
-              }} / {{ Math.round(trainer.infWeeklyMinutes / 60) }}</span>
+                Number((trainer.weeklyMinutes / 60).toFixed(1))
+              }} / {{ Number((trainer.infWeeklyMinutes / 60).toFixed(1)) }}</span>
           </div>
 
         </VueDraggable>
