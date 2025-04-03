@@ -21,7 +21,7 @@
 
     <div v-if="isMobile" class="mobile-container">
       <transition name="slide-fade">
-        <LeftPanel v-if="showLeftPanel" class="mobile-left-panel" :isMobile="true" @close="toggleLeftPanel" />
+        <LeftPanel v-if="showLeftPanel" class="mobile-left-panel" :isMobile="true"  :isVisible="showLeftPanel" @close="toggleLeftPanel" />
       </transition>
       <RightPanel class="mobile-right-panel" :userRole="'ROLE_ADMIN'" :key="updateValue"/>
     </div>
@@ -186,6 +186,9 @@ export default {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  background: white;
+  margin: 0;
+  padding: 0;
 }
 
 /* Panel gauche pour mobile */
@@ -269,6 +272,12 @@ export default {
   flex-shrink: 0;
   position: relative;
   z-index: 1;
+}
+
+@media (max-width: 767px) {
+  .admin-page {
+    padding: 0;
+  }
 }
 
 </style>
