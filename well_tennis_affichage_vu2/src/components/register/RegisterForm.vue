@@ -5,32 +5,32 @@
     <form v-if="showForm" @submit.prevent="validateAndSubmit" class="w-full max-w-md space-y-4">
       <!-- Champ Nom -->
       <div>
-        <label for="nom" class="block text-sm font-medium text-gray-600">Nom</label>
+        <label for="nom" class="block text-sm font-medium text-gray-600">Nom <span class="text-red-500">*</span></label>
         <input v-model="form.nom" id="nom" type="text" required class="input-field" placeholder="Entrez votre nom"/>
       </div>
 
       <!-- Champ Prénom -->
       <div>
-        <label for="prenom" class="block text-sm font-medium text-gray-600">Prénom</label>
+        <label for="prenom" class="block text-sm font-medium text-gray-600">Prénom <span class="text-red-500">*</span></label>
         <input v-model="form.prenom" id="prenom" type="text" required class="input-field"
                placeholder="Entrez votre prénom"/>
       </div>
 
       <!-- Champ Date de naissance -->
       <div>
-        <label for="age" class="block text-sm font-medium text-gray-600">Date de naissance</label>
+        <label for="age" class="block text-sm font-medium text-gray-600">Date de naissance <span class="text-red-500">*</span></label>
         <input v-model="form.age" id="age" type="date" required class="input-field"/>
       </div>
 
       <!-- Champ Nombre de cours -->
       <div>
-        <label for="cours" class="block text-sm font-medium text-gray-600">Nombre de cours (max 3)</label>
+        <label for="cours" class="block text-sm font-medium text-gray-600">Nombre de cours (max 3) <span class="text-red-500">*</span></label>
         <input v-model="form.cours" id="cours" type="number" required min="1" max="3" class="input-field"/>
       </div>
 
       <!-- Champ Disponibilité -->
       <div>
-        <label for="disponibilite" class="block text-sm font-medium text-gray-600">Disponibilité</label>
+        <label for="disponibilite" class="block text-sm font-medium text-gray-600">Disponibilité <span class="text-red-500">*</span></label>
         <div class="availability-box">
           <div class="flex space-x-2 mb-2">
             <select v-model="newDisponibilite.jour" class="availability-input">
@@ -44,7 +44,7 @@
               </option>
             </select>
             <select v-model="newDisponibilite.fin" class="availability-input">
-              <option disabled value="">Heure début</option>
+              <option disabled value="">Heure fin</option>
               <option v-for="hour in generateTimeSlots()" :key="hour" :value="hour">
                 {{ hour }}
               </option>
@@ -62,13 +62,13 @@
 
       <!-- Champ Email -->
       <div>
-        <label for="email" class="block text-sm font-medium text-gray-600">Email</label>
+        <label for="email" class="block text-sm font-medium text-gray-600">Email <span class="text-red-500">*</span></label>
         <input v-model="form.email" id="email" type="email" required class="input-field"
                placeholder="Entrez votre email"/>
       </div>
 
       <div>
-        <label for="confirmEmail" class="block text-sm font-medium text-gray-600">Confirmer l'email</label>
+        <label for="confirmEmail" class="block text-sm font-medium text-gray-600">Confirmer l'email <span class="text-red-500">*</span></label>
         <input
             v-model="form.confirmEmail"
             id="confirmEmail"
@@ -85,7 +85,7 @@
 
       <!-- Champ Numéro de téléphone avec préfixe -->
       <div>
-        <label for="numero" class="block text-sm font-medium text-gray-600">Numéro de téléphone</label>
+        <label for="numero" class="block text-sm font-medium text-gray-600">Numéro de téléphone <span class="text-red-500">*</span></label>
         <div class="flex space-x-2">
           <select v-model="form.prefixe" class="w-1/3 border border-gray-300 rounded-md p-2">
             <option value="+33">+33 (FR)</option>
@@ -113,7 +113,6 @@
               v-model="form.numero2"
               id="numero2"
               type="tel"
-              required
               class="w-2/3 border border-gray-300 rounded-md p-2"
               placeholder="6 12 34 56 78"
           />
@@ -124,28 +123,16 @@
       <!-- Autorisation photo -->
       <div class="text-sm text-gray-600">
         <p class="mb-2">
-          Autorisez-vous la prise de photos ?<br>
+          Autorisez-vous la prise de photos ?<span class="text-red-500">*</span><br>
           <span class="italic text-xs text-gray-500">*Pour les parents, cela concerne les photos de leur(s) enfant(s)</span>
         </p>
         <div class="flex space-x-4 items-center">
           <div class="flex items-center">
-            <input
-                type="radio"
-                id="photoYes"
-                value="yes"
-                v-model="form.acceptPhoto"
-                class="mr-1"
-            />
+            <input type="radio" id="photoYes" value="true" v-model="form.acceptPhoto" />
             <label for="photoYes">Oui</label>
           </div>
           <div class="flex items-center">
-            <input
-                type="radio"
-                id="photoNo"
-                value="no"
-                v-model="form.acceptPhoto"
-                class="mr-1"
-            />
+            <input type="radio" id="photoNo" value="false" v-model="form.acceptPhoto" />
             <label for="photoNo">Non</label>
           </div>
         </div>
@@ -155,8 +142,11 @@
 
       <div class="flex items-center">
         <input v-model="form.acceptTerms" id="acceptTerms" type="checkbox" class="mr-2"/>
-        <label for="acceptTerms" class="text-sm text-gray-600">J'accepte l'utilisation de mes données</label>
+        <label for="acceptTerms" class="text-sm text-gray-600">J'accepte l'utilisation de mes données<span class="text-red-500">*</span></label>
       </div>
+      <p class="text-xs text-gray-500 mt-2">
+        <span class="text-red-500">*</span> Champs obligatoires
+      </p>
 
       <!-- Bouton Inscription -->
       <button type="submit" class="submit-button">S'inscrire</button>
@@ -207,7 +197,7 @@ export default {
       disponibilites: [],
       email: "",
       acceptTerms: false,
-      acceptPhoto: "",
+      acceptPhoto: null,
       confirmEmail: "",
     });
 
@@ -303,8 +293,16 @@ export default {
     const validateAndSubmit = async () => {
       const { nom, prenom, age, email, confirmEmail, numero, numero2, prefixe, acceptPhoto, acceptTerms, disponibilites, cours } = form.value;
 
+      // Vérification que la réponse a été donnée (obligatoire avant conversion)
+      if (acceptPhoto !== "true" && acceptPhoto !== "false") {
+        return alert("Veuillez répondre à la question concernant la prise de photos.");
+      }
+
+      // Convertir en booléen réel après validation
+      const photoConsent = acceptPhoto === "true";
+
       // Champs obligatoires
-      if (!nom || !prenom || !age || !email || !confirmEmail || !numero || !numero2 || disponibilites.length === 0) {
+      if (!nom || !prenom || !age || !email || !confirmEmail || !numero || disponibilites.length === 0) {
         return alert("Veuillez remplir tous les champs obligatoires.");
       }
 
@@ -317,6 +315,15 @@ export default {
         return alert("Le numéro de téléphone doit contenir exactement 9 chiffres.");
       }
       const fullNumber = prefixe + cleanedNumber;
+
+      let fullNumber2 = null;
+      if (numero2 && numero2.trim() !== "") {
+        const cleanedNumber2 = numero2.replace(/\D/g, '');
+        if (!/^\d{9}$/.test(cleanedNumber2)) {
+          return alert("Le second numéro doit contenir exactement 9 chiffres.");
+        }
+        fullNumber2 = prefixe + cleanedNumber2;
+      }
 
       // Email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -336,10 +343,7 @@ export default {
         return alert(`L'année de naissance doit être comprise entre 1900 et ${currentYear}.`);
       }
 
-      // Consentement photo (obligatoire à remplir, mais peut être oui ou non)
-      if (acceptPhoto !== "yes" && acceptPhoto !== "no") {
-        return alert("Veuillez répondre à la question concernant la prise de photos.");
-      }
+
 
       // Conditions d'utilisation
       if (!acceptTerms) {
@@ -371,7 +375,8 @@ export default {
         level: 0,
         email: email,
         phone: fullNumber,
-        photoConsent: acceptPhoto === "yes",
+        phone2: fullNumber2,
+        photoConsent: photoConsent,
         disponibilities: disponibilites.map(d => ({
           dayWeek: dayMapping[d.jour],
           open: d.open,

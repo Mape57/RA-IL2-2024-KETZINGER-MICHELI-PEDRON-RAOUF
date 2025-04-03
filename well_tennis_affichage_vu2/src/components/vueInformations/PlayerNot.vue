@@ -8,6 +8,7 @@
         <div>
           <p class="text-sm font-semibold text-gray-800">{{ player.name }} {{ player.surname }}</p>
           <p class="text-xs text-gray-500">{{ player.email }}</p>
+          <p class="text-xs text-gray-500">Tél : {{ player.phone || 'N/A' }}</p>
         </div>
       </div>
     </div>
@@ -22,6 +23,9 @@
             <p><strong>Email :</strong> {{ selectedPlayer.email }}</p>
             <p><strong>Date de naissance :</strong> {{ selectedPlayer.birthday }}</p>
             <p><strong>Nombre de cours :</strong> {{ selectedPlayer.courses }}</p>
+            <p><strong>Téléphone :</strong> {{ selectedPlayer.phone || 'Non renseigné' }}</p>
+            <p><strong>Téléphone secondaire :</strong> {{ selectedPlayer.phone2 || 'Non renseigné' }}</p>
+            <p><strong>Autorisation photo :</strong> {{ selectedPlayer.photo ? 'Oui' : 'Non' }}</p>
             <div>
               <p><strong>Niveau :</strong></p>
               <div class="level-container">
