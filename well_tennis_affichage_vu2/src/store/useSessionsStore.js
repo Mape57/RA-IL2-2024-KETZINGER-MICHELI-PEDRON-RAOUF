@@ -97,6 +97,28 @@ export const useSessionsStore = defineStore("sessions", () => {
 	};
 
 
+	const createSession = async (sessionData) => {
+		try {
+			// Ensure there is a valid court ID
+			if (!sessionData.idCourt) {
+				console.error("Erreur: idCourt est requis pour créer une session");
+				return null;
+			}
+
+			console.log("Création d'une nouvelle session:", sessionData);
+			const response = await sessionsService.createSession(sessionData);
+			
+			// Refresh the sessions list
+			await fetchSessions();
+			
+			console.log("✅ Session créée :", response.data);
+			return response.data;
+		} catch (error) {
+			console.error("Erreur lors de la création de la session:", error.message);
+			return null;
+		}
+	};
+
 	const deleteSession = async (sessionId) => {
 		try {
 			await sessionsService.deleteSession(sessionId);
@@ -119,14 +141,15 @@ export const useSessionsStore = defineStore("sessions", () => {
 		}
 	};
 
-
-	return {
-		sessions,
-		fetchSessions,
-		refreshSessions,
-		updateSession,
-		deleteSession,
-		sendSessionMails
-	};
+return {
+	sessions,
+	fetchSessions,
+	refreshSessions,
+	updateSession,
+	createSession,
+	deleteSession,
+	sendSessionMails
+};
 });
+
 

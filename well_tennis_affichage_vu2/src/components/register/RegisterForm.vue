@@ -37,14 +37,24 @@
               <option disabled value="">Choisissez un jour</option>
               <option v-for="(num, jour) in dayMapping" :key="num" :value="jour">{{ jour }}</option>
             </select>
-            <input type="time" v-model="newDisponibilite.debut" class="availability-input"/>
-            <input type="time" v-model="newDisponibilite.fin" class="availability-input"/>
+            <select v-model="newDisponibilite.debut" class="availability-input">
+              <option disabled value="">Heure début</option>
+              <option v-for="hour in generateTimeSlots()" :key="hour" :value="hour">
+                {{ hour }}
+              </option>
+            </select>
+            <select v-model="newDisponibilite.fin" class="availability-input">
+              <option disabled value="">Heure début</option>
+              <option v-for="hour in generateTimeSlots()" :key="hour" :value="hour">
+                {{ hour }}
+              </option>
+            </select>
           </div>
-          <button type="button" @click="addDisponibilite" class="add-button">Ajouter</button>
+          <button type="button" @click="addDisponibilite" class="add-button">Valider la disponibilité</button>
           <ul class="mt-2">
             <li v-for="(dispo, index) in form.disponibilites" :key="index" class="dispo-item">
               <span>{{ dispo.jour }}: {{ dispo.open }} - {{ dispo.close }}</span>
-              <button type="button" @click="removeDisponibilite(index)" class="delete-button">Supprimer</button>
+              <button type="button" @click="removeDisponibilite(index)" class="delete-button" style="padding-left: .5rem">Supprimer</button>
             </li>
           </ul>
         </div>
@@ -221,6 +231,18 @@ export default {
       return minutes === 0 || minutes === 30;
     };
 
+    const generateTimeSlots = () => {
+      const slots = [];
+      for (let hour = 8; hour <= 23; hour++) {
+        const formattedHour = hour.toString().padStart(2, '0');
+        slots.push(`${formattedHour}:00`);
+        if (hour !== 23) {
+          slots.push(`${formattedHour}:30`);
+        }
+      }
+      return slots;
+    };
+
     const addDisponibilite = () => {
       const {jour, debut, fin} = newDisponibilite.value;
 
@@ -379,6 +401,7 @@ export default {
       showForm,
       showError,
       isLoading,
+      generateTimeSlots,
     };
   },
 };
