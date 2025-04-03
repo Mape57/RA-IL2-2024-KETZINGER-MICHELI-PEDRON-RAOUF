@@ -39,10 +39,12 @@ class ImportService {
                     }
 
                     if (players.length > 0) {
+                        console.log("Joueurs extraits :", players); // 🔍 Debug ici
                         await ImportService.savePlayersToAPI(players);
                     } else {
                         console.warn("Aucun joueur trouvé, mais l'import continue.");
                     }
+
 
                     if (trainers.length > 0) {
                         await ImportService.saveTrainersToAPI(trainers);
@@ -53,7 +55,6 @@ class ImportService {
                         return;
                     }
 
-                    alert("Importation terminée avec succès.");
                     resolve({ players, terrains, terrainErrors: [] });
 
                 } catch (error) {
@@ -83,19 +84,24 @@ class ImportService {
             return [];
         }
 
-        const headers = rawData[1];
+        const headers = rawData[0];
         if (!headers.includes("Nom") || !headers.includes("Prénom")) {
             console.warn("Les colonnes 'Nom' et 'Prénom' sont obligatoires dans la feuille 'Joueurs'.");
             return [];
         }
 
-        const dataRows = rawData.slice(2);
+        const dataRows = rawData.slice(1);
 
         return dataRows
             .filter(row => row[headers.indexOf("Nom")] && row[headers.indexOf("Prénom")])
             .map((row) => {
                 const email = row[headers.indexOf("Email")];
                 const validEmail = ImportService.validateEmail(email);
+                const phone = row[headers.indexOf("Numero 1")] || "";
+                const phone2 = row[headers.indexOf("Numero 2")] || "";
+                const photoRaw = row[headers.indexOf("Photo")];
+                const hasPhoto = (photoRaw || "").toString().trim().toLowerCase() === "oui";
+
                 return {
                     name: row[headers.indexOf("Nom")] || "Inconnu",
                     surname: row[headers.indexOf("Prénom")] || "Inconnu",
@@ -103,11 +109,15 @@ class ImportService {
                     email: validEmail ? email : `default_${row[0] || "unknown"}@example.com`,
                     level: parseInt(row[headers.indexOf("Niveau")] || "0", 10),
                     courses: parseInt(row[headers.indexOf("Cours par semaine")] || "0", 10),
+                    phone,
+                    phone2: phone2 || undefined,
+                    photo: hasPhoto,
                     validate: true,
                     disponibilities: ImportService.parseDisponibilities(row, headers),
                 };
             })
             .filter(player => player.name !== "Inconnu" && player.surname !== "Inconnu");
+
     }
 
     static parseTrainers(workbook) {

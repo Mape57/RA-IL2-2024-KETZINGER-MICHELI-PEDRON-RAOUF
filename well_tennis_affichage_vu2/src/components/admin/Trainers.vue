@@ -4,7 +4,7 @@
          @click="toggleAccordion"
     >
       <div class="flex items-center trainer-hover">
-       <span :class="{ 'rotate-180': isOpen }"
+       <span :class="[isOpen ? 'rotate-0' : 'rotate-270']"
              class="material-symbols-outlined trainer-arrow transition-transform duration-300 mr-2">
         expand_more
        </span>
@@ -156,7 +156,6 @@ export default {
     },
     async handleTrainerDeletion(deletedTrainerId) {
       if (this.userRole !== "ROLE_ADMIN") return;
-      await this.trainersStore.deleteTrainer(deletedTrainerId);
       this.selectedTrainer = null;
     },
     async handleTrainerSave(savedTrainer) {
@@ -253,22 +252,38 @@ export default {
   font-size: 18px;
 }
 
-.rotate-180 {
-  transform: rotate(180deg);
+.rotate-270 {
+  transform: rotate(-90deg);
 }
 
+.rotate-0 {
+  transform: rotate(0deg);
+}
 .border-b {
   border-bottom: 1px solid #e2e8f0;
 }
 
 ::v-deep(.highlighted) {
-  background-color: yellow;
-  transition: background-color 1s ease-in-out;
+  animation: highlightEffect 2s ease-out;
 }
 
 
-::v-deep(.highlighted:hover) {
-  background-color: lightyellow; /* Reste subtil au survol */
+@keyframes highlightEffect {
+  0% {
+    color: #2F855A;
+    font-weight: bold;
+    transform: scale(1.02);
+  }
+  70% {
+    color: #2F855A;
+    font-weight: bold;
+    transform: scale(1.01);
+  }
+  100% {
+    color: inherit;
+    font-weight: normal;
+    transform: scale(1);
+  }
 }
 
 /* Ajout de styles pour indiquer les éléments glissables */

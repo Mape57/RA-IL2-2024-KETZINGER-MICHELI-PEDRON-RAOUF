@@ -110,9 +110,9 @@
 
 <script>
 import {ref, watch} from "vue";
-import usePlayers from "../../useJs/usePlayers.js";
 import {useSessionsStore} from "../../store/useSessionsStore.js";
 import {storeToRefs} from "pinia";
+import {usePlayersStore} from "../../store/usePlayersStore.js";
 
 export default {
   name: "PlayerInfoView",
@@ -133,7 +133,7 @@ export default {
     const refreshSessions = sessionsStore.refreshSessions;
 
 
-    const {computeAge, updatePlayer, createPlayer, deletePlayer} = usePlayers();
+    const {computeAge, updatePlayer, createPlayer, deletePlayer} = usePlayersStore();
 
     const editablePlayer = ref({...props.player, disponibilities: [...(props.player.disponibilities || [])]});
 
@@ -218,7 +218,7 @@ export default {
           savedPlayer = await createPlayer(playerData);
           alert("Joueur créé avec succès !");
         } else {
-          savedPlayer = await updatePlayer(playerData);
+          savedPlayer = await updatePlayer(playerData.id, playerData );
           alert("Joueur mis à jour avec succès !");
         }
 

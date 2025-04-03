@@ -3,10 +3,10 @@
       :class="[
     localIsMobile ? 'w-[55%]' : isTablet ? 'w-[40%]' : 'w-[30%]'
   ]"
-      class="bg-white rounded-lg shadow-md pt-6 px-6 flex flex-col overflow-hidden w-full h-full"
+      class="bg-white rounded-lg shadow-md p-4 md:p-6 flex flex-col overflow-hidden w-full h-full"
   >
   <!-- Bouton de fermeture -->
-    <button v-if="localIsMobile" @click="$emit('close')" class="close-button">
+    <button v-if="localIsMobile && isVisible" @click="$emit('close')" class="close-button">
       <span class="material-symbols-outlined">close</span>
     </button>
 
@@ -72,56 +72,58 @@
         <Session :isMobile="isMobile" :userRole="userRole" />
       </div>
 
-      <!-- Onglet Paramètres (masqué en mode mobile) -->
-      <div v-if="selectedTab === 'settings' && !isMobile" class="content-settings">
-        <div class="py-2 font-bold text-gray-700 flex items-center">
-          <span class="material-symbols-outlined mr-2">upload</span>
-          Importer vos données
-        </div>
-        <button class="menu-item" @click="togglePendingPlayers">
-          <span class="material-symbols-outlined mr-2">person</span>
-          Consulter les inscrits
-        </button>
+    <!-- Onglet Paramètres (masqué en mode mobile) -->
+    <div v-if="selectedTab === 'settings' && !isMobile" class="content-settings">
 
-        <label class="menu-item cursor-pointer">
-          <span class="material-symbols-outlined mr-2">database</span>
-          Importer Données et Contraintes - format CSV
-          <input type="file" accept=".xlsx, .xls" @change="importCSV" class="hidden" />
-        </label>
+      <!-- Section : Gestion des données -->
+      <div class="py-2 font-bold text-gray-700 flex items-center">
+        <span class="material-symbols-outlined mr-2">database</span>
+        Gestion des données
+      </div>
 
-        <div v-if="terrainErrors.length" class="bg-red-100 text-red-800 p-4 rounded mb-4">
-          <p class="font-semibold mb-2">Erreurs détectées lors de l'import :</p>
-          <ul class="list-disc list-inside text-sm">
-            <li v-for="(err, index) in terrainErrors" :key="index">{{ err }}</li>
-          </ul>
-        </div>
+      <label class="menu-item cursor-pointer">
+        <span class="material-symbols-outlined mr-2">Database_Upload</span>
+        Insérer les données (.xlsx)
+        <input type="file" accept=".xlsx, .xls" @change="importCSV" class="hidden" />
+      </label>
 
-        <div class="py-2 font-bold text-gray-700 flex items-center">
-          <span class="material-symbols-outlined mr-2">download</span>
-          Télécharger vos données
-        </div>
-        <button class="menu-item" @click="downloadXLS">
-          <span class="material-symbols-outlined mr-2">calendar_today</span>
-          Planning - format PDF
-        </button>
+      <button class="menu-item" @click="downloadCSV">
+        <span class="material-symbols-outlined mr-2">download</span>
+        Télécharger les données (.xlsx)
+      </button>
 
-        <button class="menu-item" @click="downloadCSV">
-          <span class="material-symbols-outlined mr-2">database</span>
-          Données et contraintes - format CSV
-        </button>
+      <button class="menu-item" @click="downloadPDF">
+        <span class="material-symbols-outlined mr-2">calendar_today</span>
+        Télécharger le planning (.pdf)
+      </button>
 
-        <div class="py-2 font-bold text-gray-700 flex items-center">
-          <span class="material-symbols-outlined mr-2">event_repeat</span>
-          Nouvelle année
-        </div>
-        <button class="menu-item" @click="sendReinscriptionMail">
-          <span class="material-symbols-outlined mr-2">send</span>
-          Envoyer le mail de réinscription
-        </button>
-        <button class="menu-item" @click="deleteAllPlayers">
-          <span class="material-symbols-outlined mr-2">delete</span>
-          Supprimer l'ensemble des joueurs
-        </button>
+      <div v-if="terrainErrors.length" class="bg-red-100 text-red-800 p-4 rounded mb-4">
+        <p class="font-semibold mb-2">Erreurs détectées lors de l'import :</p>
+        <ul class="list-disc list-inside text-sm">
+          <li v-for="(err, index) in terrainErrors" :key="index">{{ err }}</li>
+        </ul>
+      </div>
+
+      <!-- Section : Gestion des joueurs -->
+      <div class="py-2 font-bold text-gray-700 flex items-center mt-4">
+        <span class="material-symbols-outlined mr-2">group</span>
+        Gestion des joueurs
+      </div>
+
+      <button class="menu-item" @click="togglePendingPlayers">
+        <span class="material-symbols-outlined mr-2">person</span>
+        Consulter les inscrits
+      </button>
+
+      <button class="menu-item" @click="askSendMailToAll">
+        <span class="material-symbols-outlined mr-2">send</span>
+        Envoyer le planning aux joueurs
+      </button>
+
+      <button class="menu-item" @click="askDeleteAllPlayers">
+        <span class="material-symbols-outlined mr-2">delete</span>
+        Supprimer tous les joueurs
+      </button>
 
         <!-- Liste des inscrits en attente -->
         <PlayerNot v-if="showPendingPlayers" :pendingPlayers="pendingPlayers" @update:pendingPlayers="updatePendingPlayers" />
@@ -129,6 +131,18 @@
 
       </div>
     </div>
+    <PopupMessage
+        v-if="showPopup"
+        :message="popupMessage"
+        :type="popupType"
+    />
+
+    <ConfirmDialog
+        :visible="showConfirm"
+        :message="confirmMessage"
+        @cancel="showConfirm = false"
+        @confirm="confirmYes"
+    />
   </div>
 </template>
 
@@ -137,7 +151,6 @@
 import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import useTerrain from "../../useJs/useTerrain.js";
 import useLeftPanel from "../../useJs/useLeftPanel.js";
-import usePlayers from "../../useJs/usePlayers";
 import useSessionConstraint from "../../useJs/useSessionConstraint.js";
 import { usePlayersStore } from "../../store/usePlayersStore.js";
 import { useTrainersStore } from "../../store/useTrainersStore.js";
@@ -150,6 +163,10 @@ import Trainers from "./Trainers.vue";
 import Terrains from "./Terrain.vue";
 import Session from "./Session.vue";
 import PlayerNot from "../vueInformations/PlayerNot.vue";
+import PopupMessage from "../../components/PopupMessage.vue";
+import ConfirmDialog from "../../components/ConfirmDialog.vue";
+import { useSessionsStore } from "../../store/useSessionsStore";
+
 
 
 
@@ -161,10 +178,13 @@ export default {
     Players,
     Terrains,
     Session,
+    PopupMessage,
+    ConfirmDialog
   },
   props: {
     isMobile: Boolean,
     userRole: String,
+    isVisible: Boolean,
   },
   setup(props) {
     const localIsMobile = ref(props.isMobile);
@@ -217,7 +237,7 @@ export default {
     const { terrains, fetchTerrains } = useTerrain();
     // We'll use searchQuery and selectedTab from useLeftPanel but players and trainers will come from the stores
     const { searchQuery, selectedTab, selectTab } = useLeftPanel();
-    const { pendingPlayers, fetchPendingPlayers } = usePlayers();
+    const { pendingPlayers, fetchPendingPlayers } = usePlayersStore();
     // Get references to the data from the stores
     const players = computed(() => playersStore.players);
     const trainers = computed(() => trainersStore.trainers);
@@ -275,22 +295,57 @@ export default {
   data() {
     return {
       isTablet: false,
+      showPopup: false,
+      popupMessage: "",
+      popupType: "success",
+      showConfirm: false,
+      confirmMessage: "",
+      confirmAction: null,
+
     };
   },
 
   methods: {
+    askDeleteAllPlayers() {
+      this.confirmMessage = "Êtes-vous sûr de vouloir supprimer tous les joueurs ?";
+      this.confirmAction = this.deleteAllPlayers;
+      this.showConfirm = true;
+    },
+
+    askSendMailToAll() {
+      this.confirmMessage = "Voulez-vous envoyer le planning à tous les joueurs ?";
+      this.confirmAction = this.sendReinscriptionMail;
+      this.showConfirm = true;
+    },
+
+    confirmYes() {
+      if (this.confirmAction) this.confirmAction();
+      this.showConfirm = false;
+    },
+
     async importCSV(event) {
       const file = event.target.files[0];
       if (!file) {
-        alert("Veuillez sélectionner un fichier.");
+        this.popupMessage = "Veuillez sélectionner un fichier.";
+        this.popupType = "error";
+        this.showPopup = true;
         return;
       }
+
       try {
         const result = await ImportService.importExcel(file);
         this.terrainErrors = result.terrainErrors || [];
+
         if (this.terrainErrors.length > 0) {
           this.selectTab('settings');
+          this.popupMessage = "Import terminé avec des erreurs.";
+          this.popupType = "warning";
+        } else {
+          this.popupMessage = "Importation des données réussie !";
+          this.popupType = "success";
         }
+
+        this.showPopup = true;
 
       } catch (error) {
         console.error("Erreur lors de l'importation :", error);
@@ -298,37 +353,64 @@ export default {
           "Une erreur est survenue pendant l'importation.",
           error.message || ""
         ];
+        this.popupMessage = "Erreur lors de l'importation.";
+        this.popupType = "error";
+        this.showPopup = true;
       }
     },
 
-    async downloadXLS() {
+    async downloadPDF() {
       try {
         await ExportPdf.generateSessionsPdf();
-        console.log("Exportation PDF réussie !");
+        this.popupMessage = "Le planning a été exporté en PDF avec succès.";
+        this.popupType = "success";
+        this.showPopup = true;
       } catch (error) {
         console.error("Erreur lors de l'exportation du PDF :", error);
+        this.popupMessage = "Erreur lors de l'exportation du planning.";
+        this.popupType = "error";
+        this.showPopup = true;
       }
     },
-    
+
+
     async downloadCSV() {
         const { sessionConstraints, fetchSessionConstraints } = useSessionConstraint();
         await fetchSessionConstraints();
         await ExportService.downloadCSV(this.players, this.trainers, this.terrains, sessionConstraints.value);
+      this.popupMessage = "Données exportées avec succès !";
+      this.popupType = "success";
+      this.showPopup = true;
     },
 
-    sendReinscriptionMail() {
-      alert("Envoi du mail de réinscription !");
+    async sendReinscriptionMail() {
+      try {
+        const sessionsStore = useSessionsStore();
+        await sessionsStore.sendSessionMails();
+
+        this.popupMessage = "Les plannings ont bien été envoyés aux joueurs.";
+        this.popupType = "success";
+        this.showPopup = true;
+      } catch (error) {
+        this.popupMessage = "Erreur lors de l'envoi des plannings.";
+        this.popupType = "error";
+        this.showPopup = true;
+      }
     },
+
+
     async deleteAllPlayers() {
-      if (confirm("Êtes-vous sûr de vouloir supprimer tous les joueurs ?")) {
-        try {
-          await PlayersService.deleteAllPlayers(); // Suppression via l'API
-          this.players = []; // Mise à jour de la liste après suppression
-          alert("Tous les joueurs ont été supprimés avec succès !");
-        } catch (error) {
-          console.error("Erreur lors de la suppression des joueurs :", error);
-          alert("Une erreur s'est produite lors de la suppression.");
-        }
+      try {
+        await PlayersService.deleteAllPlayers();
+        this.players = [];
+        this.popupMessage = "Tous les joueurs ont été supprimés avec succès !";
+        this.popupType = "success";
+        this.showPopup = true;
+      } catch (error) {
+        console.error("Erreur lors de la suppression des joueurs :", error);
+        this.popupMessage = "Une erreur s'est produite lors de la suppression.";
+        this.popupType = "error";
+        this.showPopup = true;
       }
     },
     checkScreenSize() {
@@ -353,6 +435,11 @@ export default {
 
 
 <style scoped>
+
+:root {
+  --accent: #528359;
+}
+
 .content {
   flex: 1;
   overflow-y: auto;
@@ -417,64 +504,12 @@ export default {
   transform: translateX(-50%);
   width: 80%;
   height: 2px;
-  background-color: #2f855a;
+  background-color: #528359;
   transition: width 0.3s ease-in-out;
 }
 
 .tab-button.active {
   color: #2f855a;
-}
-
-
-.menu-item {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 13px 12px;
-  margin-bottom: 0.5rem;
-  background-color: white;
-  border: 1px solid #e2e8f0;
-  color: #2f855a;
-  cursor: pointer;
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
-}
-
-.menu-item:hover {
-  background-color: #f0f4f3;
-}
-
-/* Icône dans les boutons */
-.menu-item .material-symbols-outlined {
-  font-size: 20px;
-  line-height: 1;
-  vertical-align: middle;
-  margin-right: 10px;
-  transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
-}
-
-.menu-item:hover {
-  background-color: #2F855A;
-  color: white;
-  border-color: #2F855A;
-  transform: translateY(-2px);
-}
-
-
-.menu-item:hover {
-  background-color: #2F855A;
-  color: white;
-  border-color: #2F855A;
-  transform: translateY(-2px);
-}
-
-.menu-item:hover .material-symbols-outlined {
-  color: white;
-  transform: scale(1.1);
-}
-
-.menu-item:active {
-  transform: scale(0.95);
 }
 
 .close-button {
@@ -500,6 +535,30 @@ export default {
   color: #3a6242;
 }
 
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background-color: white;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.menu-item:hover {
+  background-color: #e6f4eb;
+}
+
+.menu-item .material-symbols-outlined {
+  font-size: 1.3rem;
+}
 
 </style>
 

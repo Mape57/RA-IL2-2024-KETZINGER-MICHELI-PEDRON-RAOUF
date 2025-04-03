@@ -144,6 +144,7 @@ public class SessionController {
 	@PostMapping
 	public ResponseEntity<SessionDto> createSession(@Valid @RequestBody NewSessionDto newSessionDto) {
 		SessionEntity session = newSessionMapperImpl.mapToEntity(newSessionDto);
+		session.setId(UUID.randomUUID());
 		session = sessionService.createSession(session);
 		SessionDto sessionDto = SessionMapper.INSTANCE.mapToDTO(session);
 

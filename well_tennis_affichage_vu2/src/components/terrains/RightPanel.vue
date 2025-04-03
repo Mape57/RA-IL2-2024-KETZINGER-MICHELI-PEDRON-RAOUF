@@ -91,12 +91,12 @@
               v-for="terrain in sortedTerrains"
               :key="terrain.id"
               @click="selectTerrain(terrain.id)"
-              :class="{ active: selectedTerrain === terrain.id }"
-              class="tab-button"
+              :class="['terrain-tab', { active: selectedTerrain === terrain.id }]"
           >
             {{ terrain.name }}
           </button>
         </div>
+
 
         <div class="absolute right-5">
           <button
@@ -108,61 +108,20 @@
           </button>
         </div>
 
-        <teleport to="body">
-          <div
-              v-if="showFilterPopup"
-              class="fixed top-[65px] right-[40px] w-80 bg-white shadow-lg rounded-xl p-4 z-[9999] border border-gray-200"
-          >
-            <h3 class="text-lg font-semibold text-gray-800 mb-3">Filtrer Sessions</h3>
-
-            <div class="space-y-3">
-              <input
-                  type="text"
-                  v-model="trainerSearchQuery"
-                  @input="filterSessions"
-                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="Nom de l'entraîneur"
-              />
-              <input
-                  type="text"
-                  v-model="playerSearchQuery"
-                  @input="filterSessions"
-                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="Nom du joueur"
-              />
-              <input
-                  type="number"
-                  v-model="selectedLevel"
-                  @input="filterSessions"
-                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="Niveau"
-              />
-              <input
-                  type="number"
-                  v-model="selectedAge"
-                  @input="filterSessions"
-                  class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="Âge"
-              />
-            </div>
-
-            <div class="flex justify-end mt-4">
-              <button
-                  @click="showAllSessions"
-                  class="px-4 py-1 rounded-md text-white bg-green-700 hover:bg-green-800 text-sm"
-              >
-                Réinitialiser
-              </button>
-            </div>
-          </div>
-        </teleport>
 
       </div>
 
       <!-- Contenu principal -->
       <div class="content flex-1 overflow-auto p-4 w-full overflow-x-hidden">
-        <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6">
-          <h2 class="text-[#528359] text-xl font-bold mb-4">{{ day }}</h2>
+        <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6" >
+
+          <h2 class="text-[#528359] text-xl font-bold mb-4 flex items-center">
+            <span>{{ day }}</span>
+            <label class="button secondary no-text ml-2 flex items-center" title="Ajouter une nouvelle session">
+              <input type="button" class="hidden" @click="addNewSession"/>
+              <span class="material-symbols-outlined">add</span>
+            </label>
+          </h2>
           <SessionCard
               v-for="session in sessions"
               :key="session.id"
@@ -184,22 +143,94 @@
       </div>
     </div>
   </div>
+  <teleport to="body">
+    <div v-if="showFilterPopup">
+      <!-- Overlay cliquable -->
+      <div
+          class="fixed inset-0 z-[9998]"
+          @click="closeFilterPopup"
+      ></div>
+
+      <!-- Popup filtre -->
+      <div
+          :class="[
+        'fixed bg-white shadow-lg rounded-lg z-[9999] border border-gray-200',
+         isMobile
+         ? 'top-[60px] right-4 w-[75%] max-w-[230px] p-2'
+         : 'top-[65px] right-[40px] w-80 p-4'
+      ]"
+          @click.stop
+      >
+        <button
+            v-if="isMobile"
+            @click="closeFilterPopup"
+            class="absolute -top-1 right-1 text-gray-500 hover:text-red-500 text-lg"
+        >
+          <span class="material-symbols-outlined text-base">close</span>
+        </button>
+
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">Filtrer les sessions</h3>
+
+        <div class="space-y-3">
+          <input
+              type="text"
+              v-model="trainerSearchQuery"
+              @input="filterSessions"
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+              placeholder="Nom de l'entraîneur"
+          />
+          <input
+              type="text"
+              v-model="playerSearchQuery"
+              @input="filterSessions"
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+              placeholder="Nom du joueur"
+          />
+          <input
+              type="number"
+              v-model="selectedLevel"
+              @input="filterSessions"
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+              placeholder="Niveau"
+          />
+          <input
+              type="number"
+              v-model="selectedAge"
+              @input="filterSessions"
+              class="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
+              placeholder="Âge"
+          />
+        </div>
+
+        <div class="flex justify-end mt-4">
+          <button
+              @click="showAllSessions"
+              :class="[
+                'rounded-md text-white bg-green-700 hover:bg-green-800 transition',
+                isMobile ? 'text-[10px] px-1.5 py-[2px] leading-none' : 'text-sm px-4 py-1'
+              ]"
+
+
+          >
+            Réinitialiser
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </teleport>
+
 </template>
+
 <script>
-import {ref, computed, onMounted, onUnmounted, watch} from "vue";
+
+import {ref, computed, onMounted, onUnmounted} from "vue";
 import SessionCard from "./SessionCard.vue";
 import useTerrains from "../../useJs/useTerrain.js";
-import { useSessionsStore } from "../../store/useSessionsStore.js";
-import { usePlayersStore } from "../../store/usePlayersStore.js";
-import { useTrainersStore } from "../../store/useTrainersStore.js";
-import { storeToRefs } from "pinia";
-import { useSessions } from "../../useJs/useSessions.js";
-import terrainService from "../../services/TerrainService";
-import sessionsService from "../../services/SessionService";
-import trainerService from "../../services/TrainersService";
-import playerService from "../../services/PlayersService";
-import usePlayers from "../../useJs/usePlayers.js";
-import useTrainers from "../../useJs/useTrainers.js";
+import {useSessionsStore} from "../../store/useSessionsStore.js";
+import {usePlayersStore} from "../../store/usePlayersStore.js";
+import {useTrainersStore} from "../../store/useTrainersStore.js";
+import {storeToRefs} from "pinia";
 import {getGroupAge, getGroupLevel, getSportsAge} from "../../functionality/conversionUtils.js";
 
 
@@ -222,9 +253,9 @@ export default {
     const trainersStore = useTrainersStore();
 
     // Références réactives extraites des stores
-    const { sessions } = storeToRefs(sessionsStore);
-    const { players } = storeToRefs(playersStore);
-    const { trainers } = storeToRefs(trainersStore);
+    const {sessions} = storeToRefs(sessionsStore);
+    const {players} = storeToRefs(playersStore);
+    const {trainers} = storeToRefs(trainersStore);
 
     // Méthodes pour récupérer les données
     const fetchSessions = sessionsStore.fetchSessions;
@@ -233,7 +264,7 @@ export default {
     const fetchTrainers = trainersStore.fetchTrainers;
 
     // Terrains récupérés via un composable
-    const { terrains, fetchTerrains } = useTerrains();
+    const {terrains, fetchTerrains} = useTerrains();
 
     // États de filtres et UI
     const selectedTerrain = ref(null);
@@ -250,7 +281,7 @@ export default {
 
     // Tri alphabétique des terrains
     const sortedTerrains = computed(() => {
-      return terrains.value.slice().sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+      return terrains.value.slice().sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
     });
 
     // Sessions regroupées par jour de la semaine + filtres appliqués
@@ -266,11 +297,28 @@ export default {
       if (!sessions.value || sessions.value.length === 0) return groupedSessions;
 
       sessions.value
+          .map((session) => {
+            const playersAge = [];
+            session.players.forEach((player) => {
+              const age = getSportsAge(player.birthday);
+              playersAge.push(age);
+            });
+            session.minAge = Math.min(...playersAge);
+            session.maxAge = Math.max(...playersAge);
+
+            const playersLevel = [];
+            session.players.forEach((player) => {
+              playersLevel.push(player.level);
+            });
+            session.minLevel = Math.min(...playersLevel);
+            session.maxLevel = Math.max(...playersLevel);
+            return session;
+          })
           .filter((session) => session.idCourt?.id === selectedTerrain.value)
           .filter((session) => !trainerSearchQuery.value || session.idTrainer?.name.toLowerCase().includes(trainerSearchQuery.value.toLowerCase()) || session.idTrainer?.surname.toLowerCase().includes(trainerSearchQuery.value.toLowerCase()))
           .filter((session) => !playerSearchQuery.value || session.players.some(player => player.name.toLowerCase().includes(playerSearchQuery.value.toLowerCase()) || player.surname.toLowerCase().includes(playerSearchQuery.value.toLowerCase())))
-          .filter((session) => !selectedLevel.value || (session.idTrainer?.infLevel <= selectedLevel.value && session.idTrainer?.supLevel >= selectedLevel.value))
-          .filter((session) => !selectedAge.value || (session.idTrainer?.infAge <= selectedAge.value && session.idTrainer?.supAge >= selectedAge.value))
+          .filter((session) => !selectedLevel.value || (session.minLevel <= selectedLevel.value && session.maxLevel >= selectedLevel.value))
+          .filter((session) => !selectedAge.value || (session.minAge <= selectedAge.value && session.maxAge >= selectedAge.value))
           .forEach((session) => {
             const dayIndex = session.dayWeek - 1;
             if (daysOfWeek[dayIndex]) {
@@ -303,7 +351,8 @@ export default {
     const closeFilterPopup = () => {
       showFilterPopup.value = false;
     };
-    const filterSessions = () => {}; // placeholder
+    const filterSessions = () => {
+    }; // placeholder
 
     // Réinitialiser tous les filtres
     const showAllSessions = () => {
@@ -339,11 +388,13 @@ export default {
     });
 
     // Chargement initial des données + gestion resize
-    onMounted(() => {
+    onMounted(async () => {
       fetchTerrains();
-      fetchSessions();
+      // Charger les sessions et les entraîneurs en parallèle
+      await Promise.all([fetchSessions(), fetchTrainers()]);
+      // Initialiser les heures des coachs une fois les données chargées
+      trainersStore.initializeTrainerHours(sessions.value);
       fetchPlayers();
-      fetchTrainers();
       window.addEventListener("resize", updateWindowSize);
     });
 
@@ -352,23 +403,58 @@ export default {
     });
 
     // Lorsqu'une session est modifiée (horaires)
-    const handleTimesUpdated = async ({ sessionId }) => {
+    const handleTimesUpdated = async ({sessionId, oldStart, oldStop, newStart, newStop}) => {
       await fetchSessions();
       const updatedSession = sessions.value.find(s => s.id === sessionId);
       if (updatedSession) {
         const playerIds = updatedSession.players.map(p => p.id);
         const trainerId = updatedSession.idTrainer?.id;
+
+        // Mise à jour des heures de l'entraîneur si concerné
+        if (trainerId && oldStart && oldStop && newStart && newStop) {
+          // Calculer l'ancienne durée
+          const oldStartTime = new Date(`2000-01-01T${oldStart}`);
+          const oldStopTime = new Date(`2000-01-01T${oldStop}`);
+          const oldDuration = (oldStopTime - oldStartTime) / (1000 * 60 * 60);
+
+          // Calculer la nouvelle durée
+          const newStartTime = new Date(`2000-01-01T${newStart}`);
+          const newStopTime = new Date(`2000-01-01T${newStop}`);
+          const newDuration = (newStopTime - newStartTime) / (1000 * 60 * 60);
+
+          // Ajuster les heures en fonction du changement
+          const hoursDiff = newDuration - oldDuration;
+          if (hoursDiff !== 0) {
+            if (hoursDiff > 0) {
+              trainersStore.incrementTrainerHours(trainerId, hoursDiff);
+            } else {
+              trainersStore.decrementTrainerHours(trainerId, Math.abs(hoursDiff));
+            }
+          }
+        }
+
         if (playerIds.length > 0) await playersStore.fetchPlayersByIds(playerIds);
         if (trainerId) await trainersStore.fetchTrainersByIds([trainerId]);
       }
     };
-
-    // Suppression d'une session + mise à jour des joueurs/entraîneurs concernés
+// Suppression d'une session + mise à jour des joueurs/entraîneurs concernés
     const deleteSession = async (sessionId) => {
       try {
         const sessionToDelete = sessions.value.find(s => s.id === sessionId);
         const playerIds = sessionToDelete?.players.map(p => p.id) || [];
         const trainerId = sessionToDelete?.idTrainer?.id;
+
+        // Si un entraîneur est associé à la session, décrémenter ses heures
+        if (trainerId && sessionToDelete.start && sessionToDelete.stop) {
+          const startTime = new Date(`2000-01-01T${sessionToDelete.start}`);
+          const stopTime = new Date(`2000-01-01T${sessionToDelete.stop}`);
+          const durationHours = (stopTime - startTime) / (1000 * 60 * 60);
+
+          if (durationHours > 0) {
+            trainersStore.decrementTrainerHours(trainerId, durationHours);
+          }
+        }
+
         await sessionsStore.deleteSession(sessionId);
         await fetchSessions();
         if (playerIds.length > 0) await playersStore.fetchPlayersByIds(playerIds);
@@ -386,21 +472,69 @@ export default {
       if (data?.player?.id) {
         lastRemovedPlayer.value = data.player;
         lastRemovedFromSession.value = data.fromSessionId;
-        await playersStore.fetchPlayersByIds([data.player.id]);
+
+        console.log(`Joueur ${data.player.id} supprimé de la session ${data.fromSessionId}`);
+
+        // Attendre un court instant pour permettre au backend de traiter les modifications
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        // Recharger tous les joueurs pour avoir les compteurs à jour
+        await playersStore.fetchPlayers();
       }
     };
-
     //  Mise à jour de l'entraîneur d'une session
-    const handleCoachUpdate = async ({ sessionId, coach }) => {
+    const handleCoachUpdate = async ({sessionId, coach, oldCoach}) => {
       try {
+        console.log("Mise à jour du coach pour la session:", sessionId);
+        console.log("Ancien coach:", oldCoach);
+        console.log("Nouveau coach:", coach);
+        
         const session = sessions.value.find(s => s.id === sessionId);
-        if (!session) return;
-        const trainerId = coach?.id || coach?.idtrainer || null;
-        const updatedSession = { ...session, idTrainer: trainerId };
+        if (!session) {
+          console.error("Session introuvable:", sessionId);
+          return;
+        }
+
+        const oldTrainerId = oldCoach?.id || null;
+        // Get the proper ID from the coach object, considering different property names
+        const newTrainerId = coach?.id || coach?.idtrainer || null;
+        
+        console.log("Ancien coach ID:", oldTrainerId);
+        console.log("Nouveau coach ID:", newTrainerId);
+        
+        // Create a properly formatted session object for the backend update
+        const updatedSession = {
+            ...session,
+            idTrainer: newTrainerId
+        };
+
+        // Gestion du changement d'entraîneur pour leurs heures
+        if (session.start && session.stop) {
+          const startTime = new Date(`2000-01-01T${session.start}`);
+          const stopTime = new Date(`2000-01-01T${session.stop}`);
+          const durationHours = (stopTime - startTime) / (1000 * 60 * 60);
+
+          // Si on supprime un entraîneur ou le remplace, décrémente ses heures
+          if (oldTrainerId && durationHours > 0) {
+            trainersStore.decrementTrainerHours(oldTrainerId, durationHours);
+          }
+
+          // Si on ajoute un entraîneur, incrémente ses heures
+          if (newTrainerId && durationHours > 0) {
+            trainersStore.incrementTrainerHours(newTrainerId, durationHours);
+          }
+        }
+
         await sessionsStore.updateSession(updatedSession);
         await fetchSessions();
-        if (trainerId) {
-          await trainersStore.fetchTrainersByIds([trainerId]);
+
+        // Mise à jour des données liées
+        if (oldTrainerId) {
+          await trainersStore.fetchTrainersByIds([oldTrainerId]);
+        }
+
+        if (newTrainerId) {
+          await trainersStore.fetchTrainersByIds([newTrainerId]);
           const updated = sessions.value.find(s => s.id === sessionId);
           if (updated?.players.length > 0) {
             const playerIds = updated.players.map(p => p.id);
@@ -414,7 +548,7 @@ export default {
 
     //  Mise à jour des joueurs d'une session (avec détection des transferts)
     const updateSessionsPlayers = async (data) => {
-      const { sessionId, players } = data || {};
+      const {sessionId, players} = data || {};
       if (!sessionId) return;
 
       try {
@@ -423,38 +557,132 @@ export default {
 
         const validPlayers = players || [];
 
+        // Vérification des doublons potentiels parmi les joueurs
+        const playerIds = validPlayers.map(p => p.id);
+        const uniquePlayerIds = [...new Set(playerIds)];
+
+        console.log(`Session ${sessionId} - Joueurs à mettre à jour:`, playerIds);
+        console.log(`IDs uniques: ${uniquePlayerIds.length}/${playerIds.length}`);
+
+        // Alerte si des doublons sont détectés
+        if (uniquePlayerIds.length !== playerIds.length) {
+          console.warn("ATTENTION: Doublons détectés dans la liste des joueurs!");
+          console.warn("IDs en double:", playerIds.filter((id, index) => playerIds.indexOf(id) !== index));
+        }
+
         if (lastRemovedFromSession.value && lastRemovedFromSession.value !== sessionId && lastRemovedPlayer.value) {
           //  Transfert détecté entre deux sessions
-          const updatedDestination = { ...session, players: validPlayers };
+          console.log("Transfert détecté:",
+              `Joueur ${lastRemovedPlayer.value.id} de session ${lastRemovedFromSession.value} vers session ${sessionId}`);
+
+          const updatedDestination = {...session, players: validPlayers};
+          console.log("Mise à jour session destination:", sessionId, "avec joueurs:",
+              updatedDestination.players.map(p => p.id));
+
           await updateSession(updatedDestination);
+
           const source = sessions.value.find(s => s.id === lastRemovedFromSession.value);
           if (source) {
             const updatedSourcePlayers = source.players.filter(p => p.id !== lastRemovedPlayer.value.id);
-            await sessionsStore.updateSession({ ...source, players: updatedSourcePlayers });
+            console.log("Mise à jour session source:", lastRemovedFromSession.value,
+                "avec joueurs:", updatedSourcePlayers.map(p => p.id));
+
+            await sessionsStore.updateSession({...source, players: updatedSourcePlayers});
           }
           lastRemovedPlayer.value = null;
           lastRemovedFromSession.value = null;
         } else {
           //  Mise à jour classique
-          await updateSession({ ...session, players: validPlayers });
+          console.log("Mise à jour simple de la session:", sessionId,
+              "avec joueurs:", validPlayers.map(p => p.id));
+
+          await updateSession({...session, players: validPlayers});
         }
 
+        // Attendre un court instant pour permettre au backend de traiter les modifications
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        // Recharger TOUTES les données pour s'assurer d'avoir des données à jour
+        console.log("Rechargement complet des données...");
         await fetchSessions();
 
+        // Forcer le rechargement de TOUS les joueurs au lieu de seulement ceux de la session
+        // Cela garantit que les compteurs de sessions sont correctement mis à jour
+        await playersStore.fetchPlayers();
+
+        // Recharger les données spécifiques de l'entraîneur si nécessaire
         const updatedSessionData = sessions.value.find(s => s.id === sessionId);
-        if (updatedSessionData) {
-          if (updatedSessionData.players.length > 0) {
-            const playerIds = updatedSessionData.players.map(p => p.id);
-            await playersStore.fetchPlayersByIds(playerIds);
-          }
-          if (updatedSessionData.idTrainer?.id) {
-            await trainersStore.fetchTrainersByIds([updatedSessionData.idTrainer.id]);
-          }
+        if (updatedSessionData && updatedSessionData.idTrainer?.id) {
+          await trainersStore.fetchTrainersByIds([updatedSessionData.idTrainer.id]);
         }
       } catch (error) {
         console.error("Erreur dans updateSessionsPlayers :", error);
+
+        // Même en cas d'erreur, essayer de recharger les données pour rester cohérent
+        await fetchSessions();
+        await playersStore.fetchPlayers();
       }
     };
+
+    const addNewSession = async (event) => {
+      // Extraire le jour de la semaine depuis l'élément h2 parent
+      const h2Element = event.target.closest('h2');
+      console.log(h2Element)
+      if (!h2Element) {
+        console.error("Impossible de trouver l'élément h2 parent");
+        return;
+      }
+
+      const Text = h2Element.textContent.trim().match(/^\w+/)[0];
+      console.log(Text);
+
+      const dayText = Text.slice(0, -3);
+      console.log(dayText)
+
+
+      // Convertir le texte du jour en indice (1-Lundi, 2-Mardi, etc.)
+      const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+      const dayWeek = daysOfWeek.indexOf(dayText) + 1;
+      console.log(dayWeek);
+      
+      if (dayWeek === 0) {
+        console.error("Jour de la semaine non reconnu:", dayText);
+        return;
+      }
+
+      // S'assurer qu'un terrain est sélectionné
+      if (!selectedTerrain.value) {
+        console.error("Aucun terrain sélectionné");
+        return;
+      }
+
+      // Créer la nouvelle session avec les valeurs par défaut
+      const newSession = {
+        dayWeek: dayWeek,
+        start: "00:00",
+        stop: "01:00",
+        idCourt: selectedTerrain.value,
+        idTrainer: null,
+        playerIds: []
+      };
+
+      try {
+        console.log("Création d'une nouvelle session:", newSession);
+        // Appeler la méthode du store pour créer la session
+        const createdSession = await sessionsStore.createSession(newSession);
+        
+        if (createdSession) {
+          console.log("Session créée avec succès:", createdSession);
+          // Rafraîchir les sessions pour afficher la nouvelle
+          await fetchSessions();
+        } else {
+          console.error("Échec de la création de la session");
+        }
+      } catch (error) {
+        console.error("Erreur lors de la création de la session:", error);
+      }
+    };
+
 
     return {
       terrains,
@@ -483,6 +711,7 @@ export default {
       showFilterPopup,
       filterSessions,
       handleTimesUpdated,
+      addNewSession
     };
   },
 };
@@ -498,26 +727,47 @@ export default {
   border-bottom: 1px solid #ccc;
   position: relative;
 }
+
 .desktop-toolbar {
   justify-content: center;
 }
+
 .tab-buttons {
   display: flex;
   gap: 16px;
 }
 
-.tab-button {
-  color: gray;
-  font-weight: bold;
-  padding: 0.5rem 1rem;
+.terrain-tab {
+  background: none;
+  border: none;
   border-bottom: 2px solid transparent;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #4a5568;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.2s ease;
 }
 
-.tab-button.active {
-  color: #528359;
-  border-bottom: 2px solid #528359;
+.terrain-tab:hover {
+  color: #2f855a;
+}
+
+.terrain-tab.active {
+  color: #2f855a;
+  border-bottom: 2px solid #2f855a;
+  border-radius: 0;
+}
+
+.terrain-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: grey;
+  border-radius: 9999px;
 }
 
 button:focus {
@@ -617,6 +867,22 @@ body {
   z-index: 1000;
 }
 
+.toolbar {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: white;
+  border-bottom: 1px solid #ccc;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+
+.button.secondary.no-text > span {
+  font-size: 0.75rem;
+  color: #528359;
+}
 
 
 </style>

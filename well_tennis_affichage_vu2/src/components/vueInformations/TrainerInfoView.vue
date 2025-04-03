@@ -10,7 +10,7 @@
               <span class="material-symbols-outlined">save</span>
               Sauvegarder
             </label>
-            <label class="button secondary red" title="Supprimer l'entraîneur" v-if="isEditing">
+            <label class="button secondary red" title="Supprimer l'entraîneur" v-if="isEditing && (('brandt' !== editableTrainer.name.toLowerCase() && 'pierre' !== editableTrainer.surname.toLowerCase()) || ('admin' !== editableTrainer.name.toLowerCase() && 'admin' !== editableTrainer.surname.toLowerCase()))">
               <input type="button" class="hidden" @click="deleteTrainerHandler"/>
               <span class="material-symbols-outlined">delete</span>
               Supprimer
@@ -132,7 +132,7 @@
 
 <script>
 import {ref, watch} from "vue";
-import useTrainers from "../../useJs/useTrainers.js";
+import {useTrainersStore} from "../../store/useTrainersStore.js";
 
 export default {
   name: "TrainerInfoView",
@@ -148,7 +148,7 @@ export default {
     },
   },
   setup(props, {emit}) {
-    const {updateTrainer, createTrainer, deleteTrainer} = useTrainers();
+    const {updateTrainer, createTrainer, deleteTrainer} = useTrainersStore()
 
     const editableTrainer = ref({...props.trainer, disponibilities: [...(props.trainer.disponibilities || [])]});
 
@@ -229,7 +229,7 @@ export default {
           alert("Coach créé avec succès !");
         } else {
           // Mise à jour
-          savedTrainer = await updateTrainer(TrainerData);
+          savedTrainer = await updateTrainer(TrainerData.id, TrainerData);
           alert("Coach mis à jour avec succès !");
         }
         emit("save", savedTrainer);

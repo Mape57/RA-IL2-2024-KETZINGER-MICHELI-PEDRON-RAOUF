@@ -5,10 +5,10 @@
         @click="toggleAccordion"
     >
       <div class="flex items-center players-hover">
-        <span :class="{ 'rotate-180': isOpen }"
+        <span :class="[isOpen ? 'rotate-0' : 'rotate-270']"
               class="material-symbols-outlined players-arrow transition-transform duration-300 mr-2">
-          expand_more
-        </span>
+        expand_more
+       </span>
         <h3 class="font-bold text-lg players-title">Joueurs</h3>
       </div>
 
@@ -85,7 +85,6 @@
 <script>
 import {ref, onMounted, onUnmounted, computed} from "vue";
 import { usePlayersStore } from "../../store/usePlayersStore.js";
-import usePlayers from "../../useJs/usePlayers.js";
 import PlayerInfoView from "../vueInformations/PlayerInfoView.vue";
 import {VueDraggable} from "vue-draggable-plus";
 
@@ -99,7 +98,7 @@ export default {
   },
   setup() {
     const playersStore = usePlayersStore();
-    const { computeAge } = usePlayers();
+    const { computeAge } = usePlayersStore();
     
     const players = computed(() => playersStore.players);
     const loading = computed(() => playersStore.loading);
@@ -141,11 +140,44 @@ export default {
     filteredPlayers() {
       return this.players
           .filter(player => player.validate === true)
-          .filter(player =>
-              player.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-              player.surname.toLowerCase().includes(this.searchQuery.toLowerCase())
-          );
-    },
+          .filter(player => {
+            const searchLower = this.searchQuery.toLowerCase();
+            return player.name.toLowerCase().includes(searchLower) ||
+                player.surname.toLowerCase().includes(searchLower);
+          })
+          .sort((a, b) => {
+            const diffA = a.courses - a.numberOfSessions;
+            const diffB = b.courses - b.numberOfSessions;
+
+            // Compare name and surname when values are equal
+            const compareNames = () => {
+              const nameCompare = a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+              return nameCompare !== 0 ? nameCompare :
+                  a.surname.toLowerCase().localeCompare(b.surname.toLowerCase());
+            };
+
+            // Negative values (overused sessions)
+            if (diffA < 0 && diffB < 0) {
+              return diffA === diffB ? compareNames() : diffA - diffB;
+            }
+
+            // Sort negative before non-negative
+            if (diffA < 0) return -1;
+            if (diffB < 0) return 1;
+
+            // Positive values (remaining sessions)
+            if (diffA > 0 && diffB > 0) {
+              return diffA === diffB ? compareNames() : diffB - diffA;
+            }
+
+            // Sort positive before zero
+            if (diffA > 0) return -1;
+            if (diffB > 0) return 1;
+
+            // Equal values (zero)
+            return compareNames();
+          });
+    }
   },
   methods: {
     toggleAccordion(event) {
@@ -168,7 +200,7 @@ export default {
     },
 
     async handlePlayerDeletion(deletedPlayerId) {
-      await this.playersStore.deletePlayer(deletedPlayerId);
+      if (this.userRole !== "ROLE_ADMIN") return;
       this.selectedPlayer = null; // Ferme l'affichage des détails
     },
     async handlePlayerSave(savedPlayer) {
@@ -278,8 +310,12 @@ export default {
   font-size: 18px;
 }
 
-.rotate-180 {
-  transform: rotate(180deg);
+.rotate-270 {
+  transform: rotate(-90deg);
+}
+
+.rotate-0 {
+  transform: rotate(0deg);
 }
 
 .border-b {
@@ -306,6 +342,20 @@ export default {
     font-weight: normal;
     transform: scale(1);
   }
+}
+
+/* Ajout de styles pour indiquer les éléments glissables */
+.trainer-list li, .trainer-list > div {
+  cursor: grab;
+  transition: background-color 0.2s;
+}
+
+.trainer-list li:hover, .trainer-list > div:hover {
+  background-color: rgba(82, 131, 89, 0.1);
+}
+
+.trainer-list li:active, .trainer-list > div:active {
+  cursor: grabbing;
 }
 
 </style>
