@@ -15,21 +15,43 @@ class ImportService {
                     const binaryStr = event.target.result;
                     const workbook = XLSX.read(binaryStr, { type: "binary" });
 
-                    // 1. Extraction des données
                     const { terrains, errors: terrainErrors } = ImportService.parseTerrains(workbook);
                     const sessions = ImportService.parseSessionConstraints(workbook);
-                    const players = ImportService.parsePlayers(workbook);
+                    const { players, errors: playerErrors } = ImportService.parsePlayers(workbook);
                     const { trainers, errors: trainerErrors } = ImportService.parseTrainers(workbook);
 
-                    // 2. Si des erreurs critiques sont présentes, on bloque tout
-                    const totalErrors = [...terrainErrors, ...trainerErrors];
+                    // Récupération des erreurs individuelles
+                    let totalErrors = [...terrainErrors, ...trainerErrors, ...playerErrors];
+
+                    const allEmails = [
+                        ...players.map(p => (p.email || "").toLowerCase()),
+                        ...trainers.map(t => (t.email || "").toLowerCase())
+                    ];
+
+                    const emailCounts = {};
+                    const emailDupErrors = [];
+
+                    allEmails.forEach(email => {
+                        if (!email) return;
+                        emailCounts[email] = (emailCounts[email] || 0) + 1;
+                    });
+
+                    Object.entries(emailCounts).forEach(([email, count]) => {
+                        if (count > 1) {
+                            emailDupErrors.push(`Email dupliqué détecté : ${email}`);
+                        }
+                    });
+
+                    totalErrors = [...totalErrors, ...emailDupErrors];
+
 
                     if (totalErrors.length > 0) {
-                        reject(new Error("Des erreurs ont été détectées dans le fichier :\n\n" + totalErrors.join("\n")));
-                        return;
+                        return reject(new Error([
+                            "Des erreurs ont été détectées dans le fichier :",
+                            ...totalErrors.map(e => `- ${e}`)
+                        ].join("\n")));
                     }
 
-                    // 3. Aucun problème → on sauvegarde toutes les données
                     if (terrains.length > 0) {
                         await ImportService.saveTerrainsToAPI(terrains);
                     }
@@ -39,20 +61,11 @@ class ImportService {
                     }
 
                     if (players.length > 0) {
-                        console.log("Joueurs extraits :", players); // 🔍 Debug ici
                         await ImportService.savePlayersToAPI(players);
-                    } else {
-                        console.warn("Aucun joueur trouvé, mais l'import continue.");
                     }
-
 
                     if (trainers.length > 0) {
                         await ImportService.saveTrainersToAPI(trainers);
-                    }
-
-                    if (totalErrors.length > 0) {
-                        reject(new Error("Des erreurs ont été détectées dans le fichier :\n\n" + totalErrors.join("\n")));
-                        return;
                     }
 
                     resolve({ players, terrains, terrainErrors: [] });
@@ -73,51 +86,109 @@ class ImportService {
     static parsePlayers(workbook) {
         const sheetName = "Joueurs";
         const sheet = workbook.Sheets[sheetName];
+        const errors = [];
+
         if (!sheet) {
-            console.warn("Feuille 'Joueurs' introuvable.");
-            return [];
+            errors.push("Feuille 'Joueurs' introuvable.");
+            return { players: [], errors };
         }
 
         const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
         if (rawData.length < 3) {
-            console.warn("Pas assez de lignes dans la feuille 'Joueurs'.");
-            return [];
+            errors.push("Pas assez de lignes dans la feuille 'Joueurs'.");
+            return { players: [], errors };
         }
 
         const headers = rawData[0];
         if (!headers.includes("Nom") || !headers.includes("Prénom")) {
-            console.warn("Les colonnes 'Nom' et 'Prénom' sont obligatoires dans la feuille 'Joueurs'.");
-            return [];
+            errors.push("Les colonnes 'Nom' et 'Prénom' sont obligatoires dans la feuille 'Joueurs'.");
+            return { players: [], errors };
         }
 
         const dataRows = rawData.slice(1);
+        const players = [];
+        const seenKeys = new Set();
 
-        return dataRows
-            .filter(row => row[headers.indexOf("Nom")] && row[headers.indexOf("Prénom")])
-            .map((row) => {
-                const email = row[headers.indexOf("Email")];
-                const validEmail = ImportService.validateEmail(email);
-                const phone = row[headers.indexOf("Numero 1")] || "";
-                const phone2 = row[headers.indexOf("Numero 2")] || "";
-                const photoRaw = row[headers.indexOf("Photo")];
-                const hasPhoto = (photoRaw || "").toString().trim().toLowerCase() === "oui";
+        dataRows.forEach((row, i) => {
+            const ligne = i + 2;
+            const nom = row[headers.indexOf("Nom")];
+            const prenom = row[headers.indexOf("Prénom")];
 
-                return {
-                    name: row[headers.indexOf("Nom")] || "Inconnu",
-                    surname: row[headers.indexOf("Prénom")] || "Inconnu",
-                    birthday: ImportService.formatDate(row[headers.indexOf("Date de naissance")]) || "0000-00-00",
-                    email: validEmail ? email : `default_${row[0] || "unknown"}@example.com`,
-                    level: parseInt(row[headers.indexOf("Niveau")] || "0", 10),
-                    courses: parseInt(row[headers.indexOf("Cours par semaine")] || "0", 10),
-                    phone,
-                    phone2: phone2 || undefined,
-                    photo: hasPhoto,
-                    validate: true,
-                    disponibilities: ImportService.parseDisponibilities(row, headers),
-                };
-            })
-            .filter(player => player.name !== "Inconnu" && player.surname !== "Inconnu");
+            // Si toute la ligne est vide, on ignore silencieusement
+            const isRowEmpty = row.every(cell => cell === undefined || cell.toString().trim() === "");
+            if (isRowEmpty) {
+                return;
+            }
 
+            // Si nom ou prénom manquant
+            if (!nom || !prenom) {
+                errors.push(`Ligne ${ligne} : nom ou prénom manquant.`);
+                return;
+            }
+
+            if (!ImportService.isValidName(nom)) {
+                errors.push(`Ligne ${ligne} : nom invalide "${nom}". Uniquement lettres, tirets, apostrophes autorisés.`);
+            }
+
+            if (!ImportService.isValidName(prenom)) {
+                errors.push(`Ligne ${ligne} : prénom invalide "${prenom}". Uniquement lettres, tirets, apostrophes autorisés.`);
+            }
+
+
+            const email = row[headers.indexOf("Email")];
+            const validEmail = ImportService.validateEmail(email);
+            const phone = ImportService.normalizePhoneNumber(row[headers.indexOf("Numero 1")]);
+            const phone2 = ImportService.normalizePhoneNumber(row[headers.indexOf("Numero 2")]);
+            const photoRaw = row[headers.indexOf("Photo")];
+            const hasPhoto = (photoRaw || "").toString().trim().toLowerCase() === "oui";
+            const birthday = ImportService.formatDate(row[headers.indexOf("Date de naissance")]) || "0000-00-00";
+
+            if (birthday !== "0000-00-00") {
+                const birthDate = new Date(birthday);
+                const currentYear = new Date().getFullYear();
+                const minYear = currentYear - 110;
+
+                if (birthDate > new Date()) {
+                    errors.push(`Ligne ${ligne} : date de naissance future invalide (${birthday})`);
+                } else if (birthDate.getFullYear() < minYear) {
+                    errors.push(`Ligne ${ligne} : date de naissance trop ancienne (${birthday}), minimum accepté : ${minYear}`);
+                }
+            }
+
+
+            const key = `${nom.toLowerCase()}|${prenom.toLowerCase()}|${(email || "").toLowerCase()}`;
+            if (seenKeys.has(key)) {
+                errors.push(`Ligne ${ligne} : doublon détecté pour ${nom} ${prenom} (${email})`);
+            } else {
+                seenKeys.add(key);
+            }
+
+            const { disponibilites, errors: dispoErrors } = ImportService.parseDisponibilities(row, headers, i);
+            errors.push(...dispoErrors);
+
+            const courses = parseInt(row[headers.indexOf("Cours par semaine")] || "0", 10);
+            if (isNaN(courses) || courses < 1) {
+                errors.push(`Ligne ${ligne} : le nombre de cours doit être supérieur ou égal à 1`);
+            } else if (disponibilites.length < courses) {
+                errors.push(`Ligne ${ligne} : ${courses} cours demandés mais seulement ${disponibilites.length} dispo(s).`);
+            }
+
+            players.push({
+                name: nom,
+                surname: prenom,
+                birthday,
+                email: validEmail ? email : `default_${row[0] || "unknown"}@example.com`,
+                level: parseInt(row[headers.indexOf("Niveau")] || "0", 10),
+                courses,
+                phone,
+                phone2: phone2 || undefined,
+                photo: hasPhoto,
+                validate: true,
+                disponibilities: disponibilites,
+            });
+        });
+
+        return { players, errors };
     }
 
     static parseTrainers(workbook) {
@@ -141,10 +212,30 @@ class ImportService {
 
             const nom = get("Nom");
             const prenom = get("Prénom");
+            const ligne = i + 2;
+
             if (!nom || !prenom) {
-                errors.push(`Ligne ${i + 2} : Nom ou prénom manquant.`);
+                errors.push(`Ligne ${ligne} : nom ou prénom manquant.`);
                 return null;
             }
+
+            if (!ImportService.isValidName(nom)) {
+                errors.push(`Ligne ${ligne} : nom invalide "${nom}". Uniquement lettres, tirets, apostrophes autorisés.`);
+            }
+
+            if (!ImportService.isValidName(prenom)) {
+                errors.push(`Ligne ${ligne} : prénom invalide "${prenom}". Uniquement lettres, tirets, apostrophes autorisés.`);
+            }
+
+
+            if (!ImportService.isValidName(nom)) {
+                errors.push(`Ligne ${ligne} : nom invalide "${nom}". Uniquement lettres, tirets, apostrophes autorisés.`);
+            }
+
+            if (!ImportService.isValidName(prenom)) {
+                errors.push(`Ligne ${ligne} : prénom invalide "${prenom}". Uniquement lettres, tirets, apostrophes autorisés.`);
+            }
+
 
             return {
                 name: nom,
@@ -164,9 +255,7 @@ class ImportService {
         return { trainers, errors };
     }
 
-
-
-    static parseDisponibilities(row, headers) {
+    static parseDisponibilities(row, headers, rowIndex = 0) {
         const dayMapping = {
             "Lundi": 1,
             "Mardi": 2,
@@ -177,26 +266,90 @@ class ImportService {
             "Dimanche": 7
         };
 
-        return Object.entries(dayMapping).flatMap(([day, dayIndex]) => {
+        const errors = [];
+        const disponibilites = [];
+
+        const columnLetter = (index) => {
+            let col = "";
+            while (index >= 0) {
+                col = String.fromCharCode((index % 26) + 65) + col;
+                index = Math.floor(index / 26) - 1;
+            }
+            return col;
+        };
+
+        const isValidTimeString = (time) => {
+            if (!time) return false;
+            if (/^\d{1,2}:\d{2}$/.test(time)) {
+                const [h, m] = time.split(":").map(Number);
+                return h >= 0 && h <= 23 && m >= 0 && m <= 59;
+            }
+            if (/^\d{1,2}$/.test(time)) {
+                const h = parseInt(time);
+                return h >= 0 && h <= 23;
+            }
+            return false;
+        };
+
+        Object.entries(dayMapping).forEach(([day, dayIndex]) => {
             const colIndex = headers.indexOf(day);
             if (colIndex !== -1 && row[colIndex]) {
-                return row[colIndex].toString().split(",").map((timeRange) => {
-                    const [start, stop] = timeRange.trim().split("-").map(t => t.trim());
-                    const open = ImportService.formatHour(start);
-                    const close = ImportService.formatHour(stop);
-                    if (!ImportService.isValidSlot(open) || !ImportService.isValidSlot(close)) {
-                        console.warn(`Disponibilité invalide : ${day} -> "${timeRange}" ignorée`);
-                        return null;
+                const slots = row[colIndex].toString().split(",");
+
+                slots.forEach((timeRange) => {
+                    const [startRaw, stopRaw] = timeRange.trim().split("-").map(t => t.trim());
+
+                    const cell = columnLetter(colIndex) + (rowIndex + 2);
+
+                    if (!startRaw || !stopRaw) {
+                        errors.push(`Erreur dans ${cell} : horaire incomplet "${timeRange}"`);
+                        return;
                     }
-                    return {
+
+                    if (!isValidTimeString(startRaw) || !isValidTimeString(stopRaw)) {
+                        errors.push(`Erreur dans ${cell} : horaire invalide "${timeRange}"`);
+                        return;
+                    }
+
+                    const open = ImportService.formatHour(startRaw);
+                    const close = ImportService.formatHour(stopRaw);
+
+                    if (!ImportService.isValidSlot(open) || !ImportService.isValidSlot(close)) {
+                        errors.push(`Erreur dans ${cell} : horaire invalide "${timeRange}". Format attendu : HH:00 ou HH:30`);
+                        return;
+                    }
+
+                    disponibilites.push({
                         dayWeek: dayIndex,
                         open,
                         close,
-                    };
-                }).filter(Boolean);
+                    });
+                });
             }
-            return [];
         });
+
+        return { disponibilites, errors };
+    }
+
+    static isValidName(name) {
+        return typeof name === "string" && /^[A-Za-zÀ-ÖØ-öø-ÿ\s\-']+$/.test(name.trim());
+    }
+
+    static normalizePhoneNumber(number) {
+        if (!number) return "";
+
+        let num = number.toString().replace(/\D/g, "");
+
+        if (num.length === 9 && (num.startsWith("6") || num.startsWith("7"))) {
+            num = "0" + num;
+        }
+
+        if (num.length === 10) {
+            return num;
+        }
+
+        console.warn(`Numéro invalide ignoré : ${number}`);
+        return "";
     }
 
     static parseTerrains(workbook) {
@@ -307,7 +460,6 @@ class ImportService {
         }).filter(Boolean);
     }
 
-
     static parseDuration(value) {
         if (!value) return 0;
         const match = value.toString().match(/^(\d+(?:\.\d+)?)h$/i);
@@ -343,7 +495,6 @@ class ImportService {
         // Format attendu : HH:00 ou HH:30
         return /^([01]\d|2[0-3]):(00|30)$/.test(time);
     }
-
 
     static validateEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -381,7 +532,6 @@ class ImportService {
             }
         }
     }
-
 
     static async saveTerrainsToAPI(terrains) {
         if (terrains.length === 0) return;
