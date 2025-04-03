@@ -113,8 +113,15 @@
 
       <!-- Contenu principal -->
       <div class="content flex-1 overflow-auto p-4 w-full overflow-x-hidden">
-        <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6">
-          <h2 class="text-[#528359] text-xl font-bold mb-4">{{ day }}</h2>
+        <div v-for="(sessions, day) in sessionsByDay" :key="day" class="mb-6" >
+
+          <h2 class="text-[#528359] text-xl font-bold mb-4 flex items-center">
+            <span>{{ day }}</span>
+            <label class="button secondary no-text ml-2 flex items-center" title="Ajouter une nouvelle session">
+              <input type="button" class="hidden" @click="addNewSession"/>
+              <span class="material-symbols-outlined">add</span>
+            </label>
+          </h2>
           <SessionCard
               v-for="session in sessions"
               :key="session.id"
@@ -600,6 +607,66 @@ export default {
       }
     };
 
+    const addNewSession = async (event) => {
+      // Extraire le jour de la semaine depuis l'élément h2 parent
+      const h2Element = event.target.closest('h2');
+      console.log(h2Element)
+      if (!h2Element) {
+        console.error("Impossible de trouver l'élément h2 parent");
+        return;
+      }
+
+      const Text = h2Element.textContent.trim().match(/^\w+/)[0];
+      console.log(Text);
+
+      const dayText = Text.slice(0, -3);
+      console.log(dayText)
+
+
+      // Convertir le texte du jour en indice (1-Lundi, 2-Mardi, etc.)
+      const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+      const dayWeek = daysOfWeek.indexOf(dayText) + 1;
+      console.log(dayWeek);
+      
+      if (dayWeek === 0) {
+        console.error("Jour de la semaine non reconnu:", dayText);
+        return;
+      }
+
+      // S'assurer qu'un terrain est sélectionné
+      if (!selectedTerrain.value) {
+        console.error("Aucun terrain sélectionné");
+        return;
+      }
+
+      // Créer la nouvelle session avec les valeurs par défaut
+      const newSession = {
+        dayWeek: dayWeek,
+        start: "00:00",
+        stop: "01:00",
+        idCourt: selectedTerrain.value,
+        idTrainer: null,
+        playerIds: []
+      };
+
+      try {
+        console.log("Création d'une nouvelle session:", newSession);
+        // Appeler la méthode du store pour créer la session
+        const createdSession = await sessionsStore.createSession(newSession);
+        
+        if (createdSession) {
+          console.log("Session créée avec succès:", createdSession);
+          // Rafraîchir les sessions pour afficher la nouvelle
+          await fetchSessions();
+        } else {
+          console.error("Échec de la création de la session");
+        }
+      } catch (error) {
+        console.error("Erreur lors de la création de la session:", error);
+      }
+    };
+
+
     return {
       terrains,
       sessions,
@@ -627,6 +694,7 @@ export default {
       showFilterPopup,
       filterSessions,
       handleTimesUpdated,
+      addNewSession
     };
   },
 };
@@ -791,6 +859,12 @@ body {
   position: sticky;
   top: 0;
   z-index: 50;
+}
+
+
+.button.secondary.no-text > span {
+  font-size: 0.75rem;
+  color: #528359;
 }
 
 
