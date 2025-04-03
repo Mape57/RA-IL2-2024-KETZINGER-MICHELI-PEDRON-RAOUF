@@ -444,8 +444,8 @@ export default {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 7px;
-  box-sizing: content-box;
+  padding: 0 1rem 0 1rem; /* marge à gauche ET droite */
+  box-sizing: border-box;
 }
 
 /* Scrollbar */
