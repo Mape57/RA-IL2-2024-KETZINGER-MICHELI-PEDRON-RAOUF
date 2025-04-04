@@ -10,9 +10,6 @@
     <!-- Menu contextuel -->
     <transition name="fade">
       <div v-if="showMenu" class="menu-contextual" @click.self="toggleMenu">
-        <button @click="handleLogout">
-          <span class="material-icons">exit_to_app</span> Déconnexion
-        </button>
         <button @click="toggleLeftPanel">
           <span class="material-icons">storage</span> Données
         </button>
@@ -26,13 +23,12 @@
             v-if="showLeftPanel"
             class="mobile-left-panel"
             :isMobile="true"
+            :isVisible="showLeftPanel"
             :userRole="'ROLE_TRAINER'"
             @close="toggleLeftPanel"
         />
       </transition>
-      <div class="mobile-right-panel">
-        <RightPanel :isMobile="true" :userRole="'ROLE_TRAINER'" />
-      </div>
+      <RightPanel class="mobile-right-panel" :userRole="'ROLE_TRAINER'" :isMobile="true" />
     </div>
 
     <!-- Layout desktop -->
@@ -178,6 +174,9 @@ export default {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  background: white;
+  margin: 0;
+  padding: 0;
 }
 .mobile-left-panel {
   width: 100vw;
@@ -240,5 +239,10 @@ export default {
   box-sizing: border-box;
   position: relative;
   z-index: 2;
+}
+@media (max-width: 767px) {
+  .admin-page {
+    padding: 0;
+  }
 }
 </style>

@@ -5,7 +5,7 @@
       <LogoSection class="flex-shrink-0 h-[200px] sm:h-[300px] md:h-[400px] lg:h-[510px]" />
 
       <!-- Password Change Form -->
-      <div class="w-full bg-white flex justify-center items-center shadow-md p-4 lg:p-0 lg:w-[760px] h-auto lg:h-[510px]">
+      <div class="w-full bg-white flex justify-center items-center shadow-md p-4 lg:p-0 lg:w-[760px] h-auto lg:h-[710px]">
         <div v-if="showForm" class="text-center w-full lg:w-auto">
           <h1 class="text-[#1A4220] text-xl lg:text-2xl font-bold mb-4 lg:mb-6">Changement de mot de passe</h1>
           <form class="space-y-4" @submit.prevent="handleSubmit">

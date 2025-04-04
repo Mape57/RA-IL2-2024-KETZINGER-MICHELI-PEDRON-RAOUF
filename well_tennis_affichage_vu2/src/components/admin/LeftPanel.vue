@@ -5,10 +5,6 @@
   ]"
       class="bg-white rounded-lg shadow-md p-4 md:p-6 flex flex-col overflow-hidden w-full h-full"
   >
-  <!-- Bouton de fermeture -->
-    <button v-if="localIsMobile && isVisible" @click="$emit('close')" class="close-button">
-      <span class="material-symbols-outlined">close</span>
-    </button>
 
     <!-- Onglets -->
     <div class="tabs flex items-center mb-4">
@@ -28,6 +24,15 @@
         >
           <span class="material-symbols-outlined mr-2">gavel</span>
           <span v-if="!isMobile">Contraintes</span>
+        </button>
+
+        <button
+            v-if="localIsMobile && isVisible"
+            @click="$emit('close')"
+            class="close-button flex"
+            title="Fermer"
+        >
+          <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
@@ -523,6 +528,18 @@ export default {
   justify-content: center;
 }
 
+.close-button {
+  color: gray;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+  padding-bottom: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  color: #3a6242;
+}
 .tab-button.active::after {
   content: "";
   position: absolute;
@@ -539,27 +556,9 @@ export default {
   color: #2f855a;
 }
 
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  color: #528359;
-}
-
-.close-button:hover {
-  color: #3a6242;
-}
 
 .tab-button span {
   display: inline;
-}
-
-.close-button:hover {
-  color: #3a6242;
 }
 
 .menu-item {

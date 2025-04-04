@@ -10,9 +10,6 @@
     <!-- Menu contextuel avec animation -->
     <transition name="fade">
       <div v-if="showMenu" class="menu-contextual" @click.self="toggleMenu">
-        <button @click="handleLogout">
-          <span class="material-icons">exit_to_app</span> Déconnexion
-        </button>
         <button @click="toggleLeftPanel">
           <span class="material-icons">storage</span> Données
         </button>
