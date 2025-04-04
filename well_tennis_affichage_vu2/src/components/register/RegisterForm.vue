@@ -376,7 +376,7 @@ export default {
         email: email,
         phone: fullNumber,
         phone2: fullNumber2,
-        photoConsent: photoConsent,
+        photo: photoConsent,
         disponibilities: disponibilites.map(d => ({
           dayWeek: dayMapping[d.jour],
           open: d.open,

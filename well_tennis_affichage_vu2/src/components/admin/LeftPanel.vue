@@ -92,6 +92,12 @@
         Télécharger les données (.xlsx)
       </button>
 
+      <button class="menu-item" @click="downloadSessionsByCourt">
+        <span class="material-symbols-outlined mr-2">table_chart</span>
+        Télécharger les sessions par terrain (.xlsx)
+      </button>
+
+
       <button class="menu-item" @click="downloadPDF">
         <span class="material-symbols-outlined mr-2">calendar_today</span>
         Télécharger le planning (.pdf)
@@ -172,7 +178,7 @@ import PlayerNot from "../vueInformations/PlayerNot.vue";
 import PopupMessage from "../../components/PopupMessage.vue";
 import ConfirmDialog from "../../components/ConfirmDialog.vue";
 import { useSessionsStore } from "../../store/useSessionsStore";
-
+import ExportSessions from "../../functionality/ExportSessions";
 
 export default {
   name: "LeftPanel",
@@ -387,6 +393,21 @@ export default {
       this.popupMessage = "Données exportées avec succès !";
       this.popupType = "success";
       this.showPopup = true;
+    },
+
+    async downloadSessionsByCourt() {
+      try {
+        const sessionsStore = useSessionsStore();
+        await ExportSessions.export(sessionsStore.sessions);
+        this.popupMessage = "Sessions exportées par terrain avec succès !";
+        this.popupType = "success";
+        this.showPopup = true;
+      } catch (error) {
+        console.error("Erreur lors de l'export des sessions :", error);
+        this.popupMessage = "Erreur lors de l'export des sessions.";
+        this.popupType = "error";
+        this.showPopup = true;
+      }
     },
 
     async sendReinscriptionMail() {
