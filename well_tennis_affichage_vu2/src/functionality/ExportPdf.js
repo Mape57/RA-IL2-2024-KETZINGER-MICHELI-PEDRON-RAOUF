@@ -1,6 +1,5 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import * as XLSX from "xlsx";
 import sessionsService from "../services/SessionService.js";
 import terrainService from "../services/TerrainService.js";
 import {getGroupAge, getGroupLevel} from "./conversionUtils.js";
