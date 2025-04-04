@@ -56,9 +56,19 @@
               @click="!isMobile && showPlayerInfo(player)">
 
             <!-- Nom du joueur -->
-            <span>{{ player.name }}</span>
+            <span
+                class="truncate overflow-hidden whitespace-nowrap"
+                :title="player.name"
+            >
+              {{ player.name }}
+            </span>
+
             <!-- Prénom du joueur -->
-            <span class="text-left">{{ player.surname }}</span>
+            <span
+                class="truncate overflow-hidden whitespace-nowrap"
+                :title="player.surname"
+            >{{ player.surname }}</span>
+
             <!-- Âge du joueur -->
             <span class="text-left">{{ computeAge(player.birthday) || "N/A" }} ans</span>
             <!-- Niveau du joueur -->
