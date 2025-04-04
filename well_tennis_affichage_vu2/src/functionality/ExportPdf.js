@@ -91,8 +91,8 @@ class ExportPdf {
                     let tempColumnY = columnPositions[jour];
 
                     (sessionsByDay[jour] || []).forEach((session) => {
-                        let nextY = tempColumnY + 15;
-                        if (nextY > maxY) {
+                        const hauteur = calculerHauteurSession(doc, session, colWidth);
+                        if (tempColumnY + hauteur > maxY) {
                             overflowSessions.push({ jour, session, index: i });
                         } else {
                             tempColumnY = afficherSession(doc, session, startX + i * colWidth, tempColumnY, colWidth, getCoachColor);
@@ -153,6 +153,15 @@ class ExportPdf {
         return jours[dayWeek] || "Jour inconnu";
     }
 }
+
+function calculerHauteurSession(doc, session, colWidth) {
+    let players = session.players.map(p => `${p.name} ${p.surname}`).join(", ");
+    const splitPlayers = doc.splitTextToSize(players, colWidth - 2);
+    const lineHeight = 3.5;
+    const totalHeight = splitPlayers.length * lineHeight;
+    return 5 + 5 + 1.5 + totalHeight + 3; // coach + age + ligne + joueurs + padding
+}
+
 
 function afficherSession(doc, session, x, y, colWidth, getCoachColor) {
     const coach = session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : "Aucun entraîneur";
