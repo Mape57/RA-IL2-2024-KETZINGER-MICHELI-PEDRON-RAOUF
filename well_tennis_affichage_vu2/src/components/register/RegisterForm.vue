@@ -38,13 +38,13 @@
               <option v-for="(num, jour) in dayMapping" :key="num" :value="jour">{{ jour }}</option>
             </select>
             <select v-model="newDisponibilite.debut" class="availability-input">
-              <option disabled value="">Heure début</option>
+              <option disabled value="">Heure de début</option>
               <option v-for="hour in generateTimeSlots()" :key="hour" :value="hour">
                 {{ hour }}
               </option>
             </select>
             <select v-model="newDisponibilite.fin" class="availability-input">
-              <option disabled value="">Heure fin</option>
+              <option disabled value="">Heure de fin</option>
               <option v-for="hour in generateTimeSlots()" :key="hour" :value="hour">
                 {{ hour }}
               </option>
@@ -54,7 +54,7 @@
           <ul class="mt-2">
             <li v-for="(dispo, index) in form.disponibilites" :key="index" class="dispo-item">
               <span>{{ dispo.jour }}: {{ dispo.open }} - {{ dispo.close }}</span>
-              <button type="button" @click="removeDisponibilite(index)" class="delete-button" style="padding-left: .5rem">Supprimer</button>
+              <button type="button" @click="removeDisponibilite(index)" class="delete-button" style="padding-left: .9rem">Supprimer</button>
             </li>
           </ul>
         </div>
@@ -119,20 +119,35 @@
         </div>
       </div>
 
+      <br />
 
       <!-- Autorisation photo -->
       <div class="text-sm text-gray-600">
         <p class="mb-2">
-          Autorisez-vous la prise de photos ?<span class="text-red-500">*</span><br>
-          <span class="italic text-xs text-gray-500">*Pour les parents, cela concerne les photos de leur(s) enfant(s)</span>
+          AUTORISATION DE DROIT À L’IMAGE  <span class="text-red-500">*</span><br>
+          <span class="italic text-xs text-gray-500">
+          Vous soussigné(e) à autoriser l’association WELL TENNIS CLUB à potentiellement utiliser les photos de vous sur le site internet de l’association, ainsi que sur les réseaux sociaux et dans les supports de communication de l’association.
+            Vous pouvez retirer cette autorisation à tout moment en contactant l’association.</span>
         </p>
         <div class="flex space-x-4 items-center">
           <div class="flex items-center">
-            <input type="radio" id="photoYes" value="true" v-model="form.acceptPhoto" />
+            <input
+                type="radio"
+                id="photoYes"
+                value="true"
+                v-model="form.acceptPhoto"
+                class="mr-1"
+            />
             <label for="photoYes">Oui</label>
           </div>
           <div class="flex items-center">
-            <input type="radio" id="photoNo" value="false" v-model="form.acceptPhoto" />
+            <input
+                type="radio"
+                id="photoNo"
+                value="false"
+                v-model="form.acceptPhoto"
+                class="mr-1"
+            />
             <label for="photoNo">Non</label>
           </div>
         </div>
@@ -142,7 +157,7 @@
 
       <div class="flex items-center">
         <input v-model="form.acceptTerms" id="acceptTerms" type="checkbox" class="mr-2"/>
-        <label for="acceptTerms" class="text-sm text-gray-600">J'accepte l'utilisation de mes données<span class="text-red-500">*</span></label>
+        <label for="acceptTerms" class="text-sm text-gray-600">J'accepte que l'association WELL TENNIS CLUB stocke mes données personnelles à des fins non commerciales <span class="text-red-500">*</span></label>
       </div>
       <p class="text-xs text-gray-500 mt-2">
         <span class="text-red-500">*</span> Champs obligatoires
@@ -308,8 +323,8 @@ export default {
 
       // Numéro de téléphone FR mobile (06 ou 07)
       const cleanedNumber = numero.replace(/\D/g, ''); // enlève espaces et tirets
-      if (!/^[67]\d{8}$/.test(cleanedNumber)) {
-        return alert("Le numéro doit commencer par 6 ou 7 et contenir exactement 9 chiffres.");
+      if (!/^[367]\d{8}$/.test(cleanedNumber)) {
+        return alert("Le numéro doit commencer par 3,6 ou 7 et contenir exactement 9 chiffres.");
       }
       if (cleanedNumber.length !== 9) {
         return alert("Le numéro de téléphone doit contenir exactement 9 chiffres.");
@@ -347,7 +362,7 @@ export default {
 
       // Conditions d'utilisation
       if (!acceptTerms) {
-        return alert("Vous devez accepter l'utilisation de vos données.");
+        return alert("Vous devez accepter les conditions d'utilisation.");
       }
 
       // Nombre de cours cohérent
