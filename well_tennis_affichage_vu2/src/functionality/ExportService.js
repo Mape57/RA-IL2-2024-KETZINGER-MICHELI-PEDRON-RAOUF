@@ -47,6 +47,8 @@ class ExportService {
                     "Date de naissance": player.birthday || "N/A",
                     Âge: ExportService.computeAge(player.birthday) || "N/A",
                     Email: player.email || "N/A",
+                    "Numero 1": player.phone || "N/A",
+                    "Numero 2": player.phone2 || "N/A",
                     Niveau: player.level || "N/A",
                     "Cours par semaine": player.courses || "N/A",
                     ...availability,

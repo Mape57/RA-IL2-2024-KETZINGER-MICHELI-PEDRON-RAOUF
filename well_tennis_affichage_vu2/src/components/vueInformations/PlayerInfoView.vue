@@ -73,11 +73,13 @@
                 <span>Nombre de cours</span>
                 <input type="number" v-model="editablePlayer.courses" min="1" max="3" required/>
               </label>
-
-              <div class="input top-label">
+              <label class="checkbox">
+                <input type="checkbox" v-model="editablePlayer.photo" class="hidden"/>
+                <span class="material-symbols-outlined">
+                    {{ editablePlayer.photo ? 'check_box' : 'check_box_outline_blank' }}
+                  </span>
                 <span>Autorise à être pris en photo</span>
-                <div class="readonly-value">{{ editablePlayer.photo ? 'Oui' : 'Non' }}</div>
-              </div>
+              </label>
 
             </div>
 

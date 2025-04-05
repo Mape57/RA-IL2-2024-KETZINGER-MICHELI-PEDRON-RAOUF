@@ -141,7 +141,7 @@ class ImportService {
             const phone2 = ImportService.normalizePhoneNumber(row[headers.indexOf("Numero 2")]);
             const photoRaw = row[headers.indexOf("Photo")];
             const hasPhoto = (photoRaw || "").toString().trim().toLowerCase() === "oui";
-            const birthday = ImportService.formatDate(row[headers.indexOf("Date de naissance")]) || "0000-00-00";
+            const birthday = row[headers.indexOf("Date de naissance")] || "0000-00-00";
 
             if (birthday !== "0000-00-00") {
                 const birthDate = new Date(birthday);
