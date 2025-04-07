@@ -47,9 +47,9 @@ class ExportService {
                     "Date de naissance": player.birthday || "N/A",
                     Âge: ExportService.computeAge(player.birthday) || "N/A",
                     Email: player.email || "N/A",
-                    "Numero 1": player.phone || "N/A",
-                    "Numero 2": player.phone2 || "N/A",
-                    Niveau: player.level || "N/A",
+                    "Numero 1": player.phone || "Non renseigné",
+                    "Numero 2": player.phone2 || "Non renseigné",
+                    Niveau: (player.level >= 0 && player.level <= 50) ? player.level : "N/A",
                     "Cours par semaine": player.courses || "N/A",
                     ...availability,
                 };
@@ -57,19 +57,45 @@ class ExportService {
 
             const playersSheet = XLSX.utils.json_to_sheet(formattedPlayers);
 
-            const formattedTrainers = trainers.map((trainer) => ({
-                Nom: trainer.name || "N/A",
-                Prénom: trainer.surname || "N/A",
-                "Niveau Min": trainer.infLevel || "N/A",
-                "Niveau Max": trainer.supLevel || "N/A",
-                "Âge Min": trainer.infAge || "N/A",
-                "Âge Max": trainer.supAge || "N/A",
-                "Minutes Hebdo Min": trainer.infWeeklyMinutes || "N/A",
-                "Minutes Hebdo Max": trainer.supWeeklyMinutes || "N/A",
-                Email: trainer.email || "N/A",
-                "Vacataire": trainer.partTime ? "Oui" : "Non",
-                Admin: trainer.admin ? "Oui" : "Non",
-            }));
+            const safeValue = (val) => (val !== null && val !== undefined) ? val : "N/A";
+
+            const formattedTrainers = trainers.map((trainer) => {
+                const availability = {
+                    Lundi: "",
+                    Mardi: "",
+                    Mercredi: "",
+                    Jeudi: "",
+                    Vendredi: "",
+                    Samedi: "",
+                };
+
+                if (trainer.disponibilities && trainer.disponibilities.length > 0) {
+                    trainer.disponibilities.forEach((d) => {
+                        const day = dayMapping[d.dayWeek];
+                        if (day && availability[day] !== undefined) {
+                            availability[day] += availability[day]
+                                ? `, ${d.open} - ${d.close}`
+                                : `${d.open} - ${d.close}`;
+                        }
+                    });
+                }
+
+                return {
+                    Nom: trainer.name || "N/A",
+                    Prénom: trainer.surname || "N/A",
+                    "Niveau Min": (trainer.infLevel >= 0 && trainer.infLevel <= 50) ? trainer.infLevel : "N/A",
+                    "Niveau Max": (trainer.supLevel >= 0 && trainer.supLevel <= 50) ? trainer.supLevel : "N/A",
+                    "Âge Min": trainer.infAge || "N/A",
+                    "Âge Max": trainer.supAge || "N/A",
+                    "Minutes Hebdo Min": safeValue(trainer.infWeeklyMinutes),
+                    "Minutes Hebdo Max": safeValue(trainer.supWeeklyMinutes),
+                    Email: trainer.email || "N/A",
+                    "Vacataire": trainer.partTime ? "Oui" : "Non",
+                    Admin: trainer.admin ? "Oui" : "Non",
+                    ...availability,
+                };
+            });
+
 
             const trainersSheet = XLSX.utils.json_to_sheet(formattedTrainers);
 
