@@ -51,6 +51,7 @@ class ExportService {
                     "Numero 2": player.phone2 || "Non renseigné",
                     Niveau: (player.level >= 0 && player.level <= 50) ? player.level : "N/A",
                     "Cours par semaine": player.courses || "N/A",
+                    Photo: player.photo ? "Oui" : "Non",
                     ...availability,
                 };
             });
