@@ -73,6 +73,14 @@
                 <span>Nombre de cours</span>
                 <input type="number" v-model="editablePlayer.courses" min="1" max="3" required/>
               </label>
+              <label class="checkbox">
+                <input type="checkbox" v-model="editablePlayer.photo" class="hidden"/>
+                <span class="material-symbols-outlined">
+                    {{ editablePlayer.photo ? 'check_box' : 'check_box_outline_blank' }}
+                  </span>
+                <span>Autorise à être pris en photo</span>
+              </label>
+
             </div>
 
             <div class="right">
@@ -135,7 +143,7 @@ export default {
 
     const {computeAge, updatePlayer, createPlayer, deletePlayer} = usePlayersStore();
 
-    const editablePlayer = ref({...props.player, disponibilities: [...(props.player.disponibilities || [])]});
+    const editablePlayer = ref({...props.player,  photo: props.player.photo ?? false, disponibilities: [...(props.player.disponibilities || [])]});
 
     const deletePlayerHandler = async () => {
       const confirmDelete = confirm("Êtes-vous sûr de vouloir supprimer ce joueur ?");

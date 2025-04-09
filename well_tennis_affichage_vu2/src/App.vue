@@ -11,7 +11,7 @@ export default {
 <style>
 /* Styles globaux */
 body {
-  background-color: #f5f0e8;
+  background-color: white;
 }
 
 

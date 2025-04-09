@@ -21,7 +21,11 @@ class ImportService {
                     const { trainers, errors: trainerErrors } = ImportService.parseTrainers(workbook);
 
                     // Récupération des erreurs individuelles
-                    let totalErrors = [...terrainErrors, ...trainerErrors, ...playerErrors];
+                    let totalErrors = [
+                        ...terrainErrors,
+                        ...playerErrors,
+                        ...(trainers.length > 0 ? trainerErrors : [])
+                    ];
 
                     const allEmails = [
                         ...players.map(p => (p.email || "").toLowerCase()),
@@ -140,8 +144,25 @@ class ImportService {
             const phone = ImportService.normalizePhoneNumber(row[headers.indexOf("Numero 1")]);
             const phone2 = ImportService.normalizePhoneNumber(row[headers.indexOf("Numero 2")]);
             const photoRaw = row[headers.indexOf("Photo")];
-            const hasPhoto = (photoRaw || "").toString().trim().toLowerCase() === "oui";
-            const birthday = ImportService.formatDate(row[headers.indexOf("Date de naissance")]) || "0000-00-00";
+            let hasPhoto = false;
+
+            if (ImportService.isYes(photoRaw)) {
+                hasPhoto = true;
+            } else if (ImportService.isNo(photoRaw)) {
+                hasPhoto = false;
+            } else {
+                errors.push(`Ligne ${ligne} : valeur invalide dans la colonne "Photo" (${photoRaw}). Mettre "oui" ou "non".`);
+            }
+
+
+
+            const rawDate = row[headers.indexOf("Date de naissance")];
+            const birthday = ImportService.formatDate(rawDate) || "0000-00-00";
+
+
+            if (birthday === "0000-00-00") {
+                errors.push(`Ligne ${ligne} : date de naissance non reconnue ou au mauvais format`);
+            }
 
             if (birthday !== "0000-00-00") {
                 const birthDate = new Date(birthday);
@@ -173,12 +194,18 @@ class ImportService {
                 errors.push(`Ligne ${ligne} : ${courses} cours demandés mais seulement ${disponibilites.length} dispo(s).`);
             }
 
+            const level = parseInt(row[headers.indexOf("Niveau")] || "0", 10);
+            if (isNaN(level) || level < 0 || level > 30) {
+                errors.push(`Ligne ${ligne} : niveau invalide (${row[headers.indexOf("Niveau")]}) - doit être entre 0 et 30`);
+            }
+
+
             players.push({
                 name: nom,
                 surname: prenom,
                 birthday,
                 email: validEmail ? email : `default_${row[0] || "unknown"}@example.com`,
-                level: parseInt(row[headers.indexOf("Niveau")] || "0", 10),
+                level,
                 courses,
                 phone,
                 phone2: phone2 || undefined,
@@ -227,28 +254,56 @@ class ImportService {
                 errors.push(`Ligne ${ligne} : prénom invalide "${prenom}". Uniquement lettres, tirets, apostrophes autorisés.`);
             }
 
-
-            if (!ImportService.isValidName(nom)) {
-                errors.push(`Ligne ${ligne} : nom invalide "${nom}". Uniquement lettres, tirets, apostrophes autorisés.`);
+            const infLevel = parseInt(get("Niveau Min") || 0, 10);
+            const supLevel = parseInt(get("Niveau Max") || 0, 10);
+            if (isNaN(infLevel) || infLevel < 0 || infLevel > 30) {
+                errors.push(`Ligne ${ligne} : Niveau Min invalide (${infLevel})`);
+            }
+            if (isNaN(supLevel) || supLevel < 0 || supLevel > 30) {
+                errors.push(`Ligne ${ligne} : Niveau Max invalide (${supLevel})`);
             }
 
-            if (!ImportService.isValidName(prenom)) {
-                errors.push(`Ligne ${ligne} : prénom invalide "${prenom}". Uniquement lettres, tirets, apostrophes autorisés.`);
+            const cleanNumber = (val) => {
+                if (val === undefined || val === null || val === "") return 0;
+                return parseInt(val.toString().replace(/\s/g, ""), 10);
+            };
+
+            const { disponibilites, errors: dispoErrors } = ImportService.parseDisponibilities(row, headers, i);
+            errors.push(...dispoErrors);
+
+            let partTime = false;
+            let admin = false;
+
+            const rawPartTime = get("Vacataire");
+            if (ImportService.isYes(rawPartTime)) {
+                partTime = true;
+            } else if (ImportService.isNo(rawPartTime)) {
+                partTime = false;
+            } else {
+                errors.push(`Ligne ${ligne} : valeur invalide pour "Vacataire" (${rawPartTime}). Utilisez "oui" ou "non".`);
             }
 
-
+            const rawAdmin = get("Admin");
+            if (ImportService.isYes(rawAdmin)) {
+                admin = true;
+            } else if (ImportService.isNo(rawAdmin)) {
+                admin = false;
+            } else {
+                errors.push(`Ligne ${ligne} : valeur invalide pour "Admin" (${rawAdmin}). Utilisez "oui" ou "non".`);
+            }
             return {
                 name: nom,
                 surname: prenom,
-                infLevel: parseInt(get("Niveau Min") || 0, 10),
-                supLevel: parseInt(get("Niveau Max") || 0, 10),
+                infLevel,
+                supLevel,
                 infAge: parseInt(get("Âge Min") || 0, 10),
                 supAge: parseInt(get("Âge Max") || 0, 10),
-                minWeeklyMinutes: parseInt(get("Minutes Hebdo Min") || 0, 10),
-                maxWeeklyMinutes: parseInt(get("Minutes Hebdo Max") || 0, 10),
+                infWeeklyMinutes: cleanNumber(get("Minutes Hebdo Min")),
+                supWeeklyMinutes: cleanNumber(get("Minutes Hebdo Max")),
                 email: get("Email") || "",
-                isPartTime: (get("Vacataire") || "").toString().toLowerCase() === "oui",
-                isAdmin: (get("Admin") || "").toString().toLowerCase() === "oui",
+                partTime,
+                admin,
+                disponibilities: disponibilites,
             };
         }).filter(Boolean);
 
@@ -291,15 +346,20 @@ class ImportService {
             return false;
         };
 
+        const toMinutes = (time) => {
+            const [h, m] = time.split(":").map(Number);
+            return h * 60 + m;
+        };
+
         Object.entries(dayMapping).forEach(([day, dayIndex]) => {
             const colIndex = headers.indexOf(day);
             if (colIndex !== -1 && row[colIndex]) {
                 const slots = row[colIndex].toString().split(",");
+                const daySlots = [];
 
                 slots.forEach((timeRange) => {
-                    const [startRaw, stopRaw] = timeRange.trim().split("-").map(t => t.trim());
-
                     const cell = columnLetter(colIndex) + (rowIndex + 2);
+                    const [startRaw, stopRaw] = timeRange.trim().split("-").map(t => t.trim());
 
                     if (!startRaw || !stopRaw) {
                         errors.push(`Erreur dans ${cell} : horaire incomplet "${timeRange}"`);
@@ -318,6 +378,20 @@ class ImportService {
                         errors.push(`Erreur dans ${cell} : horaire invalide "${timeRange}". Format attendu : HH:00 ou HH:30`);
                         return;
                     }
+
+                    const startMin = toMinutes(open);
+                    const endMin = toMinutes(close);
+
+                    const isOverlapping = daySlots.some(({ start, end }) =>
+                        Math.max(start, startMin) < Math.min(end, endMin)
+                    );
+
+                    if (isOverlapping) {
+                        errors.push(`Chevauchement détecté dans ${cell} pour "${open} - ${close}"`);
+                        return;
+                    }
+
+                    daySlots.push({ start: startMin, end: endMin });
 
                     disponibilites.push({
                         dayWeek: dayIndex,
@@ -440,8 +514,8 @@ class ImportService {
                 supLevel: getValue(row, "Niveau Max", 0),
                 infGroup: getValue(row, "Groupe Min", 1),
                 supGroup: getValue(row, "Groupe Max", 1),
-                ageDiff: getValue(row, "Diff. d'âge m", 0),
-                levelDiff: getValue(row, "Diff. de niveau", 0),
+                ageDiff: getValue(row, "Diff. d'âge max", 0),
+                levelDiff: getValue(row, "Diff. de niveau max", 0),
                 duration: ImportService.parseDuration(row[headers.indexOf("Durée")])
             };
 
@@ -485,11 +559,24 @@ class ImportService {
 
         if (typeof date !== "string") return null;
 
+        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            return date;
+        }
+
         const regexDate = /^(\d{2})[\/-](\d{2})[\/-](\d{4})$/;
         const match = date.match(regexDate);
 
         return match ? `${match[3]}-${match[2]}-${match[1]}` : null;
     }
+
+    static isYes(value) {
+        return typeof value === "string" && /^[oO][uU][iI]$/.test(value.trim());
+    }
+
+    static isNo(value) {
+        return typeof value === "string" && /^[nN][oO][nN]$/.test(value.trim());
+    }
+
 
     static isValidSlot(time) {
         // Format attendu : HH:00 ou HH:30

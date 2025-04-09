@@ -1,6 +1,5 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import * as XLSX from "xlsx";
 import sessionsService from "../services/SessionService.js";
 import terrainService from "../services/TerrainService.js";
 import {getGroupAge, getGroupLevel} from "./conversionUtils.js";
@@ -91,8 +90,8 @@ class ExportPdf {
                     let tempColumnY = columnPositions[jour];
 
                     (sessionsByDay[jour] || []).forEach((session) => {
-                        let nextY = tempColumnY + 15;
-                        if (nextY > maxY) {
+                        const hauteur = calculerHauteurSession(doc, session, colWidth);
+                        if (tempColumnY + hauteur > maxY) {
                             overflowSessions.push({ jour, session, index: i });
                         } else {
                             tempColumnY = afficherSession(doc, session, startX + i * colWidth, tempColumnY, colWidth, getCoachColor);
@@ -141,63 +140,6 @@ class ExportPdf {
             console.error("Erreur lors de la génération du PDF :", error);
         }
     }
-
-    static async generateSessionsExcel() {
-        try {
-            const [sessionsResponse, terrainsResponse] = await Promise.all([
-                sessionsService.getAllSessions(),
-                terrainService.getAllTerrain(),
-            ]);
-
-            const sessions = sessionsResponse.data;
-            const terrains = terrainsResponse.data;
-
-            if (!sessions.length || !terrains.length) {
-                console.error("Aucune donnée disponible pour l'export.");
-                return;
-            }
-
-            const jours = {
-                1: "Lundi",
-                2: "Mardi",
-                3: "Mercredi",
-                4: "Jeudi",
-                5: "Vendredi",
-                6: "Samedi",
-            };
-
-            const data = [];
-
-            terrains.forEach(terrain => {
-                const terrainSessions = sessions.filter(s => s.idCourt?.id === terrain.id);
-
-                terrainSessions.forEach(session => {
-                    const coach = session.idTrainer
-                        ? `${session.idTrainer.name} ${session.idTrainer.surname}`
-                        : "Aucun entraîneur";
-
-                    const players = session.players.map(p => `${p.name} ${p.surname}`).join(", ");
-
-                    data.push({
-                        Terrain: terrain.name,
-                        Jour: jours[session.dayWeek] || "Inconnu",
-                        Heure: `${session.start} - ${session.stop}`,
-                        Entraîneur: coach,
-                        Joueurs: players,
-                    });
-                });
-            });
-
-            const worksheet = XLSX.utils.json_to_sheet(data);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Emploi du temps");
-
-            XLSX.writeFile(workbook, "emploi_du_temps.xlsx");
-        } catch (error) {
-            console.error("Erreur lors de l'export Excel :", error);
-        }
-    }
-
     static getJourLabel(dayWeek) {
         const jours = {
             1: "Lundi",
@@ -210,6 +152,15 @@ class ExportPdf {
         return jours[dayWeek] || "Jour inconnu";
     }
 }
+
+function calculerHauteurSession(doc, session, colWidth) {
+    let players = session.players.map(p => `${p.name} ${p.surname}`).join(", ");
+    const splitPlayers = doc.splitTextToSize(players, colWidth - 2);
+    const lineHeight = 3.5;
+    const totalHeight = splitPlayers.length * lineHeight;
+    return 5 + 5 + 1.5 + totalHeight + 3; // coach + age + ligne + joueurs + padding
+}
+
 
 function afficherSession(doc, session, x, y, colWidth, getCoachColor) {
     const coach = session.idTrainer ? `${session.idTrainer.name} ${session.idTrainer.surname}` : "Aucun entraîneur";
@@ -242,7 +193,11 @@ function afficherSession(doc, session, x, y, colWidth, getCoachColor) {
     doc.setFontSize(8);
     doc.text(splitPlayers, x, playersY);
 
-    return playersY + splitPlayers.length * 2.5 + 5;
+    const lineHeight = 3.5;
+    const totalHeight = splitPlayers.length * lineHeight;
+
+    return playersY + totalHeight + 3;
+
 }
 
 export default ExportPdf;

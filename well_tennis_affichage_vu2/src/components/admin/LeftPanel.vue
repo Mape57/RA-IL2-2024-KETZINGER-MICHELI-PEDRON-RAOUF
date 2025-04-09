@@ -5,10 +5,6 @@
   ]"
       class="bg-white rounded-lg shadow-md p-4 md:p-6 flex flex-col overflow-hidden w-full h-full"
   >
-  <!-- Bouton de fermeture -->
-    <button v-if="localIsMobile && isVisible" @click="$emit('close')" class="close-button">
-      <span class="material-symbols-outlined">close</span>
-    </button>
 
     <!-- Onglets -->
     <div class="tabs flex items-center mb-4">
@@ -28,6 +24,15 @@
         >
           <span class="material-symbols-outlined mr-2">gavel</span>
           <span v-if="!isMobile">Contraintes</span>
+        </button>
+
+        <button
+            v-if="localIsMobile && isVisible"
+            @click="$emit('close')"
+            class="close-button flex"
+            title="Fermer"
+        >
+          <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
@@ -92,6 +97,12 @@
         Télécharger les données (.xlsx)
       </button>
 
+      <button class="menu-item" @click="downloadSessionsByCourt">
+        <span class="material-symbols-outlined mr-2">table_chart</span>
+        Télécharger les sessions par terrain (.xlsx)
+      </button>
+
+
       <button class="menu-item" @click="downloadPDF">
         <span class="material-symbols-outlined mr-2">calendar_today</span>
         Télécharger le planning (.pdf)
@@ -126,10 +137,16 @@
       </button>
 
         <!-- Liste des inscrits en attente -->
-        <PlayerNot v-if="showPendingPlayers" :pendingPlayers="pendingPlayers" @update:pendingPlayers="updatePendingPlayers" />
+      <PlayerNot
+          v-if="showPendingPlayers"
+          :pendingPlayers="playersStore.pendingPlayers"
+          @update:pendingPlayers="updatePendingPlayers"
+      />
 
 
-      </div>
+
+
+    </div>
     </div>
     <PopupMessage
         v-if="showPopup"
@@ -166,9 +183,7 @@ import PlayerNot from "../vueInformations/PlayerNot.vue";
 import PopupMessage from "../../components/PopupMessage.vue";
 import ConfirmDialog from "../../components/ConfirmDialog.vue";
 import { useSessionsStore } from "../../store/useSessionsStore";
-
-
-
+import ExportSessions from "../../functionality/ExportSessions";
 
 export default {
   name: "LeftPanel",
@@ -192,9 +207,11 @@ export default {
     const selectedPlayer = ref(null);
     const showPendingPlayers = ref(false);
     const terrainErrors = ref([]);
-    // We'll use the loading states from the stores
     const playersStore = usePlayersStore();
+    const fetchPendingPlayers = playersStore.fetchPendingPlayers;
     const trainersStore = useTrainersStore();
+    const pendingPlayers = computed(() => playersStore.pendingPlayers);
+
 
 
     watch(() => props.isMobile, (newVal) => {
@@ -216,7 +233,7 @@ export default {
     });
 
     const updatePendingPlayers = (updatedList) => {
-      pendingPlayers.value = updatedList;
+      playersStore.pendingPlayers = updatedList;
     };
 
 
@@ -237,7 +254,6 @@ export default {
     const { terrains, fetchTerrains } = useTerrain();
     // We'll use searchQuery and selectedTab from useLeftPanel but players and trainers will come from the stores
     const { searchQuery, selectedTab, selectTab } = useLeftPanel();
-    const { pendingPlayers, fetchPendingPlayers } = usePlayersStore();
     // Get references to the data from the stores
     const players = computed(() => playersStore.players);
     const trainers = computed(() => trainersStore.trainers);
@@ -245,9 +261,10 @@ export default {
     const validatePlayer = async (playerId) => {
       try {
         await PlayersService.updatePlayer(playerId, { validate: true });
-        pendingPlayers.value = pendingPlayers.value.filter(player => player.id !== playerId);
-        selectedPlayer.value = null; // Fermer la modale après validation
+        playersStore.pendingPlayers = playersStore.pendingPlayers.filter(player => player.id !== playerId);
+        selectedPlayer.value = null;
       } catch (error) {
+        console.error("Erreur lors de la validation :", error);
       }
     };
 
@@ -383,6 +400,21 @@ export default {
       this.showPopup = true;
     },
 
+    async downloadSessionsByCourt() {
+      try {
+        const sessionsStore = useSessionsStore();
+        await ExportSessions.export(sessionsStore.sessions);
+        this.popupMessage = "Sessions exportées par terrain avec succès !";
+        this.popupType = "success";
+        this.showPopup = true;
+      } catch (error) {
+        console.error("Erreur lors de l'export des sessions :", error);
+        this.popupMessage = "Erreur lors de l'export des sessions.";
+        this.popupType = "error";
+        this.showPopup = true;
+      }
+    },
+
     async sendReinscriptionMail() {
       try {
         const sessionsStore = useSessionsStore();
@@ -496,6 +528,18 @@ export default {
   justify-content: center;
 }
 
+.close-button {
+  color: gray;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+  padding-bottom: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  color: #3a6242;
+}
 .tab-button.active::after {
   content: "";
   position: absolute;
@@ -512,27 +556,9 @@ export default {
   color: #2f855a;
 }
 
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  color: #528359;
-}
-
-.close-button:hover {
-  color: #3a6242;
-}
 
 .tab-button span {
   display: inline;
-}
-
-.close-button:hover {
-  color: #3a6242;
 }
 
 .menu-item {
